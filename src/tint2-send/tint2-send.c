@@ -118,7 +118,7 @@ int main(int argc, char **argv)
 
     argc--, argv++;
     if (!argc) {
-        fprintf(stderr, "Usage: tint2-show show\n");
+        fprintf(stderr, "Usage: tint2-show [show|hide]\n");
         exit(1);
     }
     char *action = argv[0];

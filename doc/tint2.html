@@ -372,8 +372,9 @@ execp_continuous = 1
 execp_interval = 1
 execp_markup = 1
 </code></pre>
-<h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code>execp = new
-execp_command = free -s 2 | awk '/^-/ { printf "Mem: '$(free -h | awk '/^Mem:/ { print $2 }')' %.0f%\n", 100*$3/($3+$4); fflush(stdout) }'
+<h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code># "stdbuf -oL" noticed to give better performance than fflush() from awk code
+execp = new
+execp_command = free -b -s1 | stdbuf -oL awk '/^Mem:/ { printf "Mem: %.1fGi %.0f%%\n", $2 / (2^30), 100 * ($2 - $7) / $2 }'
 execp_interval = 1
 execp_continuous = 1
 </code></pre>

@@ -694,9 +694,9 @@ execp_markup = 1
 ##### Memory usage
 
 ```
-# "stdbuf -oL" noticed to give better performance than fflush() from awk code
+# Though unnecessary here, "stdbuf -oL" performs better than fflush() in awk code
 execp = new
-execp_command = free -b -s1 | stdbuf -oL awk '/^Mem:/ { printf "Mem: %.1fGi %.0f%%\n", $2 / (2^30), 100 * ($2 - $7) / $2 }'
+execp_command = free -b -s1 | stdbuf -oL awk '/^Mem:/ { c="numfmt --to=si"; print $2 |& c; c |& getline a; printf "Mem: %s %.0f%%\n", a, 100 * ($2 - $7) / $2 }'
 execp_interval = 1
 execp_continuous = 1
 ```

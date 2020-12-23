@@ -374,7 +374,7 @@ execp_markup = 1
 </code></pre>
 <h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><pre class="highlight plaintext"><code># Though unnecessary here, "stdbuf -oL" performs better than fflush() in awk code
 execp = new
-execp_command = free -b -s1 | stdbuf -oL awk &lsquo;/^Mem:/ { c=&ldquo;numfmt &ndash;to=si&rdquo;; print $2 |&amp; c; c |&amp; getline a; printf &ldquo;Mem: %s %.0f%%\n&rdquo;, a, 100 * ($2 - $7) / $2 }&rsquo;
+execp_command = free -b -s1 | stdbuf -oL awk '/^Mem:/ { printf "Mem: %s %.0f%%\n", $2, 100 * ($2 - $7) / $2 }' | stdbuf -oL numfmt --to=iec-i --field=2 -d' '
 execp_interval = 1
 execp_continuous = 1
 </code></pre>

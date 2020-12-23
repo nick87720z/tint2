@@ -705,7 +705,7 @@ execp_continuous = 1
 
 ```
 execp = new
-execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | awk -F ';' '/total/ { printf "Net: %.0f Mb/s\n", ($5*8/1.0e6) }; fflush(stdout)'
+execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | stdbuf -oL awk -F ';' '/total/ { printf "Net: %.0f Mb/s\n", ($5*8/1.0e6) }'
 execp_continuous = 1
 execp_interval = 1
 ```

@@ -694,7 +694,7 @@ execp_markup = 1
 ##### Memory usage
 
 ```
-# Though unnecessary here, "stdbuf -oL" performs better than fflush() in awk code
+# Note the use of "stdbuf -oL" to force the program to flush the output line by line.
 execp = new
 execp_command = free -b -s1 | stdbuf -oL awk '/^Mem:/ { printf "Mem: %s %.0f%%\n", $2, 100 * ($2 - $7) / $2 }' | stdbuf -oL numfmt --to=iec-i --field=2 -d' '
 execp_interval = 1
@@ -704,7 +704,6 @@ execp_continuous = 1
 ##### Network load
 
 ```
-# Note the use of "stdbuf -oL" to force the program to flush the output line by line.
 execp = new
 execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | awk -F ';' '/total/ { printf "Net: %.0f Mb/s\n", ($5*8/1.0e6) }; fflush(stdout)'
 execp_continuous = 1

@@ -129,17 +129,28 @@ struct tm *clock_gettime_for_tz(const char *timezone)
     }
 }
 
+void update_clock_text(char *dst, size_t size, const char *format,
+                       const char *timezone, bool *changed)
+{
+    if (!dst || !format) {
+        return;
+    }
+    char tmp[256] = "";
+    strncpy(tmp, dst, sizeof(tmp) - 1);
+    strftime(dst, size, format, clock_gettime_for_tz(timezone));
+    *changed = *changed || strcmp(dst, tmp) != 0;
+}
+
 void update_clocks()
 {
-    if (time1_format)
-        strftime(buf_time, sizeof(buf_time), time1_format, clock_gettime_for_tz(time1_timezone));
-    if (time2_format)
-        strftime(buf_date, sizeof(buf_date), time2_format, clock_gettime_for_tz(time2_timezone));
-    if (time1_format || time2_format) {
+    bool changed = false;
+    update_clock_text(buf_time, sizeof(buf_time), time1_format, time1_timezone, &changed);
+    update_clock_text(buf_date, sizeof(buf_date), time2_format, time2_timezone, &changed);
+    if (changed) {
         for (int i = 0; i < num_panels; i++)
             panels[i].clock.area.resize_needed = 1;
+        schedule_panel_redraw();
     }
-    schedule_panel_redraw();
 }
 
 int ms_until_second_change(struct timeval* tm)
@@ -155,33 +166,6 @@ void update_clocks_sec(void *arg)
     gettimeofday(&time_clock, 0);
     update_clocks();
     change_timer(&clock_timer, true, ms_until_second_change(&time_clock), 0, update_clocks_sec, 0);
-}
-
-void update_clocks_min(void *arg)
-{
-    // remember old_sec because after suspend/hibernate the clock should be updated directly, and not
-    // on next minute change
-    static time_t old_sec = 0;
-    gettimeofday(&time_clock, 0);
-    if (time_clock.tv_sec % 60 == 0 || time_clock.tv_sec - old_sec > 60 || (time1_format && !buf_time[0]) || (time2_format && !buf_date[0]))
-        update_clocks();
-    old_sec = time_clock.tv_sec;
-    change_timer(&clock_timer, true, ms_until_second_change(&time_clock), 0, update_clocks_min, 0);
-}
-
-gboolean time_format_needs_sec_ticks(char *time_format)
-{
-    if (!time_format)
-        return FALSE;
-    if (strchr(time_format, 'c') ||
-        strchr(time_format, 'r') ||
-        strchr(time_format, 's') ||
-        strchr(time_format, 'S') ||
-        strchr(time_format, 'T') ||
-        strchr(time_format, 'X') ||
-        strchr(time_format, '+'))
-        return TRUE;
-    return FALSE;
 }
 
 void init_clock()
@@ -222,11 +206,7 @@ void init_clock_panel(void *p)
     }
 
     if (!clock_timer.enabled_) {
-        if (time_format_needs_sec_ticks(time1_format) || time_format_needs_sec_ticks(time2_format)) {
-            update_clocks_sec(NULL);
-        } else {
-            update_clocks_min(NULL);
-        }
+        update_clocks_sec(NULL);
     }
 }
 

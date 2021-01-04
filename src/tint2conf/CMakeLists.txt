@@ -7,7 +7,7 @@ pkg_check_modules( GLIB2 REQUIRED glib-2.0 )
 pkg_check_modules( GOBJECT2 REQUIRED gobject-2.0 )
 pkg_check_modules( IMLIB2 REQUIRED imlib2 )
 pkg_check_modules( GTHREAD2 REQUIRED gthread-2.0 )
-pkg_check_modules( GTK2 REQUIRED gtk+-x11-2.0 )
+pkg_check_modules( GTK3 REQUIRED gtk+-x11-3.0 )
 pkg_check_modules( RSVG librsvg-2.0>=2.36.0 )
 
 include_directories( ../util
@@ -16,7 +16,7 @@ include_directories( ../util
                      ${GOBJECT2_INCLUDE_DIRS}
                      ${IMLIB2_INCLUDE_DIRS}
                      ${GTHREAD2_INCLUDE_DIRS}
-                     ${GTK2_INCLUDE_DIRS}
+                     ${GTK3_INCLUDE_DIRS}
                      ${RSVG_INCLUDE_DIRS} )
 
 set(SOURCES ../util/common.c
@@ -55,7 +55,7 @@ link_directories( ${X11_T2C_LIBRARY_DIRS}
                   ${GOBJECT2_LIBRARY_DIRS}
                   ${IMLIB2_LIBRARY_DIRS}
                   ${GTHREAD2_LIBRARY_DIRS}
-                  ${GTK2_LIBRARY_DIRS}
+                  ${GTK3_LIBRARY_DIRS}
                   ${RSVG_LIBRARY_DIRS} )
 add_executable( tint2conf ${SOURCES} )
 target_link_libraries( tint2conf ${X11_T2C_LIBRARIES}
@@ -63,13 +63,14 @@ target_link_libraries( tint2conf ${X11_T2C_LIBRARIES}
                                  ${GOBJECT2_LIBRARIES}
                                  ${IMLIB2_LIBRARIES}
                                  ${GTHREAD2_LIBRARIES}
-                                 ${GTK2_LIBRARIES}
+                                 ${GTK3_LIBRARIES}
                                  ${RSVG_LIBRARIES} )
 
 add_definitions( -DINSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\" )
 add_definitions( -DLOCALEDIR=\"${CMAKE_INSTALL_FULL_LOCALEDIR}\" )
 add_definitions( -DGETTEXT_PACKAGE=\"tint2conf\" )
-set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS "-Wall -pthread -std=c99" )
+add_definitions( -DDGLIB_DISABLE_DEPRECATION_WARNINGS=1 )
+set_target_properties( tint2conf PROPERTIES COMPILE_FLAGS "-Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wpointer-arith -fno-strict-aliasing -pthread -std=c99 -Werror-implicit-function-declaration -Wno-deprecated -Wno-deprecated-declarations" )
 set_target_properties( tint2conf PROPERTIES LINK_FLAGS "-pthread" )
 
 add_subdirectory(po)

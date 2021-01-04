@@ -1855,10 +1855,12 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "launcher_apps_dir") == 0) {
         char *path = expand_tilde(value);
 
-        if (gtk_entry_get_text_length(GTK_ENTRY(launcher_apps_dirs)) > 0) {
-            gtk_entry_append_text(GTK_ENTRY(launcher_apps_dirs), ",");
+        int position = gtk_entry_get_text_length(GTK_ENTRY(launcher_apps_dirs));
+        if (position > 0) {
+            gtk_editable_insert_text(GTK_EDITABLE(launcher_apps_dirs), ",", 1, &position);
         }
-        gtk_entry_append_text(GTK_ENTRY(launcher_apps_dirs), path);
+        position = gtk_entry_get_text_length(GTK_ENTRY(launcher_apps_dirs));
+        gtk_editable_insert_text(GTK_EDITABLE(launcher_apps_dirs), path, strlen(path), &position);
 
         free(path);
     } else if (strcmp(key, "launcher_icon_theme") == 0) {

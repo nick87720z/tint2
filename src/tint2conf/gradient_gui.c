@@ -32,7 +32,7 @@ GtkWidget *create_gradient_combo()
 
 void create_gradient(GtkWidget *parent)
 {
-    gradient_ids = gtk_list_store_new(grNumCols, GDK_TYPE_PIXBUF, GTK_TYPE_INT, GTK_TYPE_STRING);
+    gradient_ids = gtk_list_store_new(grNumCols, GDK_TYPE_PIXBUF, G_TYPE_INT, G_TYPE_STRING);
     gradients = NULL;
 
     gradient_stop_ids = gtk_list_store_new(grStopNumCols, GDK_TYPE_PIXBUF);
@@ -61,13 +61,13 @@ void create_gradient(GtkWidget *parent)
     col++;
 
     button = gtk_button_new_from_stock("gtk-add");
-    gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_duplicate), NULL);
+    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_duplicate), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     button = gtk_button_new_from_stock("gtk-remove");
-    gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_delete), NULL);
+    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_delete), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -85,13 +85,13 @@ void create_gradient(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    gradient_combo_type = gtk_combo_box_new_text();
+    gradient_combo_type = gtk_combo_box_text_new();
     gtk_widget_show(gradient_combo_type);
     gtk_table_attach(GTK_TABLE(table), gradient_combo_type, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_combo_box_append_text(GTK_COMBO_BOX(gradient_combo_type), _("Vertical"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(gradient_combo_type), _("Horizontal"));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(gradient_combo_type), _("Radial"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gradient_combo_type), _("Vertical"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gradient_combo_type), _("Horizontal"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(gradient_combo_type), _("Radial"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(gradient_combo_type), 0);
 
     row++, col = 2;
@@ -142,13 +142,13 @@ void create_gradient(GtkWidget *parent)
     col++;
 
     button = gtk_button_new_from_stock("gtk-add");
-    gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_stop_duplicate), NULL);
+    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_stop_duplicate), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     button = gtk_button_new_from_stock("gtk-remove");
-    gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_stop_delete), NULL);
+    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_stop_delete), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -327,18 +327,17 @@ void gradient_update_image(int index)
 
     int w = 70;
     int h = 30;
-    GdkPixmap *pixmap = gdk_pixmap_new(NULL, w, h, 24);
+    cairo_surface_t *pixmap = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
 
-    cairo_t *cr = gdk_cairo_create(pixmap);
+    cairo_t *cr = cairo_create(pixmap);
     cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
     cairo_rectangle(cr, 0, 0, w, h);
     cairo_fill(cr);
 
     gradient_draw(cr, g, w, h, FALSE);
 
-    GdkPixbuf *pixbuf = gdk_pixbuf_get_from_drawable(NULL, pixmap, gdk_colormap_get_system(), 0, 0, 0, 0, w, h);
-    if (pixmap)
-        g_object_unref(pixmap);
+    GdkPixbuf *pixbuf = gdk_pixbuf_get_from_surface(pixmap, 0, 0, w, h);
+    cairo_surface_destroy(pixmap);
 
     GtkTreePath *path;
     GtkTreeIter iter;
@@ -528,16 +527,14 @@ void gradient_stop_update_image(int index)
 
     int w = 70;
     int h = 30;
-    GdkPixmap *pixmap = gdk_pixmap_new(NULL, w, h, 24);
-
-    cairo_t *cr = gdk_cairo_create(pixmap);
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
+    cairo_t *cr = cairo_create(s);
     cairo_set_source_rgba(cr, stop->color.rgb[0], stop->color.rgb[1], stop->color.rgb[2], stop->color.alpha);
     cairo_rectangle(cr, 0, 0, w, h);
     cairo_fill(cr);
 
-    GdkPixbuf *pixbuf = gdk_pixbuf_get_from_drawable(NULL, pixmap, gdk_colormap_get_system(), 0, 0, 0, 0, w, h);
-    if (pixmap)
-        g_object_unref(pixmap);
+    GdkPixbuf *pixbuf = gdk_pixbuf_get_from_surface(s, 0, 0, w, h);
+    cairo_surface_destroy(s);
 
     GtkTreePath *path;
     GtkTreeIter iter;

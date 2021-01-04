@@ -95,7 +95,7 @@ void create_background(GtkWidget *parent)
     backgrounds = gtk_list_store_new(bgNumCols,
                                      GDK_TYPE_PIXBUF,
                                      GDK_TYPE_COLOR,
-                                     GTK_TYPE_INT,
+                                     GTK_TYPE_SHADOW_TYPE,
                                      GDK_TYPE_COLOR,
                                      GTK_TYPE_INT,
                                      GTK_TYPE_INT,
@@ -121,7 +121,6 @@ void create_background(GtkWidget *parent)
 
     GtkWidget *table, *label, *button;
     int row, col;
-    GtkTooltips *tooltips = gtk_tooltips_new();
 
     table = gtk_table_new(1, 4, FALSE);
     gtk_widget_show(table);
@@ -141,21 +140,21 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(current_background);
     gtk_table_attach(GTK_TABLE(table), current_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, current_background, _("Selects the background you would like to modify"), NULL);
+    gtk_widget_set_tooltip_text(current_background, _("Selects the background you would like to modify"));
 
     button = gtk_button_new_from_stock("gtk-add");
-    gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(background_duplicate), NULL);
+    g_signal_connect(button, "clicked", G_CALLBACK(background_duplicate), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, button, _("Creates a copy of the current background"), NULL);
+    gtk_widget_set_tooltip_text(button, _("Creates a copy of the current background"));
 
     button = gtk_button_new_from_stock("gtk-remove");
-    gtk_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(background_delete), NULL);
+    g_signal_connect(button, "clicked", G_CALLBACK(background_delete), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, button, _("Deletes the current background"), NULL);
+    gtk_widget_set_tooltip_text(button, _("Deletes the current background"));
 
     table = gtk_table_new(4, 4, FALSE);
     gtk_widget_show(table);
@@ -175,7 +174,7 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_fill_color);
     gtk_table_attach(GTK_TABLE(table), background_fill_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_fill_color, _("The fill color of the current background"), NULL);
+    gtk_widget_set_tooltip_text(background_fill_color, _("The fill color of the current background"));
 
     row++, col = 2;
     label = gtk_label_new(_("Fill tint"));
@@ -188,7 +187,7 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_fill_content_tint_weight);
     gtk_table_attach(GTK_TABLE(table), background_fill_content_tint_weight, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_fill_content_tint_weight, _("How much the border color should be tinted with the content color"), NULL);
+    gtk_widget_set_tooltip_text(background_fill_content_tint_weight, _("How much the border color should be tinted with the content color"));
 
     row++, col = 2;
     label = gtk_label_new(_("Border color"));
@@ -202,7 +201,7 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_border_color);
     gtk_table_attach(GTK_TABLE(table), background_border_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_border_color, _("The border color of the current background"), NULL);
+    gtk_widget_set_tooltip_text(background_border_color, _("The border color of the current background"));
 
     row++, col = 2;
     label = gtk_label_new(_("Border tint"));
@@ -215,7 +214,7 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_border_content_tint_weight);
     gtk_table_attach(GTK_TABLE(table), background_border_content_tint_weight, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_border_content_tint_weight, _("How much the border color should be tinted with the content color"), NULL);
+    gtk_widget_set_tooltip_text(background_border_content_tint_weight, _("How much the border color should be tinted with the content color"));
 
     row++, col = 2;
     label = gtk_label_new(_("Gradient"));
@@ -241,10 +240,8 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_fill_color_over);
     gtk_table_attach(GTK_TABLE(table), background_fill_color_over, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         background_fill_color_over,
-                         _("The fill color of the current background on mouse over"),
-                         NULL);
+    gtk_widget_set_tooltip_text(background_fill_color_over,
+                         _("The fill color of the current background on mouse over"));
 
     row++, col = 2;
     label = gtk_label_new(_("Border color (mouse over)"));
@@ -258,10 +255,9 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_border_color_over);
     gtk_table_attach(GTK_TABLE(table), background_border_color_over, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
+    gtk_widget_set_tooltip_text(
                          background_border_color_over,
-                         _("The border color of the current background on mouse over"),
-                         NULL);
+                         _("The border color of the current background on mouse over"));
 
     row++, col = 2;
     label = gtk_label_new(_("Gradient (mouse over)"));
@@ -287,10 +283,8 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_fill_color_press);
     gtk_table_attach(GTK_TABLE(table), background_fill_color_press, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         background_fill_color_press,
-                         _("The fill color of the current background on mouse button press"),
-                         NULL);
+    gtk_widget_set_tooltip_text(background_fill_color_press,
+                         _("The fill color of the current background on mouse button press"));
 
     row++, col = 2;
     label = gtk_label_new(_("Border color (pressed)"));
@@ -304,10 +298,8 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_border_color_press);
     gtk_table_attach(GTK_TABLE(table), background_border_color_press, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         background_border_color_press,
-                         _("The border color of the current background on mouse button press"),
-                         NULL);
+    gtk_widget_set_tooltip_text(background_border_color_press,
+                         _("The border color of the current background on mouse button press"));
 
     row++, col = 2;
     label = gtk_label_new(_("Gradient (pressed)"));
@@ -332,10 +324,8 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_border_width);
     gtk_table_attach(GTK_TABLE(table), background_border_width, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         background_border_width,
-                         _("The width of the border of the current background, in pixels"),
-                         NULL);
+    gtk_widget_set_tooltip_text(background_border_width,
+                         _("The width of the border of the current background, in pixels"));
 
     row++, col = 2;
     label = gtk_label_new(_("Corner radius"));
@@ -348,7 +338,7 @@ void create_background(GtkWidget *parent)
     gtk_widget_show(background_corner_radius);
     gtk_table_attach(GTK_TABLE(table), background_corner_radius, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips, background_corner_radius, _("The corner radius of the current background"), NULL);
+    gtk_widget_set_tooltip_text(background_corner_radius, _("The corner radius of the current background"));
 
     row++;
     col = 2;
@@ -712,9 +702,8 @@ void background_update_image(int index)
     g_boxed_free(GDK_TYPE_COLOR, fillColor);
     g_boxed_free(GDK_TYPE_COLOR, borderColor);
 
-    GdkPixmap *pixmap = gdk_pixmap_new(NULL, w, h, 24);
-
-    cairo_t *cr = gdk_cairo_create(pixmap);
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
+    cairo_t *cr = cairo_create(s);
     cairo_set_line_width(cr, b);
 
     cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
@@ -744,13 +733,12 @@ void background_update_image(int index)
     cairo_destroy(cr);
     cr = NULL;
 
-    pixbuf = gdk_pixbuf_get_from_drawable(NULL, pixmap, gdk_colormap_get_system(), 0, 0, 0, 0, w, h);
-    if (pixmap)
-        g_object_unref(pixmap);
+    pixbuf = gdk_pixbuf_get_from_surface(s, 0, 0, w, h);
 
     gtk_list_store_set(backgrounds, &iter, bgColPixbuf, pixbuf, -1);
     if (pixbuf)
         g_object_unref(pixbuf);
+    cairo_surface_destroy(s);
 }
 
 void background_force_update()

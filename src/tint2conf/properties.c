@@ -234,10 +234,17 @@ GtkWidget *create_properties()
     dialog_vbox3 = gtk_dialog_get_content_area(GTK_DIALOG(view));
     gtk_widget_show(dialog_vbox3);
 
+    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
+                                   GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_AUTOMATIC);
+    gtk_box_pack_start(GTK_BOX(dialog_vbox3), scroll, TRUE, TRUE, 1);
+    gtk_widget_show(scroll);
+
     notebook = gtk_notebook_new();
     gtk_widget_show(notebook);
     gtk_container_set_border_width(GTK_CONTAINER(notebook), 5);
-    gtk_box_pack_start(GTK_BOX(dialog_vbox3), notebook, TRUE, TRUE, 6);
+    gtk_container_add(GTK_CONTAINER(scroll), notebook);
     gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_LEFT);
 
     button = gtk_button_new_from_stock("gtk-apply");

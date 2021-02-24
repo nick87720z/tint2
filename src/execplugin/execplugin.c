@@ -45,6 +45,13 @@ Execp *create_execp()
     execp->backend->font_color.alpha = 0.5;
     execp->backend->monitor = -1;
     INIT_TIMER(execp->backend->timer);
+    execp->backend->bg = &g_array_index(backgrounds, Background, 0);
+    execp->backend->buf_stdout_capacity = 1024;
+    execp->backend->buf_stdout = calloc(execp->backend->buf_stdout_capacity, 1);
+    execp->backend->buf_stderr_capacity = 1024;
+    execp->backend->buf_stderr = calloc(execp->backend->buf_stderr_capacity, 1);
+    execp->backend->text = strdup("");
+    execp->backend->icon_path = NULL;
     return execp;
 }
 
@@ -57,7 +64,10 @@ gpointer create_execp_frontend(gconstpointer arg, gpointer data)
         printf("Skipping executor '%s' with monitor %d for panel on monitor %d\n",
                execp_backend->backend->command,
                execp_backend->backend->monitor, panel->monitor);
-        return NULL;
+        Execp *dummy = create_execp();
+        dummy->frontend = (ExecpFrontend *)calloc(1, sizeof(ExecpFrontend));
+        dummy->backend->instances = g_list_append(execp_backend->backend->instances, dummy);
+        return dummy;
     }
     printf("Creating executor '%s' with monitor %d for panel on monitor %d\n",
            execp_backend->backend->command,
@@ -156,12 +166,6 @@ void init_execp()
         // Set missing config options
         if (!execp->backend->bg)
             execp->backend->bg = &g_array_index(backgrounds, Background, 0);
-        execp->backend->buf_stdout_capacity = 1024;
-        execp->backend->buf_stdout = calloc(execp->backend->buf_stdout_capacity, 1);
-        execp->backend->buf_stderr_capacity = 1024;
-        execp->backend->buf_stderr = calloc(execp->backend->buf_stderr_capacity, 1);
-        execp->backend->text = strdup("");
-        execp->backend->icon_path = NULL;
     }
 }
 
@@ -176,7 +180,6 @@ void init_execp_panel(void *p)
     // panel->execp_list is now a copy of the pointer panel_config.execp_list
     // We make it a deep copy
     panel->execp_list = g_list_copy_deep(panel_config.execp_list, create_execp_frontend, panel);
-    panel->execp_list = g_list_remove_all(panel->execp_list, NULL);
 
     for (GList *l = panel->execp_list; l; l = l->next) {
         Execp *execp = l->data;

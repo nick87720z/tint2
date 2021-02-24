@@ -269,8 +269,9 @@ void init_panel()
                 init_freespace_panel(p);
             if (panel_items_order[k] == ':')
                 init_separator_panel(p);
-            if (panel_items_order[k] == 'E')
+            if (panel_items_order[k] == 'E') {
                 init_execp_panel(p);
+            }
             if (panel_items_order[k] == 'P')
                 init_button_panel(p);
         }

@@ -4374,6 +4374,31 @@ void create_execp(GtkWidget *notebook, int i)
                            "that print data downloaded from the Internet is a potential security risk."),
                          NULL);
 
+    row++, col = 2;
+    label = gtk_label_new(_("Monitor"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    executor->execp_monitor = gtk_combo_box_text_new();
+    gtk_widget_show(executor->execp_monitor);
+    gtk_table_attach(GTK_TABLE(table), executor->execp_monitor, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("All"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("Primary"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("1"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("2"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("3"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("4"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("5"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("6"));
+    gtk_combo_box_set_active(GTK_COMBO_BOX(executor->execp_monitor), 0);
+    gtk_tooltips_set_tip(tooltips,
+                         executor->execp_monitor,
+                         _("Specifies the monitor on which to place the executor."),
+                         NULL);
+
     change_paragraph(parent);
 
     label = gtk_label_new(_("<b>Mouse events</b>"));

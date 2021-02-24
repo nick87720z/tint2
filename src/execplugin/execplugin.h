@@ -24,6 +24,7 @@ typedef struct ExecpBackend {
     char *command;
     // Interval in seconds
     int interval;
+    int monitor;
     // 1 if first line of output is an icon path
     gboolean has_icon;
     gboolean cache_icon;

@@ -621,6 +621,8 @@ The action semantics:
 
   * `execp_padding = horizontal_padding vertical_padding spacing_between_icon_and_text` *(since 0.12.4)*
 
+  * `execp_monitor = integer (1, 2, ...), primary or all` :  On which monitor to draw the executor. The first monitor is `1`. *(since 17.0)*
+
   * `execp_lclick_command = text` : Command to execute on left click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.12.4)*
   * `execp_mclick_command = text` : Command to execute on right click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.12.4)*
   * `execp_rclick_command = text` : Command to execute on middle click. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.12.4)*

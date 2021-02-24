@@ -871,6 +871,16 @@ void config_write_execp(FILE *fp)
         fprintf(fp,
                 "execp_markup = %d\n",
                 gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_markup)) ? 1 : 0);
+        fprintf(fp, "execp_monitor = ");
+        if (gtk_combo_box_get_active(GTK_COMBO_BOX(executor->execp_monitor)) <= 0) {
+            fprintf(fp, "all");
+        } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(executor->execp_monitor)) == 1) {
+            fprintf(fp, "primary");
+        } else {
+            fprintf(fp, "%d", MAX(1, gtk_combo_box_get_active(GTK_COMBO_BOX(executor->execp_monitor)) - 1));
+        }
+        fprintf(fp, "\n");
+
         if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_show_tooltip))) {
             fprintf(fp, "execp_tooltip = \n");
         } else {
@@ -1964,6 +1974,23 @@ void add_entry(char *key, char *value)
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_continuous), atoi(value));
     } else if (strcmp(key, "execp_markup") == 0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_markup), atoi(value));
+    } else if (strcmp(key, "execp_monitor") == 0) {
+        if (strcmp(value, "all") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 0);
+        else if (strcmp(value, "primary") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 1);
+        else if (strcmp(value, "1") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 2);
+        else if (strcmp(value, "2") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 3);
+        else if (strcmp(value, "3") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 4);
+        else if (strcmp(value, "4") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 5);
+        else if (strcmp(value, "5") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 6);
+        else if (strcmp(value, "6") == 0)
+            gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_monitor), 7);
     } else if (strcmp(key, "execp_tooltip") == 0) {
         if (strlen(value) > 0) {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_show_tooltip), 1);

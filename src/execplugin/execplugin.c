@@ -43,6 +43,7 @@ Execp *create_execp()
     execp->backend->cache_icon = TRUE;
     execp->backend->centered = TRUE;
     execp->backend->font_color.alpha = 0.5;
+    execp->backend->monitor = -1;
     INIT_TIMER(execp->backend->timer);
     return execp;
 }
@@ -50,6 +51,17 @@ Execp *create_execp()
 gpointer create_execp_frontend(gconstpointer arg, gpointer data)
 {
     Execp *execp_backend = (Execp *)arg;
+    Panel *panel = data;
+    if (execp_backend->backend->monitor >= 0 &&
+        panel->monitor != execp_backend->backend->monitor) {
+        printf("Skipping executor '%s' with monitor %d for panel on monitor %d\n",
+               execp_backend->backend->command,
+               execp_backend->backend->monitor, panel->monitor);
+        return NULL;
+    }
+    printf("Creating executor '%s' with monitor %d for panel on monitor %d\n",
+           execp_backend->backend->command,
+           execp_backend->backend->monitor, panel->monitor);
 
     Execp *execp_frontend = (Execp *)calloc(1, sizeof(Execp));
     execp_frontend->backend = execp_backend->backend;
@@ -163,7 +175,8 @@ void init_execp_panel(void *p)
 
     // panel->execp_list is now a copy of the pointer panel_config.execp_list
     // We make it a deep copy
-    panel->execp_list = g_list_copy_deep(panel_config.execp_list, create_execp_frontend, NULL);
+    panel->execp_list = g_list_copy_deep(panel_config.execp_list, create_execp_frontend, panel);
+    panel->execp_list = g_list_remove_all(panel->execp_list, NULL);
 
     for (GList *l = panel->execp_list; l; l = l->next) {
         Execp *execp = l->data;

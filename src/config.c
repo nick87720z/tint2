@@ -697,6 +697,9 @@ void add_entry(char *key, char *value)
         } else {
             execp->backend->interval = v;
         }
+    } else if (strcmp(key, "execp_monitor") == 0) {
+        Execp *execp = get_or_create_last_execp();
+        execp->backend->monitor = config_get_monitor(value);
     } else if (strcmp(key, "execp_has_icon") == 0) {
         Execp *execp = get_or_create_last_execp();
         execp->backend->has_icon = atoi(value);

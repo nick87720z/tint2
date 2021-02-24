@@ -133,7 +133,7 @@ typedef struct Executor {
     GtkWidget *page_execp;
     GtkWidget *page_label;
     GtkWidget *execp_command, *execp_interval, *execp_has_icon, *execp_cache_icon, *execp_show_tooltip;
-    GtkWidget *execp_continuous, *execp_markup, *execp_tooltip;
+    GtkWidget *execp_continuous, *execp_markup, *execp_tooltip, *execp_monitor;
     GtkWidget *execp_left_command, *execp_right_command;
     GtkWidget *execp_mclick_command, *execp_rclick_command, *execp_uwheel_command, *execp_dwheel_command;
     GtkWidget *execp_font, *execp_font_set, *execp_font_color, *execp_padding_x, *execp_padding_y, *execp_centered;

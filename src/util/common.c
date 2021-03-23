@@ -794,8 +794,8 @@ Imlib_Image load_image(const char *path, int cached)
     static unsigned long counter = 0;
     if (debug_icons)
         fprintf(stderr, "tint2: loading icon %s\n", path);
-#ifdef HAVE_RSVG
     image = imlib_load_image(path);
+#ifdef HAVE_RSVG
     if (!image && g_str_has_suffix(path, ".svg")) {
         char tmp_filename[128];
         snprintf(tmp_filename, sizeof(tmp_filename), "/tmp/tint2-%d-%lu.png", (int)getpid(), counter);
@@ -825,11 +825,8 @@ Imlib_Image load_image(const char *path, int cached)
                 unlink(tmp_filename);
             }
         }
-    } else
-#endif
-    {
-        image = imlib_load_image(path);
     }
+#endif
     imlib_context_set_image(image);
     imlib_image_set_changes_on_disk();
     return image;

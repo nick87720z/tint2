@@ -131,7 +131,8 @@ struct timeval *get_duration_to_next_timer_expiration()
                 next_timer->expiration_time_ms_,
                 next_timer->period_ms_);
     result.tv_sec = duration / 1000;
-    result.tv_usec = 1000 * (duration - result.tv_sec);
+    duration -= result.tv_sec * 1000;
+    result.tv_usec = 1000 * duration;
     return &result;
 }
 

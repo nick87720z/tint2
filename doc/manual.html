@@ -609,6 +609,7 @@ panel_size = 94% 30
 <li><p><code>execp_background_id = integer</code> : Which background to use. <em>(since 0.12.4)</em></p></li>
 <li><p><code>execp_centered = boolean (0 or 1)</code> : Whether to center the text. <em>(since 0.12.4)</em></p></li>
 <li><p><code>execp_padding = horizontal_padding vertical_padding spacing_between_icon_and_text</code> <em>(since 0.12.4)</em></p></li>
+<li><p><code>execp_monitor = integer (1, 2, ...), primary or all</code> :  On which monitor to draw the executor. The first monitor is <code>1</code>. <em>(since 17.0)</em></p></li>
 <li><p><code>execp_lclick_command = text</code> : Command to execute on left click. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></p></li>
 <li><p><code>execp_mclick_command = text</code> : Command to execute on right click. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></p></li>
 <li><p><code>execp_rclick_command = text</code> : Command to execute on middle click. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></p></li>
@@ -647,13 +648,13 @@ execp_command = ping -i 1 -c 1 -W 1 -O -D -n $(ip route | grep default | grep vi
 execp_continuous = 0
 execp_interval = 1
 execp_markup = 1
-</code></pre></div><h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><div class="highlight"><pre class="highlight plaintext"><code>execp = new
-execp_command = free | awk '/^-/ { printf "Mem: '$(free -h | awk '/^Mem:/ { print $2 }')' %.0f%%\n", 100*$3/($3+$4); fflush(stdout) }'
-execp_interval = 5
-execp_continuous = 0
-</code></pre></div><h5 id="network-load">Network load<a name="network-load" href="#network-load" class="md2man-permalink" title="permalink"></a></h5><div class="highlight"><pre class="highlight plaintext"><code># Note the use of "stdbuf -oL" to force the program to flush the output line by line.
+</code></pre></div><h5 id="memory-usage">Memory usage<a name="memory-usage" href="#memory-usage" class="md2man-permalink" title="permalink"></a></h5><div class="highlight"><pre class="highlight plaintext"><code># Note the use of "stdbuf -oL" to force the program to flush the output line by line.
 execp = new
-execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | awk -F ';' '/total/ { printf "Net: %.0f Mb/s\n", ($5*8/1.0e6) }; fflush(stdout)'
+execp_command = free -b -s1 | stdbuf -oL awk '/^Mem:/ { printf "Mem: %s %.0f%%\n", $2, 100 * ($2 - $7) / $2 }' | stdbuf -oL numfmt --to=iec-i --field=2 -d' '
+execp_interval = 1
+execp_continuous = 1
+</code></pre></div><h5 id="network-load">Network load<a name="network-load" href="#network-load" class="md2man-permalink" title="permalink"></a></h5><div class="highlight"><pre class="highlight plaintext"><code>execp = new
+execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | stdbuf -oL awk -F ';' '/total/ { printf "Net: %.0f Mb/s\n", ($5*8/1.0e6) }'
 execp_continuous = 1
 execp_interval = 1
 </code></pre></div><h3 id="button">Button<a name="button" href="#button" class="md2man-permalink" title="permalink"></a></h3>

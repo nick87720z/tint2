@@ -1,4 +1,4 @@
-.TH TINT2 1 "2019\-07\-14" 16.7
+.TH TINT2 1 "2021\-04\-18" 17.0
 .SH NAME
 .PP
 tint2 \- lightweight panel/taskbar
@@ -748,6 +748,8 @@ To hide the clock, comment \fB\fCtime1_format\fR and \fB\fCtime2_format\fR\&.
 .IP \(bu 2
 \fB\fCexecp_padding = horizontal_padding vertical_padding spacing_between_icon_and_text\fR \fI(since 0.12.4)\fP
 .IP \(bu 2
+\fB\fCexecp_monitor = integer (1, 2, ...), primary or all\fR :  On which monitor to draw the executor. The first monitor is \fB\fC1\fR\&. \fI(since 17.0)\fP
+.IP \(bu 2
 \fB\fCexecp_lclick_command = text\fR : Command to execute on left click. If not defined, \fB\fCexecp_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
 .IP \(bu 2
 \fB\fCexecp_mclick_command = text\fR : Command to execute on right click. If not defined, \fB\fCexecp_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
@@ -833,7 +835,7 @@ execp_markup = 1
 .nf
 # Note the use of "stdbuf \-oL" to force the program to flush the output line by line.
 execp = new
-execp_command = free -b -s1 | stdbuf -oL awk '/^Mem:/ { printf "Mem: %s %.0f%%\n", $2, 100 * ($2 - $7) / $2 }' | stdbuf -oL numfmt --to=iec-i --field=2 -d' '
+execp_command = free \-b \-s1 | stdbuf \-oL awk '/^Mem:/ { printf "Mem: %s %.0f%%\\n", $2, 100 * ($2 \- $7) / $2 }' | stdbuf \-oL numfmt \-\-to=iec\-i \-\-field=2 \-d' '
 execp_interval = 1
 execp_continuous = 1
 .fi
@@ -843,7 +845,7 @@ execp_continuous = 1
 .RS
 .nf
 execp = new
-execp_command = stdbuf \-oL bwm\-ng \-o csv \-t 1000 | stdbuf -oL awk \-F ';' '/total/ { printf "Net: %.0f Mb/s\\n", ($5*8/1.0e6) }'
+execp_command = stdbuf \-oL bwm\-ng \-o csv \-t 1000 | stdbuf \-oL awk \-F ';' '/total/ { printf "Net: %.0f Mb/s\\n", ($5*8/1.0e6) }'
 execp_continuous = 1
 execp_interval = 1
 .fi

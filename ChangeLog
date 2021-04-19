@@ -1,3 +1,15 @@
+2021-04-18 master
+- Fixes:
+  - Crash when a window icon is large (issue #786) (santouits)
+  - Minute clock doesn't update (issue #786)
+  - Scrollbars in tint2conf (issue #796)
+  - Preserve item order when skipping executors (issue #799)
+  - Image memory leak (issues #704, #721) (Adam M. Trofa)
+  - Incorrect timeout microsecond computation leading to high CPU usage (issue #800)
+- Enhancements:
+  - Port tint2conf to gtk3 (issue #380)
+  - execp_monitor config (issue #799)
+  - Improved executor examples (Nikita Zlobin)
 2019-07-14 16.7
 - Fixes:
   - Fix spacing around icons in executor without text in vertical panels (issue #716)

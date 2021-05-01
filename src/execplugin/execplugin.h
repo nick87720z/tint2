@@ -97,6 +97,7 @@ typedef struct Execp {
     ExecpBackend *backend;
     // Set only for frontend Execp items.
     ExecpFrontend *frontend;
+    bool dummy;
 } Execp;
 
 // Called before the config is read and panel_config/panels are created.

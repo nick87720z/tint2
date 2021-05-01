@@ -66,7 +66,8 @@ gpointer create_execp_frontend(gconstpointer arg, gpointer data)
                execp_backend->backend->monitor, panel->monitor);
         Execp *dummy = create_execp();
         dummy->frontend = (ExecpFrontend *)calloc(1, sizeof(ExecpFrontend));
-        dummy->backend->instances = g_list_append(execp_backend->backend->instances, dummy);
+        dummy->backend->instances = g_list_append(dummy->backend->instances, dummy);
+        dummy->dummy = true;
         return dummy;
     }
     printf("Creating executor '%s' with monitor %d for panel on monitor %d\n",
@@ -89,7 +90,11 @@ void destroy_execp(void *obj)
         free_and_null(execp->frontend);
         remove_area(&execp->area);
         free_area(&execp->area);
-        free_and_null(execp);
+        if (execp->dummy) {
+            destroy_execp(execp);
+        } else {
+            free_and_null(execp);
+        }
     } else {
         // This is a backend element
         destroy_timer(&execp->backend->timer);

@@ -85,7 +85,6 @@ static void sigchld_handler(int sig)
     int savedErrno = errno;
     ssize_t unused = write(sigchild_pipe[1], "x", 1);
     (void)unused;
-    fsync(sigchild_pipe[1]);
     errno = savedErrno;
 }
 

@@ -34,8 +34,8 @@ void default_execp()
 
 Execp *create_execp()
 {
-    Execp *execp = (Execp *)calloc(1, sizeof(Execp));
-    ExecpBackend *backend = execp->backend = (ExecpBackend *)calloc(1, sizeof(ExecpBackend));
+    Execp *execp = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpBackend));
+    ExecpBackend *backend = execp->backend = (gpointer)(execp + 1);
     
     backend->child_pipe_stdout = -1;
     backend->child_pipe_stderr = -1;
@@ -79,9 +79,9 @@ gpointer create_execp_frontend(gconstpointer arg, gpointer data)
            backend->command,
            backend->monitor, panel->monitor);
 
-    Execp *execp_frontend = (Execp *)calloc(1, sizeof(Execp));
+    Execp *execp_frontend = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpFrontend));
+    execp_frontend->frontend = (gpointer)(execp_frontend + 1);
     execp_frontend->backend = backend;
-    execp_frontend->frontend = (ExecpFrontend *)calloc(1, sizeof(ExecpFrontend));
     backend->instances = g_list_append(backend->instances, execp_frontend);
     return execp_frontend;
 }
@@ -96,10 +96,10 @@ void destroy_execp(void *obj)
         backend->instances = g_list_remove_all(backend->instances, execp);
         remove_area(&execp->area);
         free_area(&execp->area);
-        free_and_null(execp->frontend);
         if (! execp->dummy) {
             goto final_free;
         }
+        free_and_null(execp->frontend);
     }
     // This is a backend element
     destroy_timer(&backend->timer);
@@ -134,7 +134,6 @@ void destroy_execp(void *obj)
         fprintf(stderr, "tint2: Error: Attempt to destroy backend while there are still frontend instances!\n");
         exit(EXIT_FAILURE);
     }
-    free(backend);
     
 final_free:
     free(execp);

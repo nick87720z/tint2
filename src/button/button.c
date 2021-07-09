@@ -29,8 +29,8 @@ void default_button()
 
 Button *create_button()
 {
-    Button *button = calloc(1, sizeof(Button));
-    ButtonBackend *backend = button->backend = calloc(1, sizeof(ButtonBackend));
+    Button *button = calloc(1, sizeof(Button) + sizeof(ButtonBackend));
+    ButtonBackend *backend = button->backend = (gpointer)(button + 1);
     
     backend->centered = TRUE;
     backend->font_color.alpha = 0.5;
@@ -41,10 +41,10 @@ gpointer create_button_frontend(gconstpointer arg, gpointer data)
 {
     Button *button_backend = (Button *)arg;
 
-    Button *button_frontend = calloc(1, sizeof(Button));
+    Button *button_frontend = calloc(1, sizeof(Button) + sizeof(ButtonFrontend));
+    button_frontend->frontend = (gpointer)(button_frontend + 1);
     ButtonBackend *backend = button_frontend->backend = button_backend->backend;
     backend->instances = g_list_append(backend->instances, button_frontend);
-    button_frontend->frontend = calloc(1, sizeof(ButtonFrontend));
     return button_frontend;
 }
 
@@ -53,36 +53,36 @@ void destroy_button(void *obj)
     Button *button = obj;
     ButtonBackend *backend = button->backend;
     ButtonFrontend *frontend = button->frontend;
+    int size;
     if (frontend) {
         // This is a frontend element
         free_icon(frontend->icon);
         free_icon(frontend->icon_hover);
         free_icon(frontend->icon_pressed);
         backend->instances = g_list_remove_all(backend->instances, button);
-        free_and_null(button->frontend);
         remove_area(&button->area);
         free_area(&button->area);
+        size = sizeof(Button) + sizeof(ButtonFrontend);
     } else {
         // This is a backend element
-        free_and_null(backend->text);
-        free_and_null(backend->icon_name);
-        free_and_null(backend->tooltip);
-
-        backend->bg = NULL;
         pango_font_description_free(backend->font_desc);
-        backend->font_desc = NULL;
-        free_and_null(backend->lclick_command);
-        free_and_null(backend->mclick_command);
-        free_and_null(backend->rclick_command);
-        free_and_null(backend->dwheel_command);
-        free_and_null(backend->uwheel_command);
+        free(backend->text);
+        free(backend->icon_name);
+        free(backend->tooltip);
+        free(backend->lclick_command);
+        free(backend->mclick_command);
+        free(backend->rclick_command);
+        free(backend->dwheel_command);
+        free(backend->uwheel_command);
+        size = sizeof(Button) + sizeof(ButtonBackend);
 
         if (backend->instances) {
             fprintf(stderr, "tint2: Error: Attempt to destroy backend while there are still frontend instances!\n");
             exit(EXIT_FAILURE);
         }
-        free(backend);
+        button->backend = NULL;
     }
+    memset(button, 0, size);
     free(button);
 }
 

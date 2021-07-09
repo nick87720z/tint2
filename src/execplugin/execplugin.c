@@ -742,8 +742,10 @@ void read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buff
     *eof = FALSE;
     while (1) {
         // Make sure there is free space in the buffer
-        if (*buffer_capacity - *buffer_length < 1024) {
-            *buffer_capacity *= 2;
+        ssize_t req_cap = *buffer_length + 1024;
+        if (*buffer_capacity < req_cap) {
+            do    *buffer_capacity *= 2;
+            while (*buffer_capacity < req_cap);
             *buffer = (char *)realloc(*buffer, *buffer_capacity);
         }
         ssize_t count = read(fd,

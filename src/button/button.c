@@ -540,21 +540,15 @@ void button_action(void *obj, int mouse_button, int x, int y, Time time)
     Button *button = (Button *)obj;
     char *command = NULL;
     switch (mouse_button) {
-    case 1:
-        command = button->backend->lclick_command;
-        break;
-    case 2:
-        command = button->backend->mclick_command;
-        break;
-    case 3:
-        command = button->backend->rclick_command;
-        break;
-    case 4:
-        command = button->backend->uwheel_command;
-        break;
-    case 5:
-        command = button->backend->dwheel_command;
-        break;
+        #define BUTTON_CASE(i,c) case i: \
+                                    command = button->backend->c; \
+                                    break
+        BUTTON_CASE(1, lclick_command);
+        BUTTON_CASE(2, mclick_command);
+        BUTTON_CASE(3, rclick_command);
+        BUTTON_CASE(4, uwheel_command);
+        BUTTON_CASE(5, dwheel_command);
+        #undef BUTTON_CASE
     }
     tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
 }

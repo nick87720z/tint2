@@ -30,9 +30,10 @@ void default_button()
 Button *create_button()
 {
     Button *button = calloc(1, sizeof(Button));
-    button->backend = calloc(1, sizeof(ButtonBackend));
-    button->backend->centered = TRUE;
-    button->backend->font_color.alpha = 0.5;
+    ButtonBackend *backend = button->backend = calloc(1, sizeof(ButtonBackend));
+    
+    backend->centered = TRUE;
+    backend->font_color.alpha = 0.5;
     return button;
 }
 
@@ -41,47 +42,48 @@ gpointer create_button_frontend(gconstpointer arg, gpointer data)
     Button *button_backend = (Button *)arg;
 
     Button *button_frontend = calloc(1, sizeof(Button));
-    button_frontend->backend = button_backend->backend;
-    button_backend->backend->instances = g_list_append(button_backend->backend->instances, button_frontend);
+    ButtonBackend *backend = button_frontend->backend = button_backend->backend;
+    backend->instances = g_list_append(backend->instances, button_frontend);
     button_frontend->frontend = calloc(1, sizeof(ButtonFrontend));
     return button_frontend;
 }
 
 void destroy_button(void *obj)
 {
-    Button *button = (Button *)obj;
-    if (button->frontend) {
+    Button *button = obj;
+    ButtonBackend *backend = button->backend;
+    ButtonFrontend *frontend = button->frontend;
+    if (frontend) {
         // This is a frontend element
-        free_icon(button->frontend->icon);
-        free_icon(button->frontend->icon_hover);
-        free_icon(button->frontend->icon_pressed);
-        button->backend->instances = g_list_remove_all(button->backend->instances, button);
+        free_icon(frontend->icon);
+        free_icon(frontend->icon_hover);
+        free_icon(frontend->icon_pressed);
+        backend->instances = g_list_remove_all(backend->instances, button);
         free_and_null(button->frontend);
         remove_area(&button->area);
         free_area(&button->area);
-        free_and_null(button);
     } else {
         // This is a backend element
-        free_and_null(button->backend->text);
-        free_and_null(button->backend->icon_name);
-        free_and_null(button->backend->tooltip);
+        free_and_null(backend->text);
+        free_and_null(backend->icon_name);
+        free_and_null(backend->tooltip);
 
-        button->backend->bg = NULL;
-        pango_font_description_free(button->backend->font_desc);
-        button->backend->font_desc = NULL;
-        free_and_null(button->backend->lclick_command);
-        free_and_null(button->backend->mclick_command);
-        free_and_null(button->backend->rclick_command);
-        free_and_null(button->backend->dwheel_command);
-        free_and_null(button->backend->uwheel_command);
+        backend->bg = NULL;
+        pango_font_description_free(backend->font_desc);
+        backend->font_desc = NULL;
+        free_and_null(backend->lclick_command);
+        free_and_null(backend->mclick_command);
+        free_and_null(backend->rclick_command);
+        free_and_null(backend->dwheel_command);
+        free_and_null(backend->uwheel_command);
 
-        if (button->backend->instances) {
+        if (backend->instances) {
             fprintf(stderr, "tint2: Error: Attempt to destroy backend while there are still frontend instances!\n");
             exit(EXIT_FAILURE);
         }
-        free(button->backend);
-        free(button);
+        free(backend);
     }
+    free(button);
 }
 
 void init_button()
@@ -110,16 +112,17 @@ void init_button()
     button_init_fonts();
     for (GList *l = panel_config.button_list; l; l = l->next) {
         Button *button = l->data;
+        ButtonBackend *backend = button->backend;
 
         // Set missing config options
-        if (!button->backend->bg)
-            button->backend->bg = &g_array_index(backgrounds, Background, 0);
+        if (!backend->bg)
+            backend->bg = &g_array_index(backgrounds, Background, 0);
     }
 }
 
 void init_button_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
 
     // Make sure this is only done once if there are multiple items
     if (panel->button_list && ((Button *)panel->button_list->data)->frontend)
@@ -133,29 +136,32 @@ void init_button_panel(void *p)
 
     for (GList *l = panel->button_list; l; l = l->next) {
         Button *button = l->data;
-        button->area.bg = button->backend->bg;
-        button->area.paddingx = button->backend->paddingx;
-        button->area.paddingy = button->backend->paddingy;
-        button->area.paddingxlr = button->backend->paddingxlr;
-        button->area.parent = panel;
-        button->area.panel = panel;
-        button->area._dump_geometry = button_dump_geometry;
-        button->area._compute_desired_size = button_compute_desired_size;
-        snprintf(button->area.name, sizeof(button->area.name), "Button");
-        button->area._draw_foreground = draw_button;
-        button->area.size_mode = LAYOUT_FIXED;
-        button->area._resize = resize_button;
-        button->area._get_tooltip_text = button_get_tooltip;
-        button->area._is_under_mouse = full_width_area_is_under_mouse;
-        button->area.has_mouse_press_effect =
+        ButtonBackend *backend = button->backend;
+        Area *area = &button->area;
+        
+        area->bg = backend->bg;
+        area->paddingx = backend->paddingx;
+        area->paddingy = backend->paddingy;
+        area->paddingxlr = backend->paddingxlr;
+        area->parent = panel;
+        area->panel = panel;
+        area->_dump_geometry = button_dump_geometry;
+        area->_compute_desired_size = button_compute_desired_size;
+        snprintf(area->name, sizeof(area->name), "Button");
+        area->_draw_foreground = draw_button;
+        area->size_mode = LAYOUT_FIXED;
+        area->_resize = resize_button;
+        area->_get_tooltip_text = button_get_tooltip;
+        area->_is_under_mouse = full_width_area_is_under_mouse;
+        area->has_mouse_press_effect =
             panel_config.mouse_effects &&
-            (button->area.has_mouse_over_effect = button->backend->lclick_command || button->backend->mclick_command ||
-                                                  button->backend->rclick_command || button->backend->uwheel_command ||
-                                                  button->backend->dwheel_command);
+            (area->has_mouse_over_effect = backend->lclick_command || backend->mclick_command ||
+                                           backend->rclick_command || backend->uwheel_command ||
+                                           backend->dwheel_command);
 
-        button->area.resize_needed = TRUE;
-        button->area.on_screen = TRUE;
-        instantiate_area_gradients(&button->area);
+        area->resize_needed = TRUE;
+        area->on_screen = TRUE;
+        instantiate_area_gradients(area);
 
         button_reload_icon(button);
     }
@@ -164,9 +170,9 @@ void init_button_panel(void *p)
 void button_init_fonts()
 {
     for (GList *l = panel_config.button_list; l; l = l->next) {
-        Button *button = l->data;
-        if (!button->backend->font_desc)
-            button->backend->font_desc = pango_font_description_from_string(get_default_font());
+        ButtonBackend *backend = ((Button *)l->data)->backend;
+        if (!backend->font_desc)
+            backend->font_desc = pango_font_description_from_string(get_default_font());
     }
 }
 
@@ -174,11 +180,10 @@ void button_default_font_changed()
 {
     gboolean needs_update = FALSE;
     for (GList *l = panel_config.button_list; l; l = l->next) {
-        Button *button = l->data;
-
-        if (!button->backend->has_font) {
-            pango_font_description_free(button->backend->font_desc);
-            button->backend->font_desc = NULL;
+        ButtonBackend *backend = ((Button *)l->data)->backend;
+        if (!backend->has_font) {
+            pango_font_description_free(backend->font_desc);
+            backend->font_desc = NULL;
             needs_update = TRUE;
         }
     }
@@ -189,10 +194,11 @@ void button_default_font_changed()
     for (int i = 0; i < num_panels; i++) {
         for (GList *l = panels[i].button_list; l; l = l->next) {
             Button *button = l->data;
+            Area *area = &button->area;
 
             if (!button->backend->has_font) {
-                button->area.resize_needed = TRUE;
-                schedule_redraw(&button->area);
+                area->resize_needed = TRUE;
+                schedule_redraw(area);
             }
         }
     }
@@ -201,42 +207,45 @@ void button_default_font_changed()
 
 void button_reload_icon(Button *button)
 {
-    free_icon(button->frontend->icon);
-    free_icon(button->frontend->icon_hover);
-    free_icon(button->frontend->icon_pressed);
-    button->frontend->icon = NULL;
-    button->frontend->icon_hover = NULL;
-    button->frontend->icon_pressed = NULL;
+    ButtonFrontend *frontend = button->frontend;
+    char *icon_name = button->backend->icon_name;
+    
+    free_icon(frontend->icon);
+    free_icon(frontend->icon_hover);
+    free_icon(frontend->icon_pressed);
+    frontend->icon = NULL;
+    frontend->icon_hover = NULL;
+    frontend->icon_pressed = NULL;
 
-    button->frontend->icon_load_size = button->frontend->iconw;
+    frontend->icon_load_size = frontend->iconw;
 
-    if (!button->backend->icon_name)
+    if (!icon_name)
         return;
 
-    char *new_icon_path = get_icon_path(icon_theme_wrapper, button->backend->icon_name, button->frontend->iconw, TRUE);
+    char *new_icon_path = get_icon_path(icon_theme_wrapper, icon_name, frontend->iconw, TRUE);
     if (new_icon_path)
-        button->frontend->icon = load_image(new_icon_path, TRUE);
+        frontend->icon = load_image(new_icon_path, TRUE);
     free(new_icon_path);
     // On loading error, fallback to default
-    if (!button->frontend->icon) {
-        new_icon_path = get_icon_path(icon_theme_wrapper, DEFAULT_ICON, button->frontend->iconw, TRUE);
+    if (!frontend->icon) {
+        new_icon_path = get_icon_path(icon_theme_wrapper, DEFAULT_ICON, frontend->iconw, TRUE);
         if (new_icon_path)
-            button->frontend->icon = load_image(new_icon_path, TRUE);
+            frontend->icon = load_image(new_icon_path, TRUE);
         free(new_icon_path);
     }
-    Imlib_Image original = button->frontend->icon;
-    button->frontend->icon = scale_icon(button->frontend->icon, button->frontend->iconw);
+    Imlib_Image original = frontend->icon;
+    frontend->icon = scale_icon(frontend->icon, frontend->iconw);
     free_icon(original);
 
     if (panel_config.mouse_effects) {
-        button->frontend->icon_hover = adjust_icon(button->frontend->icon,
-                                                   panel_config.mouse_over_alpha,
-                                                   panel_config.mouse_over_saturation,
-                                                   panel_config.mouse_over_brightness);
-        button->frontend->icon_pressed = adjust_icon(button->frontend->icon,
-                                                     panel_config.mouse_pressed_alpha,
-                                                     panel_config.mouse_pressed_saturation,
-                                                     panel_config.mouse_pressed_brightness);
+        frontend->icon_hover = adjust_icon(frontend->icon,
+                                           panel_config.mouse_over_alpha,
+                                           panel_config.mouse_over_saturation,
+                                           panel_config.mouse_over_brightness);
+        frontend->icon_pressed = adjust_icon(frontend->icon,
+                                             panel_config.mouse_pressed_alpha,
+                                             panel_config.mouse_pressed_saturation,
+                                             panel_config.mouse_pressed_brightness);
     }
     schedule_redraw(&button->area);
 }
@@ -245,8 +254,7 @@ void button_default_icon_theme_changed()
 {
     for (int i = 0; i < num_panels; i++) {
         for (GList *l = panels[i].button_list; l; l = l->next) {
-            Button *button = l->data;
-            button_reload_icon(button);
+            button_reload_icon(l->data);
         }
     }
     schedule_panel_redraw();
@@ -267,54 +275,58 @@ void cleanup_button()
 
 int button_compute_desired_size(void *obj)
 {
-    Button *button = (Button *)obj;
+    Button *button = obj;
+    ButtonBackend *backend = button->backend;
     Panel *panel = (Panel *)button->area.panel;
-    int horiz_padding = (panel_horizontal ? button->area.paddingxlr : button->area.paddingy) * panel->scale;
-    int vert_padding = (panel_horizontal ? button->area.paddingy : button->area.paddingxlr) * panel->scale;
-    int interior_padding = button->area.paddingx * panel->scale;
+    Area *area = &button->area;
+    
+    int horiz_padding = (panel_horizontal ? area->paddingxlr : area->paddingy) * panel->scale;
+    int vert_padding = (panel_horizontal ? area->paddingy : area->paddingxlr) * panel->scale;
+    int interior_padding = area->paddingx * panel->scale;
 
     int icon_w, icon_h;
-    if (button->backend->icon_name) {
+    if (backend->icon_name) {
+        int max_icon_size = backend->max_icon_size;
         if (panel_horizontal)
-            icon_h = icon_w = button->area.height - top_bottom_border_width(&button->area) - 2 * vert_padding;
+            icon_h = icon_w = area->height - top_bottom_border_width(area) - 2 * vert_padding;
         else
-            icon_h = icon_w = button->area.width - left_right_border_width(&button->area) - 2 * horiz_padding;
-        if (button->backend->max_icon_size) {
-            icon_w = MIN(icon_w, button->backend->max_icon_size * panel->scale);
-            icon_h = MIN(icon_h, button->backend->max_icon_size * panel->scale);
+            icon_h = icon_w = area->width - left_right_border_width(area) - 2 * horiz_padding;
+        if (max_icon_size) {
+            icon_w = MIN(icon_w, max_icon_size * panel->scale);
+            icon_h = MIN(icon_h, max_icon_size * panel->scale);
         }
     } else {
         icon_h = icon_w = 0;
     }
 
     int txt_height, txt_width;
-    if (button->backend->text) {
+    if (backend->text) {
         if (panel_horizontal) {
-            get_text_size2(button->backend->font_desc,
+            get_text_size2(backend->font_desc,
                            &txt_height,
                            &txt_width,
                            panel->area.height,
                            panel->area.width,
-                           button->backend->text,
-                           strlen(button->backend->text),
+                           backend->text,
+                           strlen(backend->text),
                            PANGO_WRAP_WORD_CHAR,
                            PANGO_ELLIPSIZE_NONE,
-                           button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
+                           backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                            FALSE,
                            panel->scale);
         } else {
             int x1 = icon_w ? icon_w + interior_padding : 0;
-            get_text_size2(button->backend->font_desc,
+            get_text_size2(backend->font_desc,
                            &txt_height,
                            &txt_width,
                            panel->area.height,
-                           (!icon_w || x1 < 0 ? button->area.width : button->area.width - x1)
-                                - 2 * horiz_padding - left_right_border_width(&button->area),
-                           button->backend->text,
-                           strlen(button->backend->text),
+                           (!icon_w || x1 < 0 ? area->width : area->width - x1)
+                                - 2 * horiz_padding - left_right_border_width(area),
+                           backend->text,
+                           strlen(backend->text),
                            PANGO_WRAP_WORD_CHAR,
                            PANGO_ELLIPSIZE_NONE,
-                           button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
+                           backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                            FALSE,
                            panel->scale);
         }
@@ -331,42 +343,45 @@ int button_compute_desired_size(void *obj)
                         x2 = x1 + txt_width,
                         MAX(x2, icon_w) - MIN(x1, 0)
                     );
-        new_size += 2 * horiz_padding + left_right_border_width(&button->area);
+        new_size += 2 * horiz_padding + left_right_border_width(area);
         return new_size;
     } else {
         int new_size;
-        new_size = txt_height + 2 * vert_padding + top_bottom_border_width(&button->area);
-        new_size = MAX(new_size, icon_h + 2 * vert_padding + top_bottom_border_width(&button->area));
+        new_size = txt_height + 2 * vert_padding + top_bottom_border_width(area);
+        new_size = MAX(new_size, icon_h + 2 * vert_padding + top_bottom_border_width(area));
         return new_size;
     }
 }
 
 gboolean resize_button(void *obj)
 {
-    Button *button = (Button *)obj;
+    Button *button = obj;
+    ButtonBackend *backend = button->backend;
+    ButtonFrontend *frontend = button->frontend;
     Panel *panel = (Panel *)button->area.panel;
     Area *area = &button->area;
-    int horiz_padding = (panel_horizontal ? button->area.paddingxlr : button->area.paddingy) * panel->scale;
-    int vert_padding = (panel_horizontal ? button->area.paddingy : button->area.paddingxlr) * panel->scale;
-    int interior_padding = button->area.paddingx * panel->scale;
+    
+    int horiz_padding = (panel_horizontal ? area->paddingxlr : area->paddingy) * panel->scale;
+    int vert_padding = (panel_horizontal ? area->paddingy : area->paddingxlr) * panel->scale;
+    int interior_padding = area->paddingx * panel->scale;
 
     int icon_w, icon_h;
-    if (button->backend->icon_name) {
+    if (backend->icon_name) {
         if (panel_horizontal)
-            icon_h = icon_w = button->area.height - top_bottom_border_width(&button->area) - 2 * vert_padding;
+            icon_h = icon_w = area->height - top_bottom_border_width(area) - 2 * vert_padding;
         else
-            icon_h = icon_w = button->area.width - left_right_border_width(&button->area) - 2 * horiz_padding;
-        if (button->backend->max_icon_size) {
-            icon_w = MIN(icon_w, button->backend->max_icon_size * panel->scale);
-            icon_h = MIN(icon_h, button->backend->max_icon_size * panel->scale);
+            icon_h = icon_w = area->width - left_right_border_width(area) - 2 * horiz_padding;
+        if (backend->max_icon_size) {
+            icon_w = MIN(icon_w, backend->max_icon_size * panel->scale);
+            icon_h = MIN(icon_h, backend->max_icon_size * panel->scale);
         }
     } else {
         icon_h = icon_w = 0;
     }
 
-    button->frontend->iconw = icon_w;
-    button->frontend->iconh = icon_h;
-    if (button->frontend->icon_load_size != button->frontend->iconw)
+    frontend->iconw = icon_w;
+    frontend->iconh = icon_h;
+    if (frontend->icon_load_size != frontend->iconw)
         button_reload_icon(button);
 
     int available_w, available_h;
@@ -375,23 +390,23 @@ gboolean resize_button(void *obj)
         available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
     } else {
         int x1 = icon_w ? icon_w + interior_padding : 0;
-        available_w = (!icon_w || x1 < 0 ? button->area.width : button->area.width - x1)
-                        - 2 * horiz_padding - left_right_border_width(&button->area);
+        available_w = (!icon_w || x1 < 0 ? area->width : area->width - x1)
+                        - 2 * horiz_padding - left_right_border_width(area);
         available_h = panel->area.height;
     }
 
     int txt_height, txt_width;
-    if (button->backend->text) {
-        get_text_size2(button->backend->font_desc,
+    if (backend->text) {
+        get_text_size2(backend->font_desc,
                        &txt_height,
                        &txt_width,
                        available_h,
                        available_w,
-                       button->backend->text,
-                       strlen(button->backend->text),
+                       backend->text,
+                       strlen(backend->text),
                        PANGO_WRAP_WORD_CHAR,
                        PANGO_ELLIPSIZE_NONE,
-                       button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
+                       backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                        FALSE,
                        panel->scale);
     } else {
@@ -408,51 +423,51 @@ gboolean resize_button(void *obj)
                         x2 = x1 + txt_width,
                         MAX(x2, icon_w) - MIN(x1, 0)
                     );
-        new_size += 2 * horiz_padding + left_right_border_width(&button->area);
-        if (new_size != button->area.width) {
-            button->area.width = new_size;
+        new_size += 2 * horiz_padding + left_right_border_width(area);
+        if (new_size != area->width) {
+            area->width = new_size;
             result = TRUE;
         }
     } else {
         int new_size;
-        new_size = txt_height + 2 * vert_padding + top_bottom_border_width(&button->area);
-        new_size = MAX(new_size, icon_h + 2 * vert_padding + top_bottom_border_width(&button->area));
-        if (new_size != button->area.height) {
-            button->area.height = new_size;
+        new_size = txt_height + 2 * vert_padding + top_bottom_border_width(area);
+        new_size = MAX(new_size, icon_h + 2 * vert_padding + top_bottom_border_width(area));
+        if (new_size != area->height) {
+            area->height = new_size;
             result = TRUE;
         }
     }
-    button->frontend->textw = txt_width;
-    button->frontend->texth = txt_height;
-    if (button->backend->centered) {
+    frontend->textw = txt_width;
+    frontend->texth = txt_height;
+    if (backend->centered) {
         if (icon_w) {
             int dx, pad, ix, tx;
             dx = icon_w + interior_padding;
             ix = dx < 0 ? -dx : 0;
             tx = ix + dx;
-            pad = (button->area.width - MAX(ix + icon_w, tx + txt_width)) / 2;
-            button->frontend->icony = (button->area.height - icon_h) / 2;
-            button->frontend->iconx = ix + pad;
-            button->frontend->texty = (button->area.height - txt_height) / 2;
-            button->frontend->textx = tx + pad;
+            pad = (area->width - MAX(ix + icon_w, tx + txt_width)) / 2;
+            frontend->icony = (area->height - icon_h) / 2;
+            frontend->iconx = ix + pad;
+            frontend->texty = (area->height - txt_height) / 2;
+            frontend->textx = tx + pad;
         } else {
-            button->frontend->texty = (button->area.height - txt_height) / 2;
-            button->frontend->textx = (button->area.width - txt_width) / 2;
+            frontend->texty = (area->height - txt_height) / 2;
+            frontend->textx = (area->width - txt_width) / 2;
         }
     } else {
         if (icon_w) {
             int dx = icon_w + interior_padding;
-            button->frontend->icony = (button->area.height - icon_h) / 2;
-            button->frontend->iconx = (dx < 0 ? -dx : 0) + left_border_width(&button->area) + horiz_padding;
-            button->frontend->texty = (button->area.height - txt_height) / 2;
-            button->frontend->textx = button->frontend->iconx + dx;
+            frontend->icony = (area->height - icon_h) / 2;
+            frontend->iconx = (dx < 0 ? -dx : 0) + left_border_width(area) + horiz_padding;
+            frontend->texty = (area->height - txt_height) / 2;
+            frontend->textx = frontend->iconx + dx;
         } else {
-            button->frontend->texty = (button->area.height - txt_height) / 2;
-            button->frontend->textx = left_border_width(&button->area) + horiz_padding;
+            frontend->texty = (area->height - txt_height) / 2;
+            frontend->textx = left_border_width(area) + horiz_padding;
         }
     }
 
-    schedule_redraw(&button->area);
+    schedule_redraw(area);
 
     return result;
 }
@@ -460,45 +475,48 @@ gboolean resize_button(void *obj)
 void draw_button(void *obj, cairo_t *c)
 {
     Button *button = obj;
+    ButtonBackend *backend = button->backend;
+    ButtonFrontend *frontend = button->frontend;
     Panel *panel = (Panel *)button->area.panel;
+    Area *area = &button->area;
 
-    if (button->frontend->icon) {
+    if (frontend->icon) {
         // Render icon
         Imlib_Image image;
         if (panel_config.mouse_effects) {
-            if (button->area.mouse_state == MOUSE_OVER)
-                image = button->frontend->icon_hover ? button->frontend->icon_hover : button->frontend->icon;
-            else if (button->area.mouse_state == MOUSE_DOWN)
-                image = button->frontend->icon_pressed ? button->frontend->icon_pressed : button->frontend->icon;
+            if (area->mouse_state == MOUSE_OVER)
+                image = frontend->icon_hover ? frontend->icon_hover : frontend->icon;
+            else if (area->mouse_state == MOUSE_DOWN)
+                image = frontend->icon_pressed ? frontend->icon_pressed : frontend->icon;
             else
-                image = button->frontend->icon;
+                image = frontend->icon;
         } else {
-            image = button->frontend->icon;
+            image = frontend->icon;
         }
 
         imlib_context_set_image(image);
-        render_image(button->area.pix, button->frontend->iconx, button->frontend->icony);
+        render_image(area->pix, frontend->iconx, frontend->icony);
     }
 
     // Render text
-    if (button->backend->text) {
+    if (backend->text) {
         PangoContext *context = pango_cairo_create_context(c);
         pango_cairo_context_set_resolution(context, 96 * panel->scale);
         PangoLayout *layout = pango_layout_new(context);
 
-        pango_layout_set_font_description(layout, button->backend->font_desc);
-        pango_layout_set_width(layout, (button->frontend->textw + TINT2_PANGO_SLACK) * PANGO_SCALE);
-        pango_layout_set_alignment(layout, button->backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
+        pango_layout_set_font_description(layout, backend->font_desc);
+        pango_layout_set_width(layout, (frontend->textw + TINT2_PANGO_SLACK) * PANGO_SCALE);
+        pango_layout_set_alignment(layout, backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
         pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
         pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_NONE);
-        pango_layout_set_text(layout, button->backend->text, strlen(button->backend->text));
+        pango_layout_set_text(layout, backend->text, strlen(backend->text));
 
         pango_cairo_update_layout(c, layout);
         draw_text(layout,
                   c,
-                  button->frontend->textx,
-                  button->frontend->texty,
-                  &button->backend->font_color,
+                  frontend->textx,
+                  frontend->texty,
+                  &backend->font_color,
                   panel_config.font_shadow ? layout : NULL);
 
         g_object_unref(layout);
@@ -509,16 +527,18 @@ void draw_button(void *obj, cairo_t *c)
 void button_dump_geometry(void *obj, int indent)
 {
     Button *button = obj;
+    ButtonBackend *backend = button->backend;
+    ButtonFrontend *frontend = button->frontend;
 
-    if (button->frontend->icon) {
+    if (frontend->icon) {
         Imlib_Image tmp = imlib_context_get_image();
-        imlib_context_set_image(button->frontend->icon);
+        imlib_context_set_image(frontend->icon);
         fprintf(stderr,
                 "tint2: %*sIcon: x = %d, y = %d, w = %d, h = %d\n",
                 indent,
                 "",
-                button->frontend->iconx,
-                button->frontend->icony,
+                frontend->iconx,
+                frontend->icony,
                 imlib_image_get_width(),
                 imlib_image_get_height());
         if (tmp)
@@ -528,20 +548,21 @@ void button_dump_geometry(void *obj, int indent)
             "tint2: %*sText: x = %d, y = %d, w = %d, align = %s, text = %s\n",
             indent,
             "",
-            button->frontend->textx,
-            button->frontend->texty,
-            button->frontend->textw,
-            button->backend->centered ? "center" : "left",
-            button->backend->text);
+            frontend->textx,
+            frontend->texty,
+            frontend->textw,
+            backend->centered ? "center" : "left",
+            backend->text);
 }
 
 void button_action(void *obj, int mouse_button, int x, int y, Time time)
 {
     Button *button = (Button *)obj;
+    ButtonBackend *backend = button->backend;
     char *command = NULL;
     switch (mouse_button) {
         #define BUTTON_CASE(i,c) case i: \
-                                    command = button->backend->c; \
+                                    command = backend->c; \
                                     break
         BUTTON_CASE(1, lclick_command);
         BUTTON_CASE(2, mclick_command);
@@ -556,8 +577,9 @@ void button_action(void *obj, int mouse_button, int x, int y, Time time)
 char *button_get_tooltip(void *obj)
 {
     Button *button = obj;
+    ButtonBackend *backend = button->backend;
 
-    if (button->backend->tooltip && strlen(button->backend->tooltip) > 0)
-        return strdup(button->backend->tooltip);
+    if (backend->tooltip && strlen(backend->tooltip) > 0)
+        return strdup(backend->tooltip);
     return NULL;
 }

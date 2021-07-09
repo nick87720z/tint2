@@ -263,15 +263,19 @@ void execp_default_font_changed()
 
 void cleanup_execp()
 {
+    #define CLEANUP_PANEL_EXECP(p) do { \
+        g_list_free_full((p).execp_list, destroy_execp); \
+        (p).execp_list = NULL;                           \
+    } while(0)
+
     // Cleanup frontends
-    for (int i = 0; i < num_panels; i++) {
-        g_list_free_full(panels[i].execp_list, destroy_execp);
-        panels[i].execp_list = NULL;
-    }
+    for (int i = 0; i < num_panels; i++)
+        CLEANUP_PANEL_EXECP (panels[i]);
 
     // Cleanup backends
-    g_list_free_full(panel_config.execp_list, destroy_execp);
-    panel_config.execp_list = NULL;
+    CLEANUP_PANEL_EXECP (panel_config);
+
+    #undef CLEANUP_PANEL_EXECP
 }
 
 // Called from backend functions.
@@ -660,21 +664,15 @@ void execp_action(void *obj, int button, int x, int y, Time time)
     
     char *command = NULL;
     switch (button) {
-    case 1:
-        command = backend->lclick_command;
-        break;
-    case 2:
-        command = backend->mclick_command;
-        break;
-    case 3:
-        command = backend->rclick_command;
-        break;
-    case 4:
-        command = backend->uwheel_command;
-        break;
-    case 5:
-        command = backend->dwheel_command;
-        break;
+        #define BUTTON_CASE(i,c) case i: \
+                                    command = backend->c; \
+                                    break
+        BUTTON_CASE(1, lclick_command);
+        BUTTON_CASE(2, mclick_command);
+        BUTTON_CASE(3, rclick_command);
+        BUTTON_CASE(4, uwheel_command);
+        BUTTON_CASE(5, dwheel_command);
+        #undef BUTTON_CASE
     }
     if (command) {
         setenvd("EXECP_X", x);

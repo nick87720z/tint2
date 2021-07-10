@@ -18,6 +18,7 @@
 
 #define MAX3(a, b, c) MAX(MAX(a, b), c)
 #define MIN3(a, b, c) MIN(MIN(a, b), c)
+#define ATOB(x)       (atoi((x)) > 0)
 
 // mouse actions
 typedef enum MouseAction {

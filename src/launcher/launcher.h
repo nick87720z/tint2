@@ -44,13 +44,13 @@ typedef struct LauncherIcon {
 
 extern gboolean launcher_enabled;
 extern int launcher_max_icon_size;
-extern int launcher_tooltip_enabled;
+extern gboolean launcher_tooltip_enabled;
 extern int launcher_alpha;
 extern int launcher_saturation;
 extern int launcher_brightness;
 extern char *icon_theme_name_xsettings; // theme name
 extern char *icon_theme_name_config;
-extern int launcher_icon_theme_override;
+extern gboolean launcher_icon_theme_override;
 extern Background *launcher_icon_bg;
 extern GList *launcher_icon_gradients;
 

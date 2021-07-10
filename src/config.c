@@ -401,7 +401,7 @@ void add_entry(char *key, char *value)
     else if (strcmp(key, "panel_monitor") == 0) {
         panel_config.monitor = config_get_monitor(value);
     } else if (strcmp(key, "panel_shrink") == 0) {
-        panel_shrink = atoi(value);
+        panel_shrink = ATOB(value);
     } else if (strcmp(key, "panel_size") == 0) {
         extract_values(value, &value1, &value2, &value3);
 
@@ -499,17 +499,17 @@ void add_entry(char *key, char *value)
                 panel_horizontal = 1;
         }
     } else if (strcmp(key, "font_shadow") == 0)
-        panel_config.font_shadow = atoi(value);
+        panel_config.font_shadow = ATOB(value);
     else if (strcmp(key, "panel_background_id") == 0) {
         int id = atoi(value);
         id = (id < backgrounds->len && id >= 0) ? id : 0;
         panel_config.area.bg = &g_array_index(backgrounds, Background, id);
     } else if (strcmp(key, "wm_menu") == 0)
-        wm_menu = atoi(value);
+        wm_menu = ATOB(value);
     else if (strcmp(key, "panel_dock") == 0)
-        panel_dock = atoi(value);
+        panel_dock = ATOB(value);
     else if (strcmp(key, "panel_pivot_struts") == 0)
-        panel_pivot_struts = atoi(value);
+        panel_pivot_struts = ATOB(value);
     else if (strcmp(key, "urgent_nb_of_blink") == 0)
         max_tick_urgent = atoi(value);
     else if (strcmp(key, "panel_layer") == 0) {
@@ -520,7 +520,7 @@ void add_entry(char *key, char *value)
         else
             panel_layer = NORMAL_LAYER;
     } else if (strcmp(key, "disable_transparency") == 0) {
-        server.disable_transparency = atoi(value);
+        server.disable_transparency = ATOB(value);
     } else if (strcmp(key, "panel_window_name") == 0) {
         if (strlen(value) > 0) {
             free(panel_window_name);
@@ -637,7 +637,7 @@ void add_entry(char *key, char *value)
 #endif
     } else if (strcmp(key, "battery_tooltip") == 0) {
 #ifdef ENABLE_BATTERY
-        battery_tooltip_enabled = atoi(value);
+        battery_tooltip_enabled = ATOB(value);
 #endif
     }
 
@@ -702,16 +702,16 @@ void add_entry(char *key, char *value)
         execp->backend->monitor = config_get_monitor(value);
     } else if (strcmp(key, "execp_has_icon") == 0) {
         Execp *execp = get_or_create_last_execp();
-        execp->backend->has_icon = atoi(value);
+        execp->backend->has_icon = ATOB(value);
     } else if (strcmp(key, "execp_continuous") == 0) {
         Execp *execp = get_or_create_last_execp();
         execp->backend->continuous = atoi(value);
     } else if (strcmp(key, "execp_markup") == 0) {
         Execp *execp = get_or_create_last_execp();
-        execp->backend->has_markup = atoi(value);
+        execp->backend->has_markup = ATOB(value);
     } else if (strcmp(key, "execp_cache_icon") == 0) {
         Execp *execp = get_or_create_last_execp();
-        execp->backend->cache_icon = atoi(value);
+        execp->backend->cache_icon = ATOB(value);
     } else if (strcmp(key, "execp_tooltip") == 0) {
         Execp *execp = get_or_create_last_execp();
         free_and_null(execp->backend->tooltip);
@@ -747,7 +747,7 @@ void add_entry(char *key, char *value)
         execp->backend->bg = &g_array_index(backgrounds, Background, id);
     } else if (strcmp(key, "execp_centered") == 0) {
         Execp *execp = get_or_create_last_execp();
-        execp->backend->centered = atoi(value);
+        execp->backend->centered = ATOB(value);
     } else if (strcmp(key, "execp_icon_w") == 0) {
         Execp *execp = get_or_create_last_execp();
         int v = atoi(value);
@@ -845,7 +845,7 @@ void add_entry(char *key, char *value)
         button->backend->bg = &g_array_index(backgrounds, Background, id);
     } else if (strcmp(key, "button_centered") == 0) {
         Button *button = get_or_create_last_button();
-        button->backend->centered = atoi(value);
+        button->backend->centered = ATOB(value);
     } else if (strcmp(key, "button_lclick_command") == 0) {
         Button *button = get_or_create_last_button();
         free_and_null(button->backend->lclick_command);
@@ -953,7 +953,7 @@ void add_entry(char *key, char *value)
         else
             taskbar_mode = SINGLE_DESKTOP;
     } else if (strcmp(key, "taskbar_distribute_size") == 0) {
-        taskbar_distribute_size = atoi(value);
+        taskbar_distribute_size = ATOB(value);
     } else if (strcmp(key, "taskbar_padding") == 0) {
         extract_values(value, &value1, &value2, &value3);
         panel_config.g_taskbar.area.paddingxlr = panel_config.g_taskbar.area.paddingx = atoi(value1);
@@ -972,7 +972,7 @@ void add_entry(char *key, char *value)
         id = (id < backgrounds->len && id >= 0) ? id : 0;
         panel_config.g_taskbar.background[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
     } else if (strcmp(key, "taskbar_name") == 0) {
-        taskbarname_enabled = atoi(value);
+        taskbarname_enabled = ATOB(value);
     } else if (strcmp(key, "taskbar_name_padding") == 0) {
         extract_values(value, &value1, &value2, &value3);
         panel_config.g_taskbar.area_name.paddingxlr = panel_config.g_taskbar.area_name.paddingx = atoi(value1);
@@ -1007,15 +1007,15 @@ void add_entry(char *key, char *value)
         else
             taskbarname_active_font.alpha = 0.5;
     } else if (strcmp(key, "taskbar_hide_inactive_tasks") == 0) {
-        hide_inactive_tasks = atoi(value);
+        hide_inactive_tasks = ATOB(value);
     } else if (strcmp(key, "taskbar_hide_different_monitor") == 0) {
-        hide_task_diff_monitor = atoi(value);
+        hide_task_diff_monitor = ATOB(value);
     } else if (strcmp(key, "taskbar_hide_different_desktop") == 0) {
-        hide_task_diff_desktop = atoi(value);
+        hide_task_diff_desktop = ATOB(value);
     } else if (strcmp(key, "taskbar_hide_if_empty") == 0) {
-        hide_taskbar_if_empty = atoi(value);
+        hide_taskbar_if_empty = ATOB(value);
     } else if (strcmp(key, "taskbar_always_show_all_desktop_tasks") == 0) {
-        always_show_all_desktop_tasks = atoi(value);
+        always_show_all_desktop_tasks = ATOB(value);
     } else if (strcmp(key, "taskbar_sort_order") == 0) {
         if (strcmp(value, "center") == 0) {
             taskbar_sort_method = TASKBAR_SORT_CENTER;
@@ -1042,11 +1042,11 @@ void add_entry(char *key, char *value)
 
     /* Task */
     else if (strcmp(key, "task_text") == 0)
-        panel_config.g_task.has_text = atoi(value);
+        panel_config.g_task.has_text = ATOB(value);
     else if (strcmp(key, "task_icon") == 0)
-        panel_config.g_task.has_icon = atoi(value);
+        panel_config.g_task.has_icon = ATOB(value);
     else if (strcmp(key, "task_centered") == 0)
-        panel_config.g_task.centered = atoi(value);
+        panel_config.g_task.centered = ATOB(value);
     else if (strcmp(key, "task_width") == 0) {
         // old parameter : just for backward compatibility
         panel_config.g_task.maximum_width = atoi(value);
@@ -1110,9 +1110,9 @@ void add_entry(char *key, char *value)
     }
     // "tooltip" is deprecated but here for backwards compatibility
     else if (strcmp(key, "task_tooltip") == 0 || strcmp(key, "tooltip") == 0)
-        panel_config.g_task.tooltip_enabled = atoi(value);
+        panel_config.g_task.tooltip_enabled = ATOB(value);
     else if (strcmp(key, "task_thumbnail") == 0)
-        panel_config.g_task.thumbnail_enabled = atoi(value);
+        panel_config.g_task.thumbnail_enabled = ATOB(value);
     else if (strcmp(key, "task_thumbnail_size") == 0)
         panel_config.g_task.thumbnail_width = MAX(8, atoi(value));
 
@@ -1196,16 +1196,16 @@ void add_entry(char *key, char *value)
             free(icon_theme_name_config);
         icon_theme_name_config = strdup(value);
     } else if (strcmp(key, "launcher_icon_theme_override") == 0) {
-        launcher_icon_theme_override = atoi(value);
+        launcher_icon_theme_override = ATOB(value);
     } else if (strcmp(key, "launcher_icon_asb") == 0) {
         extract_values(value, &value1, &value2, &value3);
         launcher_alpha = atoi(value1);
         launcher_saturation = atoi(value2);
         launcher_brightness = atoi(value3);
     } else if (strcmp(key, "launcher_tooltip") == 0) {
-        launcher_tooltip_enabled = atoi(value);
+        launcher_tooltip_enabled = ATOB(value);
     } else if (strcmp(key, "startup_notifications") == 0) {
-        startup_notifications = atoi(value);
+        startup_notifications = ATOB(value);
     }
 
     /* Tooltip */
@@ -1248,7 +1248,7 @@ void add_entry(char *key, char *value)
     else if (strcmp(key, "mouse_scroll_down") == 0)
         get_action(value, &mouse_scroll_down);
     else if (strcmp(key, "mouse_effects") == 0)
-        panel_config.mouse_effects = atoi(value);
+        panel_config.mouse_effects = ATOB(value);
     else if (strcmp(key, "mouse_hover_icon_asb") == 0) {
         extract_values(value, &value1, &value2, &value3);
         panel_config.mouse_over_alpha = atoi(value1);
@@ -1263,7 +1263,7 @@ void add_entry(char *key, char *value)
 
     /* autohide options */
     else if (strcmp(key, "autohide") == 0)
-        panel_autohide = atoi(value);
+        panel_autohide = ATOB(value);
     else if (strcmp(key, "autohide_show_timeout") == 0)
         panel_autohide_show_timeout = 1000 * atof(value);
     else if (strcmp(key, "autohide_hide_timeout") == 0)

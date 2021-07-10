@@ -705,7 +705,7 @@ void add_entry(char *key, char *value)
         execp->backend->has_icon = ATOB(value);
     } else if (strcmp(key, "execp_continuous") == 0) {
         Execp *execp = get_or_create_last_execp();
-        execp->backend->continuous = atoi(value);
+        execp->backend->continuous = MAX(atoi(value), 0);
     } else if (strcmp(key, "execp_markup") == 0) {
         Execp *execp = get_or_create_last_execp();
         execp->backend->has_markup = ATOB(value);

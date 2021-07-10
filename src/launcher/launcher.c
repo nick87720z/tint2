@@ -41,15 +41,15 @@
 #include "apps-common.h"
 #include "icon-theme-common.h"
 
-int launcher_enabled;
+gboolean launcher_enabled;
 int launcher_max_icon_size;
-int launcher_tooltip_enabled;
+gboolean launcher_tooltip_enabled;
 int launcher_alpha;
 int launcher_saturation;
 int launcher_brightness;
 char *icon_theme_name_config;
 char *icon_theme_name_xsettings;
-int launcher_icon_theme_override;
+gboolean launcher_icon_theme_override;
 Background *launcher_icon_bg;
 GList *launcher_icon_gradients;
 

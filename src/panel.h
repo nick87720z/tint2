@@ -113,7 +113,7 @@ typedef struct Panel {
     gboolean fractional_width, fractional_height;
     int max_size;
     int monitor;
-    int font_shadow;
+    gboolean font_shadow;
     gboolean mouse_effects;
     // Mouse effects for icons
     int mouse_over_alpha;

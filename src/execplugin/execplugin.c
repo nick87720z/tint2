@@ -1015,11 +1015,11 @@ const char *time_to_string(int s, char *buffer, size_t buffer_size)
         snprintf(buffer, buffer_size, "%ds", s);
     } else if (s < 3600) {
         int m = s / 60;
-        snprintf(buffer, buffer_size, "%d:%ds", m, s % 60);
+        snprintf(buffer, buffer_size, "%d:%02ds", m, s % 60);
     } else {
         int h = s / 3600;
         int m = (s %= 3600) / 60;
-        snprintf(buffer, buffer_size, "%d:%d:%ds", h, m, s % 60);
+        snprintf(buffer, buffer_size, "%d:%02d:%02ds", h, m, s % 60);
     }
 
     return buffer;

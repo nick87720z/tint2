@@ -699,7 +699,7 @@ void task_refresh_thumbnail(Task *task)
                 1000 * (task->thumbnail_last_update - now),
                 task->title ? task->title : "");
     if (g_tooltip.mapped && (g_tooltip.area == &task->area)) {
-        tooltip_update_contents_for(&task->area);
+        tooltip_set_area(&task->area);
         tooltip_update();
     }
 }

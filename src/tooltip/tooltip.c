@@ -60,7 +60,7 @@ void cleanup_tooltip()
     destroy_timer(&g_tooltip.visibility_timer);
     destroy_timer(&g_tooltip.update_timer);
     tooltip_hide(NULL);
-    tooltip_update_contents_for(NULL);
+    tooltip_set_area(NULL);
     if (g_tooltip.window)
         XDestroyWindow(server.display, g_tooltip.window);
     g_tooltip.window = 0;
@@ -123,7 +123,7 @@ void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
     just_shown = TRUE;
     g_tooltip.panel = p;
     if (g_tooltip.mapped && g_tooltip.area != area) {
-        tooltip_update_contents_for(area);
+        tooltip_set_area(area);
         tooltip_update();
         stop_tooltip_timer();
     } else if (!g_tooltip.mapped) {
@@ -138,7 +138,7 @@ void tooltip_show(void *arg)
     XTranslateCoordinates(server.display, server.root_win, g_tooltip.panel->main_win, x, y, &mx, &my, &w);
     Area *area = find_area_under_mouse(g_tooltip.panel, mx, my);
     if (!g_tooltip.mapped && area->_get_tooltip_text) {
-        tooltip_update_contents_for(area);
+        tooltip_set_area(area);
         g_tooltip.mapped = True;
         XMapWindow(server.display, g_tooltip.window);
         tooltip_update();
@@ -316,7 +316,7 @@ void tooltip_update()
 void tooltip_trigger_hide()
 {
     if (g_tooltip.mapped) {
-        tooltip_update_contents_for(NULL);
+        tooltip_set_area(NULL);
         start_hide_timer();
     } else {
         // tooltip not visible yet, but maybe a timer is still pending
@@ -351,10 +351,10 @@ void stop_tooltip_timer()
 
 void tooltip_update_contents_timeout(void *arg)
 {
-    tooltip_update_contents_for(g_tooltip.area);
+    tooltip_set_area(g_tooltip.area);
 }
 
-void tooltip_update_contents_for(Area *area)
+void tooltip_set_area(Area *area)
 {
     free_and_null(g_tooltip.tooltip_text);
     if (g_tooltip.image)

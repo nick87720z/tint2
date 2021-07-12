@@ -51,8 +51,7 @@ void cleanup_tooltip();
 
 // display update
 void tooltip_update();                        // update, using set area
-void tooltip_update_contents_for(Area *area); // change associated area
-                                              // FIXME: must be tooltip_set_area()
+void tooltip_set_area(Area *area);            // change associated area
 
 // TODO: undocumented
 void init_tooltip();

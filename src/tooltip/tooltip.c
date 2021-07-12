@@ -227,32 +227,26 @@ void tooltip_adjust_geometry()
             y <= scr_gap_h && y >= mon_y)
             return; // no adjustment needed
 
-        if (x > scr_gap_w)
-            x = scr_gap_w;
-        if (y > scr_gap_h)
-            y = scr_gap_h;
+        x > scr_gap_w && (x = scr_gap_w) ,
+        y > scr_gap_h && (y = scr_gap_h);
     }
 
     int min_x, min_y, max_width, max_height;
     if (panel_horizontal) {
-        min_x = 0;
-        min_y = panel_position & BOTTOM ? 0 : area_h;
-        max_width = mon_w;
+        min_x = 0 ,
+        min_y = panel_position & BOTTOM ? 0 : area_h ,
+        max_width  = mon_w ,
         max_height = mon_h - area_h;
     } else {
-        max_width = mon_w - area_w;
-        max_height = mon_h;
-        min_x = panel_position & LEFT ? area_w : 0;
+        max_width  = mon_w - area_w ,
+        max_height = mon_h ,
+        min_x = panel_position & LEFT ? area_w : 0 ,
         min_y = 0;
     }
-    if (x < min_x)
-        x = min_x;
-    if (y < min_y)
-        y = min_y;
-    if (width > max_width)
-        width = max_width;
-    if (height > max_height)
-        height = max_height;
+    x < min_x && (x = min_x) ,
+    y < min_y && (y = min_y) ,
+    width  > max_width  && (width  = max_width) ,
+    height > max_height && (height = max_height);
 }
 
 void tooltip_update()

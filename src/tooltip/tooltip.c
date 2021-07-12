@@ -62,8 +62,10 @@ void cleanup_tooltip()
     tooltip_hide(NULL);
     tooltip_set_area(NULL);
     if (g_tooltip.window)
+    {
         XDestroyWindow(server.display, g_tooltip.window);
-    g_tooltip.window = 0;
+        g_tooltip.window = 0;
+    }
     pango_font_description_free(g_tooltip.font_desc);
     g_tooltip.font_desc = NULL;
 }
@@ -105,14 +107,13 @@ void tooltip_init_fonts()
 
 void tooltip_default_font_changed()
 {
-    if (g_tooltip.has_font)
-        return;
     if (!g_tooltip.has_font) {
         pango_font_description_free(g_tooltip.font_desc);
         g_tooltip.font_desc = NULL;
+    
+        tooltip_init_fonts();
+        tooltip_update();
     }
-    tooltip_init_fonts();
-    tooltip_update();
 }
 
 void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
@@ -122,12 +123,12 @@ void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
     y = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
     just_shown = TRUE;
     g_tooltip.panel = p;
-    if (g_tooltip.mapped && g_tooltip.area != area) {
+    if (!g_tooltip.mapped) {
+        start_show_timer();
+    } else if (g_tooltip.area != area) {
         tooltip_set_area(area);
         tooltip_update();
         stop_tooltip_timer();
-    } else if (!g_tooltip.mapped) {
-        start_show_timer();
     }
 }
 
@@ -162,9 +163,12 @@ void tooltip_update_geometry()
     pango_layout_set_text(layout, "1234567890abcdef", -1);
     pango_layout_get_pixel_extents(layout, &r1, &r2);
     int max_width = MIN(r2.width * 5, screen_width * 2 / 3);
-    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
-                                cairo_image_surface_get_width(g_tooltip.image);
+    
+    int img_width, img_useful;
+    img_useful = g_tooltip.image && (img_width = cairo_image_surface_get_width(g_tooltip.image)) > 0;
+
+    if (img_useful) {
+        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
     }
     pango_layout_set_width(layout, max_width * PANGO_SCALE);
 
@@ -173,17 +177,20 @@ void tooltip_update_geometry()
     pango_layout_get_pixel_extents(layout, &r1, &r2);
     width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + r2.width;
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + r2.height;
-    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
-                                        cairo_image_surface_get_width(g_tooltip.image);
+
+    if (img_useful) {
+        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
         height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image);
     }
 
-    if (panel_horizontal && panel_position & BOTTOM)
+    if (!panel_horizontal)
+        goto xlim;
+    if (panel_position & BOTTOM)
         y = panel->posy - height;
-    else if (panel_horizontal && panel_position & TOP)
+    else if (panel_position & TOP)
         y = panel->posy + panel->area.height;
-    else if (panel_position & LEFT)
+    else
+    xlim:if (panel_position & LEFT)
         x = panel->posx + panel->area.width;
     else
         x = panel->posx - width;
@@ -200,35 +207,44 @@ void tooltip_adjust_geometry()
     // it seems quite impossible that the height needs to be adjusted, but we do it anyway.
 
     Panel *panel = g_tooltip.panel;
-    int screen_width = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
-    int screen_height = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height;
-    if (x + width <= screen_width && y + height <= screen_height && x >= server.monitors[panel->monitor].x &&
-        y >= server.monitors[panel->monitor].y)
+    Monitor *mon = server.monitors + panel->monitor;
+    int mon_x, mon_y, mon_w, mon_h,
+        area_w, area_h;
+
+    mon_x = mon->x, mon_w = mon->width ,
+    mon_y = mon->y, mon_h = mon->height;
+    area_w = panel->area.width ,
+    area_h = panel->area.height;
+
+    int screen_width = mon_x + mon_w;
+    int screen_height = mon_y + mon_h;
+    if (x + width <= screen_width && y + height <= screen_height &&
+        x >= mon_x && y >= mon_y)
         return; // no adjustment needed
 
     int min_x, min_y, max_width, max_height;
     if (panel_horizontal) {
         min_x = 0;
-        max_width = server.monitors[panel->monitor].width;
-        max_height = server.monitors[panel->monitor].height - panel->area.height;
+        max_width = mon_w;
+        max_height = mon_h - area_h;
         if (panel_position & BOTTOM)
             min_y = 0;
         else
-            min_y = panel->area.height;
+            min_y = area_h;
     } else {
-        max_width = server.monitors[panel->monitor].width - panel->area.width;
+        max_width = mon_w - area_w;
         min_y = 0;
-        max_height = server.monitors[panel->monitor].height;
+        max_height = mon_h;
         if (panel_position & LEFT)
-            min_x = panel->area.width;
+            min_x = area_w;
         else
             min_x = 0;
     }
 
-    if (x + width > server.monitors[panel->monitor].x + server.monitors[panel->monitor].width)
-        x = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width - width;
-    if (y + height > server.monitors[panel->monitor].y + server.monitors[panel->monitor].height)
-        y = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height - height;
+    if (x + width > mon_x + mon_w)
+        x = mon_x + mon_w - width;
+    if (y + height > mon_y + mon_h)
+        y = mon_y + mon_h - height;
 
     if (x < min_x)
         x = min_x;
@@ -356,18 +372,22 @@ void tooltip_update_contents_timeout(void *arg)
 
 void tooltip_set_area(Area *area)
 {
+    g_tooltip.area = area;
     free_and_null(g_tooltip.tooltip_text);
-    if (g_tooltip.image)
+    if (g_tooltip.image) {
         cairo_surface_destroy(g_tooltip.image);
-    g_tooltip.image = NULL;
-    if (area && area->_get_tooltip_text)
+        g_tooltip.image = NULL;
+    }
+    if (! (g_tooltip.area = area) )
+        return;
+    
+    if (area->_get_tooltip_text)
         g_tooltip.tooltip_text = area->_get_tooltip_text(area);
-    if (area && area->_get_tooltip_image) {
-        g_tooltip.image = area->_get_tooltip_image(area);
-        if (g_tooltip.image)
+    if (area->_get_tooltip_image)
+    {
+        if ( (g_tooltip.image = area->_get_tooltip_image(area)) )
             cairo_surface_reference(g_tooltip.image);
         else
             change_timer(&g_tooltip.update_timer, true, 300, 0, tooltip_update_contents_timeout, NULL);
     }
-    g_tooltip.area = area;
 }

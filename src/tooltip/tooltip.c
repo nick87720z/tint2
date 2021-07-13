@@ -149,20 +149,24 @@ void tooltip_show(void *arg)
 
 void tooltip_update_geometry()
 {
+    PangoRectangle ext;
     Panel *panel = g_tooltip.panel;
     int screen_width = server.monitors[panel->monitor].width;
+
+    #define GET_TEXT_PIXEL_EXTENTS(s, r) { \
+        pango_layout_set_text(layout, (s), -1); \
+        pango_layout_get_pixel_extents(layout, NULL, (r)); \
+    }
 
     cairo_surface_t *cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
     cairo_t *c = cairo_create(cs);
     PangoContext *context = pango_cairo_create_context(c);
     pango_cairo_context_set_resolution(context, 96 * panel->scale);
     PangoLayout *layout = pango_layout_new(context);
-
     pango_layout_set_font_description(layout, g_tooltip.font_desc);
-    PangoRectangle r1, r2;
-    pango_layout_set_text(layout, "1234567890abcdef", -1);
-    pango_layout_get_pixel_extents(layout, &r1, &r2);
-    int max_width = MIN(r2.width * 5, screen_width * 2 / 3);
+
+    GET_TEXT_PIXEL_EXTENTS("1234567890abcdef", &ext);
+    int max_width = MIN(ext.width * 5, screen_width * 2 / 3);
     
     int img_width, img_useful;
     img_useful = g_tooltip.image && (img_width = cairo_image_surface_get_width(g_tooltip.image)) > 0;
@@ -171,12 +175,11 @@ void tooltip_update_geometry()
         max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
     }
     pango_layout_set_width(layout, max_width * PANGO_SCALE);
-
-    pango_layout_set_text(layout, g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", -1);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
-    pango_layout_get_pixel_extents(layout, &r1, &r2);
-    width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + r2.width;
-    height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + r2.height;
+    GET_TEXT_PIXEL_EXTENTS(g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", &ext);
+
+    width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + ext.width;
+    height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + ext.height;
 
     if (img_useful) {
         width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
@@ -194,6 +197,8 @@ void tooltip_update_geometry()
         x = panel->posx + panel->area.width;
     else
         x = panel->posx - width;
+
+    #undef GET_TEXT_PIXEL_EXTENTS
 
     g_object_unref(layout);
     g_object_unref(context);
@@ -218,33 +223,27 @@ void tooltip_adjust_geometry()
 
     int screen_width = mon_x + mon_w;
     int screen_height = mon_y + mon_h;
-    if (x + width <= screen_width && y + height <= screen_height &&
-        x >= mon_x && y >= mon_y)
+    if (x <= screen_width  - width  && x >= mon_x &&
+        y <= screen_height - height && y >= mon_y)
         return; // no adjustment needed
 
     int min_x, min_y, max_width, max_height;
     if (panel_horizontal) {
         min_x = 0;
+        min_y = panel_position & BOTTOM ? 0 : area_h;
         max_width = mon_w;
         max_height = mon_h - area_h;
-        if (panel_position & BOTTOM)
-            min_y = 0;
-        else
-            min_y = area_h;
     } else {
         max_width = mon_w - area_w;
-        min_y = 0;
         max_height = mon_h;
-        if (panel_position & LEFT)
-            min_x = area_w;
-        else
-            min_x = 0;
+        min_x = panel_position & LEFT ? area_w : 0;
+        min_y = 0;
     }
 
-    if (x + width > mon_x + mon_w)
-        x = mon_x + mon_w - width;
-    if (y + height > mon_y + mon_h)
-        y = mon_y + mon_h - height;
+    if (x > screen_width - width)
+        x = screen_width - width;
+    if (y > screen_height - height)
+        y = screen_height - height;
 
     if (x < min_x)
         x = min_x;

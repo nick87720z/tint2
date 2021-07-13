@@ -170,19 +170,20 @@ void tooltip_update_geometry()
     
     int img_width, img_useful;
     img_useful = g_tooltip.image && (img_width = cairo_image_surface_get_width(g_tooltip.image)) > 0;
+    int space = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale;
 
     if (img_useful) {
-        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
+        max_width = space + img_width;
     }
     pango_layout_set_width(layout, max_width * PANGO_SCALE);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
     GET_TEXT_PIXEL_EXTENTS(g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", &ext);
 
-    width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + ext.width;
+    width = space + ext.width;
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + ext.height;
 
     if (img_useful) {
-        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
+        width = space + img_width;
         height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image);
     }
 
@@ -220,11 +221,12 @@ void tooltip_adjust_geometry()
     mon_y = mon->y, mon_h = mon->height;
     area_w = panel->area.width ,
     area_h = panel->area.height;
+    
+    int scr_gap_w = mon_x + mon_w - width ,
+        scr_gap_h = mon_y + mon_h - height;
 
-    int screen_width = mon_x + mon_w;
-    int screen_height = mon_y + mon_h;
-    if (x <= screen_width  - width  && x >= mon_x &&
-        y <= screen_height - height && y >= mon_y)
+    if (x <= scr_gap_w && x >= mon_x &&
+        y <= scr_gap_h && y >= mon_y)
         return; // no adjustment needed
 
     int min_x, min_y, max_width, max_height;
@@ -240,17 +242,16 @@ void tooltip_adjust_geometry()
         min_y = 0;
     }
 
-    if (x > screen_width - width)
-        x = screen_width - width;
-    if (y > screen_height - height)
-        y = screen_height - height;
-
+    if (x > scr_gap_w)
+        x = scr_gap_w;
+    if (y > scr_gap_h)
+        y = scr_gap_h;
     if (x < min_x)
         x = min_x;
-    if (width > max_width)
-        width = max_width;
     if (y < min_y)
         y = min_y;
+    if (width > max_width)
+        width = max_width;
     if (height > max_height)
         height = max_height;
 }

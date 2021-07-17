@@ -438,7 +438,7 @@ int update_battery()
     }
 
     battery_update_text(buf_bat_line1, bat1_format);
-    if (bat2_format != 0) {
+    if (bat2_format != NULL) {
         battery_update_text(buf_bat_line2, bat2_format);
     }
 

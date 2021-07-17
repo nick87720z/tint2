@@ -195,8 +195,8 @@ void init_taskbar()
     if (!win_to_task)
         win_to_task = g_hash_table_new_full(win_hash, win_compare, free, free_ptr_array);
 
-    active_task = 0;
-    task_drag = 0;
+    active_task = NULL;
+    task_drag = NULL;
 }
 
 void init_taskbar_panel(void *p)

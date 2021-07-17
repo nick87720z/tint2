@@ -51,7 +51,7 @@ PangoFontDescription *time2_font_desc;
 static char buf_time[256];
 static char buf_date[256];
 static char buf_tooltip[512];
-int clock_enabled;
+gboolean clock_enabled;
 static Timer clock_timer;
 
 void clock_init_fonts();
@@ -61,7 +61,7 @@ void clock_dump_geometry(void *obj, int indent);
 
 void default_clock()
 {
-    clock_enabled = 0;
+    clock_enabled = TRUE;
     time1_format = NULL;
     time1_timezone = NULL;
     time2_format = NULL;
@@ -78,9 +78,9 @@ void default_clock()
     time1_font_desc = NULL;
     time2_has_font = FALSE;
     time2_font_desc = NULL;
-    buf_time[0] = 0;
-    buf_date[0] = 0;
-    buf_tooltip[0] = 0;
+    buf_time[0] = '\0';
+    buf_date[0] = '\0';
+    buf_tooltip[0] = '\0';
 }
 
 void cleanup_clock()

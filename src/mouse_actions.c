@@ -164,7 +164,7 @@ void handle_mouse_release_event(XEvent *e)
         forward_click(e);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
-        task_drag = 0;
+        task_drag = NULL;
         return;
     }
 
@@ -198,7 +198,7 @@ void handle_mouse_release_event(XEvent *e)
         clock_action(clock, e->xbutton.button, e->xbutton.x - clock->area.posx, e->xbutton.y - clock->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
-        task_drag = 0;
+        task_drag = NULL;
         return;
     }
 
@@ -208,7 +208,7 @@ void handle_mouse_release_event(XEvent *e)
         battery_action(battery, e->xbutton.button, e->xbutton.x - battery->area.posx, e->xbutton.y - battery->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
-        task_drag = 0;
+        task_drag = NULL;
         return;
     }
 #endif
@@ -218,7 +218,7 @@ void handle_mouse_release_event(XEvent *e)
         execp_action(execp, e->xbutton.button, e->xbutton.x - execp->area.posx, e->xbutton.y - execp->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
-        task_drag = 0;
+        task_drag = NULL;
         return;
     }
 
@@ -227,7 +227,7 @@ void handle_mouse_release_event(XEvent *e)
         button_action(button, e->xbutton.button, e->xbutton.x - button->area.posx, e->xbutton.y - button->area.posy, e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
-        task_drag = 0;
+        task_drag = NULL;
         return;
     }
 
@@ -236,7 +236,7 @@ void handle_mouse_release_event(XEvent *e)
         if (icon) {
             launcher_action(icon, e, e->xbutton.x - icon->area.posx, e->xbutton.y - icon->area.posy);
         }
-        task_drag = 0;
+        task_drag = NULL;
         return;
     }
 
@@ -245,13 +245,13 @@ void handle_mouse_release_event(XEvent *e)
         // TODO: check better solution to keep window below
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
-        task_drag = 0;
+        task_drag = NULL;
         return;
     }
 
     // drag and drop task
     if (task_dragged) {
-        task_drag = 0;
+        task_drag = NULL;
         task_dragged = 0;
         return;
     }

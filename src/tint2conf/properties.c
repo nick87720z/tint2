@@ -1332,19 +1332,19 @@ void set_panel_items(const char *items)
             name = _("Free space");
         } else if (v == ':') {
             separator_index++;
-            buffer[0] = 0;
+            buffer[0] = '\0';
             snprintf(buffer, sizeof(buffer), "%s %d", _("Separator"), separator_index + 1);
             name = buffer;
             value = ":";
         } else if (v == 'E') {
             execp_index++;
-            buffer[0] = 0;
+            buffer[0] = '\0';
             snprintf(buffer, sizeof(buffer), "%s %d", _("Executor"), execp_index + 1);
             name = buffer;
             value = "E";
         } else if (v == 'P') {
             button_index++;
-            buffer[0] = 0;
+            buffer[0] = '\0';
             snprintf(buffer, sizeof(buffer), "%s %d", _("Button"), button_index + 1);
             name = buffer;
             value = "P";
@@ -4114,7 +4114,7 @@ void create_separator(GtkWidget *notebook, int i)
     int row, col;
     Separator *separator = &g_array_index(separators, Separator, i);
 
-    separator->name[0] = 0;
+    separator->name[0] = '\0';
     snprintf(separator->name, sizeof(separator->name), "%s %d", _("Separator"), i + 1);
     separator->page_label = gtk_label_new(separator->name);
     gtk_widget_show(separator->page_label);
@@ -4239,7 +4239,7 @@ void create_execp(GtkWidget *notebook, int i)
 
     Executor *executor = &g_array_index(executors, Executor, i);
 
-    executor->name[0] = 0;
+    executor->name[0] = '\0';
     snprintf(executor->name, sizeof(executor->name), "%s %d", _("Executor"), i + 1);
     executor->page_label = gtk_label_new(executor->name);
     gtk_widget_show(executor->page_label);
@@ -4701,7 +4701,7 @@ void create_button(GtkWidget *notebook, int i)
 
     Button *button = &g_array_index(buttons, Button, i);
 
-    button->name[0] = 0;
+    button->name[0] = '\0';
     snprintf(button->name, sizeof(button->name), "%s %d", _("Button"), i + 1);
     button->page_label = gtk_label_new(button->name);
     gtk_widget_show(button->page_label);
@@ -5108,7 +5108,7 @@ void separator_update_indices()
         if (g_str_equal(value, ":")) {
             separator_index++;
             char buffer[256];
-            buffer[0] = 0;
+            buffer[0] = '\0';
             snprintf(buffer, sizeof(buffer), "%s %d", _("Separator"), separator_index + 1);
 
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
@@ -5140,7 +5140,7 @@ void execp_update_indices()
         if (g_str_equal(value, "E")) {
             execp_index++;
             char buffer[256];
-            buffer[0] = 0;
+            buffer[0] = '\0';
             snprintf(buffer, sizeof(buffer), "%s %d", _("Executor"), execp_index + 1);
 
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
@@ -5172,7 +5172,7 @@ void button_update_indices()
         if (g_str_equal(value, "P")) {
             button_index++;
             char buffer[256];
-            buffer[0] = 0;
+            buffer[0] = '\0';
             snprintf(buffer, sizeof(buffer), "%s %d", _("Button"), button_index + 1);
 
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);

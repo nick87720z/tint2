@@ -639,7 +639,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                                          strlen(extension) + 100;
                         file_name = realloc(file_name, file_name_size);
                     }
-                    file_name[0] = 0;
+                    file_name[0] = '\0';
                     // filename = directory/$(themename)/subdirectory/iconname.extension
                     snprintf(file_name, (size_t)file_name_size, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
                     if (debug_icons)

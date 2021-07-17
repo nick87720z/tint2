@@ -241,7 +241,7 @@ Button *get_or_create_last_button()
 
 void add_entry(char *key, char *value)
 {
-    char *value1 = 0, *value2 = 0, *value3 = 0;
+    char *value1 = NULL, *value2 = NULL, *value3 = NULL;
 
     /* Background and border */
     if (strcmp(key, "scale_relative_to_dpi") == 0) {
@@ -427,32 +427,32 @@ void add_entry(char *key, char *value)
         new_config_file = TRUE;
         free_and_null(panel_items_order);
         panel_items_order = strdup(value);
-        systray_enabled = 0;
-        launcher_enabled = 0;
+        systray_enabled = FALSE;
+        launcher_enabled = FALSE;
 #ifdef ENABLE_BATTERY
-        battery_enabled = 0;
+        battery_enabled = FALSE;
 #endif
-        clock_enabled = 0;
-        taskbar_enabled = 0;
+        clock_enabled = FALSE;
+        taskbar_enabled = FALSE;
         for (int j = 0; j < strlen(panel_items_order); j++) {
             if (panel_items_order[j] == 'L')
-                launcher_enabled = 1;
+                launcher_enabled = TRUE;
             if (panel_items_order[j] == 'T')
-                taskbar_enabled = 1;
+                taskbar_enabled = TRUE;
             if (panel_items_order[j] == 'B') {
 #ifdef ENABLE_BATTERY
-                battery_enabled = 1;
+                battery_enabled = TRUE;
 #else
                 fprintf(stderr, "tint2: tint2 has been compiled without battery support\n");
 #endif
             }
             if (panel_items_order[j] == 'S') {
                 // systray disabled in snapshot mode
-                if (snapshot_path == 0)
-                    systray_enabled = 1;
+                if (snapshot_path == NULL)
+                    systray_enabled = TRUE;
             }
             if (panel_items_order[j] == 'C')
-                clock_enabled = 1;
+                clock_enabled = TRUE;
         }
     } else if (strcmp(key, "panel_margin") == 0) {
         extract_values(value, &value1, &value2, &value3);
@@ -1125,7 +1125,7 @@ void add_entry(char *key, char *value)
 
     /* Systray */
     else if (strcmp(key, "systray_padding") == 0) {
-        if (!new_config_file && systray_enabled == 0) {
+        if (!new_config_file && !systray_enabled) {
             systray_enabled = TRUE;
             if (panel_items_order) {
                 gchar *tmp = g_strconcat(panel_items_order, "S", NULL);
@@ -1416,7 +1416,7 @@ gboolean config_read_default_path()
     if (!g_file_test(g_get_user_config_dir(), G_FILE_TEST_IS_DIR))
         g_mkdir_with_parents(g_get_user_config_dir(), 0700);
 
-    gchar *path2 = 0;
+    gchar *path2 = NULL;
     system_dirs = g_get_system_config_dirs();
     for (int i = 0; system_dirs[i]; i++) {
         path2 = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
@@ -1424,7 +1424,7 @@ gboolean config_read_default_path()
         if (g_file_test(path2, G_FILE_TEST_EXISTS))
             break;
         g_free(path2);
-        path2 = 0;
+        path2 = NULL;
     }
 
     if (path2) {

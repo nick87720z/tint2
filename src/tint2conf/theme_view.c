@@ -150,7 +150,7 @@ void theme_list_append(const gchar *path)
     if (strchr(path, '/')) {
         name = strrchr(path, '/') + 1;
         dir = g_strdup(path);
-        strrchr(dir, '/')[0] = 0;
+        strrchr(dir, '/')[0] = '\0';
     } else {
         name = (gchar*)path;
         dir = g_strdup(".");

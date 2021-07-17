@@ -1021,7 +1021,7 @@ Panel *get_panel(Window win)
             return &panels[i];
         }
     }
-    return 0;
+    return NULL;
 }
 
 Taskbar *click_taskbar(Panel *panel, int x, int y)

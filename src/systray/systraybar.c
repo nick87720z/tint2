@@ -73,7 +73,7 @@ void systray_dump_geometry(void *obj, int indent);
 
 void default_systray()
 {
-    systray_enabled = 0;
+    systray_enabled = FALSE;
     memset(&systray, 0, sizeof(systray));
     render_background = 0;
     chrono = 0;
@@ -91,7 +91,7 @@ void default_systray()
 void cleanup_systray()
 {
     stop_net();
-    systray_enabled = 0;
+    systray_enabled = FALSE;
     systray_max_icon_size = 0;
     systray_monitor = 0;
     systray.area.on_screen = FALSE;

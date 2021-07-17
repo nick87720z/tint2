@@ -197,17 +197,17 @@ void task_remove_icon(Task *task)
         if (task->icon[k]) {
             imlib_context_set_image(task->icon[k]);
             imlib_free_image();
-            task->icon[k] = 0;
+            task->icon[k] = NULL;
         }
         if (task->icon_hover[k]) {
             imlib_context_set_image(task->icon_hover[k]);
             imlib_free_image();
-            task->icon_hover[k] = 0;
+            task->icon_hover[k] = NULL;
         }
         if (task->icon_press[k]) {
             imlib_context_set_image(task->icon_press[k]);
             imlib_free_image();
-            task->icon_press[k] = 0;
+            task->icon_press[k] = NULL;
         }
     }
 }
@@ -238,9 +238,9 @@ void remove_task(Task *task)
     for (int i = 0; i < task_buttons->len; ++i) {
         Task *task2 = g_ptr_array_index(task_buttons, i);
         if (task2 == active_task)
-            active_task = 0;
+            active_task = NULL;
         if (task2 == task_drag)
-            task_drag = 0;
+            task_drag = NULL;
         if (g_slist_find(urgent_list, task2))
             del_urgent(task2);
         if (g_tooltip.area == &task2->area)
@@ -630,7 +630,7 @@ Task *next_task(Task *task)
 Task *prev_task(Task *task)
 {
     if (!task)
-        return 0;
+        return NULL;
 
     Taskbar *taskbar = task->area.parent;
 

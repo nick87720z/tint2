@@ -35,7 +35,7 @@ void utoa(unsigned long n, char *s)
 {
     if (n == 0) {
         *s++ = '0';
-        *s = 0;
+        *s = '\0';
         return;
     }
     char buffer[128] = {0};
@@ -85,7 +85,7 @@ static void crash(char *file, int line, char *msg)
 
 void *return_null(void *x, void *y)
 {
-    return 0;
+    return NULL;
 }
 
 void load_func_or_crash(void **result, const char *name)
@@ -95,7 +95,7 @@ void load_func_or_crash(void **result, const char *name)
         *result = (void*)return_null;
         return;
     } else if (*result == (void*)return_null) {
-        *result = 0;
+        *result = NULL;
     }
     if (*result)
         return;
@@ -294,7 +294,7 @@ static void log_alloc_finish()
 
 void *malloc(size_t size)
 {
-    static void *(*original)(size_t size) = 0;
+    static void *(*original)(size_t size) = NULL;
     load_func_or_crash((void *)&original, __FUNCTION__);
     void *result = original(size);
     log_alloc(__FUNCTION__, result, 0, size, 0);
@@ -303,7 +303,7 @@ void *malloc(size_t size)
 
 void *realloc(void *ptr, size_t size)
 {
-    static void *(*original)(void *p, size_t size) = 0;
+    static void *(*original)(void *p, size_t size) = NULL;
     load_func_or_crash((void *)&original, __FUNCTION__);
     void *result = original(ptr, size);
     log_alloc(__FUNCTION__, result, ptr, size, 0);
@@ -312,7 +312,7 @@ void *realloc(void *ptr, size_t size)
 
 void *calloc(size_t nmemb, size_t size)
 {
-    static void *(*original)(size_t nmemb, size_t size) = 0;
+    static void *(*original)(size_t nmemb, size_t size) = NULL;
     load_func_or_crash((void *)&original, __FUNCTION__);
     void *result = original(nmemb, size);
     log_alloc(__FUNCTION__, result, 0, size, nmemb);
@@ -321,7 +321,7 @@ void *calloc(size_t nmemb, size_t size)
 
 void free(void *ptr)
 {
-    static void *(*original)(void *p) = 0;
+    static void *(*original)(void *p) = NULL;
     load_func_or_crash((void *)&original, __FUNCTION__);
     if (!original) {
         return;

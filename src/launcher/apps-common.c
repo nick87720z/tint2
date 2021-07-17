@@ -41,7 +41,7 @@ int parse_dektop_line(char *line, char **key, char **value)
     for (p = line; *p; p++) {
         if (*p == '=') {
             *value = p + 1;
-            *p = 0;
+            *p = '\0';
             found = 1;
             break;
         }

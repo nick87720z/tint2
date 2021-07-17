@@ -68,7 +68,7 @@ void config_read_file(const char *path)
 
     if (!config_has_panel_items) {
         char panel_items[256];
-        panel_items[0] = 0;
+        panel_items[0] = '\0';
         strlcat(panel_items, "T", sizeof(panel_items));
         if (config_has_battery) {
             if (config_battery_enabled)
@@ -1125,7 +1125,7 @@ void finalize_gradient()
 
 void add_entry(char *key, char *value)
 {
-    char *value1 = 0, *value2 = 0, *value3 = 0;
+    char *value1 = NULL, *value2 = NULL, *value3 = NULL;
 
     /* Gradients */
     if (strcmp(key, "scale_relative_to_dpi") == 0) {

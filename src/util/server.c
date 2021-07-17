@@ -186,7 +186,7 @@ int get_property32(Window win, Atom at, Atom type)
     int format_ret = 0, data = 0;
     unsigned long nitems_ret = 0;
     unsigned long bafter_ret = 0;
-    unsigned char *prop_value = 0;
+    unsigned char *prop_value = NULL;
     int result;
 
     if (!win)

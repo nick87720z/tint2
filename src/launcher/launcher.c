@@ -68,7 +68,7 @@ void relayout_launcher();
 
 void default_launcher()
 {
-    launcher_enabled = 0;
+    launcher_enabled = FALSE;
     launcher_max_icon_size = 0;
     launcher_tooltip_enabled = 0;
     launcher_alpha = 100;
@@ -77,7 +77,7 @@ void default_launcher()
     icon_theme_name_config = NULL;
     icon_theme_name_xsettings = NULL;
     launcher_icon_theme_override = 0;
-    startup_notifications = 0;
+    startup_notifications = FALSE;
     launcher_icon_bg = NULL;
     launcher_icon_gradients = NULL;
 }

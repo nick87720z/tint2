@@ -339,7 +339,7 @@ pid_t tint_exec(const char *command,
         tooltip = command;
 
 #if HAVE_SN
-    SnLauncherContext *ctx = 0;
+    SnLauncherContext *ctx = NULL;
     if (startup_notifications && startup_notification && time) {
         ctx = sn_launcher_context_new(server.sn_display, server.screen);
         sn_launcher_context_set_name(ctx, tooltip);

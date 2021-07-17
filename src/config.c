@@ -1386,19 +1386,15 @@ gboolean config_read_file(const char *path)
 
 gboolean config_read_default_path()
 {
-    const gchar *const *system_dirs;
+    const gchar *const *sysdir;
     gchar *userpath, *syspath;
+    gchar *userdir = (gchar *)g_get_user_config_dir();
 
     // follow XDG specification
     // check tint2rc in user directory
-    userpath = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
-    if (g_file_test(userpath, G_FILE_TEST_EXISTS)) {
-        gboolean result = config_read_file(userpath);
-        config_path = strdup(userpath);
-        g_free(userpath);
-        return result;
-    }
-    g_free(userpath);
+    userpath = g_build_filename(userdir, "tint2", "tint2rc", NULL);
+    if (g_file_test(userpath, G_FILE_TEST_EXISTS))
+        goto done;
 
     // copy tint2rc from system directory to user directory
 
@@ -1406,13 +1402,13 @@ gboolean config_read_default_path()
     // According to the XDG Base Directory Specification
     // (https://specifications.freedesktop.org/basedir-spec/basedir-spec-0.6.html)
     // if the user's config directory does not exist, we should create it with permissions set to 0700.
-    if (!g_file_test(g_get_user_config_dir(), G_FILE_TEST_IS_DIR))
-        g_mkdir_with_parents(g_get_user_config_dir(), 0700);
+    if (!g_file_test(userdir, G_FILE_TEST_IS_DIR))
+        g_mkdir_with_parents(userdir, 0700);
 
     syspath = NULL;
-    system_dirs = g_get_system_config_dirs();
-    for (int i = 0; system_dirs[i]; i++) {
-        syspath = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
+    sysdir = g_get_system_config_dirs();
+    for (; *sysdir; sysdir++) {
+        syspath = g_build_filename(*sysdir, "tint2", "tint2rc", NULL);
 
         if (g_file_test(syspath, G_FILE_TEST_EXISTS))
             break;
@@ -1420,39 +1416,26 @@ gboolean config_read_default_path()
         syspath = NULL;
     }
 
-    if (syspath) {
-        // copy file in user directory (userpath)
-        gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
-        if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
-            g_mkdir_with_parents(dir, 0700);
-        g_free(dir);
-
-        userpath = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
-        copy_file(syspath, userpath);
-        g_free(syspath);
-
-        gboolean result = config_read_file(userpath);
-        config_path = strdup(userpath);
-        g_free(userpath);
-        return result;
-    }
-
-    // generate config file
-    gchar *dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
+    gchar *dir = g_build_filename(userdir, "tint2", NULL);
     if (!g_file_test(dir, G_FILE_TEST_IS_DIR))
         g_mkdir_with_parents(dir, 0700);
     g_free(dir);
 
-    userpath = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
-    FILE *f = fopen(userpath, "w");
-    if (f) {
-        fwrite(themes_tint2rc, 1, themes_tint2rc_len, f);
-        fclose(f);
+    if (syspath) {
+        // copy file in user directory (userpath)
+        copy_file(syspath, userpath);
+        g_free(syspath);
+    } else {
+        // generate config file
+        FILE *f = fopen(userpath, "w");
+        if (f) {
+            fwrite(themes_tint2rc, 1, themes_tint2rc_len, f);
+            fclose(f);
+        }
     }
-
+done:;
     gboolean result = config_read_file(userpath);
-    config_path = strdup(userpath);
-    g_free(userpath);
+    config_path = userpath;
     return result;
 }
 

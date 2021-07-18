@@ -70,23 +70,18 @@ void config_read_file(const char *path)
     if (!config_has_panel_items) {
         char panel_items[256];
         panel_items[0] = '\0';
+
         strlcat(panel_items, "T", sizeof(panel_items));
-        if (config_has_battery) {
-            if (config_battery_enabled)
-                strlcat(panel_items, "B", sizeof(panel_items));
-        } else {
-            if (no_items_battery_enabled)
-                strlcat(panel_items, "B", sizeof(panel_items));
-        }
-        if (config_has_systray) {
-            if (config_systray_enabled)
-                strlcat(panel_items, "S", sizeof(panel_items));
-        } else {
-            if (no_items_systray_enabled)
-                strlcat(panel_items, "S", sizeof(panel_items));
-        }
+        
+        if (config_has_battery ? config_battery_enabled : no_items_battery_enabled)
+            strlcat(panel_items, "B", sizeof(panel_items));
+        
+        if (config_has_systray ? config_systray_enabled : no_items_systray_enabled)
+            strlcat(panel_items, "S", sizeof(panel_items));
+        
         if (no_items_clock_enabled)
             strlcat(panel_items, "C", sizeof(panel_items));
+
         set_panel_items(panel_items);
     }
 }

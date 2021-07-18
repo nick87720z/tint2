@@ -84,11 +84,8 @@ void load_cache(Cache *cache, const gchar *cache_path)
         if (line_len == 0)
             continue;
 
-        if (parse_line(line, &key, &value)) {
+        if (parse_line(line, &key, &value))
             g_hash_table_insert(cache->_table, g_strdup(key), g_strdup(value));
-            free(key);
-            free(value);
-        }
     }
     free(line);
     fclose(f);

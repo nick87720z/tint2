@@ -203,27 +203,42 @@ void copy_file(const char *path_src, const char *path_dest)
 
 gboolean parse_line(const char *line, char **key, char **value)
 {
-    char *a, *b;
+    char *a, *b, c;
 
-    /* Skip useless lines */
-    if ((line[0] == '#') || (line[0] == '\n'))
-        return FALSE;
-    if (!(a = strchr(line, '=')))
+    /* fail if comment or empty */
+    if ((c = line[0]) == '#' || c == '\n' || c == '\0')
         return FALSE;
 
-    /* overwrite '=' with '\0' */
-    a[0] = '\0';
-    *key = strdup(line);
-    a++;
+    /* skip leading whitespace */
+    line += strspn(line, " \t\r\n");
+    if ( !(a = strchr(line, '=')) )
+        return FALSE;
 
-    /* overwrite '\n' with '\0' if '\n' present */
-    if ((b = strchr(a, '\n')))
-        b[0] = '\0';
+    /* set key null terminator */
+    if (a == line)
+        a[0] = '\0';
+    else {
+        b = a;
+        while (g_ascii_isspace(* --b));
+        *(++b) = '\0';
+    }
 
-    *value = strdup(a);
+    /* + skip value leading space */
+    a++, a += strspn(a, " \t\r\n");
 
-    g_strstrip(*key);
-    g_strstrip(*value);
+    *key = (char *)line;
+    *value = a;
+
+    if ((c = a[0]) != '\n' || c != '\0') {
+        /* drop '\n' if found
+         * along with trailing space */
+        b = strchr(a + 1, '\0');
+        if (b[-1] == '\n')
+            b--;
+        while (g_ascii_isspace(* --b));
+        b[1] = '\0';
+    }
+
     return TRUE;
 }
 

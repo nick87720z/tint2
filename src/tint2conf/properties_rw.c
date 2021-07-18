@@ -54,11 +54,8 @@ void config_read_file(const char *path)
         size_t line_size = 0;
         while (getline(&line, &line_size, fp) >= 0) {
             char *key, *value;
-            if (parse_line(line, &key, &value)) {
+            if (parse_line(line, &key, &value))
                 add_entry(key, value);
-                free(key);
-                free(value);
-            }
         }
         free(line);
         fclose(fp);

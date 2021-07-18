@@ -56,8 +56,9 @@ void copy_file(const char *path_src, const char *path_dest);
 
 // Parses lines with the format 'key = value' into key and value.
 // Strips key and value.
-// Values may contain spaces and the equal sign.
+// Values may contain any graphical characters with spaces in the middle.
 // Returns 1 if both key and value could be read, zero otherwise.
+// !!! returned strings are part of line and should be used with free or realloc.
 gboolean parse_line(const char *line, char **key, char **value);
 
 void extract_values(const char *value, char **value1, char **value2, char **value3);

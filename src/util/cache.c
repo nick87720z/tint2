@@ -71,16 +71,14 @@ void load_cache(Cache *cache, const gchar *cache_path)
 
         size_t line_len = strlen(line);
         gboolean has_newline = FALSE;
-        if (line_len >= 1) {
-            if (line[line_len - 1] == '\n') {
-                line[line_len - 1] = '\0';
-                line_len--;
-                has_newline = TRUE;
-            }
+        if (line_len >= 1 && line[line_len - 1] == '\n')
+        {
+            line[--line_len] = '\0';
+            has_newline = TRUE;
         }
+        // FIXME: two following conditions are incompatible
         if (!has_newline)
             break;
-
         if (line_len == 0)
             continue;
 

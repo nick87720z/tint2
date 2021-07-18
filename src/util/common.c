@@ -87,10 +87,9 @@ void dump_backtrace(int log_fd)
 // sleep() returns early when signals arrive. This function does not.
 void safe_sleep(int seconds)
 {
-    double t0 = get_time();
+    double t = get_time();
     while (1) {
-        double t = get_time();
-        if (t > t0 + seconds)
+        if (get_time() > t + seconds)
             return;
         sleep(1);
     }
@@ -167,9 +166,8 @@ const char *get_home_dir()
     if (s)
         return s;
     struct passwd *pw = getpwuid(getuid());
-    if (!pw)
-        return NULL;
-    return pw->pw_dir;
+    
+    return pw ? pw->pw_dir : NULL;
 }
 
 void copy_file(const char *path_src, const char *path_dest)
@@ -181,15 +179,11 @@ void copy_file(const char *path_src, const char *path_dest)
     char buffer[4096];
     int nb;
 
-    file_src = fopen(path_src, "rb");
-    if (file_src == NULL)
-        return;
+    if ( !(file_src = fopen(path_src, "rb")) )
+        goto r0;
 
-    file_dest = fopen(path_dest, "wb");
-    if (file_dest == NULL) {
-        fclose(file_src);
-        return;
-    }
+    if ( !(file_dest = fopen(path_dest, "wb")) )
+        goto r1;
 
     while ((nb = fread(buffer, 1, sizeof(buffer), file_src)) > 0) {
         if (nb != fwrite(buffer, 1, nb, file_dest)) {
@@ -198,7 +192,8 @@ void copy_file(const char *path_src, const char *path_dest)
     }
 
     fclose(file_dest);
-    fclose(file_src);
+r1: fclose(file_src);
+r0: return;
 }
 
 gboolean parse_line(const char *line, char **key, char **value)
@@ -1113,12 +1108,7 @@ GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr
 
 gint cmp_ptr(gconstpointer a, gconstpointer b)
 {
-    if (a < b)
-        return -1;
-    else if (a == b)
-        return 0;
-    else
-        return 1;
+    return a < b ? -1 : a != b;
 }
 
 void close_all_fds()

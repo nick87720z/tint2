@@ -61,6 +61,35 @@
 
 #endif
 
+#define _STR_EXTEND(s, L) \
+int L; do{                \
+    L = strlen(s);        \
+    s = realloc(s, L+2);  \
+}while(0)
+
+// NOTE: c is 1-char string (null-terminated),
+// not a char itself
+
+// also, parts of string could be copied faster using wider data type (up to word)
+#define STR_APPEND_CH(str, c)       \
+do{ char *s=(str);                  \
+    if (s) {                        \
+        _STR_EXTEND(s, L);          \
+        s[L]=(c)[0], s[L+1]=(c)[1]; \
+    } else                          \
+        s = strdup(c);              \
+}while(0)
+
+#define STR_PREPEND_CH(str, c) \
+do{ char *s = (str);           \
+    if (s) {                   \
+        _STR_EXTEND(s, L);     \
+        memmove (s+1, s, L+1); \
+        s[0] = (c)[0];         \
+    } else                     \
+        s = strdup(c);         \
+}while(0)
+
 // global path
 char *config_path = NULL;
 char *snapshot_path = NULL;
@@ -884,14 +913,7 @@ void add_entry(char *key, char *value)
     else if (strcmp(key, "time1_format") == 0) {
         if (!new_config_file) {
             clock_enabled = TRUE;
-            if (panel_items_order) {
-                gchar *tmp = g_strconcat(panel_items_order, "C", NULL);
-                free(panel_items_order);
-                panel_items_order = strdup(tmp);
-                g_free(tmp);
-            } else {
-                panel_items_order = strdup("C");
-            }
+            STR_APPEND_CH(panel_items_order, "C");
         }
         if (strlen(value) > 0) {
             time1_format = strdup(value);
@@ -1127,13 +1149,7 @@ void add_entry(char *key, char *value)
     else if (strcmp(key, "systray_padding") == 0) {
         if (!new_config_file && !systray_enabled) {
             systray_enabled = TRUE;
-            if (panel_items_order) {
-                gchar *tmp = g_strconcat(panel_items_order, "S", NULL);
-                free(panel_items_order);
-                panel_items_order = strdup(tmp);
-                g_free(tmp);
-            } else
-                panel_items_order = strdup("S");
+            STR_APPEND_CH(panel_items_order, "S");
         }
         extract_values(value, &value1, &value2, &value3);
         systray.area.paddingxlr = systray.area.paddingx = atoi(value1);
@@ -1294,30 +1310,16 @@ void add_entry(char *key, char *value)
     else if (strcmp(key, "systray") == 0) {
         if (!new_config_file) {
             systray_enabled = atoi(value);
-            if (systray_enabled) {
-                if (panel_items_order) {
-                    gchar *tmp = g_strconcat(panel_items_order, "S", NULL);
-                    free(panel_items_order);
-                    panel_items_order = strdup(tmp);
-                    g_free(tmp);
-                } else
-                    panel_items_order = strdup("S");
-            }
+            if (systray_enabled)
+                STR_APPEND_CH(panel_items_order, "S");
         }
     }
 #ifdef ENABLE_BATTERY
     else if (strcmp(key, "battery") == 0) {
         if (!new_config_file) {
             battery_enabled = atoi(value);
-            if (battery_enabled) {
-                if (panel_items_order) {
-                    gchar *tmp = g_strconcat(panel_items_order, "B", NULL);
-                    free(panel_items_order);
-                    panel_items_order = strdup(tmp);
-                    g_free(tmp);
-                } else
-                    panel_items_order = strdup("B");
-            }
+            if (battery_enabled)
+                STR_APPEND_CH(panel_items_order, "B");
         }
     }
 #endif
@@ -1366,14 +1368,7 @@ gboolean config_read_file(const char *path)
     // append Taskbar item
     if (!new_config_file) {
         taskbar_enabled = TRUE;
-        if (panel_items_order) {
-            gchar *tmp = g_strconcat("T", panel_items_order, NULL);
-            free(panel_items_order);
-            panel_items_order = strdup(tmp);
-            g_free(tmp);
-        } else {
-            panel_items_order = strdup("T");
-        }
+        STR_PREPEND_CH(panel_items_order, "T");
     }
 
     if (backgrounds->len > 0) {

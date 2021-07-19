@@ -160,11 +160,11 @@ void battery_update_text(char *dest, char *format)
     // We want to loop over the format specifier, replacing any known symbols with our battery data.
     // First, erase anything already stored in the buffer.
     // This ensures the string will always be null-terminated.
-    bzero(dest, BATTERY_BUF_SIZE);
+    memset(dest, 0, BATTERY_BUF_SIZE);
 
     for (size_t o = 0; o < strlen(format); o++) {
         char buf[BATTERY_BUF_SIZE];
-        bzero(buf, BATTERY_BUF_SIZE);
+        memset(buf, 0, BATTERY_BUF_SIZE);
         char *c = &format[o];
         // Format specification:
         // %s :	State (charging, discharging, full, unknown)

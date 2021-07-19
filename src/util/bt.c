@@ -83,7 +83,7 @@ void get_backtrace(struct backtrace *bt, int skip)
         if (exe)
             state = backtrace_create_state(exe, 1, bt_error_callback, NULL);
     }
-    bzero(bt, sizeof(*bt));
+    memset(bt, 0, sizeof(*bt));
     if (state) {
         backtrace_full(state, skip + 1, bt_full_callback, bt_error_callback, bt);
     }
@@ -211,7 +211,7 @@ const char *cached_proc_name_get(struct bt_cache *cache, unw_word_t ip)
 void get_backtrace(struct backtrace *bt, int skip)
 {
     static struct bt_cache bt_cache = {};
-    bzero(bt, sizeof(*bt));
+    memset(bt, 0, sizeof(*bt));
 
     unw_cursor_t cursor;
     unw_context_t context;
@@ -244,7 +244,7 @@ void get_backtrace(struct backtrace *bt, int skip)
 
 void get_backtrace(struct backtrace *bt, int skip)
 {
-    bzero(bt, sizeof(*bt));
+    memset(bt, 0, sizeof(*bt));
 
     void *array[BT_MAX_FRAMES];
     int size = backtrace(array, BT_MAX_FRAMES);
@@ -262,7 +262,7 @@ void get_backtrace(struct backtrace *bt, int skip)
 
 void get_backtrace(struct backtrace *bt, int skip)
 {
-    bzero(bt, sizeof(*bt));
+    memset(bt, 0, sizeof(*bt));
 }
 
 #endif

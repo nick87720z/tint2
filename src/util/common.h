@@ -61,8 +61,19 @@ void copy_file(const char *path_src, const char *path_dest);
 // !!! returned strings are part of line and should be used with free or realloc.
 gboolean parse_line(const char *line, char **key, char **value);
 
-void extract_values(const char *value, char **value1, char **value2, char **value3);
-void extract_values_4(const char *value, char **value1, char **value2, char **value3, char **value4);
+int extract_values(
+/// Delimits string to value tokens by replacing terminating delimiters with null byte.
+/// Array must have space for at least 'tnum' pointers. If less tokens found, remaining
+/// pointers are not modified.
+/// Returns number of detected tokens.
+    char *str,
+    /// Null-terminated string to be delimited
+    char **tvec,
+    /// Array to write token pointers into.
+    /// WARN: Pointers refer inside 'str', don't try to free or realloc them.
+    unsigned tnum
+    /// Maximum (positive) number of tokens to be returned.
+);
 
 // Executes a command in a shell.
 pid_t tint_exec(const char *command,

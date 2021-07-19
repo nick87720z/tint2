@@ -526,44 +526,19 @@ void get_color(char *hex, double *rgb)
     rgb[2] = (b / 255.0);
 }
 
-void extract_values(const char *str, char **value1, char **value2, char **value3)
+int extract_values(char *str, char **tvec, unsigned tnum)
 {
-    *value1 = NULL;
-    *value2 = NULL;
-    *value3 = NULL;
-    char **tokens = g_strsplit(str, " ", 3);
-    if (tokens[0]) {
-        *value1 = strdup(tokens[0]);
-        if (tokens[1]) {
-            *value2 = strdup(tokens[1]);
-            if (tokens[2]) {
-                *value3 = strdup(tokens[2]);
-            }
-        }
-    }
-    g_strfreev(tokens);
-}
+    int ti = 0;
+    while (1) {
+        *tvec++ = str;
+        if (++ti == tnum)
+            break;
 
-void extract_values_4(const char *str, char **value1, char **value2, char **value3, char **value4)
-{
-    *value1 = NULL;
-    *value2 = NULL;
-    *value3 = NULL;
-    *value4 = NULL;
-    char **tokens = g_strsplit(str, " ", 4);
-    if (tokens[0]) {
-        *value1 = strdup(tokens[0]);
-        if (tokens[1]) {
-            *value2 = strdup(tokens[1]);
-            if (tokens[2]) {
-                *value3 = strdup(tokens[2]);
-                if (tokens[3]) {
-                    *value4 = strdup(tokens[3]);
-                }
-            }
-        }
+        if ( *(str += strcspn(str, " ")) == '\0' )
+            break;
+        *str++ = '\0';
     }
-    g_strfreev(tokens);
+    return ti;
 }
 
 void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adjust, float bright_adjust)

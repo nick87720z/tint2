@@ -1117,15 +1117,15 @@ void finalize_gradient()
 
 void add_entry(char *key, char *value)
 {
-    char *value1 = NULL, *value2 = NULL, *value3 = NULL;
+    char *values[3] = {NULL, NULL, NULL};
 
     /* Gradients */
     if (strcmp(key, "scale_relative_to_dpi") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(scale_relative_to_dpi), atoi(value1));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(scale_relative_to_dpi), atoi(values[0]));
     } else if (strcmp(key, "scale_relative_to_screen_height") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(scale_relative_to_screen_height), atoi(value1));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(scale_relative_to_screen_height), atoi(values[0]));
     } else if (strcmp(key, "gradient") == 0) {
         finalize_gradient();
         GradientConfigType t;
@@ -1139,29 +1139,29 @@ void add_entry(char *key, char *value)
         num_gr++;
         gradient_force_update();
     } else if (strcmp(key, "start_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_start_color), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_start_color), (alpha * 65535) / 100);
         gradient_force_update();
     } else if (strcmp(key, "end_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_end_color), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_end_color), (alpha * 65535) / 100);
         gradient_force_update();
     } else if (strcmp(key, "color_stop") == 0) {
         GradientConfig *g = (GradientConfig *)g_list_last(gradients)->data;
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GradientConfigColorStop *color_stop = (GradientConfigColorStop *)calloc(1, sizeof(GradientConfigColorStop));
-        color_stop->offset = atof(value1) / 100.0;
-        get_color(value2, color_stop->color.rgb);
-        if (value3)
-            color_stop->color.alpha = (atoi(value3) / 100.0);
+        color_stop->offset = atof(values[0]) / 100.0;
+        get_color(values[1], color_stop->color.rgb);
+        if (values[2])
+            color_stop->color.alpha = (atoi(values[2]) / 100.0);
         else
             color_stop->color.alpha = 0.5;
         g->extra_color_stops = g_list_append(g->extra_color_stops, color_stop);
@@ -1184,54 +1184,54 @@ void add_entry(char *key, char *value)
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_width), atoi(value));
         background_force_update();
     } else if (strcmp(key, "background_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color), (alpha * 65535) / 100);
         background_force_update();
     } else if (strcmp(key, "border_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color), (alpha * 65535) / 100);
         background_force_update();
     } else if (strcmp(key, "background_color_hover") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_over), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_over), (alpha * 65535) / 100);
         background_force_update();
         read_bg_color_hover = 1;
     } else if (strcmp(key, "border_color_hover") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_over), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_over), (alpha * 65535) / 100);
         background_force_update();
         read_border_color_hover = 1;
     } else if (strcmp(key, "background_color_pressed") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_press), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_press), (alpha * 65535) / 100);
         background_force_update();
         read_bg_color_press = 1;
     } else if (strcmp(key, "border_color_pressed") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_press), &col);
-        int alpha = value2 ? atoi(value2) : 50;
+        int alpha = values[1] ? atoi(values[1]) : 50;
         gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_press), (alpha * 65535) / 100);
         background_force_update();
         read_border_color_press = 1;
@@ -1267,42 +1267,42 @@ void add_entry(char *key, char *value)
 
     /* Panel */
     else if (strcmp(key, "panel_size") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         char *b;
-        if ((b = strchr(value1, '%'))) {
+        if ((b = strchr(values[0], '%'))) {
             b[0] = '\0';
             gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_width_type), 0);
         } else
             gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_width_type), 1);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_width), atoi(value1));
-        if (atoi(value1) == 0) {
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_width), atoi(values[0]));
+        if (atoi(values[0]) == 0) {
             // full width mode
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_width), 100);
             gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_width_type), 0);
         }
-        if ((b = strchr(value2, '%'))) {
+        if ((b = strchr(values[1], '%'))) {
             b[0] = '\0';
             gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_height_type), 0);
         } else
             gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_height_type), 1);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_height), atoi(value2));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_height), atoi(values[1]));
     } else if (strcmp(key, "panel_items") == 0) {
         config_has_panel_items = 1;
         set_panel_items(value);
     } else if (strcmp(key, "panel_margin") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_margin_x), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_margin_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_margin_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_margin_y), atoi(values[1]));
     } else if (strcmp(key, "panel_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_padding_x), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_spacing), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_padding_y), atoi(value2));
-        if (value3)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_spacing), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_spacing), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_padding_y), atoi(values[1]));
+        if (values[2])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(panel_spacing), atoi(values[2]));
     } else if (strcmp(key, "panel_position") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
 
         char vpos, hpos, orientation;
 
@@ -1310,28 +1310,28 @@ void add_entry(char *key, char *value)
         hpos = 'C';
         orientation = 'H';
 
-        if (value1) {
-            if (strcmp(value1, "top") == 0)
+        if (values[0]) {
+            if (strcmp(values[0], "top") == 0)
                 vpos = 'T';
-            if (strcmp(value1, "bottom") == 0)
+            if (strcmp(values[0], "bottom") == 0)
                 vpos = 'B';
-            if (strcmp(value1, "center") == 0)
+            if (strcmp(values[0], "center") == 0)
                 vpos = 'C';
         }
 
-        if (value2) {
-            if (strcmp(value2, "left") == 0)
+        if (values[1]) {
+            if (strcmp(values[1], "left") == 0)
                 hpos = 'L';
-            if (strcmp(value2, "right") == 0)
+            if (strcmp(values[1], "right") == 0)
                 hpos = 'R';
-            if (strcmp(value2, "center") == 0)
+            if (strcmp(values[1], "center") == 0)
                 hpos = 'C';
         }
 
-        if (value3) {
-            if (strcmp(value3, "horizontal") == 0)
+        if (values[2]) {
+            if (strcmp(values[2], "horizontal") == 0)
                 orientation = 'H';
-            if (strcmp(value3, "vertical") == 0)
+            if (strcmp(values[2], "vertical") == 0)
                 orientation = 'V';
         }
 
@@ -1372,15 +1372,15 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "mouse_effects") == 0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_mouse_effects), atoi(value));
     } else if (strcmp(key, "mouse_hover_icon_asb") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_opacity), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_saturation), atoi(value2));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_brightness), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_opacity), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_saturation), atoi(values[1]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_hover_icon_brightness), atoi(values[2]));
     } else if (strcmp(key, "mouse_pressed_icon_asb") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_opacity), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_saturation), atoi(value2));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_brightness), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_opacity), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_saturation), atoi(values[1]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(mouse_pressed_icon_brightness), atoi(values[2]));
     } else if (strcmp(key, "font_shadow") == 0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(font_shadow), atoi(value));
     } else if (strcmp(key, "wm_menu") == 0) {
@@ -1464,19 +1464,19 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "bat2_format") == 0) {
         gtk_entry_set_text(GTK_ENTRY(battery_format2), value);
     } else if (strcmp(key, "battery_font_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(battery_font_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(battery_font_color), (alpha * 65535) / 100);
         }
     } else if (strcmp(key, "battery_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_padding_x), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_padding_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_padding_x), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(battery_padding_y), atoi(values[1]));
     } else if (strcmp(key, "battery_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(battery_background), id);
@@ -1519,19 +1519,19 @@ void add_entry(char *key, char *value)
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(clock_font_line2), value);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(clock_font_line2_set), TRUE);
     } else if (strcmp(key, "clock_font_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(clock_font_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(clock_font_color), (alpha * 65535) / 100);
         }
     } else if (strcmp(key, "clock_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(clock_padding_x), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(clock_padding_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(clock_padding_x), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(clock_padding_y), atoi(values[1]));
     } else if (strcmp(key, "clock_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(clock_background), id);
@@ -1586,13 +1586,13 @@ void add_entry(char *key, char *value)
         else
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 0);
     } else if (strcmp(key, "taskbar_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_padding_x), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_spacing), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_padding_y), atoi(value2));
-        if (value3)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_spacing), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_spacing), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_padding_y), atoi(values[1]));
+        if (values[2])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_spacing), atoi(values[2]));
     } else if (strcmp(key, "taskbar_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_inactive_background), id);
@@ -1612,10 +1612,10 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "taskbar_always_show_all_desktop_tasks") == 0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_always_show_all_desktop_tasks), atoi(value));
     } else if (strcmp(key, "taskbar_name_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_name_padding_x), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_name_padding_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_name_padding_x), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_name_padding_y), atoi(values[1]));
     } else if (strcmp(key, "taskbar_name_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_name_inactive_background), id);
@@ -1628,21 +1628,21 @@ void add_entry(char *key, char *value)
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(taskbar_name_font), value);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_name_font_set), TRUE);
     } else if (strcmp(key, "taskbar_name_font_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(taskbar_name_inactive_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(taskbar_name_inactive_color), (alpha * 65535) / 100);
         }
     } else if (strcmp(key, "taskbar_name_active_font_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(taskbar_name_active_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(taskbar_name_active_color), (alpha * 65535) / 100);
         }
     }
@@ -1661,19 +1661,19 @@ void add_entry(char *key, char *value)
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_width), atoi(value));
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_height), 30.0);
     } else if (strcmp(key, "task_maximum_size") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_width), atoi(value1));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_width), atoi(values[0]));
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_height), 30.0);
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_height), atoi(value2));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_maximum_height), atoi(values[1]));
     } else if (strcmp(key, "task_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_x), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_spacing), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_y), atoi(value2));
-        if (value3)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_spacing), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_spacing), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_padding_y), atoi(values[1]));
+        if (values[2])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(task_spacing), atoi(values[2]));
     } else if (strcmp(key, "task_font") == 0) {
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(task_font), value);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_font_set), TRUE);
@@ -1698,12 +1698,12 @@ void add_entry(char *key, char *value)
         }
         g_strfreev(split);
         if (widget) {
-            extract_values(value, &value1, &value2, &value3);
+            extract_values(value, values, 3);
             GdkColor col;
-            hex2gdk(value1, &col);
+            hex2gdk(values[0], &col);
             gtk_color_button_set_color(GTK_COLOR_BUTTON(widget), &col);
-            if (value2) {
-                int alpha = atoi(value2);
+            if (values[1]) {
+                int alpha = atoi(values[1]);
                 gtk_color_button_set_alpha(GTK_COLOR_BUTTON(widget), (alpha * 65535) / 100);
             }
         }
@@ -1740,10 +1740,10 @@ void add_entry(char *key, char *value)
         }
         g_strfreev(split);
         if (widget_opacity && widget_saturation && widget_brightness) {
-            extract_values(value, &value1, &value2, &value3);
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget_opacity), atoi(value1));
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget_saturation), atoi(value2));
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget_brightness), atoi(value3));
+            extract_values(value, values, 3);
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget_opacity), atoi(values[0]));
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget_saturation), atoi(values[1]));
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget_brightness), atoi(values[2]));
         }
     } else if (g_regex_match_simple("task.*_background_id", key, 0, 0)) {
         gchar **split = g_regex_split_simple("_", key, 0, 0);
@@ -1787,13 +1787,13 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "systray_padding") == 0) {
         no_items_systray_enabled = 1;
 
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_padding_x), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_spacing), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_padding_y), atoi(value2));
-        if (value3)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_spacing), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_spacing), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_padding_y), atoi(values[1]));
+        if (values[2])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_spacing), atoi(values[2]));
     } else if (strcmp(key, "systray_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(systray_background), id);
@@ -1824,23 +1824,23 @@ void add_entry(char *key, char *value)
         else if (strcmp(value, "6") == 0)
             gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 6);
     } else if (strcmp(key, "systray_icon_asb") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_opacity), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_saturation), atoi(value2));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_brightness), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_opacity), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_saturation), atoi(values[1]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(systray_icon_brightness), atoi(values[2]));
     } else if (strcmp(key, "systray_name_filter") == 0) {
         gtk_entry_set_text(GTK_ENTRY(systray_name_filter), value);
     }
 
     /* Launcher */
     else if (strcmp(key, "launcher_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_padding_x), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_spacing), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_padding_y), atoi(value2));
-        if (value3)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_spacing), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_spacing), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_padding_y), atoi(values[1]));
+        if (values[2])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_spacing), atoi(values[2]));
     } else if (strcmp(key, "launcher_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(launcher_background), id);
@@ -1874,10 +1874,10 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "startup_notifications") == 0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(startup_notifications), atoi(value));
     } else if (strcmp(key, "launcher_icon_asb") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_opacity), atoi(value1));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_saturation), atoi(value2));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_brightness), atoi(value3));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_opacity), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_saturation), atoi(values[1]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(launcher_icon_brightness), atoi(values[2]));
     }
 
     /* Tooltip */
@@ -1886,20 +1886,20 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "tooltip_hide_timeout") == 0) {
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_hide_after), atof(value));
     } else if (strcmp(key, "tooltip_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_padding_x), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_padding_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_padding_x), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(tooltip_padding_y), atoi(values[1]));
     } else if (strcmp(key, "tooltip_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(tooltip_background), id);
     } else if (strcmp(key, "tooltip_font_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(tooltip_font_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(tooltip_font_color), (alpha * 65535) / 100);
         }
     } else if (strcmp(key, "tooltip_font") == 0) {
@@ -1927,12 +1927,12 @@ void add_entry(char *key, char *value)
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(separator_get_last()->separator_background), id);
     } else if (strcmp(key, "separator_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(separator_get_last()->separator_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(separator_get_last()->separator_color), (alpha * 65535) / 100);
         }
     } else if (strcmp(key, "separator_style") == 0) {
@@ -1945,10 +1945,10 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "separator_size") == 0) {
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_size), atoi(value));
     } else if (strcmp(key, "separator_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_padding_x), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_padding_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_padding_x), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_padding_y), atoi(values[1]));
     }
 
     /* Executor */
@@ -2004,19 +2004,19 @@ void add_entry(char *key, char *value)
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->execp_font), value);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_font_set), TRUE);
     } else if (strcmp(key, "execp_font_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(execp_get_last()->execp_font_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(execp_get_last()->execp_font_color), (alpha * 65535) / 100);
         }
     } else if (strcmp(key, "execp_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_padding_x), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_padding_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_padding_x), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_padding_y), atoi(values[1]));
     } else if (strcmp(key, "execp_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_background), id);
@@ -2051,19 +2051,19 @@ void add_entry(char *key, char *value)
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(button_get_last()->button_font), value);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->button_font_set), TRUE);
     } else if (strcmp(key, "button_font_color") == 0) {
-        extract_values(value, &value1, &value2, &value3);
+        extract_values(value, values, 3);
         GdkColor col;
-        hex2gdk(value1, &col);
+        hex2gdk(values[0], &col);
         gtk_color_button_set_color(GTK_COLOR_BUTTON(button_get_last()->button_font_color), &col);
-        if (value2) {
-            int alpha = atoi(value2);
+        if (values[1]) {
+            int alpha = atoi(values[1]);
             gtk_color_button_set_alpha(GTK_COLOR_BUTTON(button_get_last()->button_font_color), (alpha * 65535) / 100);
         }
     } else if (strcmp(key, "button_padding") == 0) {
-        extract_values(value, &value1, &value2, &value3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_x), atoi(value1));
-        if (value2)
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_y), atoi(value2));
+        extract_values(value, values, 3);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_x), atoi(values[0]));
+        if (values[1])
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_y), atoi(values[1]));
     } else if (strcmp(key, "button_background_id") == 0) {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(button_get_last()->button_background), id);
@@ -2072,13 +2072,6 @@ void add_entry(char *key, char *value)
     } else if (strcmp(key, "button_max_icon_size") == 0) {
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_max_icon_size), atoi(value));
     }
-
-    if (value1)
-        free(value1);
-    if (value2)
-        free(value2);
-    if (value3)
-        free(value3);
 }
 
 void hex2gdk(char *hex, GdkColor *color)

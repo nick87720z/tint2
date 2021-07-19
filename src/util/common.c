@@ -486,34 +486,37 @@ int hex_to_rgb(char *hex, int *r, int *g, int *b)
     if (hex == NULL || hex[0] != '#')
         return (0);
 
-    int len = strlen(hex);
-    if (len == 3 + 1) {
-        *r = hex_char_to_int(hex[1]);
-        *g = hex_char_to_int(hex[2]);
-        *b = hex_char_to_int(hex[3]);
-    } else if (len == 6 + 1) {
-        *r = hex_char_to_int(hex[1]) * 16 + hex_char_to_int(hex[2]);
-        *g = hex_char_to_int(hex[3]) * 16 + hex_char_to_int(hex[4]);
-        *b = hex_char_to_int(hex[5]) * 16 + hex_char_to_int(hex[6]);
-    } else if (len == 12 + 1) {
-        *r = hex_char_to_int(hex[1]) * 16 + hex_char_to_int(hex[2]);
-        *g = hex_char_to_int(hex[5]) * 16 + hex_char_to_int(hex[6]);
-        *b = hex_char_to_int(hex[9]) * 16 + hex_char_to_int(hex[10]);
-    } else
+    int len = strlen(++hex);
+    switch (len) {
+    case 3:
+        *r = hex_char_to_int(hex[0]) << 12;
+        *g = hex_char_to_int(hex[1]) << 12;
+        *b = hex_char_to_int(hex[2]) << 12;
+        return 1;
+    case 6:
+        *r = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8;
+        *g = hex_char_to_int(hex[2]) << 12 | hex_char_to_int(hex[3]) << 8;
+        *b = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8;
+        return 1;
+    case 12:
+        *r = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8 | hex_char_to_int(hex[2])  << 4 | hex_char_to_int(hex[3]);
+        *g = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8 | hex_char_to_int(hex[6])  << 4 | hex_char_to_int(hex[7]);
+        *b = hex_char_to_int(hex[8]) << 12 | hex_char_to_int(hex[9]) << 8 | hex_char_to_int(hex[10]) << 4 | hex_char_to_int(hex[11]);
+        return 1;
+    default:
         return 0;
-
-    return 1;
+    }
 }
 
 void get_color(char *hex, double *rgb)
 {
     int r, g, b;
-    r = g = b = 0;
-    hex_to_rgb(hex, &r, &g, &b);
-
-    rgb[0] = (r / 255.0);
-    rgb[1] = (g / 255.0);
-    rgb[2] = (b / 255.0);
+    if (hex_to_rgb(hex, &r, &g, &b))
+        rgb[0] = r / ((1 << 16) - 1.0),
+        rgb[1] = g / ((1 << 16) - 1.0),
+        rgb[2] = b / ((1 << 16) - 1.0);
+    else
+        rgb[0] = rgb[1] = rgb[2] = 0;
 }
 
 void extract_values(const char *str, char **value1, char **value2, char **value3)

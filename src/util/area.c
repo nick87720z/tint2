@@ -514,7 +514,7 @@ void set_cairo_source_bg_color(Area *a, cairo_t *c)
     if (a->_get_content_color)
         a->_get_content_color(a, &content_color);
     else
-        bzero(&content_color, sizeof(content_color));
+        memset(&content_color, 0, sizeof(content_color));
     if (a->mouse_state == MOUSE_OVER)
         set_cairo_source_tinted(c, &a->bg->fill_color_hover, &content_color, a->bg->fill_content_tint_weight);
     else if (a->mouse_state == MOUSE_DOWN)
@@ -529,7 +529,7 @@ void set_cairo_source_border_color(Area *a, cairo_t *c)
     if (a->_get_content_color)
         a->_get_content_color(a, &content_color);
     else
-        bzero(&content_color, sizeof(content_color));
+        memset(&content_color, 0, sizeof(content_color));
     if (a->mouse_state == MOUSE_OVER)
         set_cairo_source_tinted(c, &a->bg->border_color_hover, &content_color, a->bg->border_content_tint_weight);
     else if (a->mouse_state == MOUSE_DOWN)

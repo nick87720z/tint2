@@ -1110,7 +1110,7 @@ GString *tint2_g_string_replace(GString *s, const char *from, const char *to)
 
 void get_image_mean_color(const Imlib_Image image, Color *mean_color)
 {
-    bzero(mean_color, sizeof(*mean_color));
+    memset(mean_color, 0, sizeof(*mean_color));
 
     if (!image)
         return;

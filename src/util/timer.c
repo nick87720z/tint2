@@ -51,7 +51,7 @@ void init_timer(Timer *timer, const char *name)
 {
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, name, (void *)timer);
-    bzero(timer, sizeof(*timer));
+    memset(timer, 0, sizeof(*timer));
     strncpy(timer->name_, name, sizeof(timer->name_));
     if (!g_list_find(timers, timer)) {
         timers = g_list_append(timers, timer);
@@ -541,7 +541,7 @@ TEST(change_timer_simple_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer timer;
     init_timer(&timer, __FUNCTION__);
 
@@ -860,7 +860,7 @@ TEST(stop_timer_simple_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
 
@@ -897,7 +897,7 @@ TEST(stop_timer_simple_other_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
     Timer t2;
@@ -1016,7 +1016,7 @@ TEST(stop_timer_multi_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
 
@@ -1053,7 +1053,7 @@ TEST(stop_timer_multi_other_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
     Timer t2;
@@ -1164,7 +1164,7 @@ TEST(change_timer_simple_inside_callback_again)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
 
@@ -1206,7 +1206,7 @@ TEST(change_timer_simple_other_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
     Timer t2;
@@ -1245,7 +1245,7 @@ TEST(add_change_two_timer_simple_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
 
@@ -1383,7 +1383,7 @@ TEST(change_timer_multi_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
 
@@ -1426,7 +1426,7 @@ TEST(change_timer_multi_other_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
     Timer t2;
@@ -1466,7 +1466,7 @@ TEST(add_change_two_timer_multi_inside_callback)
 {
     u_int64_t origin = MOCK_ORIGIN;
     TimeoutContainer container;
-    bzero(&container, sizeof(container));
+    memset(&container, 0, sizeof(container));
     Timer t1;
     init_timer(&t1, "t1");
 

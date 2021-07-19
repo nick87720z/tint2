@@ -119,5 +119,5 @@ void cleanup_gradient(GradientClass *g)
     g_list_free_full(g->to.offsets_x, free);
     g_list_free_full(g->to.offsets_y, free);
     g_list_free_full(g->to.offsets_r, free);
-    bzero(g, sizeof(*g));
+    memset(g, 0, sizeof(*g));
 }

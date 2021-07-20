@@ -28,6 +28,7 @@ set(SOURCES ../util/common.c
             ../util/print.c
             ../util/signals.c
             ../config.c
+            ../config-keys.c
             ../util/server.c
             ../util/strlcat.c
             ../launcher/apps-common.c

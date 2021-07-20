@@ -196,6 +196,30 @@ r1: fclose(file_src);
 r0: return;
 }
 
+int str_index(const char *s, char *array[], int size) {
+    int start = 0,
+        end   = size - 1,
+        i, cmp;
+    while (1) {
+        i = (end - start) / 2 + start;
+        if (i == start)
+            i = end; // end can't be far when this happens
+
+        if ( !(cmp = strcmp(s, array[i])) )
+            return i;
+
+        if (end == start)
+            break;
+
+        if (cmp > 0) {
+            start = (start == i) ? start + 1 : i;
+        } else {
+            end   = (end   == i) ? end   - 1 : i;
+        }
+    }
+    return -1;
+}
+
 gboolean parse_line(const char *line, char **key, char **value)
 {
     char *a, *b, c;

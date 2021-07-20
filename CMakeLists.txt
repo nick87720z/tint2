@@ -126,6 +126,7 @@ include_directories( ${PROJECT_BINARY_DIR}
                      ${SN_INCLUDE_DIRS} )
 
 set( SOURCES src/config.c
+             src/config-keys.c
              src/panel.c
              src/util/server.c
              src/main.c

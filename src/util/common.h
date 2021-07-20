@@ -54,6 +54,10 @@ const char *get_home_dir();
 // Copies a file to another path
 void copy_file(const char *path_src, const char *path_dest);
 
+// Finds string in sorted strings array.
+// Array must be sorted with strcmp-compatible comparison method.
+int str_index(const char *s, char *array[], int size);
+
 // Parses lines with the format 'key = value' into key and value.
 // Strips key and value.
 // Values may contain any graphical characters with spaces in the middle.

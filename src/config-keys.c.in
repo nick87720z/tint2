@@ -1,0 +1,6 @@
+#include "config-keys.h"
+
+char *cfg_keys[] = {
+    LIST2CODE_CMD:sed -E 's/.*/  \[key_& \]="&",/' < config-keys-list | column -s' ' --table
+};
+

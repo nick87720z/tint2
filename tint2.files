@@ -74,6 +74,10 @@ src/util/window.c
 src/util/window.h
 src/config.c
 src/config.h
+src/config-keys.c.in
+src/config-keys.h.in
+src/config-keys-list
+src/config-keys-gen.sh
 src/panel.c
 src/panel.h
 src/server.c

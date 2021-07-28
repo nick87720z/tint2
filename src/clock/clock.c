@@ -30,6 +30,7 @@
 #include "clock.h"
 #include "timer.h"
 #include "common.h"
+#include "tooltip.h"
 
 char *time1_format;
 char *time1_timezone;
@@ -147,8 +148,10 @@ void update_clocks()
     update_clock_text(buf_time, sizeof(buf_time), time1_format, time1_timezone, &changed);
     update_clock_text(buf_date, sizeof(buf_date), time2_format, time2_timezone, &changed);
     if (changed) {
-        for (int i = 0; i < num_panels; i++)
+        for (int i = 0; i < num_panels; i++) {
             panels[i].clock.area.resize_needed = 1;
+            tooltip_update_for_area (&panels[i].clock.area);
+        }
         schedule_panel_redraw();
     }
 }

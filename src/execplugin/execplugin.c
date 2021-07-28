@@ -15,6 +15,7 @@
 #include "window.h"
 #include "server.h"
 #include "panel.h"
+#include "tooltip.h"
 #include "timer.h"
 #include "common.h"
 
@@ -226,6 +227,7 @@ void execp_init_fonts()
     for (GList *l = panel_config.execp_list; l; l = l->next) {
         Execp *execp = l->data;
         if (!execp->backend->font_desc)
+            // TODO: uniq & shared default font description
             execp->backend->font_desc = pango_font_description_from_string(get_default_font());
     }
 }
@@ -737,22 +739,24 @@ void execp_timer_callback(void *arg)
     backend->last_update_start_time = time(NULL);
 }
 
-void read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffer_capacity, gboolean *eof)
+int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffer_capacity, gboolean *eof)
 {
     *eof = FALSE;
+    ssize_t total = 0;
     while (1) {
         // Make sure there is free space in the buffer
         ssize_t req_cap = *buffer_length + 1024;
+        ssize_t count;
         if (*buffer_capacity < req_cap) {
             do    *buffer_capacity *= 2;
             while (*buffer_capacity < req_cap);
             *buffer = (char *)realloc(*buffer, *buffer_capacity);
         }
-        ssize_t count = read(fd,
-                             *buffer + *buffer_length,
-                             *buffer_capacity - *buffer_length - 1);
+        count = read(fd, *buffer + *buffer_length,
+                         *buffer_capacity - *buffer_length - 1);
         if (count > 0) {
             // Successful read
+            total += count;
             *buffer_length += count;
             (*buffer)[*buffer_length] = '\0';
             continue;
@@ -773,6 +777,7 @@ void read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buff
         }
         break;
     }
+    return total;
 }
 
 #if 1
@@ -864,11 +869,13 @@ gboolean read_execp(void *obj)
         return FALSE;
 
     gboolean stdout_eof, stderr_eof;
+    int count;
     read_from_pipe(backend->child_pipe_stdout,
                    &backend->buf_stdout,
                    &backend->buf_stdout_length,
                    &backend->buf_stdout_capacity,
                    &stdout_eof);
+    count =
     read_from_pipe(backend->child_pipe_stderr,
                    &backend->buf_stderr,
                    &backend->buf_stderr_length,
@@ -876,25 +883,26 @@ gboolean read_execp(void *obj)
                    &stderr_eof);
 
     gboolean command_finished = stdout_eof && stderr_eof;
+    gboolean result = FALSE;
 
     if (command_finished) {
-        backend->child = 0;
         close(backend->child_pipe_stdout);
-        backend->child_pipe_stdout = -1;
         close(backend->child_pipe_stderr);
+        backend->child = 0;
+        backend->child_pipe_stdout =
         backend->child_pipe_stderr = -1;
         if (backend->interval)
             change_timer(&backend->timer, true, backend->interval * 1000, 0, execp_timer_callback, execp);
     }
 
-    char *ansi_clear_screen = (char*)"\x1b[2J";
+    char ansi_clear_screen[] = "\x1b[2J";
     if (backend->continuous) {
         // Handle stderr
         if (!backend->has_user_tooltip) {
             free_and_null(backend->tooltip);
             char *start = last_substring(backend->buf_stderr, ansi_clear_screen);
             if (start) {
-                start += strlen(ansi_clear_screen);
+                start += sizeof(ansi_clear_screen) - 1;
                 memmove(backend->buf_stderr, start, strlen(start) + 1);
                 backend->buf_stderr_length = (ssize_t)strlen(backend->buf_stderr);
             }
@@ -904,10 +912,13 @@ gboolean read_execp(void *obj)
             }
             backend->tooltip = strdup(backend->buf_stderr);
             rstrip(backend->tooltip);
+            if (count > 0)
+                result = TRUE;
         } else {
             backend->buf_stderr_length = 0;
             backend->buf_stderr[backend->buf_stderr_length] = '\0';
         }
+        
         // Handle stdout
         // Count lines in buffer
         int num_lines = 0;
@@ -958,7 +969,7 @@ gboolean read_execp(void *obj)
             backend->last_update_finish_time = time(NULL);
             backend->last_update_duration =
                 backend->last_update_finish_time - backend->last_update_start_time;
-            return TRUE;
+            result = TRUE;
         }
     } else if (command_finished) {
         // Handle stdout
@@ -987,7 +998,7 @@ gboolean read_execp(void *obj)
             free_and_null(backend->tooltip);
             char *start = last_substring(backend->buf_stderr, ansi_clear_screen);
             if (start)
-                start += strlen(ansi_clear_screen);
+                start += sizeof(ansi_clear_screen) - 1;
             else
                 start = backend->buf_stderr;
             if (*start) {
@@ -1003,9 +1014,9 @@ gboolean read_execp(void *obj)
         backend->last_update_finish_time = time(NULL);
         backend->last_update_duration =
             backend->last_update_finish_time - backend->last_update_start_time;
-        return TRUE;
+        result = TRUE;
     }
-    return FALSE;
+    return result;
 }
 
 const char *time_to_string(int s, char *buffer, size_t buffer_size)
@@ -1102,6 +1113,7 @@ void execp_update_post_read(Execp *execp)
         execp->area.resize_needed = TRUE;
         schedule_panel_redraw();
     }
+    tooltip_update_for_area(&execp->area);
 }
 
 void handle_execp_events()

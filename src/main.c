@@ -422,7 +422,6 @@ void handle_x_event(XEvent *e)
     Panel *panel = get_panel(e->xany.window);
     switch (e->type) {
     case ButtonPress: {
-        tooltip_hide(0);
         handle_mouse_press_event(e);
         Area *area = find_area_under_mouse(panel, e->xbutton.x, e->xbutton.y);
         if (panel_config.mouse_effects)

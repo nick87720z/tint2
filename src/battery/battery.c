@@ -30,6 +30,7 @@
 #include "battery.h"
 #include "timer.h"
 #include "common.h"
+#include "tooltip.h"
 
 gboolean bat1_has_font;
 PangoFontDescription *bat1_font_desc;
@@ -416,6 +417,7 @@ void update_battery_tick(void *arg)
                     panels[i].battery.area.bg = panel_config.battery.area.bg;
                 schedule_panel_redraw();
             }
+            tooltip_update_for_area (&panels[i].battery.area);
         }
     }
 }

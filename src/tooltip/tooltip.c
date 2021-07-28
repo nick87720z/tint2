@@ -323,6 +323,14 @@ void tooltip_update()
     cairo_surface_destroy(cs);
 }
 
+void tooltip_update_for_area(Area *area)
+{
+    if (g_tooltip.mapped && (g_tooltip.area == area)) {
+        tooltip_set_area(area);
+        tooltip_update();
+    }
+}
+
 void tooltip_trigger_hide()
 {
     if (g_tooltip.mapped) {

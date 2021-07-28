@@ -33,6 +33,9 @@
 #include "panel.h"
 #include "common.h"
 
+#define for_children(a,i,T)     for (T i = (a)->children; i; i = i->next)
+#define for_children_rev(a,i,T) for (T i = g_list_last((a)->children); i; i = i->prev)
+
 Area *mouse_over_area = NULL;
 
 void init_background(Background *bg)
@@ -44,7 +47,7 @@ void init_background(Background *bg)
 void initialize_positions(void *obj, int offset)
 {
     Area *a = (Area *)obj;
-    for (GList *l = a->children; l; l = l->next) {
+    for_children(a, l, GList *) {
         Area *child = ((Area *)l->data);
         if (panel_horizontal) {
             child->posy = offset + top_border_width(a) + a->paddingy;
@@ -68,8 +71,7 @@ void relayout_fixed(Area *a)
         return;
 
     // Children are resized before the parent
-    GList *l;
-    for (l = a->children; l; l = l->next)
+    for_children(a, l, GList *)
         relayout_fixed(l->data);
 
     // Recalculate size
@@ -99,7 +101,7 @@ void relayout_dynamic(Area *a, int level)
             if (a->_resize(a))
                 a->_changed = TRUE;
             // resize children with LAYOUT_DYNAMIC
-            for (GList *l = a->children; l; l = l->next) {
+            for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
                 if (child->size_mode == LAYOUT_DYNAMIC && child->children)
                     child->resize_needed = 1;
@@ -113,7 +115,7 @@ void relayout_dynamic(Area *a, int level)
             int pos =
                 (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr;
 
-            for (GList *l = a->children; l; l = l->next) {
+            for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -141,7 +143,7 @@ void relayout_dynamic(Area *a, int level)
                                         : a->posy + a->height - bottom_border_width(a)) -
                       a->paddingxlr;
 
-            for (GList *l = g_list_last(a->children); l; l = l->prev) {
+            for_children_rev(a, l, GList *) {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -170,7 +172,7 @@ void relayout_dynamic(Area *a, int level)
 
             int children_size = 0;
 
-            for (GList *l = a->children; l; l = l->next) {
+            for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -183,7 +185,7 @@ void relayout_dynamic(Area *a, int level)
                 (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr;
             pos += ((panel_horizontal ? a->width : a->height) - children_size) / 2;
 
-            for (GList *l = a->children; l; l = l->next) {
+            for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -234,7 +236,7 @@ int container_compute_desired_size(Area *a)
         return 0;
     int result = 2 * a->paddingxlr + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
     int children_count = 0;
-    for (GList *l = a->children; l != NULL; l = l->next) {
+    for_children(a, l, GList *) {
         Area *child = (Area *)l->data;
         if (child->on_screen) {
             result += compute_desired_size(child);
@@ -260,7 +262,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
     if (panel_horizontal) {
         // detect free size for LAYOUT_DYNAMIC Areas
         int size = a->width - 2 * a->paddingxlr - left_right_border_width(a);
-        for (GList *l = a->children; l; l = l->next) {
+        for_children(a, l, GList *) {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
                 size -= child->width;
@@ -284,7 +286,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
 
         // Resize LAYOUT_DYNAMIC objects
-        for (GList *l = a->children; l; l = l->next) {
+        for_children(a, l, GList *) {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
                 int old_width = child->width;
@@ -300,7 +302,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
     } else {
         // detect free size for LAYOUT_DYNAMIC's Area
         int size = a->height - 2 * a->paddingxlr - top_bottom_border_width(a);
-        for (GList *l = a->children; l; l = l->next) {
+        for_children(a, l, GList *) {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
                 size -= child->height;
@@ -324,7 +326,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
 
         // Resize LAYOUT_DYNAMIC objects
-        for (GList *l = a->children; l; l = l->next) {
+        for_children(a, l, GList *) {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
                 int old_height = child->height;
@@ -357,8 +359,8 @@ void schedule_redraw(Area *a)
             a->pix = None;
         }
     }
-
-    for (GList *l = a->children; l; l = l->next)
+    
+    for_children(a, l, GList *)
         schedule_redraw((Area *)l->data);
     schedule_panel_redraw();
 }
@@ -387,7 +389,7 @@ void draw_tree(Area *a)
     else
         fprintf(stderr, RED "tint2: %s %d: area %s has no pixmap!!!" RESET "\n", __FILE__, __LINE__, a->name);
 
-    for (GList *l = a->children; l; l = l->next)
+    for_children(a, l, GList *)
         draw_tree((Area *)l->data);
 }
 
@@ -431,7 +433,7 @@ void update_dependent_gradients(Area *a)
                 schedule_redraw(gi->area);
         }
     }
-    for (GList *l = a->children; l; l = l->next)
+    for_children(a, l, GList *)
         update_dependent_gradients((Area *)l->data);
 }
 
@@ -620,7 +622,7 @@ void free_area(Area *a)
     if (!a)
         return;
 
-    for (GList *l = a->children; l; l = l->next)
+    for_children(a, l, GList *)
         free_area(l->data);
 
     if (a->children) {
@@ -892,7 +894,7 @@ void area_dump_geometry(Area *area, int indent)
     if (area->children) {
         fprintf(stderr, "tint2: %*sChildren:\n", indent, "");
         indent += 2;
-        for (GList *l = area->children; l; l = l->next)
+        for_children(area, l, GList *)
             area_dump_geometry((Area *)l->data, indent);
     }
 }

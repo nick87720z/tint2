@@ -885,54 +885,58 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
 void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int border_mask)
 {
     double c1;
+    int border_top = border_mask & BORDER_TOP,
+        border_bottom = border_mask & BORDER_BOTTOM,
+        border_right = border_mask & BORDER_RIGHT,
+        border_left = border_mask & BORDER_LEFT;
     r = MIN(MIN(w, h) / 2, r);
     c1 = 0.55228475 * r;
 
     cairo_move_to(c, x + r, y);
     // Top line
-    if (border_mask & BORDER_TOP)
+    if (border_top)
         cairo_rel_line_to(c, w - 2 * r, 0);
     else
         cairo_rel_move_to(c, w - 2 * r, y);
     // Top right corner
     if (r > 0) {
-        if ((border_mask & BORDER_TOP) && (border_mask & BORDER_RIGHT))
+        if (border_top && border_right)
             cairo_rel_curve_to(c, c1, 0.0, r, c1, r, r);
         else
             cairo_rel_move_to(c, r, r);
     }
     // Right line
-    if (border_mask & BORDER_RIGHT)
+    if (border_right)
         cairo_rel_line_to(c, 0, h - 2 * r);
     else
         cairo_rel_move_to(c, 0, h - 2 * r);
     // Bottom right corner
     if (r > 0) {
-        if ((border_mask & BORDER_RIGHT) && (border_mask & BORDER_BOTTOM))
+        if (border_bottom && border_right)
             cairo_rel_curve_to(c, 0.0, c1, c1 - r, r, -r, r);
         else
             cairo_rel_move_to(c, -r, r);
     }
     // Bottom line
-    if (border_mask & BORDER_BOTTOM)
+    if (border_bottom)
         cairo_rel_line_to(c, -w + 2 * r, 0);
     else
         cairo_rel_move_to(c, -w + 2 * r, 0);
     // Bottom left corner
     if (r > 0) {
-        if ((border_mask & BORDER_LEFT) && (border_mask & BORDER_BOTTOM))
+        if (border_bottom && border_left)
             cairo_rel_curve_to(c, -c1, 0, -r, -c1, -r, -r);
         else
             cairo_rel_move_to(c, -r, -r);
     }
     // Left line
-    if (border_mask & BORDER_LEFT)
+    if (border_left)
         cairo_rel_line_to(c, 0, -h + 2 * r);
     else
         cairo_rel_move_to(c, 0, -h + 2 * r);
     // Top left corner
     if (r > 0) {
-        if ((border_mask & BORDER_LEFT) && (border_mask & BORDER_TOP))
+        if (border_top && border_left)
             cairo_rel_curve_to(c, 0, -c1, r - c1, -r, r, -r);
         else
             cairo_rel_move_to(c, r, -r);

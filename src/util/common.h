@@ -62,7 +62,7 @@ int str_index(const char *s, char *array[], int size);
 // Strips key and value.
 // Values may contain any graphical characters with spaces in the middle.
 // Returns 1 if both key and value could be read, zero otherwise.
-// !!! returned strings are part of line and should be used with free or realloc.
+// !!! returned strings are part of line and should not be used with free or realloc.
 gboolean parse_line(const char *line, char **key, char **value);
 
 int extract_values(

@@ -906,10 +906,6 @@ gboolean read_execp(void *obj)
                 memmove(backend->buf_stderr, start, strlen(start) + 1);
                 backend->buf_stderr_length = (ssize_t)strlen(backend->buf_stderr);
             }
-            if (backend->buf_stderr_length > MAX_TOOLTIP_LEN) {
-                backend->buf_stderr_length = MAX_TOOLTIP_LEN;
-                backend->buf_stderr[backend->buf_stderr_length] = '\0';
-            }
             backend->tooltip = strdup(backend->buf_stderr);
             rstrip(backend->tooltip);
             if (count > 0)
@@ -1004,8 +1000,6 @@ gboolean read_execp(void *obj)
             if (*start) {
                 backend->tooltip = strdup(start);
                 rstrip(backend->tooltip);
-                if (strlen(backend->tooltip) > MAX_TOOLTIP_LEN)
-                    backend->tooltip[MAX_TOOLTIP_LEN] = '\0';
             }
         }
         backend->buf_stderr_length = 0;

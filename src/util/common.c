@@ -900,7 +900,7 @@ void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, doub
     // Top right corner
     if (r > 0) {
         if (border_top && border_right)
-            cairo_rel_curve_to(c, c1, 0.0, r, c1, r, r);
+            cairo_rel_curve_to(c, c1, 0.0, r, r - c1, r, r);
         else
             cairo_rel_move_to(c, r, r);
     }
@@ -924,7 +924,7 @@ void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, doub
     // Bottom left corner
     if (r > 0) {
         if (border_bottom && border_left)
-            cairo_rel_curve_to(c, -c1, 0, -r, -c1, -r, -r);
+            cairo_rel_curve_to(c, -c1, 0, -r, c1 - r, -r, -r);
         else
             cairo_rel_move_to(c, -r, -r);
     }

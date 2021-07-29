@@ -171,19 +171,20 @@ void tooltip_update_geometry()
     img_useful = g_tooltip.image && (img_width = cairo_image_surface_get_width(g_tooltip.image)) > 0;
     int space = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale;
 
-    pango_layout_set_width(layout,
-                           img_useful ? space + img_width
-                                      : MIN(ext.width * 5, screen_width * 2 / 3)
-                                * PANGO_SCALE
+    pango_layout_set_width( layout,
+                            strchr (g_tooltip.tooltip_text, '\n') ? -1
+                            : img_useful ? space + img_width
+                            : MIN(ext.width * 5, screen_width * 2 / 3) * PANGO_SCALE
     );
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
     GET_TEXT_PIXEL_EXTENTS(g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", &ext);
 
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + ext.height;
-    width = space + (img_useful ? (
-        height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image),
-        img_width
-    ) : ext.width);
+    width = space + (
+        img_useful ? (  height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image),
+                        MAX(img_width, ext.width)
+        ) : ext.width
+    );
 
     if (!panel_horizontal)
         goto xlim;

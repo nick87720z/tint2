@@ -173,8 +173,8 @@ void tooltip_update_geometry()
 
     pango_layout_set_width( layout,
                             strchr (g_tooltip.tooltip_text, '\n') ? -1
-                            : img_useful ? space + img_width
-                            : MIN(ext.width * 5, screen_width * 2 / 3) * PANGO_SCALE
+                            : ( img_useful ? space + img_width :
+                                MIN(ext.width * 5, screen_width * 2 / 3) ) * PANGO_SCALE
     );
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
     GET_TEXT_PIXEL_EXTENTS(g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", &ext);

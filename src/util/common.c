@@ -884,7 +884,9 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
 
 void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int border_mask)
 {
-    double c1 = 0.55228475 * r;
+    double c1;
+    r = MIN(MIN(w, h) / 2, r);
+    c1 = r * 0.55228475;
     cairo_move_to(c, x + r, y);
     // Top line
     if (border_mask & BORDER_TOP)

@@ -347,19 +347,6 @@ void schedule_redraw(Area *a)
 {
     a->_redraw_needed = TRUE;
 
-    if (a->has_mouse_over_effect) {
-        for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-            XFreePixmap(server.display, a->pix_by_state[i]);
-            if (a->pix == a->pix_by_state[i])
-                a->pix = None;
-            a->pix_by_state[i] = None;
-        }
-        if (a->pix) {
-            XFreePixmap(server.display, a->pix);
-            a->pix = None;
-        }
-    }
-    
     for_children(a, l, GList *)
         schedule_redraw((Area *)l->data);
     schedule_panel_redraw();
@@ -437,30 +424,30 @@ void update_dependent_gradients(Area *a)
         update_dependent_gradients((Area *)l->data);
 }
 
+void free_pixmaps(Area *a)
+{
+    a->pix = None;
+    for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+        if (! a->pix_by_state[i])
+            continue;
+        XFreePixmap(server.display, a->pix_by_state[i]);
+        a->pix_by_state[i] = None;
+    }
+}
+
 void draw(Area *a)
 {
-    if (a->_changed) {
+    if (a->_changed)
         // On resize/move, invalidate cached pixmaps
-        for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-            XFreePixmap(server.display, a->pix_by_state[i]);
-            if (a->pix == a->pix_by_state[i]) {
-                a->pix = None;
-            }
-            a->pix_by_state[i] = None;
-        }
-        if (a->pix) {
-            XFreePixmap(server.display, a->pix);
-            a->pix = None;
-        }
-    }
+        free_pixmaps (a);
 
-    if (a->pix) {
-        XFreePixmap(server.display, a->pix);
-        if (a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] != a->pix)
-            XFreePixmap(server.display, a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0]);
+    {int pix_i = a->has_mouse_over_effect ? a->mouse_state : 0;
+        if (! a->pix_by_state[pix_i]) {
+            a->pix_by_state[pix_i] = a->pix =
+                XCreatePixmap(server.display, server.root_win, a->width, a->height, server.depth);
+        } else
+            a->pix = a->pix_by_state[pix_i];
     }
-    a->pix = XCreatePixmap(server.display, server.root_win, a->width, a->height, server.depth);
-    a->pix_by_state[a->has_mouse_over_effect ? a->mouse_state : 0] = a->pix;
 
     if (!a->_clear) {
         // Add layer of root pixmap (or clear pixmap if real_transparency==true)
@@ -696,17 +683,7 @@ void free_area(Area *a)
         g_list_free(a->children);
         a->children = NULL;
     }
-    for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-        XFreePixmap(server.display, a->pix_by_state[i]);
-        if (a->pix == a->pix_by_state[i]) {
-            a->pix = None;
-        }
-        a->pix_by_state[i] = None;
-    }
-    if (a->pix) {
-        XFreePixmap(server.display, a->pix);
-        a->pix = None;
-    }
+    free_pixmaps (a);
     if (mouse_over_area == a) {
         mouse_over_area = NULL;
     }
@@ -737,8 +714,7 @@ void mouse_over(Area *area, gboolean pressed)
 
     mouse_over_area->mouse_state = new_state;
     mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
-    if (!mouse_over_area->pix)
-        mouse_over_area->_redraw_needed = TRUE;
+    mouse_over_area->_redraw_needed = TRUE;
     schedule_panel_redraw();
 }
 
@@ -748,8 +724,7 @@ void mouse_out()
         return;
     mouse_over_area->mouse_state = MOUSE_NORMAL;
     mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
-    if (!mouse_over_area->pix)
-        mouse_over_area->_redraw_needed = TRUE;
+    mouse_over_area->_redraw_needed = TRUE;
     schedule_panel_redraw();
     mouse_over_area = NULL;
 }

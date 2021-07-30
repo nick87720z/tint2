@@ -488,18 +488,28 @@ double tint_color_channel(double a, double b, double tint_weight)
 
 void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double tint_weight)
 {
-    Color c1 = *color1;
-    Color c2 = *color2;
+    Color c1 = *color1, c2 = *color2;
     double m1, m2, M1, M2, ratio;
     m1 = MIN(c1.rgb[0], c1.rgb[1]), m1 = MIN(m1, c1.rgb[2]);
     m2 = MIN(c2.rgb[0], c2.rgb[1]), m2 = MIN(m2, c2.rgb[2]);
     M1 = MAX(c1.rgb[0], c1.rgb[1]), M1 = MAX(M1, c1.rgb[2]);
     M2 = MAX(c2.rgb[0], c2.rgb[1]), M2 = MAX(M2, c2.rgb[2]);
     ratio = (m1 + M1) / (m2 + M2);
+    c2.rgb[0] *= ratio;
+    c2.rgb[1] *= ratio;
+    c2.rgb[2] *= ratio;
+    if ((M2 *= ratio) > 1.0)
+    {
+        double l2 = (m2 * ratio + M2) / 2;
+        double mul = (1 - l2) / (M2 - l2);
+        int i = 2;
+        for (; i != -1; i--)
+            c2.rgb[i] = l2 + (c2.rgb[i] - l2) * mul;
+    }
     cairo_set_source_rgba(c,
-                          tint_color_channel(c1.rgb[0], c2.rgb[0] * ratio, tint_weight),
-                          tint_color_channel(c1.rgb[1], c2.rgb[1] * ratio, tint_weight),
-                          tint_color_channel(c1.rgb[2], c2.rgb[2] * ratio, tint_weight),
+                          tint_color_channel(c1.rgb[0], c2.rgb[0], tint_weight),
+                          tint_color_channel(c1.rgb[1], c2.rgb[1], tint_weight),
+                          tint_color_channel(c1.rgb[2], c2.rgb[2], tint_weight),
                           color1->alpha);
 }
 

@@ -481,19 +481,25 @@ void draw(Area *a)
 
 double tint_color_channel(double a, double b, double tint_weight)
 {
-    double gamma = 2.2;
     if (tint_weight == 0.0)
         return a;
-    double result = sqrt((1.-tint_weight)*pow(a, gamma) + tint_weight * pow(b, gamma));
-    return result;
+    return sqrt(a * a * (1-tint_weight) + b * b * tint_weight);
 }
 
 void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double tint_weight)
 {
+    Color c1 = *color1;
+    Color c2 = *color2;
+    double m1, m2, M1, M2, ratio;
+    m1 = MIN(c1.rgb[0], c1.rgb[1]), m1 = MIN(m1, c1.rgb[2]);
+    m2 = MIN(c2.rgb[0], c2.rgb[1]), m2 = MIN(m2, c2.rgb[2]);
+    M1 = MAX(c1.rgb[0], c1.rgb[1]), M1 = MAX(M1, c1.rgb[2]);
+    M2 = MAX(c2.rgb[0], c2.rgb[1]), M2 = MAX(M2, c2.rgb[2]);
+    ratio = (m1 + M1) / (m2 + M2);
     cairo_set_source_rgba(c,
-                          tint_color_channel(color1->rgb[0], color2->rgb[0], tint_weight),
-                          tint_color_channel(color1->rgb[1], color2->rgb[1], tint_weight),
-                          tint_color_channel(color1->rgb[2], color2->rgb[2], tint_weight),
+                          tint_color_channel(c1.rgb[0], c2.rgb[0] * ratio, tint_weight),
+                          tint_color_channel(c1.rgb[1], c2.rgb[1] * ratio, tint_weight),
+                          tint_color_channel(c1.rgb[2], c2.rgb[2] * ratio, tint_weight),
                           color1->alpha);
 }
 

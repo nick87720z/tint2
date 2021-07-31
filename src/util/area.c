@@ -515,32 +515,36 @@ void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double ti
 
 void set_cairo_source_bg_color(Area *a, cairo_t *c)
 {
-    Color content_color;
-    if (a->_get_content_color)
+    Color content_color, *color;
+    switch (a->mouse_state) {
+    case MOUSE_OVER: color = &a->bg->fill_color_hover;
+                     break;
+    case MOUSE_DOWN: color = &a->bg->fill_color_pressed;
+                     break;
+    default:         color = &a->bg->fill_color;
+    }
+    if (a->_get_content_color) {
         a->_get_content_color(a, &content_color);
-    else
-        memset(&content_color, 0, sizeof(content_color));
-    if (a->mouse_state == MOUSE_OVER)
-        set_cairo_source_tinted(c, &a->bg->fill_color_hover, &content_color, a->bg->fill_content_tint_weight);
-    else if (a->mouse_state == MOUSE_DOWN)
-        set_cairo_source_tinted(c, &a->bg->fill_color_pressed, &content_color, a->bg->fill_content_tint_weight);
-    else
-        set_cairo_source_tinted(c, &a->bg->fill_color, &content_color, a->bg->fill_content_tint_weight);
+        set_cairo_source_tinted(c, color, &content_color, a->bg->fill_content_tint_weight);
+    } else
+        cairo_set_source_rgba (c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
 }
 
 void set_cairo_source_border_color(Area *a, cairo_t *c)
 {
-    Color content_color;
-    if (a->_get_content_color)
+    Color content_color, *color;
+    switch (a->mouse_state) {
+    case MOUSE_OVER: color = &a->bg->border_color_hover;
+                     break;
+    case MOUSE_DOWN: color = &a->bg->border_color_pressed;
+                     break;
+    default:         color = &a->bg->border.color;
+    }
+    if (a->_get_content_color) {
         a->_get_content_color(a, &content_color);
-    else
-        memset(&content_color, 0, sizeof(content_color));
-    if (a->mouse_state == MOUSE_OVER)
-        set_cairo_source_tinted(c, &a->bg->border_color_hover, &content_color, a->bg->border_content_tint_weight);
-    else if (a->mouse_state == MOUSE_DOWN)
-        set_cairo_source_tinted(c, &a->bg->border_color_pressed, &content_color, a->bg->border_content_tint_weight);
-    else
-        set_cairo_source_tinted(c, &a->bg->border.color, &content_color, a->bg->border_content_tint_weight);
+        set_cairo_source_tinted(c, color, &content_color, a->bg->border_content_tint_weight);
+    } else
+        cairo_set_source_rgba (c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
 }
 
 void draw_background(Area *a, cairo_t *c)

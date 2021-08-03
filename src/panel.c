@@ -248,7 +248,7 @@ void init_panel()
         p->area._clear = panel_clear_background;
         p->separator_list = NULL;
         init_panel_size_and_position(p);
-        instantiate_area_gradients(&p->area);
+        area_gradients_create(&p->area);
         // add children according to panel_items
         for (int k = 0; k < strlen(panel_items_order); k++) {
             if (panel_items_order[k] == 'L')

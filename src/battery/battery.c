@@ -280,7 +280,7 @@ void init_battery_panel(void *p)
     battery->area.has_mouse_press_effect = battery->area.has_mouse_over_effect;
     if (battery_tooltip_enabled)
         battery->area._get_tooltip_text = battery_get_tooltip;
-    instantiate_area_gradients(&battery->area);
+    area_gradients_create(&battery->area);
 
     if (!bat1_format && !bat2_format) {
         bat1_format = strdup("%p");

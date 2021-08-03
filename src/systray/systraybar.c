@@ -136,7 +136,7 @@ void init_systray_panel(void *p)
     show(&systray.area);
     schedule_redraw(&systray.area);
     refresh_systray = TRUE;
-    instantiate_area_gradients(&systray.area);
+    area_gradients_create(&systray.area);
 }
 
 void systray_compute_geometry(int *size)

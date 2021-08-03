@@ -78,7 +78,7 @@ void init_taskbarname_panel(void *p)
 
         // append the name at the beginning of taskbar
         taskbar->area.children = g_list_append(taskbar->area.children, &taskbar->bar_name);
-        instantiate_area_gradients(&taskbar->bar_name.area);
+        area_gradients_create(&taskbar->bar_name.area);
     }
 
     for (l = list; l; l = l->next)

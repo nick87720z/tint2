@@ -214,7 +214,7 @@ void init_execp_panel(void *p)
 
         execp->area.resize_needed = TRUE;
         execp->area.on_screen = TRUE;
-        instantiate_area_gradients(&execp->area);
+        area_gradients_create(&execp->area);
 
         change_timer(&backend->timer, true, 10, 0, execp_timer_callback, execp);
 

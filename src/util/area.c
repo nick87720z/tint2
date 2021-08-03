@@ -645,7 +645,7 @@ void remove_area(Area *a)
     Area *area = (Area *)a;
     Area *parent = (Area *)area->parent;
 
-    free_area_gradient_instances(a);
+    area_gradients_free(a);
 
     if (parent) {
         parent->children = g_list_remove(parent->children, area);
@@ -687,7 +687,7 @@ void free_area(Area *a)
     if (mouse_over_area == a) {
         mouse_over_area = NULL;
     }
-    free_area_gradient_instances(a);
+    area_gradients_free(a);
 }
 
 void mouse_over(Area *area, gboolean pressed)
@@ -1155,7 +1155,7 @@ Area *compute_element_area(Area *area, Element element)
     return area;
 }
 
-void instantiate_gradient_offsets(GradientInstance *gi, GList *offsets)
+void gradient_init_offsets(GradientInstance *gi, GList *offsets)
 {
     for (GList *l = offsets; l; l = l->next) {
         Offset *offset = (Offset *)l->data;
@@ -1166,7 +1166,7 @@ void instantiate_gradient_offsets(GradientInstance *gi, GList *offsets)
     }
 }
 
-void free_gradient_offsets(GradientInstance *gi, GList **offsets)
+void gradient_destroy_offsets(GradientInstance *gi, GList **offsets)
 {
     for (GList *l = *offsets; l; l = l->next) {
         Offset *offset = (Offset *)l->data;
@@ -1177,42 +1177,42 @@ void free_gradient_offsets(GradientInstance *gi, GList **offsets)
     }
 }
 
-void instantiate_gradient_point(GradientInstance *gi, ControlPoint *control)
+void gradient_point_init(GradientInstance *gi, ControlPoint *control)
 {
-    instantiate_gradient_offsets(gi, control->offsets_x);
-    instantiate_gradient_offsets(gi, control->offsets_y);
-    instantiate_gradient_offsets(gi, control->offsets_r);
+    gradient_init_offsets(gi, control->offsets_x);
+    gradient_init_offsets(gi, control->offsets_y);
+    gradient_init_offsets(gi, control->offsets_r);
 }
 
-void free_gradient_instance_point(GradientInstance *gi, ControlPoint *control)
+void gradient_point_destroy(GradientInstance *gi, ControlPoint *control)
 {
-    free_gradient_offsets(gi, &control->offsets_x);
-    free_gradient_offsets(gi, &control->offsets_y);
-    free_gradient_offsets(gi, &control->offsets_r);
+    gradient_destroy_offsets(gi, &control->offsets_x);
+    gradient_destroy_offsets(gi, &control->offsets_y);
+    gradient_destroy_offsets(gi, &control->offsets_r);
 }
 
-void instantiate_gradient(Area *area, GradientClass *g, GradientInstance *gi)
+void gradient_init(Area *area, GradientClass *g, GradientInstance *gi)
 {
     g_assert_nonnull(area);
     g_assert_nonnull(g);
     gi->area = area;
     gi->gradient_class = g;
-    instantiate_gradient_point(gi, &g->from);
-    instantiate_gradient_point(gi, &g->to);
+    gradient_point_init(gi, &g->from);
+    gradient_point_init(gi, &g->to);
 }
 
-void free_gradient_instance(GradientInstance *gi)
+void gradient_destroy(GradientInstance *gi)
 {
     if (gi->pattern) {
         cairo_pattern_destroy(gi->pattern);
         gi->pattern = NULL;
     }
-    free_gradient_instance_point(gi, &gi->gradient_class->from);
-    free_gradient_instance_point(gi, &gi->gradient_class->to);
+    gradient_point_destroy(gi, &gi->gradient_class->from);
+    gradient_point_destroy(gi, &gi->gradient_class->to);
     gi->gradient_class = NULL;
 }
 
-void instantiate_area_gradients(Area *area)
+void area_gradients_create(Area *area)
 {
     if (debug_gradients)
         fprintf(stderr, "tint2: Initializing gradients for area %s\n", area->name);
@@ -1222,19 +1222,19 @@ void instantiate_area_gradients(Area *area)
         if (!g)
             continue;
         GradientInstance *gi = (GradientInstance *)calloc(1, sizeof(GradientInstance));
-        instantiate_gradient(area, g, gi);
+        gradient_init(area, g, gi);
         area->gradient_instances_by_state[i] = g_list_append(area->gradient_instances_by_state[i], gi);
     }
 }
 
-void free_area_gradient_instances(Area *area)
+void area_gradients_free(Area *area)
 {
     if (debug_gradients)
         fprintf(stderr, "tint2: Freeing gradients for area %s\n", area->name);
     for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
         for (GList *l = area->gradient_instances_by_state[i]; l; l = l->next) {
             GradientInstance *gi = (GradientInstance *)l->data;
-            free_gradient_instance(gi);
+            gradient_destroy(l->data);
         }
         g_list_free_full(area->gradient_instances_by_state[i], free);
         area->gradient_instances_by_state[i] = NULL;

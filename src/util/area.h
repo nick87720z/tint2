@@ -356,8 +356,8 @@ gboolean area_is_under_mouse(void *obj, int x, int y);
 // they are outside the drawing area of the button.
 gboolean full_width_area_is_under_mouse(void *obj, int x, int y);
 
-void instantiate_area_gradients(Area *area);
-void free_area_gradient_instances(Area *area);
+void area_gradients_create(Area *area);
+void area_gradients_free(Area *area);
 
 void area_dump_geometry(Area *area, int indent);
 

@@ -116,7 +116,7 @@ void init_launcher_panel(void *p)
 
     launcher->area.on_screen = TRUE;
     schedule_panel_redraw();
-    instantiate_area_gradients(&launcher->area);
+    area_gradients_create(&launcher->area);
 
     load_icon_themes();
     launcher_load_icons(launcher);
@@ -497,7 +497,7 @@ void launcher_load_icons(Launcher *launcher)
         launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
         launcherIcon->icon_size = launcher->icon_size;
         launcher_reload_icon(launcher, launcherIcon);
-        instantiate_area_gradients(&launcherIcon->area);
+        area_gradients_create(&launcherIcon->area);
         app = g_slist_next(app);
     }
 }

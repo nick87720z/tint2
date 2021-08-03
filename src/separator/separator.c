@@ -95,7 +95,7 @@ void init_separator_panel(void *p)
         separator->area._resize = resize_separator;
         separator->area._compute_desired_size = separator_compute_desired_size;
         separator->area._draw_foreground = draw_separator;
-        instantiate_area_gradients(&separator->area);
+        area_gradients_create(&separator->area);
     }
 }
 

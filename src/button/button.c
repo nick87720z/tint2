@@ -161,7 +161,7 @@ void init_button_panel(void *p)
 
         area->resize_needed = TRUE;
         area->on_screen = TRUE;
-        instantiate_area_gradients(area);
+        area_gradients_create(area);
 
         button_reload_icon(button);
     }

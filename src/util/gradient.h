@@ -17,9 +17,8 @@ typedef struct ColorStop {
     double offset;
 } ColorStop;
 
-typedef enum Element { ELEMENT_SELF, ELEMENT_PARENT, ELEMENT_PANEL } Element;
-
 typedef enum SizeVariable {
+    SIZE_CONST, // special case, could be checked as simple as if( !variable )
     SIZE_WIDTH,
     SIZE_HEIGHT,
     SIZE_RADIUS,
@@ -32,21 +31,23 @@ typedef enum SizeVariable {
 } SizeVariable;
 
 typedef struct Offset {
-    gboolean constant;
-    // if constant == true
-    double constant_value;
-    // else
-    Element element;
     SizeVariable variable;
-    double multiplier;
+    union {
+        // if variable == SIZE_CONST
+        double constant_value;
+        // else
+        double multiplier;
+    };
 } Offset;
+
+#define CONST_OFFSET(offset) (!(offset)->variable)
 
 typedef struct ControlPoint {
     // Each element is an Offset
-    GList *offsets_x;
-    GList *offsets_y;
+    Offset *offsets_x;
+    Offset *offsets_y;
     // Defined only for radial gradients
-    GList *offsets_r;
+    Offset *offsets_r;
 } ControlPoint;
 
 typedef struct GradientClass {

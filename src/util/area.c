@@ -1129,52 +1129,11 @@ void draw_text_area(Area *area,
     g_object_unref(context);
 }
 
-Area *compute_element_area(Area *area, Element element)
+gboolean gradient_point_area_dependent(ControlPoint *control)
 {
-    switch (element) {
-    case ELEMENT_SELF:   return area;
-    case ELEMENT_PARENT: return area->parent;
-    case ELEMENT_PANEL:  return area->panel;
-    default:
-        g_assert_not_reached();
-        return area;
-    }
-}
-
-void gradient_init_offsets(GradientInstance *gi, GList *offsets)
-{
-    for (GList *l = offsets; l; l = l->next) {
-        Offset *offset = (Offset *)l->data;
-        if (!offset->constant) {
-            Area *element_area = compute_element_area(gi->area, offset->element);
-            element_area->dependent_gradients = g_list_append(element_area->dependent_gradients, gi);
-        }
-    }
-}
-
-void gradient_destroy_offsets(GradientInstance *gi, GList **offsets)
-{
-    for (GList *l = *offsets; l; l = l->next) {
-        Offset *offset = (Offset *)l->data;
-        if (!offset->constant) {
-            Area *element_area = compute_element_area(gi->area, offset->element);
-            element_area->dependent_gradients = g_list_remove_all(element_area->dependent_gradients, gi);
-        }
-    }
-}
-
-void gradient_point_init(GradientInstance *gi, ControlPoint *control)
-{
-    gradient_init_offsets(gi, control->offsets_x);
-    gradient_init_offsets(gi, control->offsets_y);
-    gradient_init_offsets(gi, control->offsets_r);
-}
-
-void gradient_point_destroy(GradientInstance *gi, ControlPoint *control)
-{
-    gradient_destroy_offsets(gi, &control->offsets_x);
-    gradient_destroy_offsets(gi, &control->offsets_y);
-    gradient_destroy_offsets(gi, &control->offsets_r);
+    return (!CONST_OFFSET(control->offsets_x) ||
+            !CONST_OFFSET(control->offsets_y) ||
+            !CONST_OFFSET(control->offsets_r));
 }
 
 void gradient_init(Area *area, GradientClass *g, GradientInstance *gi)
@@ -1183,8 +1142,11 @@ void gradient_init(Area *area, GradientClass *g, GradientInstance *gi)
     g_assert_nonnull(g);
     gi->area = area;
     gi->gradient_class = g;
-    gradient_point_init(gi, &g->from);
-    gradient_point_init(gi, &g->to);
+    if (gradient_point_area_dependent(&g->from) ||
+        gradient_point_area_dependent(&g->to))
+    {
+        area->dependent_gradients = g_list_append(area->dependent_gradients, gi);
+    }
 }
 
 void gradient_destroy(GradientInstance *gi)
@@ -1193,8 +1155,13 @@ void gradient_destroy(GradientInstance *gi)
         cairo_pattern_destroy(gi->pattern);
         gi->pattern = NULL;
     }
-    gradient_point_destroy(gi, &gi->gradient_class->from);
-    gradient_point_destroy(gi, &gi->gradient_class->to);
+    GradientClass *g = gi->gradient_class;
+    if (gradient_point_area_dependent(&g->from) ||
+        gradient_point_area_dependent(&g->to))
+    {
+        Area *area = gi->area;
+        area->dependent_gradients = g_list_remove(area->dependent_gradients, gi);
+    }
     gi->gradient_class = NULL;
 }
 
@@ -1230,63 +1197,33 @@ void area_gradients_free(Area *area)
 
 double compute_control_point_offset(Area *area, Offset *offset)
 {
-    if (offset->constant)
+    if (CONST_OFFSET(offset))
         return offset->constant_value;
 
-    Area *element_area = compute_element_area(area, offset->element);
-    Area *parent_area = area->parent;
-    g_assert_nonnull(element_area);
-    g_assert_nonnull(parent_area);
-
-    double width  = element_area->width,
-           height = element_area->height,
-           left, top;
-
-    switch (offset->element) {
-    case ELEMENT_SELF:
-        left = top = 0;
-        break;
-    case ELEMENT_PARENT:
-        left = parent_area->posx - area->posx;
-        top  = parent_area->posy - area->posy;
-        break;
-    case ELEMENT_PANEL:
-        left = -area->posx;
-        top  = -area->posy;
-        break;
-    }
+    double width  = area->width,
+           height = area->height;
 
     switch (offset->variable) {
     case SIZE_WIDTH:   return offset->multiplier * width;
     case SIZE_HEIGHT:  return offset->multiplier * height;
     case SIZE_RADIUS:  return offset->multiplier * sqrt(width * width + height * height) / 2;
-    case SIZE_LEFT:    return offset->multiplier * left;
-    case SIZE_RIGHT:   return offset->multiplier * (left + width);
-    case SIZE_TOP:     return offset->multiplier * top;
-    case SIZE_BOTTOM:  return offset->multiplier * (top + height);
-    case SIZE_CENTERX: return offset->multiplier * (left + 0.5 * width);
-    case SIZE_CENTERY: return offset->multiplier * (top + 0.5 * height);
+    case SIZE_LEFT:    return offset->multiplier * 0;
+    case SIZE_RIGHT:   return offset->multiplier * (width);
+    case SIZE_TOP:     return offset->multiplier * 0;
+    case SIZE_BOTTOM:  return offset->multiplier * (height);
+    case SIZE_CENTERX: return offset->multiplier * (0.5 * width);
+    case SIZE_CENTERY: return offset->multiplier * (0.5 * height);
     default:
         g_assert_not_reached();
         return 0;
     }
 }
 
-double compute_control_point_offsets(GradientInstance *gi, GList *offsets)
-{
-    double result = 0;
-    for (GList *l = offsets; l; l = l->next) {
-        Offset *offset = (Offset *)l->data;
-        result += compute_control_point_offset(gi->area, offset);
-    }
-    return result;
-}
-
 void compute_control_point(GradientInstance *gi, ControlPoint *control, double *x, double *y, double *r)
 {
-    *x = compute_control_point_offsets(gi, control->offsets_x);
-    *y = compute_control_point_offsets(gi, control->offsets_y);
-    *r = compute_control_point_offsets(gi, control->offsets_r);
+    *x = control->offsets_x ? compute_control_point_offset(gi->area, control->offsets_x) : 0;
+    *y = control->offsets_y ? compute_control_point_offset(gi->area, control->offsets_y) : 0;
+    *r = control->offsets_r ? compute_control_point_offset(gi->area, control->offsets_r) : 0;
 }
 
 void update_gradient(GradientInstance *gi)

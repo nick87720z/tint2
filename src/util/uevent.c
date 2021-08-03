@@ -39,13 +39,8 @@ static GList *notifiers = NULL;
 
 static const char *has_prefix(const char *str, const char *end, const char *prefix, size_t prefixlen)
 {
-    if ((end - str) < prefixlen)
-        return NULL;
-
-    if (!memcmp(str, prefix, prefixlen))
-        return str + prefixlen;
-
-    return NULL;
+    return  (end - str) < prefixlen || memcmp(str, prefix, prefixlen) != 0
+            ? NULL : str + prefixlen;
 }
 
 #define HAS_CONST_PREFIX(str, end, prefix) has_prefix((str), end, prefix, sizeof(prefix) - 1)
@@ -96,14 +91,11 @@ static struct uevent *uevent_new(char *buffer, int size)
         } else {
             const char *val;
             if ((val = HAS_CONST_PREFIX(s, end, "ACTION=")) != NULL) {
-                if (!strcmp(val, "add"))
-                    ev->action = UEVENT_ADD;
-                else if (!strcmp(val, "remove"))
-                    ev->action = UEVENT_REMOVE;
-                else if (!strcmp(val, "change"))
-                    ev->action = UEVENT_CHANGE;
-                else
-                    ev->action = UEVENT_UNKNOWN;
+                ev->action =
+                    !strcmp(val, "add") ? UEVENT_ADD
+                :   !strcmp(val, "remove") ? UEVENT_REMOVE
+                :   !strcmp(val, "change") ? UEVENT_CHANGE
+                : UEVENT_UNKNOWN;
             } else if ((val = HAS_CONST_PREFIX(s, end, "SEQNUM=")) != NULL) {
                 ev->sequence = atoi(val);
             } else if ((val = HAS_CONST_PREFIX(s, end, "SUBSYSTEM=")) != NULL) {

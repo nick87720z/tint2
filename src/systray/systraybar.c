@@ -546,21 +546,23 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 #if 0
     // This breaks pygtk2 StatusIcon with blinking activated
     if (traywin_a->empty && !traywin_b->empty)
-        return 1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
+        return systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1;
     if (!traywin_a->empty && traywin_b->empty)
-        return -1 * (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? -1 : 1);
+        return systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? 1 : -1;
 #endif
 
-    if (systray.sort == SYSTRAY_SORT_ASCENDING || systray.sort == SYSTRAY_SORT_DESCENDING) {
-        return g_ascii_strncasecmp(traywin_a->name, traywin_b->name, -1) *
-               (systray.sort == SYSTRAY_SORT_ASCENDING ? 1 : -1);
+    switch (systray.sort) {
+    case SYSTRAY_SORT_ASCENDING:
+        return g_ascii_strncasecmp(traywin_a->name, traywin_b->name, -1);
+    case SYSTRAY_SORT_DESCENDING:
+        return -g_ascii_strncasecmp(traywin_a->name, traywin_b->name, -1);
+    case SYSTRAY_SORT_LEFT2RIGHT:
+        return traywin_a->chrono - traywin_b->chrono;
+    case SYSTRAY_SORT_RIGHT2LEFT:
+        return traywin_b->chrono - traywin_a->chrono;
+    default:
+        return 0;
     }
-
-    if (systray.sort == SYSTRAY_SORT_LEFT2RIGHT || systray.sort == SYSTRAY_SORT_RIGHT2LEFT) {
-        return (traywin_a->chrono - traywin_b->chrono) * (systray.sort == SYSTRAY_SORT_LEFT2RIGHT ? 1 : -1);
-    }
-
-    return 0;
 }
 
 void print_icons()
@@ -737,11 +739,9 @@ gboolean add_icon(Window win)
 
     show(&systray.area);
 
-    if (systray.sort == SYSTRAY_SORT_RIGHT2LEFT)
-        systray.list_icons = g_slist_prepend(systray.list_icons, traywin);
-    else
-        systray.list_icons = g_slist_append(systray.list_icons, traywin);
-    systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
+    systray.list_icons = g_slist_sort(
+        (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? g_slist_prepend : g_slist_append) (systray.list_icons, traywin),
+        compare_traywindows);
     // print_icons();
 
     if (!panel->is_hidden) {
@@ -1268,11 +1268,13 @@ void systray_render_icon_composited(void *t)
         goto on_systray_error;
     }
     XRenderPictFormat *f;
-    if (traywin->depth == 24) {
-        f = XRenderFindStandardFormat(server.display, PictStandardRGB24);
-    } else if (traywin->depth == 32) {
-        f = XRenderFindStandardFormat(server.display, PictStandardARGB32);
-    } else {
+    
+    switch (traywin->depth) {
+    case 24: f = XRenderFindStandardFormat(server.display, PictStandardRGB24);
+             break;
+    case 32: f = XRenderFindStandardFormat(server.display, PictStandardARGB32);
+             break;
+    default:
         fprintf(stderr, RED "tint2: Strange tray icon found with depth: %d" RESET "\n", traywin->depth);
         XFreePixmap(server.display, tmp_pmap);
         return;

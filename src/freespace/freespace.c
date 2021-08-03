@@ -60,9 +60,10 @@ void init_freespace_panel(void *p)
 
 void cleanup_freespace(Panel *panel)
 {
-    if (panel->freespace_list)
+    if (panel->freespace_list) {
         g_list_free_full(panel->freespace_list, free);
-    panel->freespace_list = NULL;
+        panel->freespace_list = NULL;
+    }
 }
 
 int freespace_get_max_size(Panel *panel)
@@ -81,17 +82,11 @@ int freespace_get_max_size(Panel *panel)
             spacers++;
             continue;
         }
-
-        if (panel_horizontal)
-            size += a->width + panel->area.paddingx * panel->scale;
-        else
-            size += a->height + panel->area.paddingy * panel->scale;
+        size += panel_horizontal ? a->width  + panel->area.paddingx * panel->scale
+                                 : a->height + panel->area.paddingy * panel->scale;
     }
-
-    if (panel_horizontal)
-        size = panel->area.width - size - left_right_border_width(&panel->area) - panel->area.paddingxlr * panel->scale;
-    else
-        size = panel->area.height - size - top_bottom_border_width(&panel->area) - panel->area.paddingxlr * panel->scale;
+    size = (panel_horizontal ? panel->area.width  - left_right_border_width(&panel->area)
+                             : panel->area.height - top_bottom_border_width(&panel->area)) - size - panel->area.paddingxlr * panel->scale;
 
     return size / spacers;
 }

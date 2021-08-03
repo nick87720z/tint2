@@ -26,50 +26,43 @@
 
 gboolean tint2_handles_click(Panel *panel, XButtonEvent *e)
 {
-    Task *task = click_task(panel, e->x, e->y);
-    if (task) {
-        if ((e->button == 1 && mouse_left != 0) || (e->button == 2 && mouse_middle != 0) ||
-            (e->button == 3 && mouse_right != 0) || (e->button == 4 && mouse_scroll_up != 0) ||
-            (e->button == 5 && mouse_scroll_down != 0)) {
-            return TRUE;
-        } else
-            return FALSE;
-    }
-    LauncherIcon *icon = click_launcher_icon(panel, e->x, e->y);
-    if (icon) {
-        if (e->button == 1) {
-            return TRUE;
-        } else {
-            return FALSE;
+    if (click_task(panel, e->x, e->y))
+        switch (e->button) {
+        case 1: return !!mouse_left;
+        case 2: return !!mouse_middle;
+        case 3: return !!mouse_right;
+        case 4: return !!mouse_scroll_up;
+        case 5: return !!mouse_scroll_down;
+        default: return FALSE;
         }
-    }
+    if (click_launcher_icon(panel, e->x, e->y))
+        return (e->button == 1);
     // no launcher/task clicked --> check if taskbar clicked
-    Taskbar *taskbar = click_taskbar(panel, e->x, e->y);
-    if (taskbar && e->button == 1 && taskbar_mode == MULTI_DESKTOP)
+    if (click_taskbar(panel, e->x, e->y) && e->button == 1 && taskbar_mode == MULTI_DESKTOP)
         return TRUE;
-    if (click_clock(panel, e->x, e->y)) {
-        if ((e->button == 1 && clock_lclick_command) || (e->button == 2 && clock_mclick_command) ||
-            (e->button == 3 && clock_rclick_command) || (e->button == 4 && clock_uwheel_command) ||
-            (e->button == 5 && clock_dwheel_command))
-            return TRUE;
-        else
-            return FALSE;
-    }
+    if (click_clock(panel, e->x, e->y))
+        switch (e->button) {
+        case 1: return !!clock_lclick_command;
+        case 2: return !!clock_mclick_command;
+        case 3: return !!clock_rclick_command;
+        case 4: return !!clock_uwheel_command;
+        case 5: return !!clock_dwheel_command;
+        default: return FALSE;
+        }
 #ifdef ENABLE_BATTERY
-    if (click_battery(panel, e->x, e->y)) {
-        if ((e->button == 1 && battery_lclick_command) || (e->button == 2 && battery_mclick_command) ||
-            (e->button == 3 && battery_rclick_command) || (e->button == 4 && battery_uwheel_command) ||
-            (e->button == 5 && battery_dwheel_command))
-            return TRUE;
-        else
-            return FALSE;
-    }
+    if (click_battery(panel, e->x, e->y))
+        switch (e->button) {
+        case 1: return !!battery_lclick_command;
+        case 2: return !!battery_mclick_command;
+        case 3: return !!battery_rclick_command;
+        case 4: return !!battery_uwheel_command;
+        case 5: return !!battery_dwheel_command;
+        default: return FALSE;
+        }
 #endif
-    if (click_execp(panel, e->x, e->y))
-        return TRUE;
-    if (click_button(panel, e->x, e->y))
-        return TRUE;
-    return FALSE;
+    return
+        click_execp(panel, e->x, e->y) ||
+        click_button(panel, e->x, e->y);
 }
 
 void handle_mouse_press_event(XEvent *e)
@@ -128,11 +121,10 @@ void handle_mouse_move_event(XEvent *e)
         Taskbar *drag_taskbar = (Taskbar *)task_drag->area.parent;
         remove_area((Area *)task_drag);
 
-        if (event_taskbar->area.posx > drag_taskbar->area.posx || event_taskbar->area.posy > drag_taskbar->area.posy) {
-            int i = (taskbarname_enabled) ? 1 : 0;
-            event_taskbar->area.children = g_list_insert(event_taskbar->area.children, task_drag, i);
-        } else
-            event_taskbar->area.children = g_list_append(event_taskbar->area.children, task_drag);
+        event_taskbar->area.children =  (event_taskbar->area.posx > drag_taskbar->area.posx ||
+                                         event_taskbar->area.posy > drag_taskbar->area.posy) ?
+                                        g_list_insert(event_taskbar->area.children, task_drag, taskbarname_enabled ? 1 : 0) :
+                                        g_list_append(event_taskbar->area.children, task_drag);
 
         // Move task to other desktop (but avoid the 'Window desktop changed' code in 'event_property_notify')
         task_drag->area.parent = &event_taskbar->area;
@@ -259,8 +251,9 @@ void handle_mouse_release_event(XEvent *e)
     // switch desktop
     if (taskbar_mode == MULTI_DESKTOP) {
         gboolean diff_desktop = FALSE;
-        if (taskbar->desktop != server.desktop && action != CLOSE && action != DESKTOP_LEFT &&
-            action != DESKTOP_RIGHT) {
+        if (taskbar->desktop != server.desktop &&
+            action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
+        {
             diff_desktop = TRUE;
             change_desktop(taskbar->desktop);
         }

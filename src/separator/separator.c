@@ -119,10 +119,8 @@ int separator_compute_desired_size(void *obj)
     if (!separator->area.on_screen)
         return 0;
 
-    if (panel_horizontal)
-        return separator->thickness + 2 * separator->area.paddingxlr * panel->scale + left_right_border_width(&separator->area);
-    else
-        return separator->thickness + 2 * separator->area.paddingxlr * panel->scale + top_bottom_border_width(&separator->area);
+    return  separator->thickness + 2 * separator->area.paddingxlr * panel->scale
+            + (panel_horizontal ? left_right_border_width : top_bottom_border_width)(&separator->area);
 }
 
 gboolean resize_separator(void *obj)
@@ -132,17 +130,15 @@ gboolean resize_separator(void *obj)
     if (!separator->area.on_screen)
         return FALSE;
 
+    int sep_width = separator->thickness + 2 * separator->area.paddingxlr * panel->scale + left_right_border_width(&separator->area);
     if (panel_horizontal) {
-        separator->area.width =
-            separator->thickness + 2 * separator->area.paddingxlr * panel->scale + left_right_border_width(&separator->area);
-        separator->length =
-            separator->area.height - 2 * separator->area.paddingy * panel->scale - top_bottom_border_width(&separator->area);
+        separator->area.width = sep_width;
+        separator->length = separator->area.height - top_bottom_border_width(&separator->area);
     } else {
-        separator->area.height =
-            separator->thickness + 2 * separator->area.paddingxlr * panel->scale + top_bottom_border_width(&separator->area);
-        separator->length =
-            separator->area.width - 2 * separator->area.paddingy * panel->scale - left_right_border_width(&separator->area);
+        separator->length = separator->area.width - left_right_border_width(&separator->area);
+        separator->area.height = sep_width;
     }
+    separator->length -= 2 * separator->area.paddingy * panel->scale;
 
     schedule_redraw(&separator->area);
     schedule_panel_redraw();
@@ -156,12 +152,12 @@ void draw_separator(void *obj, cairo_t *c)
 {
     Separator *separator = (Separator *)obj;
 
-    if (separator->style == SEPARATOR_EMPTY)
-        return;
-    else if (separator->style == SEPARATOR_LINE)
-        draw_separator_line(separator, c);
-    else if (separator->style == SEPARATOR_DOTS)
-        draw_separator_dots(separator, c);
+    switch (separator->style) {
+    case SEPARATOR_LINE: draw_separator_line(separator, c);
+                         return;
+    case SEPARATOR_DOTS: draw_separator_dots(separator, c);
+    case SEPARATOR_EMPTY: return;
+    }
 }
 
 void draw_separator_line(void *obj, cairo_t *c)
@@ -177,7 +173,7 @@ void draw_separator_line(void *obj, cairo_t *c)
                           separator->color.rgb[2],
                           separator->color.alpha);
     cairo_set_line_width(c, separator->thickness);
-    cairo_set_line_cap(c, CAIRO_LINE_CAP_ROUND);
+    cairo_set_line_cap(c, CAIRO_LINE_CAP_BUTT);
     if (panel_horizontal) {
         cairo_move_to(c, separator->area.width / 2.0, separator->area.height / 2.0 - separator->length / 2.0);
         cairo_line_to(c, separator->area.width / 2.0, separator->area.height / 2.0 + separator->length / 2.0);
@@ -190,7 +186,6 @@ void draw_separator_line(void *obj, cairo_t *c)
 
 void draw_separator_dots(void *obj, cairo_t *c)
 {
-    const double PI = 3.14159265359;
     Separator *separator = (Separator *)obj;
     if (separator->thickness <= 0)
         return;
@@ -200,34 +195,28 @@ void draw_separator_dots(void *obj, cairo_t *c)
                           separator->color.rgb[1],
                           separator->color.rgb[2],
                           separator->color.alpha);
-    cairo_set_line_width(c, 0);
+    cairo_set_line_width (c, separator->thickness);
+    cairo_set_line_cap(c, CAIRO_LINE_CAP_ROUND);
 
     int num_circles = separator->length / (1.618 * separator->thickness - 1);
     double spacing = (separator->length - num_circles * separator->thickness) / MAX(1.0, num_circles - 1.0);
-    if (spacing > separator->thickness)
+    if (spacing > separator->thickness) {
         num_circles++;
-    spacing = (separator->length - num_circles * separator->thickness) / MAX(1.0, num_circles - 1.0);
-    double offset = (panel_horizontal ? separator->area.height : separator->area.width) / 2.0 - separator->length / 2.0;
+        spacing = (separator->length - num_circles * separator->thickness) / MAX(1.0, num_circles - 1.0);
+    }
+    double offset = ((panel_horizontal ? separator->area.height : separator->area.width) - separator->length) / 2.0;
     if (num_circles == 1)
         offset += spacing / 2.0;
-    for (int i = 0; i < num_circles; i++) {
-        if (panel_horizontal) {
-            cairo_arc(c,
-                      separator->area.width / 2.0,
-                      offset + separator->thickness / 2.0,
-                      separator->thickness / 2.0,
-                      0,
-                      2 * PI);
-        } else {
-            cairo_arc(c,
-                      offset + separator->thickness / 2.0,
-                      separator->area.height / 2.0,
-                      separator->thickness / 2.0,
-                      0,
-                      2 * PI);
-        }
-        cairo_stroke_preserve(c);
-        cairo_fill(c);
-        offset += separator->thickness + spacing;
+    
+    cairo_set_dash(c, (double[]){0, separator->thickness + spacing}, 2, 0);
+    if (panel_horizontal) {
+        cairo_move_to(c, separator->area.width / 2.0, offset + separator->thickness / 2.0);
+        offset += (num_circles - 1) * (separator->thickness + spacing);
+        cairo_line_to(c, separator->area.width / 2.0, offset + separator->thickness / 2.0);
+    } else {
+        cairo_move_to(c, offset + separator->thickness / 2.0, separator->area.height / 2.0);
+        offset += (num_circles - 1) * (separator->thickness + spacing);
+        cairo_move_to(c, offset + separator->thickness / 2.0, separator->area.height / 2.0);
     }
+    cairo_stroke(c);
 }

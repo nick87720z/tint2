@@ -80,12 +80,9 @@ static void notify_changes(XSettingsClient *client, XSettingsList *old_list)
     while (old_iter || new_iter) {
         int cmp;
 
-        if (old_iter && new_iter)
-            cmp = strcmp(old_iter->setting->name, new_iter->setting->name);
-        else if (old_iter)
-            cmp = -1;
-        else
-            cmp = 1;
+        cmp = !old_iter ? 1
+            : new_iter ? strcmp(old_iter->setting->name, new_iter->setting->name)
+            : -1;
 
         if (cmp < 0) {
             client->notify(old_iter->setting->name, XSETTINGS_ACTION_DELETED, NULL, client->cb_data);
@@ -122,10 +119,8 @@ static XSettingsResult fetch_card16(XSettingsBuffer *buffer, CARD16 *result)
     x = *(CARD16 *)buffer->pos;
     buffer->pos += 2;
 
-    if (buffer->byte_order == local_byte_order)
-        *result = x;
-    else
-        *result = (x << 8) | (x >> 8);
+    *result = (buffer->byte_order == local_byte_order) ?
+              x : (x << 8) | (x >> 8);
 
     return XSETTINGS_SUCCESS;
 }
@@ -152,10 +147,8 @@ static XSettingsResult fetch_card32(XSettingsBuffer *buffer, CARD32 *result)
     x = *(CARD32 *)buffer->pos;
     buffer->pos += 4;
 
-    if (buffer->byte_order == local_byte_order)
-        *result = x;
-    else
-        *result = (x << 24) | ((x & 0xff00) << 8) | ((x & 0xff0000) >> 8) | (x >> 24);
+    *result = (buffer->byte_order == local_byte_order) ? x
+            : (x << 24) | ((x & 0xff00) << 8) | ((x & 0xff0000) >> 8) | (x >> 24);
 
     return XSETTINGS_SUCCESS;
 }
@@ -444,11 +437,10 @@ void xsettings_client_destroy(XSettingsClient *client)
 XSettingsResult xsettings_client_get_setting(XSettingsClient *client, const char *name, XSettingsSetting **setting)
 {
     XSettingsSetting *search = xsettings_list_lookup(client->settings, name);
-    if (search) {
-        *setting = xsettings_setting_copy(search);
-        return *setting ? XSETTINGS_SUCCESS : XSETTINGS_NO_MEM;
-    } else
-        return XSETTINGS_NO_ENTRY;
+    return
+        !search ? XSETTINGS_NO_ENTRY
+    :   (*setting = xsettings_setting_copy(search)) ? XSETTINGS_SUCCESS
+    :   XSETTINGS_NO_MEM;
 }
 
 Bool xsettings_client_process_event(XSettingsClient *client, XEvent *xev)

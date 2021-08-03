@@ -211,9 +211,8 @@ gboolean get_window_coordinates(Window win, int *x, int *y, int *w, int *h)
     int dummy_int;
     unsigned ww, wh, bw, bh;
     Window src;
-    if (!XTranslateCoordinates(server.display, win, server.root_win, 0, 0, x, y, &src))
-        return FALSE;
-    if (!XGetGeometry(server.display, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh))
+    if (!XTranslateCoordinates(server.display, win, server.root_win, 0, 0, x, y, &src) ||
+        !XGetGeometry(server.display, win, &src, &dummy_int, &dummy_int, &ww, &wh, &bw, &bh))
         return FALSE;
     *w = ww + bw;
     *h = wh + bw;
@@ -655,9 +654,6 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
                 fprintf(stderr, "tint2: captured window using XGetImage\n");
         }
     }
-
-    if (!image_surface)
-        return NULL;
 
     return image_surface;
 }

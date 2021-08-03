@@ -46,11 +46,7 @@ int parse_dektop_line(char *line, char **key, char **value)
             break;
         }
     }
-    if (!found)
-        return 0;
-    if (found && (strlen(*key) == 0 || strlen(*value) == 0))
-        return 0;
-    return 1;
+    return found && strlen(*key) && strlen(*value);
 }
 
 void expand_exec(DesktopEntry *entry, const char *path)

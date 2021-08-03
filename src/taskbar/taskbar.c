@@ -437,16 +437,14 @@ void taskbar_remove_task(Window *win)
 Task *get_task(Window win)
 {
     GPtrArray *task_buttons = get_task_buttons(win);
-    if (task_buttons)
-        return g_ptr_array_index(task_buttons, 0);
-    return NULL;
+    return task_buttons ?
+        g_ptr_array_index(task_buttons, 0) : NULL;
 }
 
 GPtrArray *get_task_buttons(Window win)
 {
-    if (win_to_task && taskbar_enabled)
-        return g_hash_table_lookup(win_to_task, &win);
-    return NULL;
+    return (win_to_task && taskbar_enabled) ?
+        g_hash_table_lookup(win_to_task, &win) : NULL;
 }
 
 static Window *sort_windows = NULL;
@@ -593,22 +591,13 @@ gboolean taskbar_is_empty(Taskbar *taskbar)
 
 void update_taskbar_visibility(Taskbar *taskbar)
 {
-    if (taskbar->desktop == server.desktop) {
-        // Taskbar for current desktop is always shown
-        show(&taskbar->area);
-    } else if (taskbar_mode == MULTI_DESKTOP) {
-        if (hide_taskbar_if_empty) {
-            if (taskbar_is_empty(taskbar)) {
-                hide(&taskbar->area);
-            } else {
-                show(&taskbar->area);
-            }
-        } else {
-            show(&taskbar->area);
-        }
-    } else {
-        hide(&taskbar->area);
-    }
+    (   taskbar->desktop == server.desktop || (
+            taskbar_mode == MULTI_DESKTOP && (
+                !hide_taskbar_if_empty || !taskbar_is_empty(taskbar)
+            )
+        ) ?
+        show : hide
+    )(&taskbar->area);
 }
 
 void update_all_taskbars_visibility()
@@ -664,77 +653,58 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 #define NONTRIVIAL 2
 gint compare_tasks_trivial(Task *a, Task *b, Taskbar *taskbar)
 {
-    if (a == b)
-        return 0;
-    if (taskbarname_enabled) {
-        if (a == taskbar->area.children->data)
-            return -1;
-        if (b == taskbar->area.children->data)
-            return 1;
-    }
-    return NONTRIVIAL;
+    return  a == b ? 0
+        :   !taskbarname_enabled ? NONTRIVIAL
+        :   a == taskbar->area.children->data ? -1
+        :   b == taskbar->area.children->data ? 1
+        :   NONTRIVIAL;
 }
 
 gboolean contained_within(Task *a, Task *b)
 {
-    if ((a->win_x <= b->win_x) && (a->win_y <= b->win_y) && (a->win_x + a->win_w >= b->win_x + b->win_w) &&
-        (a->win_y + a->win_h >= b->win_y + b->win_h)) {
-        return TRUE;
-    }
-    return FALSE;
+    return ((a->win_x <= b->win_x) &&
+            (a->win_y <= b->win_y) &&
+            (a->win_x + a->win_w >= b->win_x + b->win_w) &&
+            (a->win_y + a->win_h >= b->win_y + b->win_h));
 }
 
 gint compare_task_centers(Task *a, Task *b, Taskbar *taskbar)
 {
-    int trivial = compare_tasks_trivial(a, b, taskbar);
-    if (trivial != NONTRIVIAL)
-        return trivial;
+    int trivial = compare_tasks_trivial(a, b, taskbar),
+        a_horiz_c, a_vert_c, b_horiz_c, b_vert_c;
 
-    // If a window has the same coordinates and size as the other,
-    // they are considered to be equal in the comparison.
-    if ((a->win_x == b->win_x) && (a->win_y == b->win_y) && (a->win_w == b->win_w) && (a->win_h == b->win_h)) {
-        return 0;
-    }
-
-    // If a window is completely contained in another,
-    // then it is considered to come after (to the right/bottom) of the other.
-    if (contained_within(a, b))
-        return -1;
-    if (contained_within(b, a))
-        return 1;
-
-    // Compare centers
-    int a_horiz_c = a->win_x + a->win_w / 2;
-    int b_horiz_c = b->win_x + b->win_w / 2;
-    int a_vert_c = a->win_y + a->win_h / 2;
-    int b_vert_c = b->win_y + b->win_h / 2;
-    if (panel_horizontal) {
-        if (a_horiz_c != b_horiz_c) {
-            return a_horiz_c - b_horiz_c;
-        }
-        return a_vert_c - b_vert_c;
-    } else {
-        if (a_vert_c != b_vert_c) {
-            return a_vert_c - b_vert_c;
-        }
-        return a_horiz_c - b_horiz_c;
-    }
+    return  trivial != NONTRIVIAL ? trivial
+        // If a window has the same coordinates and size as the other,
+        // they are considered to be equal in the comparison.
+        :   ((a->win_x == b->win_x) && (a->win_y == b->win_y) &&
+             (a->win_w == b->win_w) && (a->win_h == b->win_h)) ? 0
+        // If a window is completely contained in another,
+        // then it is considered to come after (to the right/bottom) of the other.
+        :   contained_within(a, b) ? -1
+        :   contained_within(b, a) ? 1
+        :(  a_horiz_c = a->win_x + a->win_w / 2,
+            a_vert_c  = a->win_y + a->win_h / 2,
+            b_horiz_c = b->win_x + b->win_w / 2,
+            b_vert_c  = b->win_y + b->win_h / 2,
+            (panel_horizontal ? a_horiz_c != b_horiz_c : a_vert_c == b_vert_c)
+            ?   a_horiz_c - b_horiz_c
+            :   a_vert_c - b_vert_c );
 }
 
 gint compare_task_titles(Task *a, Task *b, Taskbar *taskbar)
 {
     int trivial = compare_tasks_trivial(a, b, taskbar);
-    if (trivial != NONTRIVIAL)
-        return trivial;
-    return strnatcasecmp(a->title ? a->title : "", b->title ? b->title : "");
+    return  trivial != NONTRIVIAL ? trivial
+        :   strnatcasecmp(  a->title ? a->title : "",
+                            b->title ? b->title : "");
 }
 
 gint compare_task_applications(Task *a, Task *b, Taskbar *taskbar)
 {
     int trivial = compare_tasks_trivial(a, b, taskbar);
-    if (trivial != NONTRIVIAL)
-        return trivial;
-    return strnatcasecmp(a->application ? a->application : "", b->application ? b->application : "");
+    return  trivial != NONTRIVIAL ? trivial 
+        :   strnatcasecmp(  a->application ? a->application : "",
+                            b->application ? b->application : "");
 }
 
 gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
@@ -742,17 +712,19 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
     int trivial = compare_tasks_trivial(a, b, taskbar);
     if (trivial != NONTRIVIAL)
         return trivial;
-    if (taskbar_sort_method == TASKBAR_NOSORT) {
+        
+    switch (taskbar_sort_method) {
+    case TASKBAR_NOSORT:
         return 0;
-    } else if (taskbar_sort_method == TASKBAR_SORT_CENTER) {
+    case TASKBAR_SORT_CENTER:
         return compare_task_centers(a, b, taskbar);
-    } else if (taskbar_sort_method == TASKBAR_SORT_TITLE) {
+    case TASKBAR_SORT_TITLE:
         return compare_task_titles(a, b, taskbar);
-    } else if (taskbar_sort_method == TASKBAR_SORT_APPLICATION) {
+    case TASKBAR_SORT_APPLICATION:
         return compare_task_applications(a, b, taskbar);
-    } else if (taskbar_sort_method == TASKBAR_SORT_LRU) {
+    case TASKBAR_SORT_LRU:
         return compare_timespecs(&a->last_activation_time, &b->last_activation_time);
-    } else if (taskbar_sort_method == TASKBAR_SORT_MRU) {
+    case TASKBAR_SORT_MRU:
         return -compare_timespecs(&a->last_activation_time, &b->last_activation_time);
     }
     return 0;
@@ -760,23 +732,20 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
 
 gboolean taskbar_needs_sort(Taskbar *taskbar)
 {
-    if (taskbar_sort_method == TASKBAR_NOSORT)
-        return FALSE;
-
-    for (GList *i = taskbar->area.children, *j = i ? i->next : NULL; i && j; i = i->next, j = j->next) {
-        if (compare_tasks(i->data, j->data, taskbar) > 0) {
-            return TRUE;
+    if (taskbar_sort_method != TASKBAR_NOSORT)
+        for (GList *i = taskbar->area.children, *j = i ? i->next : NULL;
+            i && j;
+            i = i->next, j = j->next)
+        {
+            if (compare_tasks(i->data, j->data, taskbar) > 0)
+                return TRUE;
         }
-    }
-
     return FALSE;
 }
 
 void sort_tasks(Taskbar *taskbar)
 {
-    if (!taskbar)
-        return;
-    if (!taskbar_needs_sort(taskbar))
+    if (!taskbar || !taskbar_needs_sort(taskbar))
         return;
 
     taskbar->area.children = g_list_sort_with_data(taskbar->area.children, (GCompareDataFunc)compare_tasks, taskbar);
@@ -828,7 +797,8 @@ void taskbar_update_thumbnails(void *arg)
         return;
     ThumbnailUpdateMode mode = (ThumbnailUpdateMode)(long)arg;
     if (debug_thumbnails)
-        fprintf(stderr, BLUE "tint2: taskbar_update_thumbnails %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
+        fprintf(stderr, BLUE "tint2: taskbar_update_thumbnails %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" :
+                                                                               mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
     double start_time = get_time();
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];

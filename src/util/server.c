@@ -129,10 +129,7 @@ void server_init_atoms()
 
 const char *GetAtomName(Display *disp, Atom a)
 {
-    if (a == None)
-        return "None";
-    else
-        return XGetAtomName(disp, a);
+    return a == None ? "None" : XGetAtomName(disp, a);
 }
 
 void cleanup_server()
@@ -243,10 +240,7 @@ void *server_get_property(Window win, Atom at, Atom type, int *num_results)
     if (num_results)
         *num_results = (int)nitems_ret;
 
-    if (result == Success && prop_value)
-        return prop_value;
-    else
-        return NULL;
+    return (result == Success) ? prop_value : NULL;
 }
 
 void get_root_pixmap()
@@ -255,9 +249,9 @@ void get_root_pixmap()
 
     Atom pixmap_atoms[] = {server.atom._XROOTPMAP_ID, server.atom._XROOTMAP_ID};
     for (int i = 0; i < sizeof(pixmap_atoms) / sizeof(Atom); ++i) {
-        unsigned long *res = (unsigned long *)server_get_property(server.root_win, pixmap_atoms[i], XA_PIXMAP, NULL);
+        Pixmap *res = (unsigned long *)server_get_property(server.root_win, pixmap_atoms[i], XA_PIXMAP, NULL);
         if (res) {
-            ret = *((Pixmap *)res);
+            ret = *res;
             XFree(res);
             break;
         }
@@ -282,32 +276,22 @@ int compare_monitor_pos(const void *monitor1, const void *monitor2)
 {
     const Monitor *m1 = (const Monitor *)monitor1;
     const Monitor *m2 = (const Monitor *)monitor2;
-
-    if (m1->x < m2->x) {
-        return -1;
-    } else if (m1->x > m2->x) {
-        return 1;
-    } else if (m1->y < m2->y) {
-        return -1;
-    } else if (m1->y > m2->y) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return  m1->x < m2->x ? -1
+        :   m1->x > m2->x ? 1
+        :   m1->y < m2->y ? -1
+        :   m1->y > m2->y;
 }
 
 int monitor_includes_monitor(const void *monitor1, const void *monitor2)
 {
     const Monitor *m1 = (const Monitor *)monitor1;
     const Monitor *m2 = (const Monitor *)monitor2;
-
-    if (m1->x >= m2->x && m1->y >= m2->y && (m1->x + m1->width) <= (m2->x + m2->width) &&
-        (m1->y + m1->height) <= (m2->y + m2->height)) {
-        // m1 included inside m2
-        return 1;
-    } else {
-        return -1;
-    }
+    
+    // test if m1 inside m2
+    return (m1->x >= m2->x     && m1->y >= m2->y    &&
+            m1->x + m1->width  <= m2->x + m2->width &&
+            m1->y + m1->height <= m2->y + m2->height
+           ) ? 1 : -1;
 }
 
 void sort_monitors()
@@ -351,31 +335,30 @@ void get_monitors()
                     XRRFreeCrtcInfo(crtc_info);
                     continue;
                 }
-                int i_monitor = num_monitors;
-                num_monitors++;
-                server.monitors[i_monitor].x = crtc_info->x;
-                server.monitors[i_monitor].y = crtc_info->y;
-                server.monitors[i_monitor].width = crtc_info->width;
-                server.monitors[i_monitor].height = crtc_info->height;
-                server.monitors[i_monitor].names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
-                server.monitors[i_monitor].dpi = 96;
+                Monitor *mon = server.monitors + num_monitors++;
+                mon->x = crtc_info->x;
+                mon->y = crtc_info->y;
+                mon->width = crtc_info->width;
+                mon->height = crtc_info->height;
+                mon->names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
+                mon->dpi = 96;
                 for (int j = 0; j < crtc_info->noutput; ++j) {
                     XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
-                    server.monitors[i_monitor].names[j] = g_strdup(output_info->name);
-                    server.monitors[i_monitor].primary = crtc_info->outputs[j] == primary_output;
+                    mon->names[j] = g_strdup(output_info->name);
+                    mon->primary = crtc_info->outputs[j] == primary_output;
                     int dpi = compute_dpi(crtc_info, output_info);
                     if (dpi)
-                        server.monitors[i_monitor].dpi = dpi;
+                        mon->dpi = dpi;
                     fprintf(stderr,
                             BLUE "tint2: xRandr: Linking output %s with crtc %d, resolution %dx%d, DPI %d" RESET "\n",
                             output_info->name,
                             i,
-                            server.monitors[i_monitor].width,
-                            server.monitors[i_monitor].height,
-                            server.monitors[i_monitor].dpi);
+                            mon->width,
+                            mon->height,
+                            mon->dpi);
                     XRRFreeOutputInfo(output_info);
                 }
-                server.monitors[i_monitor].names[crtc_info->noutput] = NULL;
+                mon->names[crtc_info->noutput] = NULL;
                 XRRFreeCrtcInfo(crtc_info);
             }
         } else if (info && num_monitors > 0) {

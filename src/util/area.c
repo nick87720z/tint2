@@ -181,9 +181,8 @@ void relayout_dynamic(Area *a, int level)
                 children_size += (l == a->children) ? 0 : a->paddingx;
             }
 
-            int pos =
-                (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr;
-            pos += ((panel_horizontal ? a->width : a->height) - children_size) / 2;
+            int pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr
+                    + ((panel_horizontal ? a->width : a->height) - children_size) / 2;
 
             for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
@@ -451,8 +450,6 @@ void draw(Area *a)
 
     if (!a->_clear) {
         // Add layer of root pixmap (or clear pixmap if real_transparency==true)
-        if (server.real_transparency)
-            clear_pixmap(a->pix, 0, 0, a->width, a->height);
         XCopyArea(server.display,
                   ((Panel *)a->panel)->temp_pmap,
                   a->pix,
@@ -791,28 +788,22 @@ gboolean area_is_last(void *obj)
 gboolean area_is_under_mouse(void *obj, int x, int y)
 {
     Area *a = obj;
-    if (!a->on_screen || a->width == 0 || a->height == 0)
-        return FALSE;
-
-    if (a->_is_under_mouse)
-        return a->_is_under_mouse(a, x, y);
-
-    return x >= a->posx && x <= (a->posx + a->width) && y >= a->posy && y <= (a->posy + a->height);
+    return  !a->on_screen || !a->width || !a->height
+                ? FALSE
+        :   a->_is_under_mouse
+                ? a->_is_under_mouse(a, x, y)
+        : (x >= a->posx) && (x <= a->posx + a->width) && (y >= a->posy) && (y <= a->posy + a->height);
 }
 
 gboolean full_width_area_is_under_mouse(void *obj, int x, int y)
 {
     Area *a = obj;
-    if (!a->on_screen)
-        return FALSE;
-
-    if (a->_is_under_mouse && a->_is_under_mouse != full_width_area_is_under_mouse)
-        return a->_is_under_mouse(a, x, y);
-
-    if (panel_horizontal)
-        return (x >= a->posx) && (x <= a->posx + a->width);
-    else
-        return (y >= a->posy) && (y <= a->posy + a->height);
+    return  !a->on_screen
+                ? FALSE
+        :   a->_is_under_mouse && a->_is_under_mouse != full_width_area_is_under_mouse
+                ? a->_is_under_mouse(a, x, y)
+        :   panel_horizontal ? (x >= a->posx) && (x <= a->posx + a->width)
+                             : (y >= a->posy) && (y <= a->posy + a->height);
 }
 
 Area *find_area_under_mouse(void *root, int x, int y)
@@ -1031,13 +1022,8 @@ int text_area_compute_desired_size(Area *area,
                                &line2_height,
                                &line2_width);
 
-    if (panel_horizontal) {
-        int new_size = MAX(line1_width, line2_width) + 2 * area->paddingxlr + left_right_border_width(area);
-        return new_size;
-    } else {
-        int new_size = line1_height + line2_height + 2 * area->paddingy + top_bottom_border_width(area);
-        return new_size;
-    }
+    return panel_horizontal ? MAX(line1_width, line2_width) + 2 * area->paddingxlr + left_right_border_width(area)
+                            : line1_height + line2_height + 2 * area->paddingy + top_bottom_border_width(area);
 }
 
 gboolean resize_text_area(Area *area,
@@ -1145,14 +1131,14 @@ void draw_text_area(Area *area,
 
 Area *compute_element_area(Area *area, Element element)
 {
-    if (element == ELEMENT_SELF)
+    switch (element) {
+    case ELEMENT_SELF:   return area;
+    case ELEMENT_PARENT: return area->parent;
+    case ELEMENT_PANEL:  return area->panel;
+    default:
+        g_assert_not_reached();
         return area;
-    if (element == ELEMENT_PARENT)
-        return (Area *)area->parent;
-    if (element == ELEMENT_PANEL)
-        return (Area *)area->panel;
-    g_assert_not_reached();
-    return area;
+    }
 }
 
 void gradient_init_offsets(GradientInstance *gi, GList *offsets)
@@ -1233,10 +1219,10 @@ void area_gradients_free(Area *area)
         fprintf(stderr, "tint2: Freeing gradients for area %s\n", area->name);
     for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
         for (GList *l = area->gradient_instances_by_state[i]; l; l = l->next) {
-            GradientInstance *gi = (GradientInstance *)l->data;
             gradient_destroy(l->data);
+            free(l->data);
         }
-        g_list_free_full(area->gradient_instances_by_state[i], free);
+        g_list_free(area->gradient_instances_by_state[i]);
         area->gradient_instances_by_state[i] = NULL;
     }
     g_assert_null(area->dependent_gradients);
@@ -1248,52 +1234,42 @@ double compute_control_point_offset(Area *area, Offset *offset)
         return offset->constant_value;
 
     Area *element_area = compute_element_area(area, offset->element);
-    Area *parent_area = ((Area *)area->parent);
+    Area *parent_area = area->parent;
     g_assert_nonnull(element_area);
     g_assert_nonnull(parent_area);
 
-    double width = element_area->width;
-    double height = element_area->height;
-    double radius = sqrt(element_area->width * element_area->width + element_area->height * element_area->height) / 2.0;
+    double width  = element_area->width,
+           height = element_area->height,
+           left, top;
 
-    double left = 0, top = 0;
-    if (offset->element == ELEMENT_SELF) {
-        left = 0;
-        top = 0;
-    } else if (offset->element == ELEMENT_PARENT) {
+    switch (offset->element) {
+    case ELEMENT_SELF:
+        left = top = 0;
+        break;
+    case ELEMENT_PARENT:
         left = parent_area->posx - area->posx;
-        top = parent_area->posy - area->posy;
-    } else if (offset->element == ELEMENT_PANEL) {
-        left = 0 - area->posx;
-        top = 0 - area->posy;
+        top  = parent_area->posy - area->posy;
+        break;
+    case ELEMENT_PANEL:
+        left = -area->posx;
+        top  = -area->posy;
+        break;
     }
 
-    double right = left + width;
-    double bottom = top + height;
-    double center_x = left + 0.5 * width;
-    double center_y = top + 0.5 * height;
-
-    if (offset->variable == SIZE_WIDTH)
-        return width * offset->multiplier;
-    if (offset->variable == SIZE_HEIGHT)
-        return height * offset->multiplier;
-    if (offset->variable == SIZE_RADIUS)
-        return radius * offset->multiplier;
-    if (offset->variable == SIZE_LEFT)
-        return left * offset->multiplier;
-    if (offset->variable == SIZE_RIGHT)
-        return right * offset->multiplier;
-    if (offset->variable == SIZE_TOP)
-        return top * offset->multiplier;
-    if (offset->variable == SIZE_BOTTOM)
-        return bottom * offset->multiplier;
-    if (offset->variable == SIZE_CENTERX)
-        return center_x * offset->multiplier;
-    if (offset->variable == SIZE_CENTERY)
-        return center_y * offset->multiplier;
-
-    g_assert_not_reached();
-    return 0;
+    switch (offset->variable) {
+    case SIZE_WIDTH:   return offset->multiplier * width;
+    case SIZE_HEIGHT:  return offset->multiplier * height;
+    case SIZE_RADIUS:  return offset->multiplier * sqrt(width * width + height * height) / 2;
+    case SIZE_LEFT:    return offset->multiplier * left;
+    case SIZE_RIGHT:   return offset->multiplier * (left + width);
+    case SIZE_TOP:     return offset->multiplier * top;
+    case SIZE_BOTTOM:  return offset->multiplier * (top + height);
+    case SIZE_CENTERX: return offset->multiplier * (left + 0.5 * width);
+    case SIZE_CENTERY: return offset->multiplier * (top + 0.5 * height);
+    default:
+        g_assert_not_reached();
+        return 0;
+    }
 }
 
 double compute_control_point_offsets(GradientInstance *gi, GList *offsets)
@@ -1315,38 +1291,35 @@ void compute_control_point(GradientInstance *gi, ControlPoint *control, double *
 
 void update_gradient(GradientInstance *gi)
 {
-    if (gi->pattern) {
+    if (gi->pattern)
         return;
-        cairo_pattern_destroy(gi->pattern);
-        gi->pattern = NULL;
-    }
-    double from_x, from_y, from_r;
+
+    double from_x, from_y, from_r,
+           to_x,   to_y,   to_r;
     compute_control_point(gi, &gi->gradient_class->from, &from_x, &from_y, &from_r);
-    double to_x, to_y, to_r;
-    compute_control_point(gi, &gi->gradient_class->to, &to_x, &to_y, &to_r);
-    if (gi->gradient_class->type == GRADIENT_VERTICAL || gi->gradient_class->type == GRADIENT_HORIZONTAL) {
+    compute_control_point(gi, &gi->gradient_class->to,   &to_x,   &to_y,   &to_r);
+    
+    switch (gi->gradient_class->type) {
+    case GRADIENT_VERTICAL:
+    case GRADIENT_HORIZONTAL:
         gi->pattern = cairo_pattern_create_linear(from_x, from_y, to_x, to_y);
         if (debug_gradients)
             fprintf(stderr,
                     "Creating linear gradient for area %s: %f %f, %f %f\n",
                     gi->area->name,
-                    from_x,
-                    from_y,
-                    to_x,
-                    to_y);
-    } else if (gi->gradient_class->type == GRADIENT_CENTERED) {
+                    from_x, from_y,
+                    to_x,   to_y);
+        break;
+    case GRADIENT_CENTERED:
         gi->pattern = cairo_pattern_create_radial(from_x, from_y, from_r, to_x, to_y, to_r);
         if (debug_gradients)
             fprintf(stderr,
                     "Creating radial gradient for area %s: %f %f %f, %f %f %f\n",
                     gi->area->name,
-                    from_x,
-                    from_y,
-                    from_r,
-                    to_x,
-                    to_y,
-                    to_r);
-    } else {
+                    from_x, from_y, from_r,
+                    to_x,   to_y,   to_r);
+        break;
+    default:
         g_assert_not_reached();
     }
     if (debug_gradients)

@@ -30,9 +30,8 @@ void init_fps_distribution()
     // 1k-19,999: 1000 (19)
     // 20x+: inf       (1)
     // => 166 samples
-    if (fps_distribution)
-        return;
-    fps_distribution = calloc(170, sizeof(float));
+    if (!fps_distribution)
+        fps_distribution = calloc(170, sizeof(float));
 }
 
 void cleanup_fps_distribution()
@@ -44,27 +43,14 @@ void cleanup_fps_distribution()
 void sample_fps(double fps)
 {
     int fps_rounded = (int)(fps + 0.5);
-    int i = 1;
-    if (fps_rounded < 60) {
-        i += fps_rounded;
-    } else {
-        i += 60;
-        if (fps_rounded < 200) {
-            i += (fps_rounded - 60) / 10;
-        } else {
-            i += 14;
-            if (fps_rounded < 2000) {
-                i += (fps_rounded - 200) / 25;
-            } else {
-                i += 72;
-                if (fps_rounded < 20000) {
-                    i += (fps_rounded - 2000) / 1000;
-                } else {
-                    i += 20;
-                }
-            }
-        }
-    }
+    int i = 1 +
+        fps_rounded < 60                ? fps_rounded                 : 60 + (
+            fps_rounded < 200           ? (fps_rounded -   60) /   10 : 14 + (
+                fps_rounded < 2000      ? (fps_rounded -  200) /   25 : 72 + (
+                    fps_rounded < 20000 ? (fps_rounded - 2000) / 1000 : 20
+                )
+            )
+        );
     // fprintf(stderr, "tint2: fps = %.0f => i = %d\n", fps, i);
     fps_distribution[i] += 1.;
     fps_distribution[0] += 1.;
@@ -83,8 +69,11 @@ void fps_compute_stats(double *low, double *median, double *high, double *sample
     float cum = 0;
     for (int i = 1; i <= 166; i++) {
         double value =
-            (i < 60) ? i : (i < 74) ? (60 + (i - 60) * 10) : (i < 146) ? (200 + (i - 74) * 25)
-                                                                       : (i < 165) ? (2000 + (i - 146) * 1000) : 20000;
+            i <  60 ? i
+        :   i <  74 ? 60 + (i - 60) * 10
+        :   i < 146 ? 200 + (i - 74) * 25
+        :   i < 165 ? 2000 + (i - 146) * 1000
+        :   20000;
         // fprintf(stderr, "tint2: %6.0f (i = %3d) : %.0f | ", value, i, (double)fps_distribution[i]);
         cum += fps_distribution[i];
         if (*low < 0 && cum >= cum_low)

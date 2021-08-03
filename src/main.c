@@ -386,11 +386,16 @@ void handle_event_configure_notify(XEvent *e)
 gboolean handle_x_event_autohide(XEvent *e)
 {
     Panel *panel = get_panel(e->xany.window);
-    if (panel && panel_autohide) {
-        if (e->type == EnterNotify)
+    if (panel && panel_autohide)
+    {
+        switch (e->type) {
+        case EnterNotify:
             autohide_trigger_show(panel, e->xany.send_event);
-        else if (e->type == LeaveNotify)
+            break;
+        case LeaveNotify:
             autohide_trigger_hide(panel, e->xany.send_event);
+            break;
+        }
         if (panel->is_hidden) {
             if (e->type == ClientMessage && e->xclient.message_type == server.atom.XdndPosition) {
                 hidden_panel_shown_for_dnd = TRUE;
@@ -526,25 +531,23 @@ void handle_x_event(XEvent *e)
     case ClientMessage: {
         XClientMessageEvent *ev = &e->xclient;
         if (ev->data.l[1] == server.atom._NET_WM_CM_S0) {
-            if (ev->data.l[2] == None) {
-                // Stop real_transparency
-                emit_self_restart("compositor changed");
-            } else {
-                // Start real_transparency
-                emit_self_restart("compositor changed");
-            }
+            // Start or stop real_transparency
+            emit_self_restart("compositor changed");
         }
         if (systray_enabled && e->xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE &&
-            e->xclient.format == 32 && e->xclient.window == net_sel_win) {
+            e->xclient.format == 32 && e->xclient.window == net_sel_win)
+        {
             handle_systray_event(&e->xclient);
-        } else if (e->xclient.message_type == server.atom.XdndEnter) {
+        }
+        else if (e->xclient.message_type == server.atom.XdndEnter)
             handle_dnd_enter(&e->xclient);
-        } else if (e->xclient.message_type == server.atom.XdndPosition) {
+        else if (e->xclient.message_type == server.atom.XdndPosition)
             handle_dnd_position(&e->xclient);
-        } else if (e->xclient.message_type == server.atom.XdndDrop) {
+        else if (e->xclient.message_type == server.atom.XdndDrop)
             handle_dnd_drop(&e->xclient);
-        } else if (e->xclient.message_type == server.atom.TINT2_REFRESH_EXECP &&
-            e->xclient.format == 8) {
+        else if (e->xclient.message_type == server.atom.TINT2_REFRESH_EXECP &&
+                 e->xclient.format == 8)
+        {
             char name[sizeof(e->xclient.data.b) + 1] = {};
             memcpy(name, e->xclient.data.b, sizeof(e->xclient.data.b));
             for (GList *l = panel_config.execp_list; l; l = l->next) {
@@ -558,10 +561,9 @@ void handle_x_event(XEvent *e)
         break;
     }
 
-    case SelectionNotify: {
+    case SelectionNotify:
         handle_dnd_selection_notify(&e->xselection);
         break;
-    }
 
     default:
         if (e->type == server.xdamage_event_type) {
@@ -785,21 +787,24 @@ void tint2(int argc, char **argv, gboolean *restart)
     uevent_init();
     run_tint2_event_loop();
 
-    if (get_signal_pending()) {
+    int _sig = get_signal_pending();
+    if (_sig) {
         cleanup();
-        if (get_signal_pending() == SIGUSR1) {
-            fprintf(stderr, YELLOW "tint2: %s %d: restarting tint2..." RESET "\n", __FILE__, __LINE__);
-            *restart = TRUE;
-            return;
-        } else if (get_signal_pending() == SIGUSR2) {
-            fprintf(stderr, YELLOW "tint2: %s %d: reexecuting tint2..." RESET "\n", __FILE__, __LINE__);
-            if (execvp(argv[0], argv) == -1) {
-                fprintf(stderr, RED "tint2: %s %d: failed!" RESET "\n", __FILE__, __LINE__);
+        switch (_sig) {
+            case SIGUSR1:
+                fprintf(stderr, YELLOW "tint2: %s %d: restarting tint2..." RESET "\n", __FILE__, __LINE__);
+                *restart = TRUE;
                 return;
-            }
-        } else {
-            // SIGINT, SIGTERM, SIGHUP etc.
-            return;
+            case SIGUSR2:
+                fprintf(stderr, YELLOW "tint2: %s %d: reexecuting tint2..." RESET "\n", __FILE__, __LINE__);
+                if (execvp(argv[0], argv) == -1) {
+                    fprintf(stderr, RED "tint2: %s %d: failed!" RESET "\n", __FILE__, __LINE__);
+                    return;
+                }
+                break;
+            default:
+                // SIGINT, SIGTERM, SIGHUP etc.
+                return;
         }
     }
 }

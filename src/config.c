@@ -118,10 +118,8 @@ void default_config()
 
 void cleanup_config()
 {
-    free(config_path);
-    config_path = NULL;
-    free(snapshot_path);
-    snapshot_path = NULL;
+    free_and_null(config_path);
+    free_and_null(snapshot_path);
 }
 
 void get_action(char *event, MouseAction *action)
@@ -154,13 +152,10 @@ void get_action(char *event, MouseAction *action)
 
 int get_task_status(char *status)
 {
-    if (strcmp(status, "active") == 0)
-        return TASK_ACTIVE;
-    if (strcmp(status, "iconified") == 0)
-        return TASK_ICONIFIED;
-    if (strcmp(status, "urgent") == 0)
-        return TASK_URGENT;
-    return -1;
+    return  !strcmp(status, "active"   ) ? TASK_ACTIVE
+        :   !strcmp(status, "iconified") ? TASK_ICONIFIED
+        :   !strcmp(status, "urgent"   ) ? TASK_URGENT
+        : -1;
 }
 
 int config_get_monitor(char *monitor)
@@ -271,6 +266,47 @@ Button *get_or_create_last_button()
 
 void add_entry(char *key, char *value)
 {
+    #define VALUES_TO_COLOR(color, first) do {                                 \
+        Color *_c = &(color);                                                  \
+        extract_values(value, values, 3);                                      \
+        get_color(values[(first)], _c->rgb);                                   \
+        _c->alpha = values[(first)+1] ? atoi(values[(first)+1]) / 100.0 : 1.0; \
+    } while(0)
+
+    #define VALUES_TO_AREA_PADDING(obj, first) do {                       \
+        extract_values(value, values, 3);                                 \
+        (obj).paddingxlr = (obj).paddingx = atoi(values[(first)+0]);      \
+        (obj).paddingy = values[(first)+1] ? atoi(values[(first)+1]) : 0; \
+        if (values[(first)+2])                                            \
+            (obj).paddingx = atoi(values[(first)+2]);                     \
+    } while(0)
+
+    #define VALUES_TO_ASB(type, first) (                \
+        extract_values(value, values, 3),               \
+        type ## _alpha = atoi(values[(first)+0]),       \
+        type ## _saturation = atoi(values[(first)+1]),  \
+        type ## _brightness = atoi(values[(first)+2]) )
+
+    #define VALUE_TO_BACKGROUND(bg) do {                  \
+        int id = atoi(value);                             \
+        id = (id < backgrounds->len && id >= 0) ? id : 0; \
+        bg = &g_array_index(backgrounds, Background, id); \
+    } while(0)
+
+    #define VALUE_TO_GRADIENT(gradient) do {                         \
+        int id = atoi(value);                                        \
+        id = (id < gradients->len && id >= 0) ? id : -1;             \
+        if (id >= 0)                                                 \
+            gradient = &g_array_index(gradients, GradientClass, id); \
+    } while(0)
+    
+    #define VALUE_DUP_IF_SET(dst) if (strlen(value) > 0) dst = strdup(value)
+
+    #define VALUE_TO_COMMAND(cmd) do { \
+        free_and_null(cmd);            \
+        VALUE_DUP_IF_SET(cmd);            \
+    } while(0)
+
     char *values[3] = {NULL, NULL, NULL};
     cfg_key_t key_i = str_index(key, cfg_keys, DICT_KEYS_NUM);
 
@@ -306,7 +342,8 @@ void add_entry(char *key, char *value)
         break;
     }
     case key_border_width:
-        g_array_index(backgrounds, Background, backgrounds->len - 1).border.width = atoi(value);
+        g_array_index(backgrounds, Background, backgrounds->len - 1)
+            .border.width = atoi(value);
         break;
     case key_border_sides: {
         Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
@@ -323,104 +360,46 @@ void add_entry(char *key, char *value)
             bg->border.width = 0;
         break;
     }
-    case key_background_color: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], bg->fill_color.rgb);
-        if (values[1])
-            bg->fill_color.alpha = (atoi(values[1]) / 100.0);
-        else
-            bg->fill_color.alpha = 0.5;
+    case key_background_color:
+        VALUES_TO_COLOR (g_array_index(backgrounds, Background, backgrounds->len - 1).fill_color, 0);
         break;
-    }
-    case key_border_color: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], bg->border.color.rgb);
-        if (values[1])
-            bg->border.color.alpha = (atoi(values[1]) / 100.0);
-        else
-            bg->border.color.alpha = 0.5;
+    case key_border_color:
+        VALUES_TO_COLOR (g_array_index(backgrounds, Background, backgrounds->len - 1).border.color, 0);
         break;
-    }
-    case key_background_color_hover: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], bg->fill_color_hover.rgb);
-        if (values[1])
-            bg->fill_color_hover.alpha = (atoi(values[1]) / 100.0);
-        else
-            bg->fill_color_hover.alpha = 0.5;
+    case key_background_color_hover:
+        VALUES_TO_COLOR (g_array_index(backgrounds, Background, backgrounds->len - 1).fill_color_hover, 0);
         read_bg_color_hover = 1;
         break;
-    }
-    case key_border_color_hover: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], bg->border_color_hover.rgb);
-        if (values[1])
-            bg->border_color_hover.alpha = (atoi(values[1]) / 100.0);
-        else
-            bg->border_color_hover.alpha = 0.5;
+    case key_border_color_hover:
+        VALUES_TO_COLOR (g_array_index(backgrounds, Background, backgrounds->len - 1).border_color_hover, 0);
         read_border_color_hover = 1;
         break;
-    }
-    case key_background_color_pressed: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], bg->fill_color_pressed.rgb);
-        if (values[1])
-            bg->fill_color_pressed.alpha = (atoi(values[1]) / 100.0);
-        else
-            bg->fill_color_pressed.alpha = 0.5;
+    case key_background_color_pressed:
+        VALUES_TO_COLOR (g_array_index(backgrounds, Background, backgrounds->len - 1).fill_color_pressed, 0);
         read_bg_color_press = 1;
         break;
-    }
-    case key_border_color_pressed: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], bg->border_color_pressed.rgb);
-        if (values[1])
-            bg->border_color_pressed.alpha = (atoi(values[1]) / 100.0);
-        else
-            bg->border_color_pressed.alpha = 0.5;
+    case key_border_color_pressed:
+        VALUES_TO_COLOR (g_array_index(backgrounds, Background, backgrounds->len - 1).border_color_pressed, 0);
         read_border_color_press = 1;
         break;
-    }
-    case key_gradient_id: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        int id = atoi(value);
-        id = (id < gradients->len && id >= 0) ? id : -1;
-        if (id >= 0)
-            bg->gradients[MOUSE_NORMAL] = &g_array_index(gradients, GradientClass, id);
+    case key_gradient_id:
+        VALUE_TO_GRADIENT (g_array_index(backgrounds, Background, backgrounds->len - 1).gradients[MOUSE_NORMAL]);
         break;
-    }
     case key_gradient_id_hover:
-    case key_hover_gradient_id: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        int id = atoi(value);
-        id = (id < gradients->len && id >= 0) ? id : -1;
-        if (id >= 0)
-            bg->gradients[MOUSE_OVER] = &g_array_index(gradients, GradientClass, id);
+    case key_hover_gradient_id:
+        VALUE_TO_GRADIENT (g_array_index(backgrounds, Background, backgrounds->len - 1).gradients[MOUSE_OVER]);
         break;
-    }
     case key_gradient_id_pressed:
-    case key_pressed_gradient_id: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        int id = atoi(value);
-        id = (id < gradients->len && id >= 0) ? id : -1;
-        if (id >= 0)
-            bg->gradients[MOUSE_DOWN] = &g_array_index(gradients, GradientClass, id);
+    case key_pressed_gradient_id:
+        VALUE_TO_GRADIENT (g_array_index(backgrounds, Background, backgrounds->len - 1).gradients[MOUSE_DOWN]);
         break;
-    }
-    case key_border_content_tint_weight: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        bg->border_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
+    case key_border_content_tint_weight:
+        g_array_index(backgrounds, Background, backgrounds->len - 1)
+            .border_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
         break;
-    }
     case key_background_content_tint_weight: {
-        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        bg->fill_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
+        g_array_index(backgrounds, Background, backgrounds->len - 1)
+            .fill_content_tint_weight = MAX(0.0, MIN(1.0, atoi(value) / 100.));
         break;
     }
 
@@ -432,36 +411,17 @@ void add_entry(char *key, char *value)
         g_array_append_val(gradients, g);
         break;
     }
-    case key_start_color: {
-        GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], g->start_color.rgb);
-        if (values[1])
-            g->start_color.alpha = (atoi(values[1]) / 100.0);
-        else
-            g->start_color.alpha = 0.5;
+    case key_start_color:
+        VALUES_TO_COLOR (g_array_index(gradients, GradientClass, gradients->len - 1).start_color, 0);
         break;
-    }
-    case key_end_color: {
-        GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-        extract_values(value, values, 3);
-        get_color(values[0], g->end_color.rgb);
-        if (values[1])
-            g->end_color.alpha = (atoi(values[1]) / 100.0);
-        else
-            g->end_color.alpha = 0.5;
+    case key_end_color:
+        VALUES_TO_COLOR (g_array_index(gradients, GradientClass, gradients->len - 1).end_color, 0);
         break;
-    }
     case key_color_stop: {
         GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-        extract_values(value, values, 3);
         ColorStop *color_stop = (ColorStop *)calloc(1, sizeof(ColorStop));
+        VALUES_TO_COLOR (color_stop->color, 1);
         color_stop->offset = atof(values[0]) / 100.0;
-        get_color(values[1], color_stop->color.rgb);
-        if (values[2])
-            color_stop->color.alpha = (atoi(values[2]) / 100.0);
-        else
-            color_stop->color.alpha = 0.5;
         g->extra_color_stops = g_list_append(g->extra_color_stops, color_stop);
         break;
     }
@@ -507,26 +467,30 @@ void add_entry(char *key, char *value)
 #endif
         clock_enabled = FALSE;
         taskbar_enabled = FALSE;
-        for (int j = 0; j < strlen(panel_items_order); j++) {
-            if (panel_items_order[j] == 'L')
+        for (int j = strlen(panel_items_order); j; j--)
+            switch (panel_items_order[j]) {
+            case 'L':
                 launcher_enabled = TRUE;
-            if (panel_items_order[j] == 'T')
+                break;
+            case 'T':
                 taskbar_enabled = TRUE;
-            if (panel_items_order[j] == 'B') {
+                break;
+            case 'B':
 #ifdef ENABLE_BATTERY
                 battery_enabled = TRUE;
 #else
                 fprintf(stderr, "tint2: tint2 has been compiled without battery support\n");
 #endif
-            }
-            if (panel_items_order[j] == 'S') {
+                break;
+            case 'S':
                 // systray disabled in snapshot mode
                 if (snapshot_path == NULL)
                     systray_enabled = TRUE;
-            }
-            if (panel_items_order[j] == 'C')
+                break;
+            case 'C':
                 clock_enabled = TRUE;
-        }
+                break;
+            }
         break;
     case key_panel_margin:
         extract_values(value, values, 3);
@@ -535,55 +499,29 @@ void add_entry(char *key, char *value)
             panel_config.marginy = atoi(values[1]);
         break;
     case key_panel_padding:
-        extract_values(value, values, 3);
-        panel_config.area.paddingxlr = panel_config.area.paddingx = atoi(values[0]);
-        if (values[1])
-            panel_config.area.paddingy = atoi(values[1]);
-        if (values[2])
-            panel_config.area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(panel_config.area, 0);
         break;
     case key_panel_position:
         read_panel_position = TRUE;
         extract_values(value, values, 3);
-        if (strcmp(values[0], "top") == 0)
-            panel_position = TOP;
-        else {
-            if (strcmp(values[0], "bottom") == 0)
-                panel_position = BOTTOM;
-            else
-                panel_position = CENTER;
-        }
-
-        if (!values[1])
-            panel_position |= CENTER;
-        else {
-            if (strcmp(values[1], "left") == 0)
-                panel_position |= LEFT;
-            else {
-                if (strcmp(values[1], "right") == 0)
-                    panel_position |= RIGHT;
-                else
-                    panel_position |= CENTER;
-            }
-        }
-        if (!values[2])
-            panel_horizontal = 1;
-        else {
-            if (strcmp(values[2], "vertical") == 0)
-                panel_horizontal = 0;
-            else
-                panel_horizontal = 1;
-        }
+        panel_position = (
+            !strcmp(values[0], "top"   ) ? TOP 
+        :   !strcmp(values[0], "bottom") ? BOTTOM
+        :   CENTER
+        ) | (
+            !values[1] ? CENTER
+        :   !strcmp(values[1], "left" ) ? LEFT
+        :   !strcmp(values[1], "right") ? RIGHT
+        :   CENTER
+        );
+        panel_horizontal = !values[2] || strcmp(values[2], "vertical");
         break;
     case key_font_shadow:
         panel_config.font_shadow = ATOB(value);
         break;
-    case key_panel_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.area.bg = &g_array_index(backgrounds, Background, id);
+    case key_panel_background_id:
+        VALUE_TO_BACKGROUND (panel_config.area.bg);
         break;
-    }
     case key_wm_menu:
         wm_menu = ATOB(value);
         break;
@@ -597,12 +535,9 @@ void add_entry(char *key, char *value)
         max_tick_urgent = atoi(value);
         break;
     case key_panel_layer:
-        if (strcmp(value, "bottom") == 0)
-            panel_layer = BOTTOM_LAYER;
-        else if (strcmp(value, "top") == 0)
-            panel_layer = TOP_LAYER;
-        else
-            panel_layer = NORMAL_LAYER;
+        panel_layer = !strcmp(value, "bottom") ? BOTTOM_LAYER
+        :             !strcmp(value, "top"   ) ? TOP_LAYER
+        : NORMAL_LAYER;
         break;
     case key_disable_transparency:
         server.disable_transparency = ATOB(value);
@@ -624,56 +559,48 @@ void add_entry(char *key, char *value)
         break;
     case key_battery_lclick_command:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            battery_lclick_command = strdup(value);
+        VALUE_DUP_IF_SET(battery_lclick_command);
 #endif
         break;
     case key_battery_mclick_command:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            battery_mclick_command = strdup(value);
+        VALUE_DUP_IF_SET(battery_mclick_command);
 #endif
         break;
     case key_battery_rclick_command:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            battery_rclick_command = strdup(value);
+        VALUE_DUP_IF_SET(battery_rclick_command);
 #endif
         break;
     case key_battery_uwheel_command:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            battery_uwheel_command = strdup(value);
+        VALUE_DUP_IF_SET(battery_uwheel_command);
 #endif
         break;
     case key_battery_dwheel_command:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            battery_dwheel_command = strdup(value);
+        VALUE_DUP_IF_SET(battery_dwheel_command);
 #endif
         break;
     case key_battery_low_cmd:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            battery_low_cmd = strdup(value);
+        VALUE_DUP_IF_SET(battery_low_cmd);
+
 #endif
         break;
     case key_battery_full_cmd:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            battery_full_cmd = strdup(value);
+        VALUE_DUP_IF_SET(battery_full_cmd);
 #endif
         break;
     case key_ac_connected_cmd:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            ac_connected_cmd = strdup(value);
+        VALUE_DUP_IF_SET(ac_connected_cmd);
 #endif
         break;
     case key_ac_disconnected_cmd:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0)
-            ac_disconnected_cmd = strdup(value);
+        VALUE_DUP_IF_SET(ac_disconnected_cmd);
 #endif
         break;
     case key_bat1_font:
@@ -706,29 +633,17 @@ void add_entry(char *key, char *value)
         break;
     case key_battery_font_color:
 #ifdef ENABLE_BATTERY
-        extract_values(value, values, 3);
-        get_color(values[0], panel_config.battery.font_color.rgb);
-        if (values[1])
-            panel_config.battery.font_color.alpha = (atoi(values[1]) / 100.0);
-        else
-            panel_config.battery.font_color.alpha = 0.5;
+        VALUES_TO_COLOR (panel_config.battery.font_color, 0);
 #endif
         break;
     case key_battery_padding:
 #ifdef ENABLE_BATTERY
-        extract_values(value, values, 3);
-        panel_config.battery.area.paddingxlr = panel_config.battery.area.paddingx = atoi(values[0]);
-        if (values[1])
-            panel_config.battery.area.paddingy = atoi(values[1]);
-        if (values[2])
-            panel_config.battery.area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(panel_config.battery.area, 0);
 #endif
         break;
     case key_battery_background_id: {
 #ifdef ENABLE_BATTERY
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.battery.area.bg = &g_array_index(backgrounds, Background, id);
+        VALUE_TO_BACKGROUND (panel_config.battery.area.bg);
 #endif
         break;
     }
@@ -748,33 +663,19 @@ void add_entry(char *key, char *value)
     /* Separator */
     case key_separator:
         panel_config.separator_list = g_list_append(panel_config.separator_list, create_separator());
-    case key_separator_background_id: {
-        Separator *separator = get_or_create_last_separator();
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        separator->area.bg = &g_array_index(backgrounds, Background, id);
+    case key_separator_background_id:
+        VALUE_TO_BACKGROUND (get_or_create_last_separator()->area.bg);
         break;
-    }
-    case key_separator_color: {
-        Separator *separator = get_or_create_last_separator();
-        extract_values(value, values, 3);
-        get_color(values[0], separator->color.rgb);
-        if (values[1])
-            separator->color.alpha = (atoi(values[1]) / 100.0);
-        else
-            separator->color.alpha = 0.5;
+    case key_separator_color:
+        VALUES_TO_COLOR (get_or_create_last_separator()->color, 0);
         break;
-    }
     case key_separator_style: {
         Separator *separator = get_or_create_last_separator();
-        if (g_str_equal(value, "empty"))
-            separator->style = SEPARATOR_EMPTY;
-        else if (g_str_equal(value, "line"))
-            separator->style = SEPARATOR_LINE;
-        else if (g_str_equal(value, "dots"))
-            separator->style = SEPARATOR_DOTS;
-        else
-            fprintf(stderr, RED "tint2: Invalid separator_style value: %s" RESET "\n", value);
+        separator->style = 
+            g_str_equal(value, "empty") ? SEPARATOR_EMPTY
+        :   g_str_equal(value, "line" ) ? SEPARATOR_LINE
+        :   g_str_equal(value, "dots" ) ? SEPARATOR_DOTS
+        :( fprintf(stderr, RED "tint2: Invalid separator_style value: %s" RESET "\n", value), separator->style );
         break;
     }
     case key_separator_size: {
@@ -784,12 +685,7 @@ void add_entry(char *key, char *value)
     }
     case key_separator_padding: {
         Separator *separator = get_or_create_last_separator();
-        extract_values(value, values, 3);
-        separator->area.paddingxlr = separator->area.paddingx = atoi(values[0]);
-        if (values[1])
-            separator->area.paddingy = atoi(values[1]);
-        if (values[2])
-            separator->area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(separator->area, 0);
         break;
     }
 
@@ -809,9 +705,7 @@ void add_entry(char *key, char *value)
     }
     case key_execp_command: {
         Execp *execp = get_or_create_last_execp();
-        free_and_null(execp->backend->command);
-        if (strlen(value) > 0)
-            execp->backend->command = strdup(value);
+        VALUE_TO_COMMAND (execp->backend->command);
         break;
     }
     case key_execp_interval: {
@@ -864,35 +758,17 @@ void add_entry(char *key, char *value)
         execp->backend->has_font = TRUE;
         break;
     }
-    case key_execp_font_color: {
-        Execp *execp = get_or_create_last_execp();
-        extract_values(value, values, 3);
-        get_color(values[0], execp->backend->font_color.rgb);
-        if (values[1])
-            execp->backend->font_color.alpha = atoi(values[1]) / 100.0;
-        else
-            execp->backend->font_color.alpha = 0.5;
+    case key_execp_font_color:
+        VALUES_TO_COLOR (get_or_create_last_execp()->backend->font_color, 0);
         break;
-    }
     case key_execp_padding: {
         Execp *execp = get_or_create_last_execp();
-        extract_values(value, values, 3);
-        execp->backend->paddingxlr = execp->backend->paddingx = atoi(values[0]);
-        if (values[1])
-            execp->backend->paddingy = atoi(values[1]);
-        else
-            execp->backend->paddingy = 0;
-        if (values[2])
-            execp->backend->paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING (*execp->backend, 0);
         break;
     }
-    case key_execp_background_id: {
-        Execp *execp = get_or_create_last_execp();
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        execp->backend->bg = &g_array_index(backgrounds, Background, id);
+    case key_execp_background_id:
+        VALUE_TO_BACKGROUND (get_or_create_last_execp()->backend->bg);
         break;
-    }
     case key_execp_centered: {
         Execp *execp = get_or_create_last_execp();
         execp->backend->centered = ATOB(value);
@@ -920,37 +796,27 @@ void add_entry(char *key, char *value)
     }
     case key_execp_lclick_command: {
         Execp *execp = get_or_create_last_execp();
-        free_and_null(execp->backend->lclick_command);
-        if (strlen(value) > 0)
-            execp->backend->lclick_command = strdup(value);
+        VALUE_TO_COMMAND (execp->backend->lclick_command);
         break;
     }
     case key_execp_mclick_command: {
         Execp *execp = get_or_create_last_execp();
-        free_and_null(execp->backend->mclick_command);
-        if (strlen(value) > 0)
-            execp->backend->mclick_command = strdup(value);
+        VALUE_TO_COMMAND (execp->backend->mclick_command);
         break;
     }
     case key_execp_rclick_command: {
         Execp *execp = get_or_create_last_execp();
-        free_and_null(execp->backend->rclick_command);
-        if (strlen(value) > 0)
-            execp->backend->rclick_command = strdup(value);
+        VALUE_TO_COMMAND (execp->backend->rclick_command);
         break;
     }
     case key_execp_uwheel_command: {
         Execp *execp = get_or_create_last_execp();
-        free_and_null(execp->backend->uwheel_command);
-        if (strlen(value) > 0)
-            execp->backend->uwheel_command = strdup(value);
+        VALUE_TO_COMMAND (execp->backend->uwheel_command);
         break;
     }
     case key_execp_dwheel_command: {
         Execp *execp = get_or_create_last_execp();
-        free_and_null(execp->backend->dwheel_command);
-        if (strlen(value) > 0)
-            execp->backend->dwheel_command = strdup(value);
+        VALUE_TO_COMMAND (execp->backend->dwheel_command);
         break;
     }
 
@@ -985,26 +851,12 @@ void add_entry(char *key, char *value)
         button->backend->has_font = TRUE;
         break;
     }
-    case key_button_font_color: {
-        Button *button = get_or_create_last_button();
-        extract_values(value, values, 3);
-        get_color(values[0], button->backend->font_color.rgb);
-        if (values[1])
-            button->backend->font_color.alpha = atoi(values[1]) / 100.0;
-        else
-            button->backend->font_color.alpha = 0.5;
+    case key_button_font_color:
+        VALUES_TO_COLOR (get_or_create_last_button()->backend->font_color, 0);
         break;
-    }
     case key_button_padding: {
         Button *button = get_or_create_last_button();
-        extract_values(value, values, 3);
-        button->backend->paddingxlr = button->backend->paddingx = atoi(values[0]);
-        if (values[1])
-            button->backend->paddingy = atoi(values[1]);
-        else
-            button->backend->paddingy = 0;
-        if (values[2])
-            button->backend->paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING (*button->backend, 0);
         break;
     }
     case key_button_max_icon_size: {
@@ -1013,13 +865,9 @@ void add_entry(char *key, char *value)
         button->backend->max_icon_size = MAX(0, atoi(value));
         break;
     }
-    case key_button_background_id: {
-        Button *button = get_or_create_last_button();
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        button->backend->bg = &g_array_index(backgrounds, Background, id);
+    case key_button_background_id:
+        VALUE_TO_BACKGROUND (get_or_create_last_button()->backend->bg);
         break;
-    }
     case key_button_centered: {
         Button *button = get_or_create_last_button();
         button->backend->centered = ATOB(value);
@@ -1027,37 +875,27 @@ void add_entry(char *key, char *value)
     }
     case key_button_lclick_command: {
         Button *button = get_or_create_last_button();
-        free_and_null(button->backend->lclick_command);
-        if (strlen(value) > 0)
-            button->backend->lclick_command = strdup(value);
+        VALUE_TO_COMMAND (button->backend->lclick_command);
         break;
     }
     case key_button_mclick_command: {
         Button *button = get_or_create_last_button();
-        free_and_null(button->backend->mclick_command);
-        if (strlen(value) > 0)
-            button->backend->mclick_command = strdup(value);
+        VALUE_TO_COMMAND (button->backend->mclick_command);
         break;
     }
     case key_button_rclick_command: {
         Button *button = get_or_create_last_button();
-        free_and_null(button->backend->rclick_command);
-        if (strlen(value) > 0)
-            button->backend->rclick_command = strdup(value);
+        VALUE_TO_COMMAND (button->backend->rclick_command);
         break;
     }
     case key_button_uwheel_command: {
         Button *button = get_or_create_last_button();
-        free_and_null(button->backend->uwheel_command);
-        if (strlen(value) > 0)
-            button->backend->uwheel_command = strdup(value);
+        VALUE_TO_COMMAND (button->backend->uwheel_command);
         break;
     }
     case key_button_dwheel_command: {
         Button *button = get_or_create_last_button();
-        free_and_null(button->backend->dwheel_command);
-        if (strlen(value) > 0)
-            button->backend->dwheel_command = strdup(value);
+        VALUE_TO_COMMAND (button->backend->dwheel_command);
         break;
     }
 
@@ -1073,151 +911,95 @@ void add_entry(char *key, char *value)
         }
         break;
     case key_time2_format:
-        if (strlen(value) > 0)
-            time2_format = strdup(value);
+        VALUE_DUP_IF_SET(time2_format);
         break;
     case key_time1_font:
         time1_font_desc = pango_font_description_from_string(value);
         time1_has_font = TRUE;
         break;
     case key_time1_timezone:
-        if (strlen(value) > 0)
-            time1_timezone = strdup(value);
+        VALUE_DUP_IF_SET(time1_timezone);
         break;
     case key_time2_timezone:
-        if (strlen(value) > 0)
-            time2_timezone = strdup(value);
+        VALUE_DUP_IF_SET(time2_timezone);
         break;
     case key_time2_font:
         time2_font_desc = pango_font_description_from_string(value);
         time2_has_font = TRUE;
         break;
     case key_clock_font_color:
-        extract_values(value, values, 3);
-        get_color(values[0], panel_config.clock.font.rgb);
-        if (values[1])
-            panel_config.clock.font.alpha = (atoi(values[1]) / 100.0);
-        else
-            panel_config.clock.font.alpha = 0.5;
+        VALUES_TO_COLOR (panel_config.clock.font, 0);
         break;
     case key_clock_padding:
-        extract_values(value, values, 3);
-        panel_config.clock.area.paddingxlr = panel_config.clock.area.paddingx = atoi(values[0]);
-        if (values[1])
-            panel_config.clock.area.paddingy = atoi(values[1]);
-        if (values[2])
-            panel_config.clock.area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(panel_config.clock.area, 0);
         break;
-    case key_clock_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.clock.area.bg = &g_array_index(backgrounds, Background, id);
+    case key_clock_background_id:
+        VALUE_TO_BACKGROUND (panel_config.clock.area.bg);
         break;
-    }
     case key_clock_tooltip:
-        if (strlen(value) > 0)
-            time_tooltip_format = strdup(value);
+        VALUE_DUP_IF_SET(time_tooltip_format);
         break;
     case key_clock_tooltip_timezone:
-        if (strlen(value) > 0)
-            time_tooltip_timezone = strdup(value);
+        VALUE_DUP_IF_SET(time_tooltip_timezone);
         break;
     case key_clock_lclick_command:
-        if (strlen(value) > 0)
-            clock_lclick_command = strdup(value);
+        VALUE_DUP_IF_SET(clock_lclick_command);
         break;
     case key_clock_mclick_command:
-        if (strlen(value) > 0)
-            clock_mclick_command = strdup(value);
+        VALUE_DUP_IF_SET(clock_mclick_command);
         break;
     case key_clock_rclick_command:
-        if (strlen(value) > 0)
-            clock_rclick_command = strdup(value);
+        VALUE_DUP_IF_SET(clock_rclick_command);
         break;
     case key_clock_uwheel_command:
-        if (strlen(value) > 0)
-            clock_uwheel_command = strdup(value);
+        VALUE_DUP_IF_SET(clock_uwheel_command);
         break;
     case key_clock_dwheel_command:
-        if (strlen(value) > 0)
-            clock_dwheel_command = strdup(value);
+        VALUE_DUP_IF_SET(clock_dwheel_command);
         break;
 
     /* Taskbar */
     case key_taskbar_mode:
-        if (strcmp(value, "multi_desktop") == 0)
-            taskbar_mode = MULTI_DESKTOP;
-        else
-            taskbar_mode = SINGLE_DESKTOP;
+        taskbar_mode = !strcmp(value, "multi_desktop") ? MULTI_DESKTOP : SINGLE_DESKTOP;
         break;
     case key_taskbar_distribute_size:
         taskbar_distribute_size = ATOB(value);
         break;
     case key_taskbar_padding:
-        extract_values(value, values, 3);
-        panel_config.g_taskbar.area.paddingxlr = panel_config.g_taskbar.area.paddingx = atoi(values[0]);
-        if (values[1])
-            panel_config.g_taskbar.area.paddingy = atoi(values[1]);
-        if (values[2])
-            panel_config.g_taskbar.area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(panel_config.g_taskbar.area, 0);
         break;
-    case key_taskbar_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.g_taskbar.background[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, id);
+    case key_taskbar_background_id:
+        VALUE_TO_BACKGROUND (panel_config.g_taskbar.background[TASKBAR_NORMAL]);
         if (panel_config.g_taskbar.background[TASKBAR_ACTIVE] == 0)
             panel_config.g_taskbar.background[TASKBAR_ACTIVE] = panel_config.g_taskbar.background[TASKBAR_NORMAL];
         break;
-    }
-    case key_taskbar_active_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.g_taskbar.background[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
+    case key_taskbar_active_background_id:
+        VALUE_TO_BACKGROUND (panel_config.g_taskbar.background[TASKBAR_ACTIVE]);
         break;
-    }
     case key_taskbar_name:
         taskbarname_enabled = ATOB(value);
         break;
     case key_taskbar_name_padding:
-        extract_values(value, values, 3);
-        panel_config.g_taskbar.area_name.paddingxlr = panel_config.g_taskbar.area_name.paddingx = atoi(values[0]);
-        if (values[1])
-            panel_config.g_taskbar.area_name.paddingy = atoi(values[1]);
+        VALUES_TO_AREA_PADDING (panel_config.g_taskbar.area_name, 0);
         break;
-    case key_taskbar_name_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.g_taskbar.background_name[TASKBAR_NORMAL] = &g_array_index(backgrounds, Background, id);
+    case key_taskbar_name_background_id:
+        VALUE_TO_BACKGROUND (panel_config.g_taskbar.background_name[TASKBAR_NORMAL]);
         if (panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] == 0)
             panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] =
                 panel_config.g_taskbar.background_name[TASKBAR_NORMAL];
         break;
-    }
-    case key_taskbar_name_active_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.g_taskbar.background_name[TASKBAR_ACTIVE] = &g_array_index(backgrounds, Background, id);
+    case key_taskbar_name_active_background_id:
+        VALUE_TO_BACKGROUND (panel_config.g_taskbar.background_name[TASKBAR_ACTIVE]);
         break;
-    }
     case key_taskbar_name_font:
         panel_config.taskbarname_font_desc = pango_font_description_from_string(value);
         panel_config.taskbarname_has_font = TRUE;
         break;
     case key_taskbar_name_font_color:
-        extract_values(value, values, 3);
-        get_color(values[0], taskbarname_font.rgb);
-        if (values[1])
-            taskbarname_font.alpha = (atoi(values[1]) / 100.0);
-        else
-            taskbarname_font.alpha = 0.5;
+        VALUES_TO_COLOR (taskbarname_font, 0);
         break;
     case key_taskbar_name_active_font_color:
-        extract_values(value, values, 3);
-        get_color(values[0], taskbarname_active_font.rgb);
-        if (values[1])
-            taskbarname_active_font.alpha = (atoi(values[1]) / 100.0);
-        else
-            taskbarname_active_font.alpha = 0.5;
+        VALUES_TO_COLOR (taskbarname_active_font, 0);
         break;
     case key_taskbar_hide_inactive_tasks:
         hide_inactive_tasks = ATOB(value);
@@ -1235,28 +1017,19 @@ void add_entry(char *key, char *value)
         always_show_all_desktop_tasks = ATOB(value);
         break;
     case key_taskbar_sort_order:
-        if (strcmp(value, "center") == 0) {
-            taskbar_sort_method = TASKBAR_SORT_CENTER;
-        } else if (strcmp(value, "title") == 0) {
-            taskbar_sort_method = TASKBAR_SORT_TITLE;
-        } else if (strcmp(value, "application") == 0) {
-            taskbar_sort_method = TASKBAR_SORT_APPLICATION;
-        } else if (strcmp(value, "lru") == 0) {
-            taskbar_sort_method = TASKBAR_SORT_LRU;
-        } else if (strcmp(value, "mru") == 0) {
-            taskbar_sort_method = TASKBAR_SORT_MRU;
-        } else {
-            taskbar_sort_method = TASKBAR_NOSORT;
-        }
+        taskbar_sort_method =
+            !strcmp(value, "center"     ) ? TASKBAR_SORT_CENTER
+        :   !strcmp(value, "title"      ) ? TASKBAR_SORT_TITLE
+        :   !strcmp(value, "application") ? TASKBAR_SORT_APPLICATION
+        :   !strcmp(value, "lru"        ) ? TASKBAR_SORT_LRU
+        :   !strcmp(value, "mru"        ) ? TASKBAR_SORT_MRU
+        : TASKBAR_NOSORT;
         break;
     case key_task_align:
-        if (strcmp(value, "center") == 0) {
-            taskbar_alignment = ALIGN_CENTER;
-        } else if (strcmp(value, "right") == 0) {
-            taskbar_alignment = ALIGN_RIGHT;
-        } else {
-            taskbar_alignment = ALIGN_LEFT;
-        }
+        taskbar_alignment = 
+            !strcmp(value, "center") ? ALIGN_CENTER
+        :   !strcmp(value, "right" ) ? ALIGN_RIGHT
+        : ALIGN_LEFT;
         break;
 
     /* Task */
@@ -1283,12 +1056,7 @@ void add_entry(char *key, char *value)
             panel_config.g_task.maximum_height = panel_config.g_task.maximum_width;
         break;
     case key_task_padding:
-        extract_values(value, values, 3);
-        panel_config.g_task.area.paddingxlr = panel_config.g_task.area.paddingx = atoi(values[0]);
-        if (values[1])
-            panel_config.g_task.area.paddingy = atoi(values[1]);
-        if (values[2])
-            panel_config.g_task.area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(panel_config.g_task.area, 0);
         break;
     case key_task_font:
         panel_config.g_task.font_desc = pango_font_description_from_string(value);
@@ -1313,28 +1081,18 @@ void add_entry(char *key, char *value)
             systray_enabled = TRUE;
             STR_APPEND_CH(panel_items_order, "S");
         }
-        extract_values(value, values, 3);
-        systray.area.paddingxlr = systray.area.paddingx = atoi(values[0]);
-        if (values[1])
-            systray.area.paddingy = atoi(values[1]);
-        if (values[2])
-            systray.area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(systray.area, 0);
         break;
-    case key_systray_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        systray.area.bg = &g_array_index(backgrounds, Background, id);
+    case key_systray_background_id:
+        VALUE_TO_BACKGROUND (systray.area.bg);
         break;
-    }
     case key_systray_sort:
-        if (strcmp(value, "descending") == 0)
-            systray.sort = SYSTRAY_SORT_DESCENDING;
-        else if (strcmp(value, "ascending") == 0)
-            systray.sort = SYSTRAY_SORT_ASCENDING;
-        else if (strcmp(value, "left2right") == 0)
-            systray.sort = SYSTRAY_SORT_LEFT2RIGHT;
-        else if (strcmp(value, "right2left") == 0)
-            systray.sort = SYSTRAY_SORT_RIGHT2LEFT;
+        systray.sort =
+            !strcmp(value, "descending") ? SYSTRAY_SORT_DESCENDING
+        :   !strcmp(value, "ascending" ) ? SYSTRAY_SORT_ASCENDING
+        :   !strcmp(value, "left2right") ? SYSTRAY_SORT_LEFT2RIGHT
+        :   !strcmp(value, "right2left") ? SYSTRAY_SORT_RIGHT2LEFT
+        : systray.sort;
         break;
     case key_systray_icon_size:
         systray_max_icon_size = atoi(value);
@@ -1359,25 +1117,14 @@ void add_entry(char *key, char *value)
 
     /* Launcher */
     case key_launcher_padding:
-        extract_values(value, values, 3);
-        panel_config.launcher.area.paddingxlr = panel_config.launcher.area.paddingx = atoi(values[0]);
-        if (values[1])
-            panel_config.launcher.area.paddingy = atoi(values[1]);
-        if (values[2])
-            panel_config.launcher.area.paddingx = atoi(values[2]);
+        VALUES_TO_AREA_PADDING(panel_config.launcher.area, 0);
         break;
-    case key_launcher_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        panel_config.launcher.area.bg = &g_array_index(backgrounds, Background, id);
+    case key_launcher_background_id:
+        VALUE_TO_BACKGROUND (panel_config.launcher.area.bg);
         break;
-    }
-    case key_launcher_icon_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        launcher_icon_bg = &g_array_index(backgrounds, Background, id);
+    case key_launcher_icon_background_id:
+        VALUE_TO_BACKGROUND (launcher_icon_bg);
         break;
-    }
     case key_launcher_icon_size:
         launcher_max_icon_size = atoi(value);
         break;
@@ -1402,10 +1149,7 @@ void add_entry(char *key, char *value)
         launcher_icon_theme_override = ATOB(value);
         break;
     case key_launcher_icon_asb:
-        extract_values(value, values, 3);
-        launcher_alpha = atoi(values[0]);
-        launcher_saturation = atoi(values[1]);
-        launcher_brightness = atoi(values[2]);
+        VALUES_TO_ASB (launcher, 0);
         break;
     case key_launcher_tooltip:
         launcher_tooltip_enabled = ATOB(value);
@@ -1415,16 +1159,12 @@ void add_entry(char *key, char *value)
         break;
 
     /* Tooltip */
-    case key_tooltip_show_timeout: {
-        int timeout_msec = 1000 * atof(value);
-        g_tooltip.show_timeout_msec = timeout_msec;
+    case key_tooltip_show_timeout:
+        g_tooltip.show_timeout_msec = 1000 * atof(value);
         break;
-    }
-    case key_tooltip_hide_timeout: {
-        int timeout_msec = 1000 * atof(value);
-        g_tooltip.hide_timeout_msec = timeout_msec;
+    case key_tooltip_hide_timeout:
+        g_tooltip.hide_timeout_msec = 1000 * atof(value);
         break;
-    }
     case key_tooltip_padding:
         extract_values(value, values, 3);
         if (values[0])
@@ -1432,19 +1172,11 @@ void add_entry(char *key, char *value)
         if (values[1])
             g_tooltip.paddingy = atoi(values[1]);
         break;
-    case key_tooltip_background_id: {
-        int id = atoi(value);
-        id = (id < backgrounds->len && id >= 0) ? id : 0;
-        g_tooltip.bg = &g_array_index(backgrounds, Background, id);
+    case key_tooltip_background_id:
+        VALUE_TO_BACKGROUND (g_tooltip.bg);
         break;
-    }
     case key_tooltip_font_color:
-        extract_values(value, values, 3);
-        get_color(values[0], g_tooltip.font_color.rgb);
-        if (values[1])
-            g_tooltip.font_color.alpha = (atoi(values[1]) / 100.0);
-        else
-            g_tooltip.font_color.alpha = 0.1;
+        VALUES_TO_COLOR (g_tooltip.font_color, 0);
         break;
     case key_tooltip_font:
         g_tooltip.font_desc = pango_font_description_from_string(value);
@@ -1470,16 +1202,10 @@ void add_entry(char *key, char *value)
         panel_config.mouse_effects = ATOB(value);
         break;
     case key_mouse_hover_icon_asb:
-        extract_values(value, values, 3);
-        panel_config.mouse_over_alpha = atoi(values[0]);
-        panel_config.mouse_over_saturation = atoi(values[1]);
-        panel_config.mouse_over_brightness = atoi(values[2]);
+        VALUES_TO_ASB (panel_config.mouse_over, 0);
         break;
     case key_mouse_pressed_icon_asb:
-        extract_values(value, values, 3);
-        panel_config.mouse_pressed_alpha = atoi(values[0]);
-        panel_config.mouse_pressed_saturation = atoi(values[1]);
-        panel_config.mouse_pressed_brightness = atoi(values[2]);
+        VALUES_TO_ASB (panel_config.mouse_pressed, 0);
         break;
 
     /* autohide options */
@@ -1538,12 +1264,7 @@ void add_entry(char *key, char *value)
             int status = g_strv_length(split) == 3 ? TASK_NORMAL : get_task_status(split[1]);
             g_strfreev(split);
             if (status >= 0) {
-                extract_values(value, values, 3);
-                float alpha = 1;
-                if (values[1])
-                    alpha = (atoi(values[1]) / 100.0);
-                get_color(values[0], panel_config.g_task.font[status].rgb);
-                panel_config.g_task.font[status].alpha = alpha;
+                VALUES_TO_COLOR (panel_config.g_task.font[status], 0);
                 panel_config.g_task.config_font_mask |= (1 << status);
             }
         } else if (g_regex_match_simple("task.*_icon_asb", key, 0, 0)) {
@@ -1562,9 +1283,7 @@ void add_entry(char *key, char *value)
             int status = g_strv_length(split) == 3 ? TASK_NORMAL : get_task_status(split[1]);
             g_strfreev(split);
             if (status >= 0) {
-                int id = atoi(value);
-                id = (id < backgrounds->len && id >= 0) ? id : 0;
-                panel_config.g_task.background[status] = &g_array_index(backgrounds, Background, id);
+                VALUE_TO_BACKGROUND (panel_config.g_task.background[status]);
                 panel_config.g_task.config_background_mask |= (1 << status);
                 if (status == TASK_NORMAL)
                     panel_config.g_task.area.bg = panel_config.g_task.background[TASK_NORMAL];
@@ -1575,6 +1294,12 @@ void add_entry(char *key, char *value)
         } else
             fprintf(stderr, "tint2: invalid option \"%s\",\n  upgrade tint2 or correct your config file\n", key);
     }
+    #undef VALUES_TO_COLOR
+    #undef VALUES_TO_AREA_PADDING
+    #undef VALUES_TO_ASB
+    #undef VALUE_TO_BACKGROUND
+    #undef VALUE_TO_GRADIENT
+    #undef VALUE_TO_COMMAND
 }
 
 gboolean config_read_file(const char *path)

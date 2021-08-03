@@ -140,7 +140,7 @@ typedef struct Border {
     int mask;
 } Border;
 
-typedef enum MouseState { MOUSE_NORMAL = 0, MOUSE_OVER = 1, MOUSE_DOWN = 2, MOUSE_STATE_COUNT } MouseState;
+typedef enum MouseState { MOUSE_NORMAL, MOUSE_OVER, MOUSE_DOWN, MOUSE_STATE_COUNT } MouseState;
 
 typedef struct Background {
     // Normal state
@@ -164,9 +164,9 @@ typedef enum Layout {
 } Layout;
 
 typedef enum Alignment {
-    ALIGN_LEFT = 0,
-    ALIGN_CENTER = 1,
-    ALIGN_RIGHT = 2,
+    ALIGN_LEFT,
+    ALIGN_CENTER,
+    ALIGN_RIGHT,
 } Alignment;
 
 struct Panel;

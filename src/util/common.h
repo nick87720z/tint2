@@ -22,7 +22,7 @@
 
 // mouse actions
 typedef enum MouseAction {
-    NONE = 0,
+    NONE,
     CLOSE,
     TOGGLE,
     ICONIFY,

@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////
 // Gradient types read from config options, not associated to any area
 
-typedef enum GradientType { GRADIENT_VERTICAL = 0, GRADIENT_HORIZONTAL, GRADIENT_CENTERED } GradientType;
+typedef enum GradientType { GRADIENT_VERTICAL, GRADIENT_HORIZONTAL, GRADIENT_CENTERED } GradientType;
 
 typedef struct ColorStop {
     Color color;
@@ -17,10 +17,10 @@ typedef struct ColorStop {
     double offset;
 } ColorStop;
 
-typedef enum Element { ELEMENT_SELF = 0, ELEMENT_PARENT, ELEMENT_PANEL } Element;
+typedef enum Element { ELEMENT_SELF, ELEMENT_PARENT, ELEMENT_PANEL } Element;
 
 typedef enum SizeVariable {
-    SIZE_WIDTH = 0,
+    SIZE_WIDTH,
     SIZE_HEIGHT,
     SIZE_RADIUS,
     SIZE_LEFT,

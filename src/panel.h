@@ -41,7 +41,7 @@ extern MouseAction mouse_tilt_right;
 
 // panel mode
 typedef enum TaskbarMode {
-    SINGLE_DESKTOP = 0,
+    SINGLE_DESKTOP,
     MULTI_DESKTOP,
 } TaskbarMode;
 

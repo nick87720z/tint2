@@ -22,7 +22,7 @@ void gradient_stop_update_image(int index);
 void current_gradient_stop_changed(GtkWidget *widget, gpointer data);
 
 typedef enum GradientConfigType {
-    GRADIENT_CONFIG_VERTICAL = 0,
+    GRADIENT_CONFIG_VERTICAL,
     GRADIENT_CONFIG_HORIZONTAL,
     GRADIENT_CONFIG_RADIAL
 } GradientConfigType;

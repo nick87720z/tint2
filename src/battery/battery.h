@@ -24,7 +24,7 @@ typedef struct Battery {
 } Battery;
 
 typedef enum ChargeState {
-    BATTERY_UNKNOWN = 0,
+    BATTERY_UNKNOWN,
     BATTERY_CHARGING,
     BATTERY_DISCHARGING,
     BATTERY_FULL,

@@ -8,80 +8,45 @@
 
 GradientType gradient_type_from_string(const char *str)
 {
-    if (g_str_equal(str, "horizontal"))
-        return GRADIENT_HORIZONTAL;
-    if (g_str_equal(str, "vertical"))
-        return GRADIENT_VERTICAL;
-    if (g_str_equal(str, "radial"))
-        return GRADIENT_CENTERED;
-    fprintf(stderr, RED "tint2: Invalid gradient type: %s" RESET "\n", str);
-    return GRADIENT_VERTICAL;
+    return  g_str_equal(str, "horizontal") ? GRADIENT_HORIZONTAL
+        :   g_str_equal(str, "vertical"  ) ? GRADIENT_VERTICAL
+        :   g_str_equal(str, "radial"    ) ? GRADIENT_CENTERED
+        :(fprintf(stderr, RED "tint2: Invalid gradient type: %s" RESET "\n", str),
+          GRADIENT_VERTICAL);
 }
 
 void init_gradient(GradientClass *g, GradientType type)
 {
+    #define add_gradient_offset(list,...) do {                 \
+        Offset *_offset = (Offset *)calloc(1, sizeof(Offset)); \
+        *_offset = (Offset){ __VA_ARGS__ };                    \
+        list = g_list_append((list), _offset);                 \
+    } while(0)
+
     memset(g, 0, sizeof(*g));
     g->type = type;
-    if (g->type == GRADIENT_VERTICAL) {
-        Offset *offset_top = (Offset *)calloc(1, sizeof(Offset));
-        offset_top->constant = TRUE;
-        offset_top->constant_value = 0;
-        g->from.offsets_y = g_list_append(g->from.offsets_y, offset_top);
-        Offset *offset_bottom = (Offset *)calloc(1, sizeof(Offset));
-        offset_bottom->constant = FALSE;
-        offset_bottom->element = ELEMENT_SELF;
-        offset_bottom->variable = SIZE_HEIGHT;
-        offset_bottom->multiplier = 1.0;
-        g->to.offsets_y = g_list_append(g->to.offsets_y, offset_bottom);
-    } else if (g->type == GRADIENT_HORIZONTAL) {
-        Offset *offset_left = (Offset *)calloc(1, sizeof(Offset));
-        offset_left->constant = TRUE;
-        offset_left->constant_value = 0;
-        g->from.offsets_x = g_list_append(g->from.offsets_x, offset_left);
-        Offset *offset_right = (Offset *)calloc(1, sizeof(Offset));
-        offset_right->constant = FALSE;
-        offset_right->element = ELEMENT_SELF;
-        offset_right->variable = SIZE_WIDTH;
-        offset_right->multiplier = 1.0;
-        g->to.offsets_x = g_list_append(g->to.offsets_x, offset_right);
-    } else if (g->type == GRADIENT_CENTERED) {
+    switch (type) {
+    case GRADIENT_VERTICAL:
+        add_gradient_offset(g->from.offsets_y, .constant = TRUE, .constant_value = 0);
+        add_gradient_offset(g->to.offsets_y, .constant = FALSE, .element = ELEMENT_SELF, .variable = SIZE_HEIGHT, .multiplier = 1.0);
+        break;
+    case GRADIENT_HORIZONTAL:
+        add_gradient_offset(g->from.offsets_x, .constant = TRUE, .constant_value = 0);
+        add_gradient_offset(g->to.offsets_x, .constant = FALSE, .element = ELEMENT_SELF, .variable = SIZE_WIDTH, .multiplier = 1.0);
+        break;
+    case GRADIENT_CENTERED:
         // from
-        Offset *offset_center_x = (Offset *)calloc(1, sizeof(Offset));
-        offset_center_x->constant = FALSE;
-        offset_center_x->element = ELEMENT_SELF;
-        offset_center_x->variable = SIZE_CENTERX;
-        offset_center_x->multiplier = 1.0;
-        g->from.offsets_x = g_list_append(g->from.offsets_x, offset_center_x);
-        Offset *offset_center_y = (Offset *)calloc(1, sizeof(Offset));
-        offset_center_y->constant = FALSE;
-        offset_center_y->element = ELEMENT_SELF;
-        offset_center_y->variable = SIZE_CENTERY;
-        offset_center_y->multiplier = 1.0;
-        g->from.offsets_y = g_list_append(g->from.offsets_y, offset_center_y);
-        Offset *offset_center_r = (Offset *)calloc(1, sizeof(Offset));
-        offset_center_r->constant = TRUE;
-        offset_center_r->constant_value = 0;
-        g->from.offsets_r = g_list_append(g->from.offsets_r, offset_center_r);
+        add_gradient_offset(g->from.offsets_x, .constant = FALSE, .element = ELEMENT_SELF, .variable = SIZE_CENTERX, .multiplier = 1.0);
+        add_gradient_offset(g->from.offsets_y, .constant = FALSE, .element = ELEMENT_SELF, .variable = SIZE_CENTERY, .multiplier = 1.0);
+        add_gradient_offset(g->from.offsets_r, .constant = TRUE, .constant_value = 0);
         // to
-        offset_center_x = (Offset *)calloc(1, sizeof(Offset));
-        offset_center_x->constant = FALSE;
-        offset_center_x->element = ELEMENT_SELF;
-        offset_center_x->variable = SIZE_CENTERX;
-        offset_center_x->multiplier = 1.0;
-        g->to.offsets_x = g_list_append(g->to.offsets_x, offset_center_x);
-        offset_center_y = (Offset *)calloc(1, sizeof(Offset));
-        offset_center_y->constant = FALSE;
-        offset_center_y->element = ELEMENT_SELF;
-        offset_center_y->variable = SIZE_CENTERY;
-        offset_center_y->multiplier = 1.0;
-        g->to.offsets_y = g_list_append(g->to.offsets_y, offset_center_y);
-        offset_center_r = (Offset *)calloc(1, sizeof(Offset));
-        offset_center_r->constant = FALSE;
-        offset_center_r->element = ELEMENT_SELF;
-        offset_center_r->variable = SIZE_RADIUS;
-        offset_center_r->multiplier = 1.0;
-        g->to.offsets_r = g_list_append(g->to.offsets_r, offset_center_r);
+        add_gradient_offset(g->to.offsets_x, .constant = FALSE, .element = ELEMENT_SELF, .variable = SIZE_CENTERX, .multiplier = 1.0);
+        add_gradient_offset(g->to.offsets_y, .constant = FALSE, .element = ELEMENT_SELF, .variable = SIZE_CENTERY, .multiplier = 1.0);
+        add_gradient_offset(g->to.offsets_r, .constant = FALSE, .element = ELEMENT_SELF, .variable = SIZE_RADIUS,  .multiplier = 1.0);
+        break;
     }
+
+    #undef add_gradient_offset
 }
 
 void cleanup_gradient(GradientClass *g)

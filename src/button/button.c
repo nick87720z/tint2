@@ -273,6 +273,26 @@ void cleanup_button()
     panel_config.button_list = NULL;
 }
 
+int button_icon_desired_size(Button *button)
+{
+    int size;
+    Area *area = &button->area;
+    ButtonBackend *backend = button->backend;
+    if (backend->icon_name) {
+        int max_icon_size = backend->max_icon_size;
+        size = ( panel_horizontal ?
+            area->height - top_bottom_border_width(area) : 
+            area->width  - left_right_border_width(area) ) - 2 * area->paddingy;
+        if (max_icon_size) {
+            size = MIN(size, max_icon_size * ((Panel *)area->panel)->scale);
+        }
+    } else {
+        size = 0;
+    }
+    
+    return size;
+}
+
 int button_compute_desired_size(void *obj)
 {
     Button *button = obj;
@@ -285,19 +305,7 @@ int button_compute_desired_size(void *obj)
     int interior_padding = area->paddingx * panel->scale;
 
     int icon_w, icon_h;
-    if (backend->icon_name) {
-        int max_icon_size = backend->max_icon_size;
-        if (panel_horizontal)
-            icon_h = icon_w = area->height - top_bottom_border_width(area) - 2 * vert_padding;
-        else
-            icon_h = icon_w = area->width - left_right_border_width(area) - 2 * horiz_padding;
-        if (max_icon_size) {
-            icon_w = MIN(icon_w, max_icon_size * panel->scale);
-            icon_h = MIN(icon_h, max_icon_size * panel->scale);
-        }
-    } else {
-        icon_h = icon_w = 0;
-    }
+    icon_w = icon_h = button_icon_desired_size(button);
 
     int txt_height, txt_width;
     if (backend->text) {
@@ -358,18 +366,7 @@ gboolean resize_button(void *obj)
     int interior_padding = area->paddingx * panel->scale;
 
     int icon_w, icon_h;
-    if (backend->icon_name) {
-        if (panel_horizontal)
-            icon_h = icon_w = area->height - top_bottom_border_width(area) - 2 * vert_padding;
-        else
-            icon_h = icon_w = area->width - left_right_border_width(area) - 2 * horiz_padding;
-        if (backend->max_icon_size) {
-            icon_w = MIN(icon_w, backend->max_icon_size * panel->scale);
-            icon_h = MIN(icon_h, backend->max_icon_size * panel->scale);
-        }
-    } else {
-        icon_h = icon_w = 0;
-    }
+    icon_w = icon_h = button_icon_desired_size(button);
 
     frontend->iconw = icon_w;
     frontend->iconh = icon_h;
@@ -462,15 +459,18 @@ void draw_button(void *obj, cairo_t *c)
     if (frontend->icon) {
         // Render icon
         Imlib_Image image;
-        if (panel_config.mouse_effects) {
-            if (area->mouse_state == MOUSE_OVER)
-                image = frontend->icon_hover ? frontend->icon_hover : frontend->icon;
-            else if (area->mouse_state == MOUSE_DOWN)
-                image = frontend->icon_pressed ? frontend->icon_pressed : frontend->icon;
-            else
-                image = frontend->icon;
-        } else {
-            image = frontend->icon;
+        if (!panel_config.mouse_effects)
+            goto nofx;
+        switch (area->mouse_state) {
+        case MOUSE_OVER:    if (!frontend->icon_hover)
+                                goto nofx;
+                            image = frontend->icon_hover;
+                            break;
+        case MOUSE_DOWN:    if (!frontend->icon_pressed)
+                                goto nofx;
+                            image = frontend->icon_pressed;
+                            break;
+        default: nofx:      image = frontend->icon;
         }
 
         imlib_context_set_image(image);

@@ -96,11 +96,7 @@ void taskbarname_init_fonts()
 
 void taskbarname_default_font_changed()
 {
-    if (!taskbar_enabled)
-        return;
-    if (!taskbarname_enabled)
-        return;
-    if (panel_config.taskbarname_has_font)
+    if (!taskbar_enabled || !taskbarname_enabled || panel_config.taskbarname_has_font)
         return;
 
     pango_font_description_free(panel_config.taskbarname_font_desc);
@@ -148,11 +144,9 @@ int taskbarname_compute_desired_size(void *obj)
                    FALSE,
                    panel->scale);
 
-    if (panel_horizontal) {
-        return name_width + 2 * taskbar_name->area.paddingxlr * panel->scale + left_right_border_width(&taskbar_name->area);
-    } else {
-        return name_height + 2 * taskbar_name->area.paddingxlr * panel->scale + top_bottom_border_width(&taskbar_name->area);
-    }
+    return  (panel_horizontal ? name_width  + left_right_border_width(&taskbar_name->area)
+                              : name_height + top_bottom_border_width(&taskbar_name->area))
+            + 2 * taskbar_name->area.paddingxlr * panel->scale;
 }
 
 gboolean resize_taskbarname(void *obj)

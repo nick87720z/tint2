@@ -62,9 +62,7 @@ cairo_surface_t *task_get_thumbnail(void *obj)
 
 Task *add_task(Window win)
 {
-    if (!win)
-        return NULL;
-    if (window_is_hidden(win))
+    if (!win || window_is_hidden(win))
         return NULL;
 
     XSelectInput(server.display, win, PropertyChangeMask | StructureNotifyMask);
@@ -110,10 +108,9 @@ Task *add_task(Window win)
     // get application name
     // use res_class property of WM_CLASS as res_name is easily overridable by user
     XClassHint *classhint = XAllocClassHint();
-    if (classhint && XGetClassHint(server.display, win, classhint))
-        task_template.application = strdup(classhint->res_class);
-    else
-        task_template.application = strdup("Untitled");
+    task_template.application = strdup(
+        classhint && XGetClassHint(server.display, win, classhint)
+        ? classhint->res_class : "Untitled");
     if (classhint) {
         if (classhint->res_name)
             XFree(classhint->res_name);
@@ -268,12 +265,7 @@ gboolean task_update_title(Task *task)
         }
     }
 
-    char *title;
-    if (name && strlen(name)) {
-        title = strdup(name);
-    } else {
-        title = strdup("Untitled");
-    }
+    char *title = strdup(name && strlen(name) ? name : "Untitled");
     if (name)
         XFree(name);
 
@@ -447,27 +439,31 @@ void draw_task_icon(Task *task, int text_width)
 
     // Find pos
     Panel *panel = (Panel *)task->area.panel;
-    if (panel->g_task.centered) {
-        if (panel->g_task.has_text)
-            task->_icon_x = (task->area.width - text_width - panel->g_task.icon_size1) / 2;
-        else
-            task->_icon_x = (task->area.width - panel->g_task.icon_size1) / 2;
-    } else {
+    if (!panel->g_task.centered)
         task->_icon_x = left_border_width(&task->area) + task->area.paddingxlr * panel->scale;
+    else {
+        int x = task->area.width - panel->g_task.icon_size1;
+        if (panel->g_task.has_text)
+            x -= text_width;
+        x /= 2;
+        task->_icon_x = x;
     }
 
     // Render
 
     Imlib_Image image;
     // Render
-    if (panel_config.mouse_effects) {
-        if (task->area.mouse_state == MOUSE_OVER)
-            image = task->icon_hover[task->current_state];
-        else if (task->area.mouse_state == MOUSE_DOWN)
-            image = task->icon_press[task->current_state];
-        else
-            image = task->icon[task->current_state];
-    } else {
+    if (panel_config.mouse_effects)
+        goto nofx;
+    switch (task->area.mouse_state) {
+    case MOUSE_OVER:
+        image = task->icon_hover[task->current_state];
+        break;
+    case MOUSE_DOWN:
+        image = task->icon_press[task->current_state];
+        break;
+    default:
+    nofx:
         image = task->icon[task->current_state];
     }
 
@@ -541,14 +537,17 @@ void task_get_content_color(void *obj, Color *color)
 {
     Task *task = (Task *)obj;
     Color *content_color = NULL;
-    if (panel_config.mouse_effects) {
-        if (task->area.mouse_state == MOUSE_OVER)
-            content_color = &task->icon_color_hover;
-        else if (task->area.mouse_state == MOUSE_DOWN)
-            content_color = &task->icon_color_press;
-        else
-            content_color = &task->icon_color;
-    } else {
+    if (!panel_config.mouse_effects)
+        goto nofx;
+    switch (task->area.mouse_state) {
+    case MOUSE_OVER:
+        content_color = &task->icon_color_hover;
+        break;
+    case MOUSE_DOWN:
+        content_color = &task->icon_color_press;
+        break;
+    default:
+    nofx:
         content_color = &task->icon_color;
     }
     if (content_color)
@@ -746,20 +745,13 @@ void set_task_state(Task *task, TaskState state)
                     // Hide ALL_DESKTOPS task on non-current desktop
                     hide = !always_show_all_desktop_tasks;
                 }
-                if (hide_inactive_tasks) {
-                    // Show only the active task
-                    if (state != TASK_ACTIVE) {
-                        hide = TRUE;
-                    }
-                }
-                if (hide_task_diff_desktop) {
-                    if (taskbar->desktop != server.desktop)
-                        hide = TRUE;
-                }
-                if (get_window_monitor(task->win) != ((Panel *)task->area.panel)->monitor &&
-                    (hide_task_diff_monitor || num_panels > 1)) {
+                if ((hide_inactive_tasks    && state != TASK_ACTIVE)               ||
+                    (hide_task_diff_desktop && taskbar->desktop != server.desktop) ||
+                    ((hide_task_diff_monitor || num_panels > 1) &&
+                     get_window_monitor(task->win) != ((Panel *)task->area.panel)->monitor) )
+
                     hide = TRUE;
-                }
+                
                 if ((!hide) != task1->area.on_screen) {
                     task1->area.on_screen = !hide;
                     schedule_redraw(&task1->area);
@@ -776,16 +768,14 @@ void set_task_state(Task *task, TaskState state)
 
 void blink_urgent(void *arg)
 {
-    GSList *urgent_task = urgent_list;
-    while (urgent_task) {
+    for (GSList *urgent_task = urgent_list;
+         urgent_task; urgent_task = urgent_task->next)
+    {
         Task *t = urgent_task->data;
         if (t->urgent_tick <= max_tick_urgent) {
-            if (++t->urgent_tick % 2)
-                set_task_state(t, TASK_URGENT);
-            else
-                set_task_state(t, window_is_iconified(t->win) ? TASK_ICONIFIED : TASK_NORMAL);
+            set_task_state(t,   ++t->urgent_tick % 2        ? TASK_URGENT
+                            :   window_is_iconified(t->win) ? TASK_ICONIFIED : TASK_NORMAL);
         }
-        urgent_task = urgent_task->next;
     }
     schedule_panel_redraw();
 }

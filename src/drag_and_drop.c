@@ -229,12 +229,7 @@ void handle_dnd_position(XClientMessageEvent *e)
         task_handle_mouse_event(task, TOGGLE);
     } else {
         LauncherIcon *icon = click_launcher_icon(panel, mapX, mapY);
-        if (icon) {
-            accept = 1;
-            dnd_launcher_icon = icon;
-        } else {
-            dnd_launcher_icon = NULL;
-        }
+        dnd_launcher_icon = icon ? (accept = 1, icon) : NULL;
     }
 
     // send XdndStatus event to get more XdndPosition events

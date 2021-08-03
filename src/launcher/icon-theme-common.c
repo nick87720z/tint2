@@ -510,35 +510,31 @@ IconThemeWrapper *load_themes(const char *icon_theme_name)
 
 int directory_matches_size(IconThemeDir *dir, int size)
 {
-    if (dir->type == ICON_DIR_TYPE_FIXED) {
+    switch (dir->type) {
+    case ICON_DIR_TYPE_FIXED:
         return dir->size == size;
-    } else if (dir->type == ICON_DIR_TYPE_SCALABLE) {
+    case ICON_DIR_TYPE_SCALABLE:
         return dir->min_size <= size && size <= dir->max_size;
-    } else /*if (dir->type == ICON_DIR_TYPE_THRESHOLD)*/ {
+    default:
         return dir->size - dir->threshold <= size && size <= dir->size + dir->threshold;
     }
 }
 
 int directory_size_distance(IconThemeDir *dir, int size)
 {
-    if (dir->type == ICON_DIR_TYPE_FIXED) {
+    switch (dir->type) {
+    case ICON_DIR_TYPE_FIXED:
         return abs(dir->size - size);
-    } else if (dir->type == ICON_DIR_TYPE_SCALABLE) {
-        if (size < dir->min_size) {
-            return dir->min_size - size;
-        } else if (size > dir->max_size) {
-            return size - dir->max_size;
-        } else {
-            return 0;
-        }
-    } else /*if (dir->type == ICON_DIR_TYPE_THRESHOLD)*/ {
-        if (size < dir->size - dir->threshold) {
-            return dir->min_size - size;
-        } else if (size > dir->size + dir->threshold) {
-            return size - dir->max_size;
-        } else {
-            return 0;
-        }
+    case ICON_DIR_TYPE_SCALABLE:
+        return
+            size < dir->min_size ? dir->min_size - size
+        :   size > dir->max_size ? size - dir->max_size
+        :   0;
+    default:
+        return
+            (size < dir->size - dir->threshold) ? dir->min_size - size
+        :   (size > dir->size + dir->threshold) ? size - dir->max_size
+        :   0;
     }
 }
 
@@ -552,9 +548,7 @@ gint compare_theme_directories(gconstpointer a, gconstpointer b, gpointer size_q
 
 Bool is_full_path(const char *s)
 {
-    if (!s)
-        return FALSE;
-    return s[0] == '/';
+    return s && s[0] == '/';
 }
 
 Bool file_exists(const char *path)

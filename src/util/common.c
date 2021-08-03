@@ -290,61 +290,35 @@ pid_t tint_exec(const char *command,
         int aligned_x, aligned_y, aligned_x1, aligned_y1, aligned_x2, aligned_y2;
         int panel_x1, panel_x2, panel_y1, panel_y2;
         if (panel_horizontal) {
+            aligned_x1 = aligned_x2 = panel->posx;
             if (area_is_first(area))
-                aligned_x1 = panel->posx;
-            else
-                aligned_x1 = panel->posx + area->posx;
-
-            if (area_is_last(area))
-                aligned_x2 = panel->posx + panel->area.width;
-            else
-                aligned_x2 = panel->posx + area->posx + area->width;
-
-            if (area_is_first(area))
+                aligned_x1 += area->posx       ,
+                aligned_x2 += panel->area.width,
                 aligned_x = aligned_x1;
-            else if (area_is_last(area))
-                aligned_x = aligned_x2;
             else
-                aligned_x = aligned_x1;
+                aligned_x2 += area->posx + area->width                   ,
+                aligned_x = !area_is_last(area) ? aligned_x1 : aligned_x2;
+            panel_x2 = (panel_x1 = panel->posx) + panel->area.width;
 
+            aligned_y = panel->posy;
             if (panel_position & BOTTOM)
-                aligned_y = panel->posy;
-            else
-                aligned_y = panel->posy + panel->area.height;
-
-            aligned_y1 = aligned_y2 = aligned_y;
-
-            panel_x1 = panel->posx;
-            panel_x2 = panel->posx + panel->area.width;
-            panel_y1 = panel_y2 = aligned_y;
+                aligned_y += panel->area.height;
+            panel_y1 = panel_y2 = aligned_y1 = aligned_y2 = aligned_y;
         } else {
+            aligned_y1 = aligned_y2 = panel->posy;
             if (area_is_first(area))
-                aligned_y1 = panel->posy;
-            else
-                aligned_y1 = panel->posy + area->posy;
-
-            if (area_is_last(area))
-                aligned_y2 = panel->posy + panel->area.height;
-            else
-                aligned_y2 = panel->posy + area->posy + area->height;
-
-            if (area_is_first(area))
+                aligned_y1 += area->posy        ,
+                aligned_y2 += panel->area.height,
                 aligned_y = aligned_y1;
-            else if (area_is_last(area))
-                aligned_y = aligned_y2;
             else
-                aligned_y = aligned_y1;
+                aligned_y2 += area->posy + area->height                  ,
+                aligned_y = !area_is_last(area) ? aligned_y1 : aligned_y2;
+            panel_y2 = (panel_y1 = panel->posy) + panel->area.height;
 
+            aligned_x = panel->posx;
             if (panel_position & RIGHT)
-                aligned_x = panel->posx;
-            else
-                aligned_x = panel->posx + panel->area.width;
-
-            aligned_x1 = aligned_x2 = aligned_x;
-
-            panel_x1 = panel_x2 = aligned_x;
-            panel_y1 = panel->posy;
-            panel_y2 = panel->posy + panel->area.height;
+                aligned_x += panel->area.width;
+            panel_x1 = panel_x2 = aligned_x1 = aligned_x2 = aligned_x;
         }
 
         setenv("TINT2_CONFIG", config_path, 1);
@@ -952,20 +926,20 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
     XRenderFreePicture(server.display, pict);
 }
 
-void get_text_size(const PangoFontDescription *font,
-                   int *height,
-                   int *width,
-                   int available_height,
-                   int available_width,
-                   const char *text,
-                   int text_len,
-                   PangoWrapMode wrap,
-                   PangoEllipsizeMode ellipsis,
-                   PangoAlignment alignment,
-                   gboolean markup,
-                   double scale)
+void get_text_size2(const PangoFontDescription *font,
+                    int *height,
+                    int *width,
+                    int available_height,
+                    int available_width,
+                    const char *text,
+                    int text_len,
+                    PangoWrapMode wrap,
+                    PangoEllipsizeMode ellipsis,
+                    PangoAlignment alignment,
+                    gboolean markup,
+                    double scale)
 {
-    PangoRectangle rect_ink, rect;
+    PangoRectangle rect;
 
     available_width = MAX(0, available_width);
     available_height = MAX(0, available_height);
@@ -990,64 +964,16 @@ void get_text_size(const PangoFontDescription *font,
     else
         pango_layout_set_markup(layout, text, text_len);
 
-    pango_layout_get_pixel_extents(layout, &rect_ink, &rect);
-    *height = rect.height;
-    *width = rect.width;
-
-    // fprintf(stderr, "tint2: dimension : %d - %d\n", rect_ink.height, rect.height);
+    pango_layout_get_extents(layout, NULL, &rect);
+    // Hope, this reduces chance of wrong pixel extents - if obscure extents_to_pixels() conversion was reason
+    *width  = ceil((rect.x + rect.width ) / (double)PANGO_SCALE) - floor(rect.x / (double)PANGO_SCALE);
+    *height = ceil((rect.y + rect.height) / (double)PANGO_SCALE) - floor(rect.y / (double)PANGO_SCALE);
 
     g_object_unref(layout);
     g_object_unref(context);
     cairo_destroy(c);
     cairo_surface_destroy(cs);
     XFreePixmap(server.display, pmap);
-}
-
-void get_text_size2(const PangoFontDescription *font,
-                    int *height,
-                    int *width,
-                    int available_height,
-                    int available_width,
-                    const char *text,
-                    int text_len,
-                    PangoWrapMode wrap,
-                    PangoEllipsizeMode ellipsis,
-                    PangoAlignment alignment,
-                    gboolean markup,
-                    double scale)
-{
-    get_text_size(font, height, width, available_height, available_width, text, text_len, wrap, ellipsis, alignment, markup, scale);
-
-    // We do multiple passes, because pango sucks
-    int actual_height, actual_width, overflow = 0;
-    while (true) {
-        get_text_size(font, &actual_height, &actual_width, *height, *width, text, text_len, wrap, ellipsis, alignment, markup, scale);
-        if (actual_height <= *height)
-            break;
-        if (*width >= available_width)
-            break;
-        overflow = 1;
-        fprintf(stderr, "tint2: text overflows, recomputing: available %dx%d, computed %dx%d, actual %dx%d: %s\n",
-                available_width,
-                available_height,
-                *width,
-                *height,
-                actual_width,
-                actual_height,
-                text);
-        (*width)++;
-    }
-    if (overflow) {
-        *height = actual_height;
-        fprintf(stderr, "tint2: text final size computed as: available %dx%d, computed %dx%d, actual %dx%d: %s\n",
-                available_width,
-                available_height,
-                *width,
-                *height,
-                actual_width,
-                actual_height,
-                text);
-    }
 }
 
 #if !GLIB_CHECK_VERSION(2, 34, 0)

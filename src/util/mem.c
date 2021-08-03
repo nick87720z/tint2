@@ -31,14 +31,10 @@ void ERR(const char *s)
     UNUSED(ret);
 }
 
+inline
 void utoa(unsigned long n, char *s)
 {
-    if (n == 0) {
-        *s++ = '0';
-        *s = '\0';
-        return;
-    }
-    char buffer[128] = {0};
+    char buffer[sizeof(n) * 4];
     char *digit;
     for (digit = buffer; n; digit++, n/=10) {
         *digit = '0' + (n % 10);
@@ -47,18 +43,23 @@ void utoa(unsigned long n, char *s)
     while (digit >= buffer) {
         *s++ = *digit--;
     }
-    *s = 0;
+    *s = '\0';
 }
 
+inline
 unsigned long uabs(long n)
 {
-    if (n == LONG_MIN)
-        return ((unsigned long)LONG_MAX) + 1;
-    return (unsigned long)labs(n);
+    return n == LONG_MIN ? (unsigned long)LONG_MAX + 1
+                         : (unsigned long)labs(n);
 }
 
 void itoa(long n, char *s)
 {
+    if (n == 0) {
+        *s++ = '0';
+        *s = '\0';
+        return;
+    }
     if (n < 0) {
         *s++ = '-';
     }
@@ -143,14 +144,13 @@ static void write_string(const char *s)
 static void write_word(const char *s)
 {
     write_string(s);
-    write_string(" ");
+    write_char(' ');
 }
 
 static char hex(u_int8_t value)
 {
-    if (value < 10)
-        return '0' + (char)value;
-    return 'a' + (char)(value - 10);
+    return value < 10 ? '0' + (char)value
+                      : 'a' + (char)(value - 10);
 }
 
 static void write_hex(u_int64_t v)
@@ -162,17 +162,19 @@ static void write_hex(u_int64_t v)
     }
     v = htobe64(v);
     int leading_zero = 1;
-    while (v) {
-        u_int8_t byte = v & 0xff;
-        if (byte)
+    for (u_int8_t *p = (u_int8_t *)&v, *ep = (u_int8_t *)(&v+1);
+         p < ep;)
+    {
+        u_int8_t byte = *p++;
+        if (leading_zero) {
+            if (!byte)
+                continue;
             leading_zero = 0;
-        if (!leading_zero) {
-            write_char(hex(byte >> 4));
-            write_char(hex(byte & 0xf));
         }
-        v = v >> 8;
+        write_char(hex(byte >> 4));
+        write_char(hex(byte & 0xf));
     }
-    write_string(" ");
+    write_char(' ');
 }
 
 static void write_backtrace(int skip)
@@ -244,7 +246,7 @@ static void log_alloc_locked(const char *func_name, void *result, void *ptr, siz
         write_hex((u_int64_t)size);
         write_hex((u_int64_t)count);
         write_backtrace(2);
-        write_string("\n");
+        write_char("\n");
     } else {
         write_string("# done\n");
         close(fd);

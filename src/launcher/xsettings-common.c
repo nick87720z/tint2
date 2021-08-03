@@ -132,10 +132,8 @@ int xsettings_setting_equal(XSettingsSetting *setting_a, XSettingsSetting *setti
     case XSETTINGS_TYPE_STRING:
         return strcmp(setting_a->data.v_string, setting_b->data.v_string) == 0;
     default:
-        break;
+        return 0;
     }
-
-    return 0;
 }
 
 void xsettings_setting_free(XSettingsSetting *setting)

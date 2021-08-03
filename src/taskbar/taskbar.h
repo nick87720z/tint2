@@ -12,13 +12,13 @@
 #include "taskbarname.h"
 
 typedef enum TaskbarState {
-    TASKBAR_NORMAL = 0,
+    TASKBAR_NORMAL,
     TASKBAR_ACTIVE,
     TASKBAR_STATE_COUNT,
 } TaskbarState;
 
 typedef enum TaskbarSortMethod {
-    TASKBAR_NOSORT = 0,
+    TASKBAR_NOSORT,
     TASKBAR_SORT_CENTER,
     TASKBAR_SORT_TITLE,
     TASKBAR_SORT_APPLICATION,
@@ -27,7 +27,7 @@ typedef enum TaskbarSortMethod {
 } TaskbarSortMethod;
 
 typedef enum ThumbnailUpdateMode {
-    THUMB_MODE_ACTIVE_WINDOW = 0,
+    THUMB_MODE_ACTIVE_WINDOW,
     THUMB_MODE_TOOLTIP_WINDOW,
     THUMB_MODE_ALL
 } ThumbnailUpdateMode;

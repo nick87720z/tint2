@@ -7,7 +7,7 @@
 #include "common.h"
 #include "area.h"
 
-typedef enum SeparatorStyle { SEPARATOR_EMPTY = 0, SEPARATOR_LINE, SEPARATOR_DOTS } SeparatorStyle;
+typedef enum SeparatorStyle { SEPARATOR_EMPTY, SEPARATOR_LINE, SEPARATOR_DOTS } SeparatorStyle;
 
 typedef struct Separator {
     Area area;

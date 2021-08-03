@@ -15,7 +15,7 @@
 #include "timer.h"
 
 typedef enum TaskState {
-    TASK_NORMAL = 0,
+    TASK_NORMAL,
     TASK_ACTIVE,
     TASK_ICONIFIED,
     TASK_URGENT,

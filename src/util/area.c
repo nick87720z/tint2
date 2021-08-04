@@ -407,6 +407,14 @@ void show(Area *a)
     schedule_panel_redraw();
 }
 
+void gradient_pattern_destroy(GradientInstance *gi)
+{
+    if (gi->pattern) {
+        cairo_pattern_destroy(gi->pattern);
+        gi->pattern = NULL;
+    }
+}
+
 void update_dependent_gradients(Area *a)
 {
     if (!a->on_screen)
@@ -414,6 +422,7 @@ void update_dependent_gradients(Area *a)
     if (a->_changed) {
         for (GList *l = a->dependent_gradients; l; l = l->next) {
             GradientInstance *gi = (GradientInstance *)l->data;
+            gradient_pattern_destroy(gi);
             update_gradient(gi);
             if (gi->area != a)
                 schedule_redraw(gi->area);
@@ -1151,10 +1160,7 @@ void gradient_init(Area *area, GradientClass *g, GradientInstance *gi)
 
 void gradient_destroy(GradientInstance *gi)
 {
-    if (gi->pattern) {
-        cairo_pattern_destroy(gi->pattern);
-        gi->pattern = NULL;
-    }
+    gradient_pattern_destroy(gi);
     GradientClass *g = gi->gradient_class;
     if (gradient_point_area_dependent(&g->from) ||
         gradient_point_area_dependent(&g->to))

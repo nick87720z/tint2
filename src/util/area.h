@@ -169,6 +169,12 @@ typedef enum Alignment {
     ALIGN_RIGHT,
 } Alignment;
 
+typedef enum ChangeState {
+    UNCHANGED,
+    CHANGED_MOVE = 1 << 0,
+    CHANGED_SIZE = 1 << 1,
+} ChangeState;
+
 struct Panel;
 
 typedef struct Area {
@@ -206,7 +212,7 @@ typedef struct Area {
     // Do not set this directly; use schedule_redraw() instead.
     gboolean _redraw_needed;
     // Set to non-zero if the position/size has changed, thus _on_change_layout needs to be called
-    gboolean _changed;
+    ChangeState _changed;
     // This is the pixmap on which the Area is rendered. Render to it directly if needed.
     Pixmap pix;
     Pixmap pix_by_state[MOUSE_STATE_COUNT];

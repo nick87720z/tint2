@@ -75,7 +75,7 @@ void relayout_fixed(Area *a)
         relayout_fixed(l->data);
 
     // Recalculate size
-    a->_changed = FALSE;
+    a->_changed = UNCHANGED;
     if (a->resize_needed && a->size_mode == LAYOUT_FIXED) {
         a->resize_needed = FALSE;
 
@@ -83,7 +83,7 @@ void relayout_fixed(Area *a)
             // The size has changed => resize needed for the parent
             if (a->parent)
                 ((Area *)a->parent)->resize_needed = TRUE;
-            a->_changed = TRUE;
+            a->_changed |= CHANGED_SIZE;
         }
     }
 }
@@ -99,7 +99,7 @@ void relayout_dynamic(Area *a, int level)
 
         if (a->_resize) {
             if (a->_resize(a))
-                a->_changed = TRUE;
+                a->_changed |= CHANGED_SIZE;
             // resize children with LAYOUT_DYNAMIC
             for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
@@ -124,13 +124,13 @@ void relayout_dynamic(Area *a, int level)
                     if (pos != child->posx) {
                         // pos changed => redraw
                         child->posx = pos;
-                        child->_changed = TRUE;
+                        child->_changed |= CHANGED_MOVE;
                     }
                 } else {
                     if (pos != child->posy) {
                         // pos changed => redraw
                         child->posy = pos;
-                        child->_changed = TRUE;
+                        child->_changed |= CHANGED_MOVE;
                     }
                 }
 
@@ -154,13 +154,13 @@ void relayout_dynamic(Area *a, int level)
                     if (pos != child->posx) {
                         // pos changed => redraw
                         child->posx = pos;
-                        child->_changed = TRUE;
+                        child->_changed |= CHANGED_MOVE;
                     }
                 } else {
                     if (pos != child->posy) {
                         // pos changed => redraw
                         child->posy = pos;
-                        child->_changed = TRUE;
+                        child->_changed |= CHANGED_MOVE;
                     }
                 }
 
@@ -193,13 +193,13 @@ void relayout_dynamic(Area *a, int level)
                     if (pos != child->posx) {
                         // pos changed => redraw
                         child->posx = pos;
-                        child->_changed = TRUE;
+                        child->_changed |= CHANGED_MOVE;
                     }
                 } else {
                     if (pos != child->posy) {
                         // pos changed => redraw
                         child->posy = pos;
-                        child->_changed = TRUE;
+                        child->_changed |= CHANGED_MOVE;
                     }
                 }
 
@@ -295,7 +295,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
                     modulo--;
                 }
                 if (child->width != old_width)
-                    child->_changed = TRUE;
+                    child->_changed |= CHANGED_SIZE;
             }
         }
     } else {
@@ -335,7 +335,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
                     modulo--;
                 }
                 if (child->height != old_height)
-                    child->_changed = TRUE;
+                    child->_changed |= CHANGED_SIZE;
             }
         }
     }
@@ -419,7 +419,7 @@ void update_dependent_gradients(Area *a)
 {
     if (!a->on_screen)
         return;
-    if (a->_changed) {
+    if (a->_changed & CHANGED_SIZE) {
         for (GList *l = a->dependent_gradients; l; l = l->next) {
             GradientInstance *gi = (GradientInstance *)l->data;
             gradient_pattern_destroy(gi);

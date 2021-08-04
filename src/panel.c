@@ -66,7 +66,7 @@ int panel_autohide_show_timeout;
 int panel_autohide_hide_timeout;
 int panel_autohide_height;
 gboolean panel_shrink;
-Strut panel_strut_policy;
+StrutPolicy panel_strut_policy;
 char *panel_items_order;
 
 int max_tick_urgent;
@@ -596,21 +596,6 @@ gboolean resize_panel(void *obj)
     return FALSE;
 }
 
-#define STRUT_LEFT      0
-#define STRUT_RIGHT     1
-#define STRUT_TOP       2
-#define STRUT_BOTTOM    3
-#define STRUT_LEFT_Y1   4
-#define STRUT_LEFT_Y2   5
-#define STRUT_RIGHT_Y1  6
-#define STRUT_RIGHT_Y2  7
-#define STRUT_TOP_X1    8
-#define STRUT_TOP_X2    9
-#define STRUT_BOTTOM_X1 10
-#define STRUT_BOTTOM_X2 11
-#define STRUT_COUNT     12
-#define STRUT_COUNT_OLD 4
-
 void update_strut(Panel *p)
 {
     if (panel_strut_policy == STRUT_NONE) {
@@ -625,7 +610,7 @@ void update_strut(Panel *p)
     int d3;
     XGetGeometry(server.display, server.root_win, &d2, &d3, &d3, &screen_width, &screen_height, &d1, &d1);
     Monitor monitor = server.monitors[p->monitor];
-    long struts[STRUT_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    StrutType struts[STRUT_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (panel_horizontal ^ panel_pivot_struts) {
         int height = p->area.height + p->marginy;
         if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))

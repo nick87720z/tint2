@@ -60,11 +60,28 @@ typedef enum PanelPosition {
     BOTTOM = 0x10,
 } PanelPosition;
 
-typedef enum Strut {
+typedef enum StrutPolicy {
     STRUT_MINIMUM,
     STRUT_FOLLOW_SIZE,
     STRUT_NONE,
-} Strut;
+} StrutPolicy;
+
+typedef enum StrutType {
+    STRUT_LEFT,
+    STRUT_RIGHT,
+    STRUT_TOP,
+    STRUT_BOTTOM,
+    STRUT_LEFT_Y1,
+    STRUT_LEFT_Y2,
+    STRUT_RIGHT_Y1,
+    STRUT_RIGHT_Y2,
+    STRUT_TOP_X1,
+    STRUT_TOP_X2,
+    STRUT_BOTTOM_X1,
+    STRUT_BOTTOM_X2,
+    STRUT_COUNT,
+    STRUT_COUNT_OLD = 4,
+} StrutType;
 
 extern TaskbarMode taskbar_mode;
 extern gboolean wm_menu;
@@ -81,7 +98,7 @@ extern int panel_autohide_show_timeout;
 extern int panel_autohide_hide_timeout;
 extern int panel_autohide_height; // for vertical panels this is of course the width
 extern gboolean panel_shrink;
-extern Strut panel_strut_policy;
+extern StrutPolicy panel_strut_policy;
 extern char *panel_items_order;
 extern int max_tick_urgent;
 extern GArray *backgrounds;

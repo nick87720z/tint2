@@ -52,7 +52,7 @@ void init_timer(Timer *timer, const char *name)
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, name, (void *)timer);
     memset(timer, 0, sizeof(*timer));
-    strncpy(timer->name_, name, sizeof(timer->name_));
+    strncpy(timer->name_, name, sizeof(timer->name_) - 1);
     if (!g_list_find(timers, timer)) {
         timers = g_list_append(timers, timer);
     }

@@ -98,7 +98,7 @@ char *contract_tilde(const char *s);
 
 // Color
 int hex_char_to_int(char c);
-int hex_to_rgb(char *hex, int *r, int *g, int *b);
+int hex_to_rgb(char *hex, int *rgb);
 void get_color(char *hex, double *rgb);
 
 Imlib_Image load_image(const char *path, int cached);

@@ -481,7 +481,7 @@ int hex_char_to_int(char c)
     return r;
 }
 
-int hex_to_rgb(char *hex, int *r, int *g, int *b)
+int hex_to_rgb(char *hex, int *rgb)
 {
     if (hex == NULL || hex[0] != '#')
         return (0);
@@ -489,19 +489,19 @@ int hex_to_rgb(char *hex, int *r, int *g, int *b)
     int len = strlen(++hex);
     switch (len) {
     case 3:
-        *r = hex_char_to_int(hex[0]) << 12;
-        *g = hex_char_to_int(hex[1]) << 12;
-        *b = hex_char_to_int(hex[2]) << 12;
+        rgb[0] = hex_char_to_int(hex[0]) << 12;
+        rgb[1] = hex_char_to_int(hex[1]) << 12;
+        rgb[2] = hex_char_to_int(hex[2]) << 12;
         return 1;
     case 6:
-        *r = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8;
-        *g = hex_char_to_int(hex[2]) << 12 | hex_char_to_int(hex[3]) << 8;
-        *b = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8;
+        rgb[0] = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8;
+        rgb[1] = hex_char_to_int(hex[2]) << 12 | hex_char_to_int(hex[3]) << 8;
+        rgb[2] = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8;
         return 1;
     case 12:
-        *r = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8 | hex_char_to_int(hex[2])  << 4 | hex_char_to_int(hex[3]);
-        *g = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8 | hex_char_to_int(hex[6])  << 4 | hex_char_to_int(hex[7]);
-        *b = hex_char_to_int(hex[8]) << 12 | hex_char_to_int(hex[9]) << 8 | hex_char_to_int(hex[10]) << 4 | hex_char_to_int(hex[11]);
+        rgb[0] = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8 | hex_char_to_int(hex[2])  << 4 | hex_char_to_int(hex[3]);
+        rgb[1] = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8 | hex_char_to_int(hex[6])  << 4 | hex_char_to_int(hex[7]);
+        rgb[2] = hex_char_to_int(hex[8]) << 12 | hex_char_to_int(hex[9]) << 8 | hex_char_to_int(hex[10]) << 4 | hex_char_to_int(hex[11]);
         return 1;
     default:
         return 0;
@@ -510,11 +510,11 @@ int hex_to_rgb(char *hex, int *r, int *g, int *b)
 
 void get_color(char *hex, double *rgb)
 {
-    int r, g, b;
-    if (hex_to_rgb(hex, &r, &g, &b))
-        rgb[0] = r / ((1 << 16) - 1.0),
-        rgb[1] = g / ((1 << 16) - 1.0),
-        rgb[2] = b / ((1 << 16) - 1.0);
+    int rgbi[3];
+    if (hex_to_rgb(hex, rgbi))
+        rgb[0] = rgbi[0] / ((1 << 16) - 1.0),
+        rgb[1] = rgbi[1] / ((1 << 16) - 1.0),
+        rgb[2] = rgbi[2] / ((1 << 16) - 1.0);
     else
         rgb[0] = rgb[1] = rgb[2] = 0;
 }

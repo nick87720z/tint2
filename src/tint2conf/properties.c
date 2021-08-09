@@ -22,6 +22,8 @@
 #include "gradient_gui.h"
 #include "strlcat.h"
 
+#include <stddef.h>
+
 GtkWidget *scale_relative_to_dpi, *scale_relative_to_screen_height;
 GtkWidget *panel_width, *panel_height, *panel_margin_x, *panel_margin_y, *panel_padding_x, *panel_padding_y,
     *panel_spacing;
@@ -366,19 +368,39 @@ void change_paragraph(GtkWidget *widget)
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
 }
 
-void gdkColor2CairoColor(GdkColor color, double *red, double *green, double *blue)
+// Color and GdkRGBA should be compatible
+// as long as GDK doesn't change layout
+
+void gdkRGBA2CairoColor(GdkRGBA *gcolor, Color *color)
 {
-    *red = color.red / (double)0xffff;
-    *green = color.green / (double)0xffff;
-    *blue = color.blue / (double)0xffff;
+    if (offsetof(Color, rgb[0]) == offsetof(GdkRGBA, red)   &&
+        offsetof(Color, rgb[1]) == offsetof(GdkRGBA, green) &&
+        offsetof(Color, rgb[2]) == offsetof(GdkRGBA, blue)  &&
+        offsetof(Color, alpha) == offsetof(GdkRGBA, alpha))
+    {
+        *color = *(Color *)gcolor;
+    } else {
+        color->rgb[0] = gcolor->red;
+        color->rgb[1] = gcolor->green;
+        color->rgb[2] = gcolor->blue;
+        color->alpha = gcolor->alpha;
+    }
 }
 
-void cairoColor2GdkColor(double red, double green, double blue, GdkColor *color)
+void cairoColor2GdkRGBA(Color *color, GdkRGBA *gcolor)
 {
-    color->pixel = 0;
-    color->red = red * 0xffff;
-    color->green = green * 0xffff;
-    color->blue = blue * 0xffff;
+    if (offsetof(Color, rgb[0]) == offsetof(GdkRGBA, red)   &&
+        offsetof(Color, rgb[1]) == offsetof(GdkRGBA, green) &&
+        offsetof(Color, rgb[2]) == offsetof(GdkRGBA, blue)  &&
+        offsetof(Color, alpha) == offsetof(GdkRGBA, alpha))
+    {
+        *gcolor = *(GdkRGBA *)color;
+    } else {
+        gcolor->red   = color->rgb[0];
+        gcolor->green = color->rgb[1];
+        gcolor->blue  = color->rgb[2];
+        gcolor->alpha = color->alpha;
+    }
 }
 
 int get_model_length(GtkTreeModel *model)
@@ -2900,7 +2922,7 @@ void create_taskbar(GtkWidget *parent)
     col++;
 
     taskbar_name_active_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(taskbar_name_active_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(taskbar_name_active_color), TRUE);
     gtk_widget_show(taskbar_name_active_color);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_active_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -2918,7 +2940,7 @@ void create_taskbar(GtkWidget *parent)
     col++;
 
     taskbar_name_inactive_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(taskbar_name_inactive_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(taskbar_name_inactive_color), TRUE);
     gtk_widget_show(taskbar_name_inactive_color);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_inactive_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -3575,7 +3597,7 @@ void create_task_status(GtkWidget *notebook,
     gtk_table_attach(GTK_TABLE(table), label, 1, 2, 0, 1, GTK_FILL, 0, 0, 0);
 
     *task_status_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(*task_status_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(*task_status_color), TRUE);
     gtk_widget_show(*task_status_color);
     gtk_table_attach(GTK_TABLE(table), *task_status_color, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
     gtk_tooltips_set_tip(tooltips,
@@ -4023,7 +4045,7 @@ void create_clock(GtkWidget *parent)
     col++;
 
     clock_font_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(clock_font_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(clock_font_color), TRUE);
     gtk_widget_show(clock_font_color);
     gtk_table_attach(GTK_TABLE(table), clock_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -4141,12 +4163,13 @@ void create_separator(GtkWidget *notebook, int i)
     col++;
 
     separator->separator_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(separator->separator_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(separator->separator_color), TRUE);
     gtk_widget_show(separator->separator_color);
-    GdkColor color;
-    hex2gdk("#777777", &color);
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(separator->separator_color), &color);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(separator_get_last()->separator_color), (90 * 65535) / 100);
+    GdkRGBA color = {   .red   = 0x77 / 255.0,
+                        .green = 0x77 / 255.0,
+                        .blue  = 0x77 / 255.0,
+                        .alpha = 0.9 };
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(separator->separator_color), &color);
     gtk_table_attach(GTK_TABLE(table), separator->separator_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
@@ -4575,7 +4598,7 @@ void create_execp(GtkWidget *notebook, int i)
     col++;
 
     executor->execp_font_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(executor->execp_font_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(executor->execp_font_color), TRUE);
     gtk_widget_show(executor->execp_font_color);
     gtk_table_attach(GTK_TABLE(table), executor->execp_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -4930,7 +4953,7 @@ void create_button(GtkWidget *notebook, int i)
     col++;
 
     button->button_font_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(button->button_font_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(button->button_font_color), TRUE);
     gtk_widget_show(button->button_font_color);
     gtk_table_attach(GTK_TABLE(table), button->button_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -5782,7 +5805,7 @@ void create_battery(GtkWidget *parent)
     col++;
 
     battery_font_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(battery_font_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(battery_font_color), TRUE);
     gtk_widget_show(battery_font_color);
     gtk_table_attach(GTK_TABLE(table), battery_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -5997,7 +6020,7 @@ void create_tooltip(GtkWidget *parent)
     col++;
 
     tooltip_font_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(tooltip_font_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(tooltip_font_color), TRUE);
     gtk_widget_show(tooltip_font_color);
     gtk_table_attach(GTK_TABLE(table), tooltip_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;

@@ -7,6 +7,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "../launcher/icon-theme-common.h"
+#include "../util/color.h"
 
 // panel
 extern GtkWidget *scale_relative_to_dpi, *scale_relative_to_screen_height;
@@ -183,22 +184,16 @@ gchar *get_current_icon_theme();
 enum {
     bgColPixbuf = 0,
     bgColFillColor,
-    bgColFillOpacity,
     bgColBorderColor,
-    bgColBorderOpacity,
     bgColGradientId,
     bgColBorderWidth,
     bgColCornerRadius,
     bgColText,
     bgColFillColorOver,
-    bgColFillOpacityOver,
     bgColBorderColorOver,
-    bgColBorderOpacityOver,
     bgColGradientIdOver,
     bgColFillColorPress,
-    bgColFillOpacityPress,
     bgColBorderColorPress,
-    bgColBorderOpacityPress,
     bgColGradientIdPress,
     bgColBorderSidesTop,
     bgColBorderSidesBottom,
@@ -252,6 +247,8 @@ void create_please_wait(GtkWindow *parent);
 void process_events();
 void destroy_please_wait();
 
-void hex2gdk(char *hex, GdkColor *color);
+void hex2gdk(char *hex, GdkRGBA *color);
+void gdkRGBA2CairoColor(GdkRGBA *gcolor, Color *color);
+void cairoColor2GdkRGBA(Color *color, GdkRGBA *gcolor);
 
 #endif

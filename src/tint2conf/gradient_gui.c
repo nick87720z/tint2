@@ -102,7 +102,7 @@ void create_gradient(GtkWidget *parent)
     col++;
 
     gradient_start_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(gradient_start_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(gradient_start_color), TRUE);
     gtk_widget_show(gradient_start_color);
     gtk_table_attach(GTK_TABLE(table), gradient_start_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -115,7 +115,7 @@ void create_gradient(GtkWidget *parent)
     col++;
 
     gradient_end_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(gradient_end_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(gradient_end_color), TRUE);
     gtk_widget_show(gradient_end_color);
     gtk_table_attach(GTK_TABLE(table), gradient_end_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -167,7 +167,7 @@ void create_gradient(GtkWidget *parent)
     col++;
 
     gradient_stop_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(gradient_stop_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(gradient_stop_color), TRUE);
     gtk_widget_show(gradient_stop_color);
     gtk_table_attach(GTK_TABLE(table), gradient_stop_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -373,18 +373,13 @@ void gradient_update(GtkWidget *widget, gpointer data)
 
     g->type = (GradientConfigType)MAX(0, gtk_combo_box_get_active(GTK_COMBO_BOX(gradient_combo_type)));
 
-    GdkColor color;
-    int opacity;
+    GdkRGBA color;
 
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(gradient_start_color), &color);
-    opacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(gradient_start_color)) * 100.0 / 0xffff);
-    gdkColor2CairoColor(color, &g->start_color.color.rgb[0], &g->start_color.color.rgb[1], &g->start_color.color.rgb[2]);
-    g->start_color.color.alpha = opacity / 100.0;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(gradient_start_color), &color);
+    gdkRGBA2CairoColor(&color, &g->start_color.color);
 
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(gradient_end_color), &color);
-    opacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(gradient_end_color)) * 100.0 / 0xffff);
-    gdkColor2CairoColor(color, &g->end_color.color.rgb[0], &g->end_color.color.rgb[1], &g->end_color.color.rgb[2]);
-    g->end_color.color.alpha = opacity / 100.0;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(gradient_end_color), &color);
+    gdkRGBA2CairoColor(&color, &g->end_color.color);
 
     gtk_list_store_set(gradient_ids, &iter, grColPixbuf, NULL, grColId, &index, grColText, "", -1);
     gradient_update_image(index);
@@ -410,18 +405,15 @@ void current_gradient_changed(GtkWidget *widget, gpointer data)
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(gradient_combo_type), g->type);
 
-    GdkColor color;
-    int opacity;
+    GdkRGBA color;
 
-    cairoColor2GdkColor(g->start_color.color.rgb[0], g->start_color.color.rgb[1], g->start_color.color.rgb[2], &color);
-    opacity = g->start_color.color.alpha * 65535;
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_start_color), &color);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_start_color), opacity);
+    cairoColor2GdkRGBA(&g->start_color.color, &color);
+    color.alpha = g->start_color.color.alpha;
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_start_color), &color);
 
-    cairoColor2GdkColor(g->end_color.color.rgb[0], g->end_color.color.rgb[1], g->end_color.color.rgb[2], &color);
-    opacity = g->end_color.color.alpha * 65535;
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_end_color), &color);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_end_color), opacity);
+    cairoColor2GdkRGBA(&g->end_color.color, &color);
+    color.alpha = g->end_color.color.alpha;
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_end_color), &color);
 
     int old_stop_index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient_stop));
     gtk_list_store_clear(gradient_stop_ids);
@@ -560,13 +552,10 @@ void current_gradient_stop_changed(GtkWidget *widget, gpointer data)
 
     gradient_updates_disabled = TRUE;
 
-    GdkColor color;
-    int opacity;
+    GdkRGBA color;
 
-    cairoColor2GdkColor(stop->color.rgb[0], stop->color.rgb[1], stop->color.rgb[2], &color);
-    opacity = stop->color.alpha * 65535;
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_stop_color), &color);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_stop_color), opacity);
+    cairoColor2GdkRGBA(&stop->color, &color);
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_stop_color), &color);
 
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(gradient_stop_offset), stop->offset * 100);
 
@@ -589,13 +578,10 @@ void gradient_stop_update(GtkWidget *widget, gpointer data)
 
     GradientConfigColorStop *stop = (GradientConfigColorStop *)g_list_nth(g->extra_color_stops, (guint)index)->data;
 
-    GdkColor color;
-    int opacity;
+    GdkRGBA color;
 
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(gradient_stop_color), &color);
-    opacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(gradient_stop_color)) * 100.0 / 0xffff);
-    gdkColor2CairoColor(color, &stop->color.rgb[0], &stop->color.rgb[1], &stop->color.rgb[2]);
-    stop->color.alpha = opacity / 100.0;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(gradient_stop_color), &color);
+    gdkRGBA2CairoColor(&color, &stop->color);
 
     stop->offset = gtk_spin_button_get_value(GTK_SPIN_BUTTON(gradient_stop_offset)) / 100.;
 

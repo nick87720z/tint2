@@ -127,7 +127,7 @@ void handle_event_property_notify(XEvent *e)
                 for (int i = 0; i < num_panels; i++) {
                     init_taskbar_panel(&panels[i]);
                     set_panel_items_order(&panels[i]);
-                    panels[i].area.resize_needed = 1;
+                    panels[i].area.resize_needed = TRUE;
                 }
                 taskbar_refresh_tasklist();
                 reset_active_task();
@@ -152,10 +152,10 @@ void handle_event_property_notify(XEvent *e)
                             Task *task = l->data;
                             if (task->desktop == ALL_DESKTOPS) {
                                 task->area.on_screen = always_show_all_desktop_tasks;
-                                taskbar->area.resize_needed = 1;
+                                taskbar->area.resize_needed = TRUE;
                                 schedule_panel_redraw();
                                 if (taskbar_mode == MULTI_DESKTOP)
-                                    panel->area.resize_needed = 1;
+                                    panel->area.resize_needed = TRUE;
                             }
                         }
                     }
@@ -167,9 +167,9 @@ void handle_event_property_notify(XEvent *e)
                         Task *task = l->data;
                         if (task->desktop == ALL_DESKTOPS) {
                             task->area.on_screen = TRUE;
-                            taskbar->area.resize_needed = 1;
+                            taskbar->area.resize_needed = TRUE;
                             if (taskbar_mode == MULTI_DESKTOP)
-                                panel->area.resize_needed = 1;
+                                panel->area.resize_needed = TRUE;
                         }
                     }
 

@@ -149,7 +149,7 @@ void update_clocks()
     update_clock_text(buf_date, sizeof(buf_date), time2_format, time2_timezone, &changed);
     if (changed) {
         for (int i = 0; i < num_panels; i++) {
-            panels[i].clock.area.resize_needed = 1;
+            panels[i].clock.area.resize_needed = TRUE;
             tooltip_update_for_area (&panels[i].clock.area);
         }
         schedule_panel_redraw();
@@ -199,7 +199,7 @@ void init_clock_panel(void *p)
     if (!time1_format)
         return;
 
-    clock->area.resize_needed = 1;
+    clock->area.resize_needed = TRUE;
     clock->area.on_screen = TRUE;
     area_gradients_create(&clock->area);
 

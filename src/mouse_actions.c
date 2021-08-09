@@ -108,9 +108,9 @@ void handle_mouse_move_event(XEvent *e)
                     gpointer temp = task_iter->data;
                     task_iter->data = drag_iter->data;
                     drag_iter->data = temp;
-                    event_taskbar->area.resize_needed = 1;
+                    event_taskbar->area.resize_needed = TRUE;
                     schedule_panel_redraw();
-                    task_dragged = 1;
+                    task_dragged = TRUE;
                 }
             }
         }
@@ -138,11 +138,11 @@ void handle_mouse_move_event(XEvent *e)
             sort_tasks(event_taskbar);
         }
 
-        event_taskbar->area.resize_needed = 1;
-        drag_taskbar->area.resize_needed = 1;
-        task_dragged = 1;
+        event_taskbar->area.resize_needed = TRUE;
+        drag_taskbar->area.resize_needed = TRUE;
+        task_dragged = TRUE;
         schedule_panel_redraw();
-        panel->area.resize_needed = 1;
+        panel->area.resize_needed = TRUE;
     }
 }
 
@@ -244,7 +244,7 @@ void handle_mouse_release_event(XEvent *e)
     // drag and drop task
     if (task_dragged) {
         task_drag = NULL;
-        task_dragged = 0;
+        task_dragged = FALSE;
         return;
     }
 

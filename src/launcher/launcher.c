@@ -70,13 +70,13 @@ void default_launcher()
 {
     launcher_enabled = FALSE;
     launcher_max_icon_size = 0;
-    launcher_tooltip_enabled = 0;
+    launcher_tooltip_enabled = FALSE;
     launcher_alpha = 100;
     launcher_saturation = 0;
     launcher_brightness = 0;
     icon_theme_name_config = NULL;
     icon_theme_name_xsettings = NULL;
-    launcher_icon_theme_override = 0;
+    launcher_icon_theme_override = FALSE;
     startup_notifications = FALSE;
     launcher_icon_bg = NULL;
     launcher_icon_gradients = NULL;
@@ -99,7 +99,7 @@ void init_launcher_panel(void *p)
     launcher->area._resize = resize_launcher;
     launcher->area._on_change_layout = relayout_launcher;
     launcher->area._compute_desired_size = launcher_compute_desired_size;
-    launcher->area.resize_needed = 1;
+    launcher->area.resize_needed = TRUE;
     schedule_redraw(&launcher->area);
     if (!launcher->area.bg)
         launcher->area.bg = &g_array_index(backgrounds, Background, 0);
@@ -480,7 +480,7 @@ void launcher_load_icons(Launcher *launcher)
         launcherIcon->area._resize = NULL;
         launcherIcon->area._compute_desired_size = launcher_icon_compute_desired_size;
         snprintf(launcherIcon->area.name, sizeof(launcherIcon->area.name), "LauncherIcon %d", index);
-        launcherIcon->area.resize_needed = 0;
+        launcherIcon->area.resize_needed = FALSE;
         launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;
         launcherIcon->area.has_mouse_press_effect = launcherIcon->area.has_mouse_over_effect;
         launcherIcon->area.bg = launcher_icon_bg;
@@ -607,7 +607,7 @@ void launcher_default_icon_theme_changed()
         Launcher *launcher = &panels[i].launcher;
         cleanup_launcher_theme(launcher);
         launcher_load_icons(launcher);
-        launcher->area.resize_needed = 1;
+        launcher->area.resize_needed = TRUE;
     }
     schedule_panel_redraw();
 }

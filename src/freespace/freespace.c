@@ -50,7 +50,7 @@ void init_freespace_panel(void *p)
             freespace->area.panel = p;
             snprintf(freespace->area.name, sizeof(freespace->area.name), "Freespace");
             freespace->area.size_mode = LAYOUT_FIXED;
-            freespace->area.resize_needed = 1;
+            freespace->area.resize_needed = TRUE;
             freespace->area.on_screen = TRUE;
             freespace->area._resize = resize_freespace;
             freespace->area._compute_desired_size = freespace_area_compute_desired_size;

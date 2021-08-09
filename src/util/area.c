@@ -104,7 +104,7 @@ void relayout_dynamic(Area *a, int level)
             for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
                 if (child->size_mode == LAYOUT_DYNAMIC && child->children)
-                    child->resize_needed = 1;
+                    child->resize_needed = TRUE;
             }
         }
     }

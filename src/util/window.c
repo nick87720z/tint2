@@ -258,7 +258,7 @@ gboolean window_is_skip_taskbar(Window win)
     for (int i = 0; i < count; i++) {
         if (at[i] == server.atom._NET_WM_STATE_SKIP_TASKBAR) {
             XFree(at);
-            return 1;
+            return TRUE;
         }
     }
     XFree(at);

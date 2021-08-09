@@ -577,13 +577,13 @@ void background_update_image(int index)
     cairo_arc(cr, r + b, r + b, r, 180 * degrees, 270 * degrees);
     cairo_close_path(cr);
 
+    cairo_set_source_rgba(cr, fillColor->red, fillColor->green, fillColor->blue, fillColor->alpha);
+    cairo_fill_preserve(cr);
+    
     if (index >= 1 && gradient_id >= 1) {
         GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)gradient_id)->data;
         gradient_draw(cr, g, w, h, TRUE);
     }
-
-    cairo_set_source_rgba(cr, fillColor->red, fillColor->green, fillColor->blue, fillColor->alpha);
-    cairo_fill_preserve(cr);
 
     cairo_set_source_rgba(cr, borderColor->red, borderColor->green, borderColor->blue, borderColor->alpha);
     cairo_set_line_width(cr, b);

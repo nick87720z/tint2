@@ -121,7 +121,7 @@ void default_panel()
     panel_config.mouse_pressed_alpha = 100;
     panel_config.mouse_pressed_saturation = 0;
     panel_config.mouse_pressed_brightness = 0;
-    panel_config.mouse_effects = 1;
+    panel_config.mouse_effects = TRUE;
 
     // First background is always fully transparent
     Background transparent_bg;
@@ -237,7 +237,7 @@ void init_panel()
         p->area.panel = p;
         snprintf(p->area.name, sizeof(p->area.name), "Panel %d", i);
         p->area.on_screen = TRUE;
-        p->area.resize_needed = 1;
+        p->area.resize_needed = TRUE;
         p->area.size_mode = LAYOUT_DYNAMIC;
         p->area._resize = resize_panel;
         p->area._clear = panel_clear_background;
@@ -257,7 +257,7 @@ void init_panel()
 #endif
             case 'S':   if (systray_on_monitor(i, num_panels)) {
                             init_systray_panel(p);
-                            refresh_systray = 1;
+                            refresh_systray = TRUE;
                         }
                         break;
             case 'C':   init_clock_panel(p);
@@ -678,7 +678,7 @@ void set_panel_items_order(Panel *p)
         switch (panel_items_order[k]) {
         case 'L':
             p->area.children = g_list_append(p->area.children, &p->launcher);
-            p->launcher.area.resize_needed = 1;
+            p->launcher.area.resize_needed = TRUE;
             break;
         case 'T':
             for (int j = 0; j < p->num_desktops; j++)
@@ -1040,7 +1040,7 @@ void autohide_show(void *p)
 {
     Panel *panel = (Panel *)p;
     stop_autohide_timer(panel);
-    panel->is_hidden = 0;
+    panel->is_hidden = FALSE;
     XMapSubwindows(server.display, panel->main_win); // systray windows
     set_panel_window_geometry(panel);
     set_panel_layer(panel, TOP_LAYER);

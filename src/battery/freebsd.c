@@ -43,7 +43,7 @@ int battery_os_update(BatteryState *state)
 {
     int sysctl_out = 0;
     size_t len = sizeof(sysctl_out);
-    gboolean err = 0;
+    int err = 0;
 
     if (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) {
         switch (sysctl_out) {

@@ -186,7 +186,7 @@ void init_taskbar()
     INIT_TIMER(thumbnail_update_timer_tooltip);
 
     if (!panel_config.g_task.has_text && !panel_config.g_task.has_icon) {
-        panel_config.g_task.has_text = panel_config.g_task.has_icon = 1;
+        panel_config.g_task.has_text = panel_config.g_task.has_icon = TRUE;
     }
 
     if (panel_config.g_task.thumbnail_width < 8)
@@ -223,7 +223,7 @@ void init_taskbar_panel(void *p)
     panel->g_taskbar.area_name._is_under_mouse = full_width_area_is_under_mouse;
     panel->g_taskbar.area_name._draw_foreground = draw_taskbarname;
     panel->g_taskbar.area_name._on_change_layout = 0;
-    panel->g_taskbar.area_name.resize_needed = 1;
+    panel->g_taskbar.area_name.resize_needed = TRUE;
     panel->g_taskbar.area_name.on_screen = TRUE;
 
     // taskbar
@@ -235,7 +235,7 @@ void init_taskbar_panel(void *p)
     panel->g_taskbar.area._resize = resize_taskbar;
     panel->g_taskbar.area._compute_desired_size = taskbar_compute_desired_size;
     panel->g_taskbar.area._is_under_mouse = full_width_area_is_under_mouse;
-    panel->g_taskbar.area.resize_needed = 1;
+    panel->g_taskbar.area.resize_needed = TRUE;
     panel->g_taskbar.area.on_screen = TRUE;
     if (panel_horizontal) {
         panel->g_taskbar.area.posy = top_border_width(&panel->area) + panel->area.paddingy * panel->scale;
@@ -257,7 +257,7 @@ void init_taskbar_panel(void *p)
     panel->g_task.area.size_mode = LAYOUT_DYNAMIC;
     panel->g_task.area._draw_foreground = draw_task;
     panel->g_task.area._on_change_layout = on_change_task;
-    panel->g_task.area.resize_needed = 1;
+    panel->g_task.area.resize_needed = TRUE;
     panel->g_task.area.on_screen = TRUE;
     if ((panel->g_task.config_asb_mask & (1 << TASK_NORMAL)) == 0) {
         panel->g_task.alpha[TASK_NORMAL] = 100;

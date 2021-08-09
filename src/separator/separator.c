@@ -90,7 +90,7 @@ void init_separator_panel(void *p)
         separator->area.panel = p;
         snprintf(separator->area.name, sizeof(separator->area.name), "separator");
         separator->area.size_mode = LAYOUT_FIXED;
-        separator->area.resize_needed = 1;
+        separator->area.resize_needed = TRUE;
         separator->area.on_screen = TRUE;
         separator->area._resize = resize_separator;
         separator->area._compute_desired_size = separator_compute_desired_size;

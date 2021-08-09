@@ -273,7 +273,7 @@ void init_battery_panel(void *p)
     battery->area._compute_desired_size = battery_compute_desired_size;
     battery->area._is_under_mouse = full_width_area_is_under_mouse;
     battery->area.on_screen = TRUE;
-    battery->area.resize_needed = 1;
+    battery->area.resize_needed = TRUE;
     battery->area.has_mouse_over_effect =
         panel_config.mouse_effects && (battery_lclick_command || battery_mclick_command || battery_rclick_command ||
                                        battery_uwheel_command || battery_dwheel_command);

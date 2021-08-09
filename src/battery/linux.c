@@ -324,7 +324,7 @@ static gboolean update_linux_battery(struct psy_battery *bat)
     gint old_rate_now = bat->rate_now;
 
     /* reset values */
-    bat->present = 0;
+    bat->present = FALSE;
     bat->status = BATTERY_UNKNOWN;
     bat->level_now = 0;
     bat->level_full = 0;

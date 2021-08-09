@@ -230,7 +230,7 @@ void init_X11_pre_config()
     get_monitors();
     get_desktops();
 
-    server.disable_transparency = 0;
+    server.disable_transparency = FALSE;
 
     xsettings_client = xsettings_client_new(server.display, server.screen, xsettings_notify_cb, NULL, NULL);
 }

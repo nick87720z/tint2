@@ -235,7 +235,7 @@ void update_desktop_names()
             if (strcmp(name, taskbar->bar_name.name) != 0) {
                 g_free(taskbar->bar_name.name);
                 taskbar->bar_name.name = name;
-                taskbar->bar_name.area.resize_needed = 1;
+                taskbar->bar_name.area.resize_needed = TRUE;
             } else {
                 g_free(name);
             }

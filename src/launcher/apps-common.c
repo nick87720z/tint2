@@ -147,7 +147,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     int lang_index_name = lang_index_default + 1;
     int lang_index_generic_name = lang_index_default + 1;
 
-    gboolean inside_desktop_entry = 0;
+    gboolean inside_desktop_entry = FALSE;
     char *line = NULL;
     size_t line_size;
     while (getline(&line, &line_size, fp) >= 0) {

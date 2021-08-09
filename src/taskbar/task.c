@@ -216,7 +216,7 @@ void remove_task(Task *task)
 
     if (taskbar_mode == MULTI_DESKTOP) {
         Panel *panel = task->area.panel;
-        panel->area.resize_needed = 1;
+        panel->area.resize_needed = TRUE;
     }
 
     Window win = task->win;

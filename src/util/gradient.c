@@ -6,32 +6,6 @@
 
 #include "common.h"
 
-gboolean read_double(const char *str, double *value)
-{
-    if (!str[0])
-        return FALSE;
-    char *end;
-    *value = strtod(str, &end);
-    if (end[0])
-        return FALSE;
-    return TRUE;
-}
-
-gboolean read_double_with_percent(const char *str, double *value)
-{
-    if (!str[0])
-        return FALSE;
-    char *end;
-    *value = strtod(str, &end);
-    if (end[0] == '%' && !end[1]) {
-        *value *= 0.01;
-        return TRUE;
-    }
-    if (end[0])
-        return FALSE;
-    return TRUE;
-}
-
 GradientType gradient_type_from_string(const char *str)
 {
     if (g_str_equal(str, "horizontal"))

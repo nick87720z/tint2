@@ -1591,30 +1591,21 @@ void launcher_add_app(GtkWidget *widget, gpointer data)
         gchar *path;
         gchar *iconName;
 
-        gtk_tree_model_get(model,
-                           &iter,
-                           appsColIcon,
-                           &pixbuf,
-                           appsColText,
-                           &name,
-                           appsColPath,
-                           &path,
-                           appsColIconName,
-                           &iconName,
+        gtk_tree_model_get(model, &iter,
+                           appsColIcon,     &pixbuf,
+                           appsColText,     &name,
+                           appsColPath,     &path,
+                           appsColIconName, &iconName,
                            -1);
 
         GtkTreeIter iter;
         gtk_list_store_append(launcher_apps, &iter);
         gtk_list_store_set(launcher_apps,
                            &iter,
-                           appsColIcon,
-                           pixbuf,
-                           appsColIconName,
-                           g_strdup(iconName),
-                           appsColText,
-                           g_strdup(name),
-                           appsColPath,
-                           g_strdup(path),
+                           appsColIcon,     pixbuf,
+                           appsColIconName, g_strdup(iconName),
+                           appsColText,     g_strdup(name),
+                           appsColPath,     g_strdup(path),
                            -1);
         if (pixbuf)
             g_object_unref(pixbuf);
@@ -1848,14 +1839,10 @@ void load_desktop_file(const char *file, gboolean selected)
             gtk_list_store_insert(store, &iter, index);
             gtk_list_store_set(store,
                                &iter,
-                               appsColIcon,
-                               pixbuf,
-                               appsColIconName,
-                               g_strdup(entry.icon),
-                               appsColText,
-                               g_strdup(entry.name),
-                               appsColPath,
-                               g_strdup(file),
+                               appsColIcon,     pixbuf,
+                               appsColIconName, g_strdup(entry.icon),
+                               appsColText,     g_strdup(entry.name),
+                               appsColPath,     g_strdup(file),
                                -1);
             if (pixbuf)
                 g_object_unref(pixbuf);
@@ -1866,14 +1853,10 @@ void load_desktop_file(const char *file, gboolean selected)
             gtk_list_store_append(store, &iter);
             gtk_list_store_set(store,
                                &iter,
-                               appsColIcon,
-                               pixbuf,
-                               appsColIconName,
-                               g_strdup(""),
-                               appsColText,
-                               g_strdup(file),
-                               appsColPath,
-                               g_strdup(file),
+                               appsColIcon,     pixbuf,
+                               appsColIconName, g_strdup(""),
+                               appsColText,     g_strdup(file),
+                               appsColPath,     g_strdup(file),
                                -1);
             if (pixbuf)
                 g_object_unref(pixbuf);
@@ -1893,14 +1876,10 @@ void populate_from_entries(GList *entries, gboolean selected)
         gtk_list_store_append(selected ? launcher_apps : all_apps, &iter);
         gtk_list_store_set(selected ? launcher_apps : all_apps,
                            &iter,
-                           appsColIcon,
-                           pixbuf,
-                           appsColIconName,
-                           g_strdup(entry->icon),
-                           appsColText,
-                           g_strdup(entry->name),
-                           appsColPath,
-                           g_strdup(entry->path),
+                           appsColIcon,     pixbuf,
+                           appsColIconName, g_strdup(entry->icon),
+                           appsColText,     g_strdup(entry->name),
+                           appsColPath,     g_strdup(entry->path),
                            -1);
         if (pixbuf)
             g_object_unref(pixbuf);
@@ -2516,12 +2495,9 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
         IconTheme *theme = (IconTheme *)l->data;
         GtkTreeIter iter;
         gtk_list_store_append(icon_themes, &iter);
-        gtk_list_store_set(icon_themes,
-                           &iter,
-                           iconsColName,
-                           g_strdup(theme->name),
-                           iconsColDescr,
-                           g_strdup(theme->description),
+        gtk_list_store_set(icon_themes, &iter,
+                           iconsColName,    g_strdup(theme->name),
+                           iconsColDescr,   g_strdup(theme->description),
                            -1);
     }
 

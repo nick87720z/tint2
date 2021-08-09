@@ -159,14 +159,10 @@ void theme_list_append(const gchar *path)
     g_free(dir);
 
     gchar *display_name = g_strdup_printf("%s\n(%s)", name, suffix);
-    gtk_list_store_set(theme_list_store,
-                       &iter,
-                       COL_THEME_FILE,
-                       path,
-                       COL_THEME_NAME,
-                       display_name,
-                       COL_FORCE_REFRESH,
-                       FALSE,
+    gtk_list_store_set(theme_list_store, &iter,
+                       COL_THEME_FILE,      path,
+                       COL_THEME_NAME,      display_name,
+                       COL_FORCE_REFRESH,   FALSE,
                        -1);
     g_free(display_name);
     g_free(suffix);
@@ -228,16 +224,11 @@ gboolean update_snapshot(gpointer ignored)
         g_free(snap);
         g_free(path);
 
-        gtk_list_store_set(theme_list_store,
-                           &iter,
-                           COL_SNAPSHOT,
-                           pixbuf,
-                           COL_WIDTH,
-                           gdk_pixbuf_get_width(pixbuf) + PADDING,
-                           COL_HEIGHT,
-                           gdk_pixbuf_get_height(pixbuf) + PADDING,
-                           COL_FORCE_REFRESH,
-                           FALSE,
+        gtk_list_store_set(theme_list_store, &iter,
+                           COL_SNAPSHOT,        pixbuf,
+                           COL_WIDTH,           gdk_pixbuf_get_width(pixbuf) + PADDING,
+                           COL_HEIGHT,          gdk_pixbuf_get_height(pixbuf) + PADDING,
+                           COL_FORCE_REFRESH,   FALSE,
                            -1);
         if (pixbuf)
             g_object_unref(pixbuf);

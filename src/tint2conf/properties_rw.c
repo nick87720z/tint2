@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <gtk/gtk.h>
 
 #include "common.h"
@@ -13,7 +14,6 @@
 void finalize_gradient();
 void finalize_bg();
 void add_entry(char *key, char *value);
-void hex2gdk(char *hex, GdkColor *color);
 void set_action(char *event, GtkWidget *combo);
 char *get_action(GtkWidget *combo);
 
@@ -84,16 +84,26 @@ void config_read_file(const char *path)
     }
 }
 
-void config_write_color(FILE *fp, const char *name, GdkColor color, int opacity)
+void config_write_color(FILE *fp, const char *name, GdkRGBA *color)
 {
-    int p = color.red % (256*16) && color.green % (256*16) && color.blue % (256*16) ? 1 :
-            color.red % (256)    && color.green % (256)    && color.blue % (256)    ? 2 : 4;
-    int prec_loss = (4 - p) * 8;
+    double v;
+    int m;
+    int p = (v = color->red   *  15, v=floor(v)) &&
+            (v = color->green *  15, v=floor(v)) &&
+            (v = color->blue  *  15, v=floor(v)) ? 1 :
+            (v = color->red   * 255, v=floor(v)) &&
+            (v = color->green * 255, v=floor(v)) &&
+            (v = color->blue  * 255, v=floor(v)) ? 2 : 4;
+    switch (p) {
+        case 1: m = (1 <<  4) - 1; break;
+        case 2: m = (1 <<  8) - 1; break;
+        case 4: m = (1 << 16) - 1; break;
+    }
     fprintf(fp, "%s = #%0*x%0*x%0*x %d\n", name,
-            color.red   >> prec_loss, p,
-            color.green >> prec_loss, p,
-            color.blue  >> prec_loss, p,
-            opacity);
+            (int)(m   * color->red  ), p,
+            (int)(m   * color->green), p,
+            (int)(m   * color->blue ), p,
+            (int)(100 * color->alpha));
 }
 
 void config_write_gradients(FILE *fp)
@@ -105,8 +115,7 @@ void config_write_gradients(FILE *fp)
 
     for (GList *gl = gradients ? gradients->next : NULL; gl; gl = gl->next, index++) {
         GradientConfig *g = (GradientConfig *)gl->data;
-        GdkColor color;
-        int opacity;
+        GdkRGBA color;
 
         fprintf(fp, "# Gradient %d\n", index);
         fprintf(fp,
@@ -114,29 +123,23 @@ void config_write_gradients(FILE *fp)
                 g->type == GRADIENT_CONFIG_HORIZONTAL ? "horizontal" : g->type == GRADIENT_CONFIG_VERTICAL ? "vertical"
                                                                                                            : "radial");
 
-        cairoColor2GdkColor(g->start_color.color.rgb[0],
-                            g->start_color.color.rgb[1],
-                            g->start_color.color.rgb[2],
-                            &color);
-        opacity = g->start_color.color.alpha * 100;
-        config_write_color(fp, "start_color", color, opacity);
+        cairoColor2GdkRGBA(&g->start_color.color, &color);
+        config_write_color(fp, "start_color", &color);
 
-        cairoColor2GdkColor(g->end_color.color.rgb[0], g->end_color.color.rgb[1], g->end_color.color.rgb[2], &color);
-        opacity = g->end_color.color.alpha * 100;
-        config_write_color(fp, "end_color", color, opacity);
+        cairoColor2GdkRGBA(&g->end_color.color, &color);
+        config_write_color(fp, "end_color", &color);
 
         for (GList *l = g->extra_color_stops; l; l = l->next) {
             GradientConfigColorStop *stop = (GradientConfigColorStop *)l->data;
             // color_stop = percentage #rrggbb opacity
-            cairoColor2GdkColor(stop->color.rgb[0], stop->color.rgb[1], stop->color.rgb[2], &color);
-            opacity = stop->color.alpha * 100;
+            cairoColor2GdkRGBA(&stop->color, &color);
             fprintf(fp,
                     "color_stop = %f #%02x%02x%02x %d\n",
                     stop->offset * 100,
-                    color.red >> 8,
-                    color.green >> 8,
-                    color.blue >> 8,
-                    opacity);
+                    (int)(0xff * color.red),
+                    (int)(0xff * color.green),
+                    (int)(0xff * color.blue),
+                    (int)(color.alpha * 100));
         }
         fprintf(fp, "\n");
     }
@@ -168,73 +171,37 @@ void config_write_backgrounds(FILE *fp)
         gboolean sideBottom;
         gboolean sideLeft;
         gboolean sideRight;
-        GdkColor *fillColor;
-        int fillOpacity;
-        GdkColor *borderColor;
-        int borderOpacity;
+        GdkRGBA *fillColor;
+        GdkRGBA *borderColor;
         int gradient_id;
-        GdkColor *fillColorOver;
-        int fillOpacityOver;
-        GdkColor *borderColorOver;
-        int borderOpacityOver;
+        GdkRGBA *fillColorOver;
+        GdkRGBA *borderColorOver;
         int gradient_id_over;
-        GdkColor *fillColorPress;
-        int fillOpacityPress;
-        GdkColor *borderColorPress;
-        int borderOpacityPress;
+        GdkRGBA *fillColorPress;
+        GdkRGBA *borderColorPress;
         int gradient_id_press;
         gchar *text;
 
         gtk_tree_model_get(GTK_TREE_MODEL(backgrounds),
                            &iter,
-                           bgColFillColor,
-                           &fillColor,
-                           bgColFillOpacity,
-                           &fillOpacity,
-                           bgColBorderColor,
-                           &borderColor,
-                           bgColBorderOpacity,
-                           &borderOpacity,
-                           bgColGradientId,
-                           &gradient_id,
-                           bgColFillColorOver,
-                           &fillColorOver,
-                           bgColFillOpacityOver,
-                           &fillOpacityOver,
-                           bgColBorderColorOver,
-                           &borderColorOver,
-                           bgColBorderOpacityOver,
-                           &borderOpacityOver,
-                           bgColGradientIdOver,
-                           &gradient_id_over,
-                           bgColFillColorPress,
-                           &fillColorPress,
-                           bgColFillOpacityPress,
-                           &fillOpacityPress,
-                           bgColBorderColorPress,
-                           &borderColorPress,
-                           bgColBorderOpacityPress,
-                           &borderOpacityPress,
-                           bgColGradientIdPress,
-                           &gradient_id_press,
-                           bgColBorderWidth,
-                           &b,
-                           bgColCornerRadius,
-                           &r,
-                           bgColText,
-                           &text,
-                           bgColBorderSidesTop,
-                           &sideTop,
-                           bgColBorderSidesBottom,
-                           &sideBottom,
-                           bgColBorderSidesLeft,
-                           &sideLeft,
-                           bgColBorderSidesRight,
-                           &sideRight,
-                           bgColFillWeight,
-                           &fill_weight,
-                           bgColBorderWeight,
-                           &border_weight,
+                           bgColFillColor,          &fillColor,
+                           bgColBorderColor,        &borderColor,
+                           bgColGradientId,         &gradient_id,
+                           bgColFillColorOver,      &fillColorOver,
+                           bgColBorderColorOver,    &borderColorOver,
+                           bgColGradientIdOver,     &gradient_id_over,
+                           bgColFillColorPress,     &fillColorPress,
+                           bgColBorderColorPress,   &borderColorPress,
+                           bgColGradientIdPress,    &gradient_id_press,
+                           bgColBorderWidth,        &b,
+                           bgColCornerRadius,       &r,
+                           bgColText,               &text,
+                           bgColBorderSidesTop,     &sideTop,
+                           bgColBorderSidesBottom,  &sideBottom,
+                           bgColBorderSidesLeft,    &sideLeft,
+                           bgColBorderSidesRight,   &sideRight,
+                           bgColFillWeight,         &fill_weight,
+                           bgColBorderWeight,       &border_weight,
                            -1);
         fprintf(fp, "# Background %d: %s\n", index, text ? text : "");
         fprintf(fp, "rounded = %d\n", r);
@@ -255,16 +222,16 @@ void config_write_backgrounds(FILE *fp)
         fprintf(fp, "border_content_tint_weight = %d\n", (int)(border_weight));
         fprintf(fp, "background_content_tint_weight = %d\n", (int)(fill_weight));
 
-        config_write_color(fp, "background_color", *fillColor, fillOpacity);
-        config_write_color(fp, "border_color", *borderColor, borderOpacity);
+        config_write_color(fp, "background_color", fillColor);
+        config_write_color(fp, "border_color", borderColor);
         if (gradient_id >= 0)
             fprintf(fp, "gradient_id = %d\n", gradient_id);
-        config_write_color(fp, "background_color_hover", *fillColorOver, fillOpacityOver);
-        config_write_color(fp, "border_color_hover", *borderColorOver, borderOpacityOver);
+        config_write_color(fp, "background_color_hover", fillColorOver);
+        config_write_color(fp, "border_color_hover", borderColorOver);
         if (gradient_id_over >= 0)
             fprintf(fp, "gradient_id_hover = %d\n", gradient_id_over);
-        config_write_color(fp, "background_color_pressed", *fillColorPress, fillOpacityPress);
-        config_write_color(fp, "border_color_pressed", *borderColorPress, borderOpacityPress);
+        config_write_color(fp, "background_color_pressed", fillColorPress);
+        config_write_color(fp, "border_color_pressed", borderColorPress);
         if (gradient_id_press >= 0)
             fprintf(fp, "gradient_id_pressed = %d\n", gradient_id_press);
         fprintf(fp, "\n");
@@ -436,18 +403,12 @@ void config_write_taskbar(FILE *fp)
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(taskbar_name_font_set)))
         fprintf(fp, "taskbar_name_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(taskbar_name_font)));
 
-    GdkColor color;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(taskbar_name_inactive_color), &color);
-    config_write_color(fp,
-                       "taskbar_name_font_color",
-                       color,
-                       gtk_color_button_get_alpha(GTK_COLOR_BUTTON(taskbar_name_inactive_color)) * 100 / 0xffff);
+    GdkRGBA color;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(taskbar_name_inactive_color), &color);
+    config_write_color(fp, "taskbar_name_font_color", &color);
 
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(taskbar_name_active_color), &color);
-    config_write_color(fp,
-                       "taskbar_name_active_font_color",
-                       color,
-                       gtk_color_button_get_alpha(GTK_COLOR_BUTTON(taskbar_name_active_color)) * 100 / 0xffff);
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(taskbar_name_active_color), &color);
+    config_write_color(fp, "taskbar_name_active_font_color", &color);
 
     fprintf(fp,
             "taskbar_distribute_size = %d\n",
@@ -486,11 +447,11 @@ void config_write_taskbar(FILE *fp)
 
 void config_write_task_font_color(FILE *fp, char *name, GtkWidget *task_color)
 {
-    GdkColor color;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(task_color), &color);
+    GdkRGBA color;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(task_color), &color);
     char full_name[128];
     snprintf(full_name, sizeof(full_name), "task%s_font_color", name);
-    config_write_color(fp, full_name, color, gtk_color_button_get_alpha(GTK_COLOR_BUTTON(task_color)) * 100 / 0xffff);
+    config_write_color(fp, full_name, &color);
 }
 
 void config_write_task_icon_osb(FILE *fp,
@@ -751,12 +712,9 @@ void config_write_clock(FILE *fp)
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(clock_font_line2_set)))
         fprintf(fp, "time2_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(clock_font_line2)));
 
-    GdkColor color;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(clock_font_color), &color);
-    config_write_color(fp,
-                       "clock_font_color",
-                       color,
-                       gtk_color_button_get_alpha(GTK_COLOR_BUTTON(clock_font_color)) * 100 / 0xffff);
+    GdkRGBA color;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(clock_font_color), &color);
+    config_write_color(fp, "clock_font_color", &color);
 
     fprintf(fp,
             "clock_padding = %d %d\n",
@@ -787,12 +745,9 @@ void config_write_battery(FILE *fp)
         fprintf(fp, "bat1_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(battery_font_line1)));
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(battery_font_line2_set)))
         fprintf(fp, "bat2_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(battery_font_line2)));
-    GdkColor color;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(battery_font_color), &color);
-    config_write_color(fp,
-                       "battery_font_color",
-                       color,
-                       gtk_color_button_get_alpha(GTK_COLOR_BUTTON(battery_font_color)) * 100 / 0xffff);
+    GdkRGBA color;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(battery_font_color), &color);
+    config_write_color(fp, "battery_font_color", &color);
     fprintf(fp, "bat1_format = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_format1)));
     fprintf(fp, "bat2_format = %s\n", gtk_entry_get_text(GTK_ENTRY(battery_format2)));
     fprintf(fp,
@@ -825,12 +780,9 @@ void config_write_separator(FILE *fp)
         fprintf(fp,
                 "separator_background_id = %d\n",
                 gtk_combo_box_get_active(GTK_COMBO_BOX(separator->separator_background)));
-        GdkColor color;
-        gtk_color_button_get_color(GTK_COLOR_BUTTON(separator->separator_color), &color);
-        config_write_color(fp,
-                           "separator_color",
-                           color,
-                           gtk_color_button_get_alpha(GTK_COLOR_BUTTON(separator->separator_color)) * 100 / 0xffff);
+        GdkRGBA color;
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(separator->separator_color), &color);
+        config_write_color(fp, "separator_color", &color);
         // fprintf(fp, "separator_style = %d\n",
         // (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->separator_style)));
         fprintf(fp,
@@ -899,12 +851,9 @@ void config_write_execp(FILE *fp)
 
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_font_set)))
             fprintf(fp, "execp_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(executor->execp_font)));
-        GdkColor color;
-        gtk_color_button_get_color(GTK_COLOR_BUTTON(executor->execp_font_color), &color);
-        config_write_color(fp,
-                           "execp_font_color",
-                           color,
-                           gtk_color_button_get_alpha(GTK_COLOR_BUTTON(executor->execp_font_color)) * 100 / 0xffff);
+        GdkRGBA color;
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(executor->execp_font_color), &color);
+        config_write_color(fp, "execp_font_color", &color);
         fprintf(fp,
                 "execp_padding = %d %d\n",
                 (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->execp_padding_x)),
@@ -944,12 +893,9 @@ void config_write_button(FILE *fp)
 
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->button_font_set)))
             fprintf(fp, "button_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(button->button_font)));
-        GdkColor color;
-        gtk_color_button_get_color(GTK_COLOR_BUTTON(button->button_font_color), &color);
-        config_write_color(fp,
-                           "button_font_color",
-                           color,
-                           gtk_color_button_get_alpha(GTK_COLOR_BUTTON(button->button_font_color)) * 100 / 0xffff);
+        GdkRGBA color;
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button->button_font_color), &color);
+        config_write_color(fp, "button_font_color", &color);
         fprintf(fp,
                 "button_padding = %d %d\n",
                 (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->button_padding_x)),
@@ -979,12 +925,9 @@ void config_write_tooltip(FILE *fp)
             (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(tooltip_padding_y)));
     fprintf(fp, "tooltip_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(tooltip_background)));
 
-    GdkColor color;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(tooltip_font_color), &color);
-    config_write_color(fp,
-                       "tooltip_font_color",
-                       color,
-                       gtk_color_button_get_alpha(GTK_COLOR_BUTTON(tooltip_font_color)) * 100 / 0xffff);
+    GdkRGBA color;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(tooltip_font_color), &color);
+    config_write_color(fp, "tooltip_font_color", &color);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tooltip_font_set)))
         fprintf(fp, "tooltip_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(tooltip_font)));
@@ -1084,35 +1027,27 @@ void finalize_bg()
 {
     if (num_bg > 0) {
         if (!read_bg_color_hover) {
-            GdkColor fillColor;
-            gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color), &fillColor);
-            gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_over), &fillColor);
-            int fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color));
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_over), fillOpacity);
+            GdkRGBA fillColor;
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &fillColor);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_over), &fillColor);
             background_force_update();
         }
         if (!read_border_color_hover) {
-            GdkColor fillColor;
-            gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color), &fillColor);
-            gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_over), &fillColor);
-            int fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color));
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_over), fillOpacity);
+            GdkRGBA fillColor;
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color), &fillColor);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &fillColor);
             background_force_update();
         }
         if (!read_bg_color_press) {
-            GdkColor fillColor;
-            gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color), &fillColor);
-            gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_press), &fillColor);
-            int fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color));
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_press), fillOpacity);
+            GdkRGBA fillColor;
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &fillColor);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_press), &fillColor);
             background_force_update();
         }
         if (!read_border_color_press) {
-            GdkColor fillColor;
-            gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color_over), &fillColor);
-            gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_press), &fillColor);
-            int fillOpacity = gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color_over));
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_press), fillOpacity);
+            GdkRGBA fillColor;
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &fillColor);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_press), &fillColor);
             background_force_update();
         }
     }
@@ -1155,20 +1090,18 @@ void add_entry(char *key, char *value)
         break; }
     case key_start_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_start_color), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_start_color), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_start_color), &col);
         gradient_force_update();
         break; }
     case key_end_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(gradient_end_color), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(gradient_end_color), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_end_color), &col);
         gradient_force_update();
         break; }
     case key_color_stop: {
@@ -1204,59 +1137,53 @@ void add_entry(char *key, char *value)
         break;
     case key_background_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color), &col);
         background_force_update();
         break; }
     case key_border_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color), &col);
         background_force_update();
         break; }
     case key_background_color_hover: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_over), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_over), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_over), &col);
         background_force_update();
         read_bg_color_hover = 1;
         break; }
     case key_border_color_hover: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_over), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_over), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &col);
         background_force_update();
         read_border_color_hover = 1;
         break; }
     case key_background_color_pressed: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_press), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_press), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_press), &col);
         background_force_update();
         read_bg_color_press = 1;
         break; }
     case key_border_color_pressed: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_press), &col);
-        int alpha = values[1] ? atoi(values[1]) : 50;
-        gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_press), (alpha * 65535) / 100);
+        col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_press), &col);
         background_force_update();
         read_border_color_press = 1;
         break; }
@@ -1526,13 +1453,12 @@ void add_entry(char *key, char *value)
         break;
     case key_battery_font_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(battery_font_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(battery_font_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(battery_font_color), &col);
         break; }
     case key_battery_padding:
         extract_values(value, values, 3);
@@ -1597,13 +1523,12 @@ void add_entry(char *key, char *value)
         break;
     case key_clock_font_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(clock_font_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(clock_font_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(clock_font_color), &col);
         break; }
     case key_clock_padding:
         extract_values(value, values, 3);
@@ -1732,23 +1657,21 @@ void add_entry(char *key, char *value)
         break;
     case key_taskbar_name_font_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(taskbar_name_inactive_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(taskbar_name_inactive_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(taskbar_name_inactive_color), &col);
         break; }
     case key_taskbar_name_active_font_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(taskbar_name_active_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(taskbar_name_active_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(taskbar_name_active_color), &col);
         break; }
 
     /* Task */
@@ -1926,13 +1849,12 @@ void add_entry(char *key, char *value)
         break; }
     case key_tooltip_font_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(tooltip_font_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(tooltip_font_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(tooltip_font_color), &col);
         break; }
     case key_tooltip_font:
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(tooltip_font), value);
@@ -1966,13 +1888,12 @@ void add_entry(char *key, char *value)
         break; }
     case key_separator_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(separator_get_last()->separator_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(separator_get_last()->separator_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(separator_get_last()->separator_color), &col);
         break; }
     case key_separator_style: {
         int i = str_index(value, (char *[]){"dots", "empty", "line"}, 3);
@@ -2052,13 +1973,12 @@ void add_entry(char *key, char *value)
         break;
     case key_execp_font_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(execp_get_last()->execp_font_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(execp_get_last()->execp_font_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(execp_get_last()->execp_font_color), &col);
         break; }
     case key_execp_padding:
         extract_values(value, values, 3);
@@ -2114,13 +2034,12 @@ void add_entry(char *key, char *value)
         break;
     case key_button_font_color: {
         extract_values(value, values, 3);
-        GdkColor col;
+        GdkRGBA col;
         hex2gdk(values[0], &col);
-        gtk_color_button_set_color(GTK_COLOR_BUTTON(button_get_last()->button_font_color), &col);
         if (values[1]) {
-            int alpha = atoi(values[1]);
-            gtk_color_button_set_alpha(GTK_COLOR_BUTTON(button_get_last()->button_font_color), (alpha * 65535) / 100);
+            col.alpha = atoi(values[1]) / 100.0;
         }
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(button_get_last()->button_font_color), &col);
         break; }
     case key_button_padding:
         extract_values(value, values, 3);
@@ -2161,13 +2080,12 @@ void add_entry(char *key, char *value)
             g_strfreev(split);
             if (widget) {
                 extract_values(value, values, 3);
-                GdkColor col;
+                GdkRGBA col;
                 hex2gdk(values[0], &col);
-                gtk_color_button_set_color(GTK_COLOR_BUTTON(widget), &col);
                 if (values[1]) {
-                    int alpha = atoi(values[1]);
-                    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(widget), (alpha * 65535) / 100);
+                    col.alpha = atoi(values[1]) / 100.0;
                 }
+                gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(widget), &col);
             }
         } else if (g_regex_match_simple("task.*_icon_asb", key, 0, 0)) {
             gchar **split = g_regex_split_simple("_", key, 0, 0);
@@ -2235,15 +2153,16 @@ void add_entry(char *key, char *value)
     }
 }
 
-void hex2gdk(char *hex, GdkColor *color)
+void hex2gdk(char *hex, GdkRGBA *color)
 {
     int rgbi[3];
     if (hex_to_rgb(hex, rgbi))
-        color->red   = rgbi[0],
-        color->green = rgbi[1],
-        color->blue  = rgbi[2];
+        color->red   = rgbi[0] / 65535.0,
+        color->green = rgbi[1] / 65535.0,
+        color->blue  = rgbi[2] / 65535.0;
     else
         color->red = color->green = color->blue = 0;
+    color->alpha = 1.0;
 }
 
 void set_action(char *event, GtkWidget *combo)

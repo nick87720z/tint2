@@ -94,23 +94,17 @@ void create_background(GtkWidget *parent)
 {
     backgrounds = gtk_list_store_new(bgNumCols,
                                      GDK_TYPE_PIXBUF,
-                                     GDK_TYPE_COLOR,
-                                     GTK_TYPE_SHADOW_TYPE,
-                                     GDK_TYPE_COLOR,
-                                     GTK_TYPE_INT,
+                                     GDK_TYPE_RGBA,
+                                     GDK_TYPE_RGBA,
                                      GTK_TYPE_INT,
                                      GTK_TYPE_INT,
                                      GTK_TYPE_INT,
                                      GTK_TYPE_STRING,
-                                     GDK_TYPE_COLOR,
+                                     GDK_TYPE_RGBA,
+                                     GDK_TYPE_RGBA,
                                      GTK_TYPE_INT,
-                                     GDK_TYPE_COLOR,
-                                     GTK_TYPE_INT,
-                                     GTK_TYPE_INT,
-                                     GDK_TYPE_COLOR,
-                                     GTK_TYPE_INT,
-                                     GDK_TYPE_COLOR,
-                                     GTK_TYPE_INT,
+                                     GDK_TYPE_RGBA,
+                                     GDK_TYPE_RGBA,
                                      GTK_TYPE_INT,
                                      GTK_TYPE_BOOL,
                                      GTK_TYPE_BOOL,
@@ -170,7 +164,7 @@ void create_background(GtkWidget *parent)
     col++;
 
     background_fill_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_fill_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(background_fill_color), TRUE);
     gtk_widget_show(background_fill_color);
     gtk_table_attach(GTK_TABLE(table), background_fill_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -197,7 +191,7 @@ void create_background(GtkWidget *parent)
     col++;
 
     background_border_color = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_border_color), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(background_border_color), TRUE);
     gtk_widget_show(background_border_color);
     gtk_table_attach(GTK_TABLE(table), background_border_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -236,7 +230,7 @@ void create_background(GtkWidget *parent)
     col++;
 
     background_fill_color_over = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_fill_color_over), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(background_fill_color_over), TRUE);
     gtk_widget_show(background_fill_color_over);
     gtk_table_attach(GTK_TABLE(table), background_fill_color_over, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -251,7 +245,7 @@ void create_background(GtkWidget *parent)
     col++;
 
     background_border_color_over = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_border_color_over), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(background_border_color_over), TRUE);
     gtk_widget_show(background_border_color_over);
     gtk_table_attach(GTK_TABLE(table), background_border_color_over, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -279,7 +273,7 @@ void create_background(GtkWidget *parent)
     col++;
 
     background_fill_color_press = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_fill_color_press), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(background_fill_color_press), TRUE);
     gtk_widget_show(background_fill_color_press);
     gtk_table_attach(GTK_TABLE(table), background_fill_color_press, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -294,7 +288,7 @@ void create_background(GtkWidget *parent)
     col++;
 
     background_border_color_press = gtk_color_button_new();
-    gtk_color_button_set_use_alpha(GTK_COLOR_BUTTON(background_border_color_press), TRUE);
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(background_border_color_press), TRUE);
     gtk_widget_show(background_border_color_press);
     gtk_table_attach(GTK_TABLE(table), background_border_color_press, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -407,28 +401,8 @@ void background_create_new()
     gboolean sideBottom = TRUE;
     gboolean sideLeft = TRUE;
     gboolean sideRight = TRUE;
-    GdkColor fillColor;
-    cairoColor2GdkColor(0, 0, 0, &fillColor);
-    int fillOpacity = 0;
-    GdkColor fillColor2;
-    cairoColor2GdkColor(0, 0, 0, &fillColor2);
-    GdkColor borderColor;
-    cairoColor2GdkColor(0, 0, 0, &borderColor);
-    int borderOpacity = 0;
-
-    GdkColor fillColorOver;
-    cairoColor2GdkColor(0, 0, 0, &fillColorOver);
-    int fillOpacityOver = 0;
-    GdkColor borderColorOver;
-    cairoColor2GdkColor(0, 0, 0, &borderColorOver);
-    int borderOpacityOver = 0;
-
-    GdkColor fillColorPress;
-    cairoColor2GdkColor(0, 0, 0, &fillColorPress);
-    int fillOpacityPress = 0;
-    GdkColor borderColorPress;
-    cairoColor2GdkColor(0, 0, 0, &borderColorPress);
-    int borderOpacityPress = 0;
+    
+    GdkRGBA newColor = {0, 0, 0, 0};
 
     int index = 0;
     GtkTreeIter iter;
@@ -436,23 +410,17 @@ void background_create_new()
     gtk_list_store_append(backgrounds, &iter);
     gtk_list_store_set(backgrounds, &iter,
                        bgColPixbuf,             NULL,
-                       bgColFillColor,          &fillColor,
-                       bgColFillOpacity,        fillOpacity,
-                       bgColBorderColor,        &borderColor,
-                       bgColBorderOpacity,      borderOpacity,
+                       bgColFillColor,          &newColor,
+                       bgColBorderColor,        &newColor,
                        bgColGradientId,         -1,
                        bgColBorderWidth,        b,
                        bgColCornerRadius,       r,
                        bgColText,               "",
-                       bgColFillColorOver,      &fillColorOver,
-                       bgColFillOpacityOver,    fillOpacityOver,
-                       bgColBorderColorOver,    &borderColorOver,
-                       bgColBorderOpacityOver,  borderOpacityOver,
+                       bgColFillColorOver,      &newColor,
+                       bgColBorderColorOver,    &newColor,
                        bgColGradientIdOver,     -1,
-                       bgColFillColorPress,     &fillColorPress,
-                       bgColFillOpacityPress,   fillOpacityPress,
-                       bgColBorderColorPress,   &borderColorPress,
-                       bgColBorderOpacityPress, borderOpacityPress,
+                       bgColFillColorPress,     &newColor,
+                       bgColBorderColorPress,   &newColor,
                        bgColGradientIdPress,    -1,
                        bgColBorderSidesTop,     sideTop,
                        bgColBorderSidesBottom,  sideBottom,
@@ -486,34 +454,22 @@ void background_duplicate(GtkWidget *widget, gpointer data)
     gboolean sideBottom;
     gboolean sideLeft;
     gboolean sideRight;
-    GdkColor *fillColor;
-    int fillOpacity;
-    GdkColor *borderColor;
-    int borderOpacity;
-    GdkColor *fillColorOver;
-    int fillOpacityOver;
-    GdkColor *borderColorOver;
-    int borderOpacityOver;
-    GdkColor *fillColorPress;
-    int fillOpacityPress;
-    GdkColor *borderColorPress;
-    int borderOpacityPress;
+    GdkRGBA *fillColor;
+    GdkRGBA *borderColor;
+    GdkRGBA *fillColorOver;
+    GdkRGBA *borderColorOver;
+    GdkRGBA *fillColorPress;
+    GdkRGBA *borderColorPress;
     int gradient_id, gradient_id_over, gradient_id_press;
 
     gtk_tree_model_get(GTK_TREE_MODEL(backgrounds),
                        &iter,
                        bgColFillColor,          &fillColor,
-                       bgColFillOpacity,        &fillOpacity,
                        bgColBorderColor,        &borderColor,
-                       bgColBorderOpacity,      &borderOpacity,
                        bgColFillColorOver,      &fillColorOver,
-                       bgColFillOpacityOver,    &fillOpacityOver,
                        bgColBorderColorOver,    &borderColorOver,
-                       bgColBorderOpacityOver,  &borderOpacityOver,
                        bgColFillColorPress,     &fillColorPress,
-                       bgColFillOpacityPress,   &fillOpacityPress,
                        bgColBorderColorPress,   &borderColorPress,
-                       bgColBorderOpacityPress, &borderOpacityPress,
                        bgColBorderWidth,        &b,
                        bgColCornerRadius,       &r,
                        bgColBorderSidesTop,     &sideTop,
@@ -529,20 +485,14 @@ void background_duplicate(GtkWidget *widget, gpointer data)
     gtk_list_store_set(backgrounds, &iter,
                        bgColPixbuf,             NULL,
                        bgColFillColor,          fillColor,
-                       bgColFillOpacity,        fillOpacity,
                        bgColBorderColor,        borderColor,
                        bgColGradientId,         gradient_id,
-                       bgColBorderOpacity,      borderOpacity,
                        bgColText,               "",
                        bgColFillColorOver,      fillColorOver,
-                       bgColFillOpacityOver,    fillOpacityOver,
                        bgColBorderColorOver,    borderColorOver,
-                       bgColBorderOpacityOver,  borderOpacityOver,
                        bgColGradientIdOver,     gradient_id_over,
                        bgColFillColorPress,     fillColorPress,
-                       bgColFillOpacityPress,   fillOpacityPress,
                        bgColBorderColorPress,   borderColorPress,
-                       bgColBorderOpacityPress, borderOpacityPress,
                        bgColGradientIdPress,    gradient_id_press,
                        bgColBorderWidth,        b,
                        bgColCornerRadius,       r,
@@ -551,12 +501,12 @@ void background_duplicate(GtkWidget *widget, gpointer data)
                        bgColBorderSidesLeft,    sideLeft,
                        bgColBorderSidesRight,   sideRight,
                        -1);
-    g_boxed_free(GDK_TYPE_COLOR, fillColor);
-    g_boxed_free(GDK_TYPE_COLOR, borderColor);
-    g_boxed_free(GDK_TYPE_COLOR, fillColorOver);
-    g_boxed_free(GDK_TYPE_COLOR, borderColorOver);
-    g_boxed_free(GDK_TYPE_COLOR, fillColorPress);
-    g_boxed_free(GDK_TYPE_COLOR, borderColorPress);
+    g_boxed_free(GDK_TYPE_RGBA, fillColor);
+    g_boxed_free(GDK_TYPE_RGBA, borderColor);
+    g_boxed_free(GDK_TYPE_RGBA, fillColorOver);
+    g_boxed_free(GDK_TYPE_RGBA, borderColorOver);
+    g_boxed_free(GDK_TYPE_RGBA, fillColorPress);
+    g_boxed_free(GDK_TYPE_RGBA, borderColorPress);
     background_update_image(get_model_length(GTK_TREE_MODEL(backgrounds)) - 1);
     gtk_combo_box_set_active(GTK_COMBO_BOX(current_background), get_model_length(GTK_TREE_MODEL(backgrounds)) - 1);
 }
@@ -598,32 +548,17 @@ void background_update_image(int index)
     int r;
     int b;
     GdkPixbuf *pixbuf;
-    GdkColor *fillColor;
-    int fillOpacity = 50;
-    GdkColor *borderColor;
-    int borderOpacity = 100;
+    GdkRGBA *fillColor;
+    GdkRGBA *borderColor;
     int gradient_id;
 
     gtk_tree_model_get(GTK_TREE_MODEL(backgrounds), &iter,
                        bgColFillColor,      &fillColor,
-                       bgColFillOpacity,    &fillOpacity,
                        bgColBorderColor,    &borderColor,
-                       bgColBorderOpacity,  &borderOpacity,
                        bgColBorderWidth,    &b,
                        bgColCornerRadius,   &r,
                        bgColGradientId,     &gradient_id,
                        -1);
-
-    double bg_r, bg_g, bg_b, bg_a;
-    gdkColor2CairoColor(*fillColor, &bg_r, &bg_g, &bg_b);
-    bg_a = fillOpacity / 100.0;
-
-    double b_r, b_g, b_b, b_a;
-    gdkColor2CairoColor(*borderColor, &b_r, &b_g, &b_b);
-    b_a = borderOpacity / 100.0;
-
-    g_boxed_free(GDK_TYPE_COLOR, fillColor);
-    g_boxed_free(GDK_TYPE_COLOR, borderColor);
 
     cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
     cairo_t *cr = cairo_create(s);
@@ -647,10 +582,10 @@ void background_update_image(int index)
         gradient_draw(cr, g, w, h, TRUE);
     }
 
-    cairo_set_source_rgba(cr, bg_r, bg_g, bg_b, bg_a);
+    cairo_set_source_rgba(cr, fillColor->red, fillColor->green, fillColor->blue, fillColor->alpha);
     cairo_fill_preserve(cr);
 
-    cairo_set_source_rgba(cr, b_r, b_g, b_b, b_a);
+    cairo_set_source_rgba(cr, borderColor->red, borderColor->green, borderColor->blue, borderColor->alpha);
     cairo_set_line_width(cr, b);
     cairo_stroke(cr);
     cairo_destroy(cr);
@@ -662,6 +597,9 @@ void background_update_image(int index)
     if (pixbuf)
         g_object_unref(pixbuf);
     cairo_surface_destroy(s);
+    
+    g_boxed_free(GDK_TYPE_RGBA, fillColor);
+    g_boxed_free(GDK_TYPE_RGBA, borderColor);
 }
 
 void background_force_update()
@@ -699,57 +637,34 @@ void background_update(GtkWidget *widget, gpointer data)
     gboolean sideLeft = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_left));
     gboolean sideRight = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_right));
 
-    GdkColor fillColor;
-    int fillOpacity;
-    GdkColor borderColor;
-    int borderOpacity;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color), &fillColor);
-    fillOpacity = MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color)) * 100.0 / 0xffff);
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color), &borderColor);
-    borderOpacity =
-        MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color)) * 100.0 / 0xffff);
+    GdkRGBA fillColor;
+    GdkRGBA borderColor;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &fillColor);
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color), &borderColor);
     int gradient_id = gtk_combo_box_get_active(GTK_COMBO_BOX(background_gradient));
 
-    GdkColor fillColorOver;
-    int fillOpacityOver;
-    GdkColor borderColorOver;
-    int borderOpacityOver;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color_over), &fillColorOver);
-    fillOpacityOver =
-        MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color_over)) * 100.0 / 0xffff);
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color_over), &borderColorOver);
-    borderOpacityOver =
-        MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color_over)) * 100.0 / 0xffff);
+    GdkRGBA fillColorOver;
+    GdkRGBA borderColorOver;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color_over), &fillColorOver);
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &borderColorOver);
     int gradient_id_over = gtk_combo_box_get_active(GTK_COMBO_BOX(background_gradient_over));
 
-    GdkColor fillColorPress;
-    int fillOpacityPress;
-    GdkColor borderColorPress;
-    int borderOpacityPress;
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(background_fill_color_press), &fillColorPress);
-    fillOpacityPress =
-        MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_fill_color_press)) * 100.0 / 0xffff);
-    gtk_color_button_get_color(GTK_COLOR_BUTTON(background_border_color_press), &borderColorPress);
-    borderOpacityPress =
-        MIN(100, 0.5 + gtk_color_button_get_alpha(GTK_COLOR_BUTTON(background_border_color_press)) * 100.0 / 0xffff);
+    GdkRGBA fillColorPress;
+    GdkRGBA borderColorPress;
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color_press), &fillColorPress);
+    gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color_press), &borderColorPress);
     int gradient_id_press = gtk_combo_box_get_active(GTK_COMBO_BOX(background_gradient_press));
 
     gtk_list_store_set(backgrounds, &iter,
                        bgColPixbuf,             NULL,
                        bgColFillColor,          &fillColor,
-                       bgColFillOpacity,        fillOpacity,
                        bgColBorderColor,        &borderColor,
-                       bgColBorderOpacity,      borderOpacity,
                        bgColGradientId,         gradient_id,
                        bgColFillColorOver,      &fillColorOver,
-                       bgColFillOpacityOver,    fillOpacityOver,
                        bgColBorderColorOver,    &borderColorOver,
-                       bgColBorderOpacityOver,  borderOpacityOver,
                        bgColGradientIdOver,     gradient_id_over,
                        bgColFillColorPress,     &fillColorPress,
-                       bgColFillOpacityPress,   fillOpacityPress,
                        bgColBorderColorPress,   &borderColorPress,
-                       bgColBorderOpacityPress, borderOpacityPress,
                        bgColGradientIdPress,    gradient_id_press,
                        bgColBorderWidth,        b,
                        bgColCornerRadius,       r,
@@ -808,35 +723,23 @@ void current_background_changed(GtkWidget *widget, gpointer data)
     gboolean sideLeft;
     gboolean sideRight;
 
-    GdkColor *fillColor;
-    int fillOpacity;
-    GdkColor *borderColor;
-    int borderOpacity;
-    GdkColor *fillColorOver;
-    int fillOpacityOver;
-    GdkColor *borderColorOver;
-    int borderOpacityOver;
-    GdkColor *fillColorPress;
-    int fillOpacityPress;
-    GdkColor *borderColorPress;
-    int borderOpacityPress;
+    GdkRGBA *fillColor;
+    GdkRGBA *borderColor;
+    GdkRGBA *fillColorOver;
+    GdkRGBA *borderColorOver;
+    GdkRGBA *fillColorPress;
+    GdkRGBA *borderColorPress;
     int gradient_id, gradient_id_over, gradient_id_press;
 
     gtk_tree_model_get(GTK_TREE_MODEL(backgrounds), &iter,
                        bgColFillColor,          &fillColor,
-                       bgColFillOpacity,        &fillOpacity,
                        bgColBorderColor,        &borderColor,
-                       bgColBorderOpacity,      &borderOpacity,
                        bgColGradientId,         &gradient_id,
                        bgColFillColorOver,      &fillColorOver,
-                       bgColFillOpacityOver,    &fillOpacityOver,
                        bgColBorderColorOver,    &borderColorOver,
-                       bgColBorderOpacityOver,  &borderOpacityOver,
                        bgColGradientIdOver,     &gradient_id_over,
                        bgColFillColorPress,     &fillColorPress,
-                       bgColFillOpacityPress,   &fillOpacityPress,
                        bgColBorderColorPress,   &borderColorPress,
-                       bgColBorderOpacityPress, &borderOpacityPress,
                        bgColGradientIdPress,    &gradient_id_press,
                        bgColBorderWidth,        &b,
                        bgColCornerRadius,       &r,
@@ -853,24 +756,16 @@ void current_background_changed(GtkWidget *widget, gpointer data)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_left), sideLeft);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right), sideRight);
 
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color), fillColor);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color), (fillOpacity * 0xffff) / 100);
-
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color), borderColor);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color), (borderOpacity * 0xffff) / 100);
-
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color), fillColor);
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color), borderColor);
     gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient), gradient_id);
 
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_over), fillColorOver);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_over), (fillOpacityOver * 0xffff) / 100);
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_over), borderColorOver);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_over), (borderOpacityOver * 0xffff) / 100);
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_over), fillColorOver);
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_over), borderColorOver);
     gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_over), gradient_id_over);
 
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(background_fill_color_press), fillColorPress);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_fill_color_press), (fillOpacityPress * 0xffff) / 100);
-    gtk_color_button_set_color(GTK_COLOR_BUTTON(background_border_color_press), borderColorPress);
-    gtk_color_button_set_alpha(GTK_COLOR_BUTTON(background_border_color_press), (borderOpacityPress * 0xffff) / 100);
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_press), fillColorPress);
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_press), borderColorPress);
     gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_press), gradient_id_press);
 
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_width), b);
@@ -879,12 +774,12 @@ void current_background_changed(GtkWidget *widget, gpointer data)
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight), fill_weight);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_content_tint_weight), border_weight);
 
-    g_boxed_free(GDK_TYPE_COLOR, fillColor);
-    g_boxed_free(GDK_TYPE_COLOR, borderColor);
-    g_boxed_free(GDK_TYPE_COLOR, fillColorOver);
-    g_boxed_free(GDK_TYPE_COLOR, borderColorOver);
-    g_boxed_free(GDK_TYPE_COLOR, fillColorPress);
-    g_boxed_free(GDK_TYPE_COLOR, borderColorPress);
+    g_boxed_free(GDK_TYPE_RGBA, fillColor);
+    g_boxed_free(GDK_TYPE_RGBA, borderColor);
+    g_boxed_free(GDK_TYPE_RGBA, fillColorOver);
+    g_boxed_free(GDK_TYPE_RGBA, borderColorOver);
+    g_boxed_free(GDK_TYPE_RGBA, fillColorPress);
+    g_boxed_free(GDK_TYPE_RGBA, borderColorPress);
 
     background_updates_disabled = FALSE;
     background_update_image(index);

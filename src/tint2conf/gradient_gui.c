@@ -207,12 +207,9 @@ void gradient_create_new(GradientConfigType t)
     gtk_list_store_append(gradient_ids, &iter);
     gtk_list_store_set(gradient_ids,
                        &iter,
-                       grColPixbuf,
-                       NULL,
-                       grColId,
-                       &index,
-                       grColText,
-                       index == 0 ? _("None") : "",
+                       grColPixbuf, NULL,
+                       grColId,     &index,
+                       grColText,   index == 0 ? _("None") : "",
                        -1);
 
     gradient_update_image(index);

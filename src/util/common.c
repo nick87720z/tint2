@@ -52,6 +52,7 @@
 #include "timer.h"
 #include "signals.h"
 #include "bt.h"
+#include "strnatcmp.h"
 
 void write_string(int fd, const char *s)
 {
@@ -218,6 +219,11 @@ int str_index(const char *s, char *array[], int size) {
         }
     }
     return -1;
+}
+
+int compare_strings(const void *a, const void *b)
+{
+    return strnatcasecmp((const char *)a, (const char *)b);
 }
 
 gboolean parse_line(const char *line, char **key, char **value)

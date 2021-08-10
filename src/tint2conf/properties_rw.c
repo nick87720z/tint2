@@ -84,10 +84,10 @@ void config_read_file(const char *path)
 
 void config_write_color(FILE *fp, const char *name, GdkRGBA *color)
 {
-    fprintf(fp, "%s = #%02x%02x%02x %d\n", name,
-            (int)(0xff * color->red),
-            (int)(0xff * color->green),
-            (int)(0xff * color->blue),
+    fprintf(fp, "%s = #%04x%04x%04x %d\n", name,
+            (int)(0xffff * color->red),
+            (int)(0xffff * color->green),
+            (int)(0xffff * color->blue),
             (int)(100 * color->alpha));
 }
 

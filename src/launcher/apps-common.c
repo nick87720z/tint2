@@ -20,18 +20,12 @@
 
 #include "apps-common.h"
 #include "common.h"
-#include "strnatcmp.h"
 
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-
-static gint compare_strings(gconstpointer a, gconstpointer b)
-{
-    return strnatcasecmp((const char *)a, (const char *)b);
-}
 
 int parse_dektop_line(char *line, char **key, char **value)
 {

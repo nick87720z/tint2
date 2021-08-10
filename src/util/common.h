@@ -58,6 +58,8 @@ void copy_file(const char *path_src, const char *path_dest);
 // Array must be sorted with strcmp-compatible comparison method.
 int str_index(const char *s, char *array[], int size);
 
+int compare_strings(const void *a, const void *b);
+
 // Parses lines with the format 'key = value' into key and value.
 // Strips key and value.
 // Values may contain any graphical characters with spaces in the middle.

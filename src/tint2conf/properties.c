@@ -21,6 +21,7 @@
 #include "background_gui.h"
 #include "gradient_gui.h"
 #include "strlcat.h"
+#include "../util/common.h"
 
 #include <stddef.h>
 
@@ -163,11 +164,6 @@ void panel_add_item(GtkWidget *widget, gpointer data);
 void panel_remove_item(GtkWidget *widget, gpointer data);
 void panel_move_item_down(GtkWidget *widget, gpointer data);
 void panel_move_item_up(GtkWidget *widget, gpointer data);
-
-gint compare_strings(gconstpointer a, gconstpointer b)
-{
-    return strnatcasecmp((const char *)a, (const char *)b);
-}
 
 const gchar *get_default_font()
 {

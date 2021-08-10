@@ -42,7 +42,6 @@
 #include "tint2rc.h"
 #include "common.h"
 #include "server.h"
-#include "strnatcmp.h"
 #include "panel.h"
 #include "task.h"
 #include "taskbar.h"
@@ -191,11 +190,6 @@ int config_get_monitor(char *monitor)
 
     // monitor not found or xrandr can't identify monitors => all
     return -1;
-}
-
-static gint compare_strings(gconstpointer a, gconstpointer b)
-{
-    return strnatcasecmp((const char *)a, (const char *)b);
 }
 
 void load_launcher_app_dir(const char *path)

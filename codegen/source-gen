@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# Simple source file preprocessor.
+# Processes *.in files, replacing lines of format
+#    KEYWORD cmd
+# with 'cmd' output.
+
+preproc() {
+    sed -e '/^ *'"${cmd_keyword} "'/{ s/^ *'"${cmd_keyword} "'//; e' -e ' }'
+}
+
+# start
+
+# check dependencies
+
+type sed >/dev/null 2>&1 || {
+        printf '%s\n' "sed is required, but not found."
+        exit 1
+}
+
+# Arguments parsing.
+# Require at least 1 argument: keyword
+
+if [ $# -lt 1 ]; then
+        printf '%s\n' \
+                "Usage: $0 KEYWORD [TARGET_FILES...]" \
+                "TARGET_FILES - each 'file' is generated from proper 'file.in'." \
+                "Standard input/output are used if no files specified." \
+                >&2
+        exit 1
+fi
+cmd_keyword="$1"
+shift
+
+# Other arguments are files.
+
+if [ $# -eq 0 ]; then
+        preproc
+        exit
+fi
+
+for f in "$@"; do
+        cap="Do not edit. Auto-generated from '${f}.in'"
+
+        case "${f}" in
+        *.c | *.cc | *.cpp | *.cxx | *.h | *.hh | *.hpp | *.hxx | *.C | *.CC | *.CPP | *.CXX | *.H | *.HH | *.HPP | *.HXX | *.java )
+                cap="/* ${cap} */" ;;
+        *.sh | *.awk | *.py )
+                cap="# ${cap}" ;;
+        esac
+
+        pushd "$( dirname ${f} )" >/dev/null
+        f="$( basename "${f}" )"
+        printf '%s\n\n' "${cap}" > "${f}"
+        preproc < "${f}.in"     >> "${f}"
+        popd >/dev/null
+done
+

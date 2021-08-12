@@ -126,7 +126,7 @@ include_directories( ${PROJECT_BINARY_DIR}
                      ${SN_INCLUDE_DIRS} )
 
 set( SOURCES src/config.c
-             src/config-keys.c
+             "${PROJECT_SOURCE_DIR}/src/config-keys.c"
              src/panel.c
              src/util/server.c
              src/main.c
@@ -251,6 +251,12 @@ else()
 endif()
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_version.sh" )
+
+add_custom_command( OUTPUT "${PROJECT_SOURCE_DIR}/src/config-keys.c" "${PROJECT_SOURCE_DIR}/src/config-keys.h"
+                    DEPENDS "${PROJECT_SOURCE_DIR}/src/config-keys-list" "${PROJECT_SOURCE_DIR}/src/config-keys.c.in" "${PROJECT_SOURCE_DIR}/src/config-keys.h.in"
+                    COMMAND "codegen/source-gen" LIST2CODE_CMD src/config-keys.c src/config-keys.h
+                    VERBATIM
+                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" )
 
 link_directories( ${X11_LIBRARY_DIRS}
                   ${PANGOCAIRO_LIBRARY_DIRS}

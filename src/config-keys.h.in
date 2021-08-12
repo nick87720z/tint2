@@ -1,8 +1,10 @@
+// vim: ft=c
+
 #ifndef CONFIG_KEYS_H
 #define CONFIG_KEYS_H
 
 typedef enum {
-    LIST2CODE_CMD:sed -E 's/.*/    key_&,/' < config-keys-list
+    LIST2CODE_CMD ../codegen/list2cstrenum < config-keys-list
     DICT_KEYS_NUM,
     key_invalid = -1
 } cfg_key_t;

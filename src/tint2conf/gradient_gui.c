@@ -61,13 +61,13 @@ void create_gradient(GtkWidget *parent)
     col++;
 
     button = gtk_button_new_from_stock("gtk-add");
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_duplicate), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(gradient_duplicate), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     button = gtk_button_new_from_stock("gtk-remove");
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_delete), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(gradient_delete), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
@@ -142,13 +142,13 @@ void create_gradient(GtkWidget *parent)
     col++;
 
     button = gtk_button_new_from_stock("gtk-add");
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_stop_duplicate), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(gradient_stop_duplicate), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     button = gtk_button_new_from_stock("gtk-remove");
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(gradient_stop_delete), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(gradient_stop_delete), NULL);
     gtk_widget_show(button);
     gtk_table_attach(GTK_TABLE(table), button, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;

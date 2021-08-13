@@ -764,10 +764,8 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(mouse_pressed_icon_opacity);
     gtk_table_attach(GTK_TABLE(table), mouse_pressed_icon_opacity, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         mouse_pressed_icon_opacity,
-                         _("Specifies the opacity adjustment of the icons on mouse button press, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(mouse_pressed_icon_opacity,
+                                _("Specifies the opacity adjustment of the icons on mouse button press, in percent."));
 
     row++;
     col = 2;
@@ -782,10 +780,8 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(mouse_pressed_icon_saturation);
     gtk_table_attach(GTK_TABLE(table), mouse_pressed_icon_saturation, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         mouse_pressed_icon_saturation,
-                         _("Specifies the saturation adjustment of the icons on mouse button press, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(mouse_pressed_icon_saturation,
+                                _("Specifies the saturation adjustment of the icons on mouse button press, in percent."));
 
     row++;
     col = 2;
@@ -800,10 +796,8 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(mouse_pressed_icon_brightness);
     gtk_table_attach(GTK_TABLE(table), mouse_pressed_icon_brightness, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         mouse_pressed_icon_brightness,
-                         _("Specifies the brightness adjustment of the icons on mouse button press, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(mouse_pressed_icon_brightness,
+                                _("Specifies the brightness adjustment of the icons on mouse button press, in percent."));
 
     change_paragraph(parent);
 
@@ -831,10 +825,8 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(panel_autohide);
     gtk_table_attach(GTK_TABLE(table), panel_autohide, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_autohide,
-                         _("If enabled, the panel is hidden when the mouse cursor leaves the panel."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_autohide,
+                                _("If enabled, the panel is hidden when the mouse cursor leaves the panel."));
 
     row++;
     col = 2;
@@ -848,10 +840,8 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(panel_autohide_show_time);
     gtk_table_attach(GTK_TABLE(table), panel_autohide_show_time, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_autohide_show_time,
-                         _("Specifies a delay after which the panel is shown when the mouse cursor enters the panel."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_autohide_show_time,
+                                _("Specifies a delay after which the panel is shown when the mouse cursor enters the panel."));
 
     label = gtk_label_new(_("seconds"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -871,10 +861,8 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(panel_autohide_size);
     gtk_table_attach(GTK_TABLE(table), panel_autohide_size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_autohide_size,
-                         _("Specifies the size of the panel when hidden, in pixels."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_autohide_size,
+                                _("Specifies the size of the panel when hidden, in pixels."));
 
     row++;
     col = 2;
@@ -888,10 +876,8 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(panel_autohide_hide_time);
     gtk_table_attach(GTK_TABLE(table), panel_autohide_hide_time, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_autohide_hide_time,
-                         _("Specifies a delay after which the panel is hidden when the mouse cursor leaves the panel."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_autohide_hide_time,
+                                _("Specifies a delay after which the panel is hidden when the mouse cursor leaves the panel."));
 
     label = gtk_label_new(_("seconds"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -925,12 +911,10 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(panel_wm_menu);
     gtk_table_attach(GTK_TABLE(table), panel_wm_menu, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_wm_menu,
-                         _("If enabled, mouse events not handled by panel elements are forwarded to the desktop. "
-                           "Useful on desktop environments that show a start menu when right clicking the desktop, "
-                           "or switch the desktop when rotating the mouse wheel over the desktop."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_wm_menu,
+                                _("If enabled, mouse events not handled by panel elements are forwarded to the desktop. "
+                                  "Useful on desktop environments that show a start menu when right clicking the desktop, "
+                                  "or switch the desktop when rotating the mouse wheel over the desktop."));
 
     row++;
     col = 2;
@@ -944,12 +928,10 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(panel_dock);
     gtk_table_attach(GTK_TABLE(table), panel_dock, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_dock,
-                         _("If enabled, places the panel in the dock area of the window manager. "
-                           "Windows placed in the dock are usually treated differently than normal windows. "
-                           "The exact behavior depends on the window manager and its configuration."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_dock,
+                                _("If enabled, places the panel in the dock area of the window manager. "
+                                  "Windows placed in the dock are usually treated differently than normal windows. "
+                                  "The exact behavior depends on the window manager and its configuration."));
 
     row++;
     col = 2;
@@ -963,14 +945,12 @@ void create_panel(GtkWidget *parent)
     gtk_widget_show(panel_pivot_struts);
     gtk_table_attach(GTK_TABLE(table), panel_pivot_struts, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_pivot_struts,
-                         _("If enabled, the space reserved for the panel (if \"Maximised windows\" is set to "
-                           "match the panel size or hidden panel size) will be given to the window manager as if "
-                           "the panel were the opposite orientation (horizontal vs vertical) than it actually is. "
-                           "On some window managers this allows placing a panel in the middle of the virtual screen, "
-                           "e.g. on the bottom edge of the top screen in a vertical dual-monitor setup."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_pivot_struts,
+                                _("If enabled, the space reserved for the panel (if \"Maximised windows\" is set to "
+                                  "match the panel size or hidden panel size) will be given to the window manager as if "
+                                  "the panel were the opposite orientation (horizontal vs vertical) than it actually is. "
+                                  "On some window managers this allows placing a panel in the middle of the virtual screen, "
+                                  "e.g. on the bottom edge of the top screen in a vertical dual-monitor setup."));
 
     row++;
     col = 2;
@@ -988,16 +968,14 @@ void create_panel(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(panel_combo_layer), _("Normal"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(panel_combo_layer), _("Bottom"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 1);
-    gtk_tooltips_set_tip(tooltips,
-                         panel_combo_layer,
-                         _("Specifies the layer on which the panel window should be placed. \n"
-                           "Top means the panel should always cover other windows. \n"
-                           "Bottom means other windows should always cover the panel. \n"
-                           "Normal means that other windows may or may not cover the panel, depending on which has "
-                           "focus. \n"
-                           "Note that some window managers prevent this option from working correctly if the panel is "
-                           "placed in the dock."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_combo_layer,
+                                _("Specifies the layer on which the panel window should be placed. \n"
+                                  "Top means the panel should always cover other windows. \n"
+                                  "Bottom means other windows should always cover the panel. \n"
+                                  "Normal means that other windows may or may not cover the panel, depending on which has "
+                                  "focus. \n"
+                                  "Note that some window managers prevent this option from working correctly if the panel is "
+                                  "placed in the dock."));
 
     row++;
     col = 2;
@@ -1015,21 +993,19 @@ void create_panel(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(panel_combo_strut_policy), _("Match the hidden panel size"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(panel_combo_strut_policy), _("Fill the screen"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_strut_policy), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         panel_combo_strut_policy,
-                         _("Specifies the size of maximized windows. \n"
-                           "Match the panel size means that maximized windows should extend to the edge of the panel. "
-                           "\n"
-                           "Match the hidden panel size means that maximized windows should extend to the edge of the "
-                           "panel when hidden; "
-                           "when visible, the panel and the windows will overlap. \n"
-                           "Fill the screen means that maximized windows will always have the same size as the screen. "
-                           "\n"
-                           "\n"
-                           "Note: on multi-monitor (Xinerama) setups, the panel must be placed at the edge (not in the "
-                           "middle) "
-                           "of the virtual screen for this to work correctly."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_combo_strut_policy,
+                                _("Specifies the size of maximized windows. \n"
+                                  "Match the panel size means that maximized windows should extend to the edge of the panel. "
+                                  "\n"
+                                  "Match the hidden panel size means that maximized windows should extend to the edge of the "
+                                  "panel when hidden; "
+                                  "when visible, the panel and the windows will overlap. \n"
+                                  "Fill the screen means that maximized windows will always have the same size as the screen. "
+                                  "\n"
+                                  "\n"
+                                  "Note: on multi-monitor (Xinerama) setups, the panel must be placed at the edge (not in the "
+                                  "middle) "
+                                  "of the virtual screen for this to work correctly."));
 
     row++;
     col = 2;
@@ -1045,12 +1021,10 @@ void create_panel(GtkWidget *parent)
     gtk_entry_set_text(GTK_ENTRY(panel_window_name), "tint2");
     gtk_table_attach(GTK_TABLE(table), panel_window_name, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         panel_window_name,
-                         _("Specifies the name of the panel window. "
-                           "This is useful if you want to configure special treatment of tint2 windows in your "
-                           "window manager or compositor."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_window_name,
+                                _("Specifies the name of the panel window. "
+                                  "This is useful if you want to configure special treatment of tint2 windows in your "
+                                  "window manager or compositor."));
 
     change_paragraph(parent);
 }
@@ -1094,13 +1068,11 @@ void create_panel_items(GtkWidget *parent)
     gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(panel_items_view)), GTK_SELECTION_SINGLE);
     gtk_tree_view_set_model(GTK_TREE_VIEW(panel_items_view), GTK_TREE_MODEL(panel_items));
     g_object_unref(panel_items);
-    gtk_tooltips_set_tip(tooltips,
-                         panel_items_view,
-                         _("Specifies the elements that will appear in the panel and their order. "
-                           "Elements can be added by selecting them in the list of available elements, then clicking "
-                           "on "
-                           "the add left button."),
-                         NULL);
+    gtk_widget_set_tooltip_text(panel_items_view,
+                                _("Specifies the elements that will appear in the panel and their order. "
+                                  "Elements can be added by selecting them in the list of available elements, then clicking "
+                                  "on "
+                                  "the add left button."));
 
     all_items_view = gtk_tree_view_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(all_items_view),
@@ -1114,12 +1086,10 @@ void create_panel_items(GtkWidget *parent)
     gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(all_items_view)), GTK_SELECTION_SINGLE);
     gtk_tree_view_set_model(GTK_TREE_VIEW(all_items_view), GTK_TREE_MODEL(all_items));
     g_object_unref(all_items);
-    gtk_tooltips_set_tip(tooltips,
-                         all_items_view,
-                         _("Lists all the possible elements that can appear in the panel. "
-                           "Elements can be added to the panel by selecting them, then clicking on "
-                           "the add left button."),
-                         NULL);
+    gtk_widget_set_tooltip_text(all_items_view,
+                                _("Lists all the possible elements that can appear in the panel. "
+                                  "Elements can be added to the panel by selecting them, then clicking on "
+                                  "the add left button."));
 
     table = gtk_table_new(2, 3, FALSE);
     gtk_widget_show(table);
@@ -1147,7 +1117,7 @@ void create_panel_items(GtkWidget *parent)
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_UP, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(panel_move_item_up), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(panel_move_item_up), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
     gtk_widget_set_tooltip_text(button, _("Moves up the current element in the list of selected elements."));
@@ -1155,7 +1125,7 @@ void create_panel_items(GtkWidget *parent)
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_DOWN, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(panel_move_item_down), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(panel_move_item_down), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
     gtk_widget_set_tooltip_text(button, _("Moves down the current element in the list of selected elements."));
@@ -1168,7 +1138,7 @@ void create_panel_items(GtkWidget *parent)
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(panel_add_item), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(panel_add_item), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
     gtk_tooltips_set_tip(tooltips,
@@ -1180,7 +1150,7 @@ void create_panel_items(GtkWidget *parent)
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(panel_remove_item), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(panel_remove_item), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
     gtk_widget_set_tooltip_text(button, _("Removes the current element from the list of selected elements."));
@@ -2082,13 +2052,11 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(launcher_apps_view)), GTK_SELECTION_SINGLE);
     gtk_tree_view_set_model(GTK_TREE_VIEW(launcher_apps_view), GTK_TREE_MODEL(launcher_apps));
     g_object_unref(launcher_apps);
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_apps_view,
-                         _("Specifies the application launchers that will appear in the launcher and their order. "
-                           "Launchers can be added by selecting an item in the list of available applications, then "
-                           "clicking on "
-                           "the add left button."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_apps_view,
+                                _("Specifies the application launchers that will appear in the launcher and their order. "
+                                  "Launchers can be added by selecting an item in the list of available applications, then "
+                                  "clicking on "
+                                  "the add left button."));
 
     all_apps_view = gtk_tree_view_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(all_apps_view),
@@ -2109,12 +2077,10 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_tree_selection_set_mode(gtk_tree_view_get_selection(GTK_TREE_VIEW(all_apps_view)), GTK_SELECTION_SINGLE);
     gtk_tree_view_set_model(GTK_TREE_VIEW(all_apps_view), GTK_TREE_MODEL(all_apps));
     g_object_unref(all_apps);
-    gtk_tooltips_set_tip(tooltips,
-                         all_apps_view,
-                         _("Lists all the applications detected on the system. "
-                           "Launchers can be added to the launcher by selecting an application, then clicking on "
-                           "the add left button."),
-                         NULL);
+    gtk_widget_set_tooltip_text(all_apps_view,
+                                _("Lists all the applications detected on the system. "
+                                  "Launchers can be added to the launcher by selecting an application, then clicking on "
+                                  "the add left button."));
 
     GtkWidget *table, *label, *button;
     int row, col;
@@ -2145,24 +2111,20 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_UP, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(launcher_move_app_up), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(launcher_move_app_up), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         button,
-                         _("Moves up the current launcher in the list of selected applications."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button,
+                                _("Moves up the current launcher in the list of selected applications."));
 
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_DOWN, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(launcher_move_app_down), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(launcher_move_app_down), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         button,
-                         _("Moves down the current launcher in the list of selected applications."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button,
+                                _("Moves down the current launcher in the list of selected applications."));
 
     label = gtk_label_new(_(" "));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -2172,25 +2134,21 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_BACK, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(launcher_add_app), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(launcher_add_app), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         button,
-                         _("Copies the current application in the list of available applications to the list of "
-                           "selected applications."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button,
+                                _("Copies the current application in the list of available applications to the list of "
+                                  "selected applications."));
 
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(button), image);
-    g_signal_connect(GTK_OBJECT(button), "clicked", GTK_SIGNAL_FUNC(launcher_remove_app), NULL);
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(launcher_remove_app), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         button,
-                         _("Removes the current application from the list of selected application."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button,
+                                _("Removes the current application from the list of selected application."));
 
     gtk_table_attach(GTK_TABLE(table), vbox, 1, 2, 1, 2, GTK_FILL, GTK_FILL, 0, 0);
 
@@ -2229,13 +2187,11 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     launcher_apps_dirs = gtk_entry_new();
     gtk_widget_show(launcher_apps_dirs);
     gtk_box_pack_start(GTK_BOX(parent), launcher_apps_dirs, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_apps_dirs,
-                         _("Specifies a path to a directory from which the launcher is loading all .desktop files (all "
-                           "subdirectories are explored recursively). "
-                           "Can be used multiple times, in which case the paths must be separated by commas. Leading ~ "
-                           "is expaned to the path of the user's home directory."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_apps_dirs,
+                                _("Specifies a path to a directory from which the launcher is loading all .desktop files (all "
+                                  "subdirectories are explored recursively). "
+                                  "Can be used multiple times, in which case the paths must be separated by commas. Leading ~ "
+                                  "is expaned to the path of the user's home directory."));
 
     label = gtk_label_new(_("<b>Appearance</b>"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -2260,11 +2216,9 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_background);
     gtk_table_attach(GTK_TABLE(table), launcher_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_background,
-                         _("Selects the background used to display the launcher. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_background,
+                                _("Selects the background used to display the launcher. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     row++, col = 2;
     label = gtk_label_new(_("Icon background"));
@@ -2277,11 +2231,9 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_icon_background);
     gtk_table_attach(GTK_TABLE(table), launcher_icon_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_icon_background,
-                         _("Selects the background used to display the launcher icon. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_icon_background,
+                                _("Selects the background used to display the launcher icon. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     row++, col = 2;
     label = gtk_label_new(_("Horizontal padding"));
@@ -2294,11 +2246,9 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_padding_x);
     gtk_table_attach(GTK_TABLE(table), launcher_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_padding_x,
-                         _("Specifies the horizontal padding of the launcher. "
-                           "This is the space between the border and the elements inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_padding_x,
+                                _("Specifies the horizontal padding of the launcher. "
+                                  "This is the space between the border and the elements inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Vertical padding"));
@@ -2311,11 +2261,9 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_padding_y);
     gtk_table_attach(GTK_TABLE(table), launcher_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_padding_y,
-                         _("Specifies the vertical padding of the launcher. "
-                           "This is the space between the border and the elements inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_padding_y,
+                                _("Specifies the vertical padding of the launcher. "
+                                  "This is the space between the border and the elements inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Spacing"));
@@ -2328,10 +2276,8 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_spacing);
     gtk_table_attach(GTK_TABLE(table), launcher_spacing, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_spacing,
-                         _("Specifies the spacing between the elements inside the launcher."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_spacing,
+                                _("Specifies the spacing between the elements inside the launcher."));
 
     row++, col = 2;
     label = gtk_label_new(_("Icon size"));
@@ -2359,10 +2305,8 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_icon_opacity);
     gtk_table_attach(GTK_TABLE(table), launcher_icon_opacity, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_icon_opacity,
-                         _("Specifies the opacity of the launcher icons, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_icon_opacity,
+                                _("Specifies the opacity of the launcher icons, in percent."));
 
     row++;
     col = 2;
@@ -2377,10 +2321,8 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_icon_saturation);
     gtk_table_attach(GTK_TABLE(table), launcher_icon_saturation, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_icon_saturation,
-                         _("Specifies the saturation adjustment of the launcher icons, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_icon_saturation,
+                                _("Specifies the saturation adjustment of the launcher icons, in percent."));
 
     row++;
     col = 2;
@@ -2395,10 +2337,8 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_icon_brightness);
     gtk_table_attach(GTK_TABLE(table), launcher_icon_brightness, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_icon_brightness,
-                         _("Specifies the brightness adjustment of the launcher icons, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_icon_brightness,
+                                _("Specifies the brightness adjustment of the launcher icons, in percent."));
 
     row++, col = 2;
     label = gtk_label_new(_("Icon theme"));
@@ -2415,21 +2355,17 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_icon_theme);
     gtk_table_attach(GTK_TABLE(table), launcher_icon_theme, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_icon_theme,
-                         _("The icon theme used to display launcher icons. If left blank, "
-                           "tint2 will detect and use the icon theme of your desktop as long as you have "
-                           "an XSETTINGS manager running (most desktop environments do)."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_icon_theme,
+                                _("The icon theme used to display launcher icons. If left blank, "
+                                  "tint2 will detect and use the icon theme of your desktop as long as you have "
+                                  "an XSETTINGS manager running (most desktop environments do)."));
 
     launcher_icon_theme_override = gtk_check_button_new_with_label(_("Overrides XSETTINGS"));
     gtk_widget_show(launcher_icon_theme_override);
     gtk_table_attach(GTK_TABLE(table), launcher_icon_theme_override, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_icon_theme_override,
-                         _("If enabled, the icon theme selected here will override the one provided by XSETTINGS."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_icon_theme_override,
+                                _("If enabled, the icon theme selected here will override the one provided by XSETTINGS."));
 
     row++, col = 2;
     label = gtk_label_new(_("Startup notifications"));
@@ -2442,12 +2378,10 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(startup_notifications);
     gtk_table_attach(GTK_TABLE(table), startup_notifications, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         startup_notifications,
-                         _("If enabled, startup notifications are shown when starting applications from the launcher. "
-                           "The appearance may vary depending on your desktop environment configuration; normally, a "
-                           "busy mouse cursor is displayed until the application starts."),
-                         NULL);
+    gtk_widget_set_tooltip_text(startup_notifications,
+                                _("If enabled, startup notifications are shown when starting applications from the launcher. "
+                                  "The appearance may vary depending on your desktop environment configuration; normally, a "
+                                  "busy mouse cursor is displayed until the application starts."));
 
     row++, col = 2;
     label = gtk_label_new(_("Tooltips"));
@@ -2460,11 +2394,9 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     gtk_widget_show(launcher_tooltip);
     gtk_table_attach(GTK_TABLE(table), launcher_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         launcher_tooltip,
-                         _("If enabled, shows a tooltip with the application name when the mouse is moved over an "
-                           "application launcher."),
-                         NULL);
+    gtk_widget_set_tooltip_text(launcher_tooltip,
+                                _("If enabled, shows a tooltip with the application name when the mouse is moved over an "
+                                  "application launcher."));
 
     change_paragraph(parent);
 
@@ -2564,11 +2496,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_show_desktop);
     gtk_table_attach(GTK_TABLE(table), taskbar_show_desktop, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_show_desktop,
-                         _("If enabled, the taskbar is split into multiple smaller taskbars, one for each virtual "
-                           "desktop."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_show_desktop,
+                                _("If enabled, the taskbar is split into multiple smaller taskbars, one for each virtual "
+                                  "desktop."));
 
     col = 2;
     row++;
@@ -2595,11 +2525,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_distribute_size);
     gtk_table_attach(GTK_TABLE(table), taskbar_distribute_size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_distribute_size,
-                         _("If enabled and 'Show a taskbar for each desktop' is also enabled, "
-                           "the available size is distributed between taskbars proportionally to the number of tasks."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_distribute_size,
+                                _("If enabled and 'Show a taskbar for each desktop' is also enabled, "
+                                  "the available size is distributed between taskbars proportionally to the number of tasks."));
 
     col = 2;
     row++;
@@ -2613,10 +2541,8 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_hide_inactive_tasks);
     gtk_table_attach(GTK_TABLE(table), taskbar_hide_inactive_tasks, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_hide_inactive_tasks,
-                         _("If enabled, only the active task will be shown in the taskbar."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_hide_inactive_tasks,
+                                _("If enabled, only the active task will be shown in the taskbar."));
 
     col = 2;
     row++;
@@ -2630,11 +2556,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_hide_diff_monitor);
     gtk_table_attach(GTK_TABLE(table), taskbar_hide_diff_monitor, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_hide_diff_monitor,
-                         _("If enabled, tasks that are not on the same monitor as the panel will not be displayed. "
-                           "This behavior is enabled automatically if the panel monitor is set to 'All'."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_hide_diff_monitor,
+                                _("If enabled, tasks that are not on the same monitor as the panel will not be displayed. "
+                                  "This behavior is enabled automatically if the panel monitor is set to 'All'."));
 
     col = 2;
     row++;
@@ -2670,12 +2594,10 @@ void create_taskbar(GtkWidget *parent)
                      0,
                      0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_always_show_all_desktop_tasks,
-                         _("Has effect only if 'Show a taskbar for each desktop' is enabled. "
-                           "If enabled, tasks that appear on all desktops are shown on all taskbars. "
-                           "Otherwise, they are shown only on the taskbar of the current desktop."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_always_show_all_desktop_tasks,
+                                _("Has effect only if 'Show a taskbar for each desktop' is enabled. "
+                                  "If enabled, tasks that appear on all desktops are shown on all taskbars. "
+                                  "Otherwise, they are shown only on the taskbar of the current desktop."));
 
     row++;
     col = 2;
@@ -2696,15 +2618,13 @@ void create_taskbar(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(taskbar_sort_order), _("Most recently used first"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(taskbar_sort_order), _("Most recently used last"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_sort_order,
-                         _("Specifies how tasks should be sorted on the taskbar. \n"
-                           "'None' means that new tasks are added to the end, and the user can also reorder task "
-                           "buttons by mouse dragging. \n"
-                           "'By title' means that tasks are sorted by their window titles. \n"
-                           "'By application' means that tasks are sorted by their application names. \n"
-                           "'By center' means that tasks are sorted geometrically by their window centers."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_sort_order,
+                                _("Specifies how tasks should be sorted on the taskbar. \n"
+                                  "'None' means that new tasks are added to the end, and the user can also reorder task "
+                                  "buttons by mouse dragging. \n"
+                                  "'By title' means that tasks are sorted by their window titles. \n"
+                                  "'By application' means that tasks are sorted by their application names. \n"
+                                  "'By center' means that tasks are sorted geometrically by their window centers."));
 
     row++;
     col = 2;
@@ -2722,10 +2642,8 @@ void create_taskbar(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(taskbar_alignment), _("Center"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(taskbar_alignment), _("Right"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_alignment,
-                         _("Specifies how tasks should be positioned on the taskbar."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_alignment,
+                                _("Specifies how tasks should be positioned on the taskbar."));
 
     change_paragraph(parent);
 
@@ -2753,11 +2671,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_padding_x);
     gtk_table_attach(GTK_TABLE(table), taskbar_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_padding_x,
-                         _("Specifies the horizontal padding of the taskbar. "
-                           "This is the space between the border and the elements inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_padding_x,
+                                _("Specifies the horizontal padding of the taskbar. "
+                                  "This is the space between the border and the elements inside."));
 
     col = 2;
     row++;
@@ -2771,11 +2687,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_padding_y);
     gtk_table_attach(GTK_TABLE(table), taskbar_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_padding_y,
-                         _("Specifies the vertical padding of the taskbar. "
-                           "This is the space between the border and the elements inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_padding_y,
+                                _("Specifies the vertical padding of the taskbar. "
+                                  "This is the space between the border and the elements inside."));
 
     col = 2;
     row++;
@@ -2789,10 +2703,8 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_spacing);
     gtk_table_attach(GTK_TABLE(table), taskbar_spacing, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_spacing,
-                         _("Specifies the spacing between the elements inside the taskbar."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_spacing,
+                                _("Specifies the spacing between the elements inside the taskbar."));
 
     col = 2;
     row++;
@@ -2806,11 +2718,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_active_background);
     gtk_table_attach(GTK_TABLE(table), taskbar_active_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_active_background,
-                         _("Selects the background used to display the taskbar of the current desktop. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_active_background,
+                                _("Selects the background used to display the taskbar of the current desktop. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
     col = 2;
     row++;
     label = gtk_label_new(_("Inactive background"));
@@ -2823,11 +2733,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_inactive_background);
     gtk_table_attach(GTK_TABLE(table), taskbar_inactive_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_inactive_background,
-                         _("Selects the background used to display taskbars of inactive desktops. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_inactive_background,
+                                _("Selects the background used to display taskbars of inactive desktops. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     change_paragraph(parent);
 
@@ -2856,11 +2764,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_show_name);
     gtk_table_attach(GTK_TABLE(table), taskbar_show_name, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_show_name,
-                         _("If enabled, displays the name of the desktop at the top/left of the taskbar. "
-                           "The name is set by your window manager; you might be able to configure it there."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_show_name,
+                                _("If enabled, displays the name of the desktop at the top/left of the taskbar. "
+                                  "The name is set by your window manager; you might be able to configure it there."));
 
     col = 2;
     row++;
@@ -2874,11 +2780,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_name_padding_x);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_name_padding_x,
-                         _("Specifies the horizontal padding of the desktop name. "
-                           "This is the space between the border and the text inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_name_padding_x,
+                                _("Specifies the horizontal padding of the desktop name. "
+                                  "This is the space between the border and the text inside."));
 
     col = 2;
     row++;
@@ -2892,11 +2796,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_name_padding_y);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_name_padding_y,
-                         _("Specifies the vertical padding of the desktop name. "
-                           "This is the space between the border and the text inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_name_padding_y,
+                                _("Specifies the vertical padding of the desktop name. "
+                                  "This is the space between the border and the text inside."));
 
     col = 2;
     row++;
@@ -2911,10 +2813,8 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_name_active_color);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_active_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_name_active_color,
-                         _("Specifies the font color used to display the name of the current desktop."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_name_active_color,
+                                _("Specifies the font color used to display the name of the current desktop."));
 
     col = 2;
     row++;
@@ -2929,21 +2829,17 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_name_inactive_color);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_inactive_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_name_inactive_color,
-                         _("Specifies the font color used to display the name of inactive desktops."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_name_inactive_color,
+                                _("Specifies the font color used to display the name of inactive desktops."));
 
     col = 1;
     row++;
     taskbar_name_font_set = gtk_check_button_new();
     gtk_widget_show(taskbar_name_font_set);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_font_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_name_font_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_name_font_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font"));
@@ -2961,9 +2857,9 @@ void create_taskbar(GtkWidget *parent)
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(taskbar_name_font), TRUE);
     gtk_widget_set_tooltip_text(taskbar_name_font, _("Specifies the font used to display the desktop name."));
-    g_signal_connect(GTK_OBJECT(taskbar_name_font_set),
+    g_signal_connect(G_OBJECT(taskbar_name_font_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(font_set_callback),
+                       G_CALLBACK(font_set_callback),
                        taskbar_name_font);
     font_set_callback(taskbar_name_font_set, taskbar_name_font);
 
@@ -2979,11 +2875,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_name_active_background);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_active_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_name_active_background,
-                         _("Selects the background used to display the name of the current desktop. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_name_active_background,
+                                _("Selects the background used to display the name of the current desktop. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     col = 2;
     row++;
@@ -2997,11 +2891,9 @@ void create_taskbar(GtkWidget *parent)
     gtk_widget_show(taskbar_name_inactive_background);
     gtk_table_attach(GTK_TABLE(table), taskbar_name_inactive_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         taskbar_name_inactive_background,
-                         _("Selects the background used to display the name of inactive desktops. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(taskbar_name_inactive_background,
+                                _("Selects the background used to display the name of inactive desktops. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     change_paragraph(parent);
 }
@@ -3046,21 +2938,19 @@ void create_task(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_left), _("Next task"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_left), _("Previous task"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_left), 5);
-    gtk_tooltips_set_tip(tooltips,
-                         task_mouse_left,
-                         _("Specifies the action performed when task buttons receive a left click event: \n"
-                           "'None' means that no action is taken. \n"
-                           "'Close' closes the task. \n"
-                           "'Toggle' toggles the task. \n"
-                           "'Iconify' iconifies (minimizes) the task. \n"
-                           "'Shade' shades (collapses) the task. \n"
-                           "'Toggle or iconify' toggles or iconifies the task. \n"
-                           "'Maximize or restore' maximizes or minimizes the task. \n"
-                           "'Desktop left' sends the task to the previous desktop. \n"
-                           "'Desktop right' sends the task to the next desktop. \n"
-                           "'Next task' sends the focus to the next task. \n"
-                           "'Previous task' sends the focus to the previous task."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_mouse_left,
+                                _("Specifies the action performed when task buttons receive a left click event: \n"
+                                  "'None' means that no action is taken. \n"
+                                  "'Close' closes the task. \n"
+                                  "'Toggle' toggles the task. \n"
+                                  "'Iconify' iconifies (minimizes) the task. \n"
+                                  "'Shade' shades (collapses) the task. \n"
+                                  "'Toggle or iconify' toggles or iconifies the task. \n"
+                                  "'Maximize or restore' maximizes or minimizes the task. \n"
+                                  "'Desktop left' sends the task to the previous desktop. \n"
+                                  "'Desktop right' sends the task to the next desktop. \n"
+                                  "'Next task' sends the focus to the next task. \n"
+                                  "'Previous task' sends the focus to the previous task."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll up"));
@@ -3085,21 +2975,19 @@ void create_task(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_scroll_up), _("Next task"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_scroll_up), _("Previous task"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_scroll_up), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         task_mouse_scroll_up,
-                         _("Specifies the action performed when task buttons receive a scroll up event: \n"
-                           "'None' means that no action is taken. \n"
-                           "'Close' closes the task. \n"
-                           "'Toggle' toggles the task. \n"
-                           "'Iconify' iconifies (minimizes) the task. \n"
-                           "'Shade' shades (collapses) the task. \n"
-                           "'Toggle or iconify' toggles or iconifies the task. \n"
-                           "'Maximize or restore' maximizes or minimizes the task. \n"
-                           "'Desktop left' sends the task to the previous desktop. \n"
-                           "'Desktop right' sends the task to the next desktop. \n"
-                           "'Next task' sends the focus to the next task. \n"
-                           "'Previous task' sends the focus to the previous task."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_mouse_scroll_up,
+                                _("Specifies the action performed when task buttons receive a scroll up event: \n"
+                                  "'None' means that no action is taken. \n"
+                                  "'Close' closes the task. \n"
+                                  "'Toggle' toggles the task. \n"
+                                  "'Iconify' iconifies (minimizes) the task. \n"
+                                  "'Shade' shades (collapses) the task. \n"
+                                  "'Toggle or iconify' toggles or iconifies the task. \n"
+                                  "'Maximize or restore' maximizes or minimizes the task. \n"
+                                  "'Desktop left' sends the task to the previous desktop. \n"
+                                  "'Desktop right' sends the task to the next desktop. \n"
+                                  "'Next task' sends the focus to the next task. \n"
+                                  "'Previous task' sends the focus to the previous task."));
 
     row++, col = 2;
     label = gtk_label_new(_("Middle click"));
@@ -3124,21 +3012,19 @@ void create_task(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_middle), _("Next task"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_middle), _("Previous task"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_middle), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         task_mouse_middle,
-                         _("Specifies the action performed when task buttons receive a middle click event: \n"
-                           "'None' means that no action is taken. \n"
-                           "'Close' closes the task. \n"
-                           "'Toggle' toggles the task. \n"
-                           "'Iconify' iconifies (minimizes) the task. \n"
-                           "'Shade' shades (collapses) the task. \n"
-                           "'Toggle or iconify' toggles or iconifies the task. \n"
-                           "'Maximize or restore' maximizes or minimizes the task. \n"
-                           "'Desktop left' sends the task to the previous desktop. \n"
-                           "'Desktop right' sends the task to the next desktop. \n"
-                           "'Next task' sends the focus to the next task. \n"
-                           "'Previous task' sends the focus to the previous task."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_mouse_middle,
+                                _("Specifies the action performed when task buttons receive a middle click event: \n"
+                                  "'None' means that no action is taken. \n"
+                                  "'Close' closes the task. \n"
+                                  "'Toggle' toggles the task. \n"
+                                  "'Iconify' iconifies (minimizes) the task. \n"
+                                  "'Shade' shades (collapses) the task. \n"
+                                  "'Toggle or iconify' toggles or iconifies the task. \n"
+                                  "'Maximize or restore' maximizes or minimizes the task. \n"
+                                  "'Desktop left' sends the task to the previous desktop. \n"
+                                  "'Desktop right' sends the task to the next desktop. \n"
+                                  "'Next task' sends the focus to the next task. \n"
+                                  "'Previous task' sends the focus to the previous task."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll down"));
@@ -3163,21 +3049,19 @@ void create_task(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_scroll_down), _("Next task"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_scroll_down), _("Previous task"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_scroll_down), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         task_mouse_scroll_down,
-                         _("Specifies the action performed when task buttons receive a scroll down event: \n"
-                           "'None' means that no action is taken. \n"
-                           "'Close' closes the task. \n"
-                           "'Toggle' toggles the task. \n"
-                           "'Iconify' iconifies (minimizes) the task. \n"
-                           "'Shade' shades (collapses) the task. \n"
-                           "'Toggle or iconify' toggles or iconifies the task. \n"
-                           "'Maximize or restore' maximizes or minimizes the task. \n"
-                           "'Desktop left' sends the task to the previous desktop. \n"
-                           "'Desktop right' sends the task to the next desktop. \n"
-                           "'Next task' sends the focus to the next task. \n"
-                           "'Previous task' sends the focus to the previous task."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_mouse_scroll_down,
+                                _("Specifies the action performed when task buttons receive a scroll down event: \n"
+                                  "'None' means that no action is taken. \n"
+                                  "'Close' closes the task. \n"
+                                  "'Toggle' toggles the task. \n"
+                                  "'Iconify' iconifies (minimizes) the task. \n"
+                                  "'Shade' shades (collapses) the task. \n"
+                                  "'Toggle or iconify' toggles or iconifies the task. \n"
+                                  "'Maximize or restore' maximizes or minimizes the task. \n"
+                                  "'Desktop left' sends the task to the previous desktop. \n"
+                                  "'Desktop right' sends the task to the next desktop. \n"
+                                  "'Next task' sends the focus to the next task. \n"
+                                  "'Previous task' sends the focus to the previous task."));
 
     row++, col = 2;
     label = gtk_label_new(_("Right click"));
@@ -3202,21 +3086,19 @@ void create_task(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_right), _("Next task"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(task_mouse_right), _("Previous task"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(task_mouse_right), 1);
-    gtk_tooltips_set_tip(tooltips,
-                         task_mouse_right,
-                         _("Specifies the action performed when task buttons receive a right click event: \n"
-                           "'None' means that no action is taken. \n"
-                           "'Close' closes the task. \n"
-                           "'Toggle' toggles the task. \n"
-                           "'Iconify' iconifies (minimizes) the task. \n"
-                           "'Shade' shades (collapses) the task. \n"
-                           "'Toggle or iconify' toggles or iconifies the task. \n"
-                           "'Maximize or restore' maximizes or minimizes the task. \n"
-                           "'Desktop left' sends the task to the previous desktop. \n"
-                           "'Desktop right' sends the task to the next desktop. \n"
-                           "'Next task' sends the focus to the next task. \n"
-                           "'Previous task' sends the focus to the previous task."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_mouse_right,
+                                _("Specifies the action performed when task buttons receive a right click event: \n"
+                                  "'None' means that no action is taken. \n"
+                                  "'Close' closes the task. \n"
+                                  "'Toggle' toggles the task. \n"
+                                  "'Iconify' iconifies (minimizes) the task. \n"
+                                  "'Shade' shades (collapses) the task. \n"
+                                  "'Toggle or iconify' toggles or iconifies the task. \n"
+                                  "'Maximize or restore' maximizes or minimizes the task. \n"
+                                  "'Desktop left' sends the task to the previous desktop. \n"
+                                  "'Desktop right' sends the task to the next desktop. \n"
+                                  "'Next task' sends the focus to the next task. \n"
+                                  "'Previous task' sends the focus to the previous task."));
 
     change_paragraph(parent);
 
@@ -3269,10 +3151,8 @@ void create_task(GtkWidget *parent)
     gtk_widget_show(task_align_center);
     gtk_table_attach(GTK_TABLE(table), task_align_center, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         task_align_center,
-                         _("If enabled, the text is centered on task buttons. Otherwise, it is left-aligned."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_align_center,
+                                _("If enabled, the text is centered on task buttons. Otherwise, it is left-aligned."));
 
     row++, col = 2;
     label = gtk_label_new(_("Show tooltips"));
@@ -3285,11 +3165,9 @@ void create_task(GtkWidget *parent)
     gtk_widget_show(tooltip_task_show);
     gtk_table_attach(GTK_TABLE(table), tooltip_task_show, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_task_show,
-                         _("If enabled, a tooltip showing the window title is displayed when the mouse cursor moves "
-                           "over task buttons."),
-                         NULL);
+    gtk_widget_set_tooltip_text(tooltip_task_show,
+                                _("If enabled, a tooltip showing the window title is displayed when the mouse cursor moves "
+                                  "over task buttons."));
 
     row++, col = 2;
     label = gtk_label_new(_("Thumbnails"));
@@ -3302,11 +3180,9 @@ void create_task(GtkWidget *parent)
     gtk_widget_show(tooltip_task_thumbnail);
     gtk_table_attach(GTK_TABLE(table), tooltip_task_thumbnail, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_task_thumbnail,
-                         _("If enabled, a tooltip showing the window thumbnail is displayed when the mouse cursor moves "
-                           "over task buttons."),
-                         NULL);
+    gtk_widget_set_tooltip_text(tooltip_task_thumbnail,
+                                _("If enabled, a tooltip showing the window thumbnail is displayed when the mouse cursor moves "
+                                  "over task buttons."));
 
     row++, col = 2;
     label = gtk_label_new(_("Thumbnail size"));
@@ -3358,11 +3234,9 @@ void create_task(GtkWidget *parent)
     gtk_widget_show(task_padding_x);
     gtk_table_attach(GTK_TABLE(table), task_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         task_padding_x,
-                         _("Specifies the horizontal padding of the task buttons. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_padding_x,
+                                _("Specifies the horizontal padding of the task buttons. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Vertical padding"));
@@ -3375,11 +3249,9 @@ void create_task(GtkWidget *parent)
     gtk_widget_show(task_padding_y);
     gtk_table_attach(GTK_TABLE(table), task_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         task_padding_y,
-                         _("Specifies the vertical padding of the task buttons. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_padding_y,
+                                _("Specifies the vertical padding of the task buttons. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Spacing"));
@@ -3398,11 +3270,9 @@ void create_task(GtkWidget *parent)
     task_font_set = gtk_check_button_new();
     gtk_widget_show(task_font_set);
     gtk_table_attach(GTK_TABLE(table), task_font_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         task_font_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(task_font_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font"));
@@ -3417,7 +3287,7 @@ void create_task(GtkWidget *parent)
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(task_font), TRUE);
     gtk_widget_set_tooltip_text(task_font, _("Specifies the font used to display the task button text."));
-    g_signal_connect(GTK_OBJECT(task_font_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), task_font);
+    g_signal_connect(G_OBJECT(task_font_set), "toggled", G_CALLBACK(font_set_callback), task_font);
     font_set_callback(task_font_set, task_font);
 
     change_paragraph(parent);
@@ -3567,14 +3437,12 @@ void create_task_status(GtkWidget *notebook,
     *task_status_color_set = gtk_check_button_new();
     gtk_widget_show(*task_status_color_set);
     gtk_table_attach(GTK_TABLE(table), *task_status_color_set, 0, 1, 0, 1, GTK_FILL, 0, 0, 0);
-    g_signal_connect(GTK_OBJECT(*task_status_color_set),
+    g_signal_connect(G_OBJECT(*task_status_color_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(task_status_toggle_button_callback),
+                       G_CALLBACK(task_status_toggle_button_callback),
                        NULL);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_color_set,
-                         _("If enabled, a custom font color is used to display the task text."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_color_set,
+                                _("If enabled, a custom font color is used to display the task text."));
 
     label = gtk_label_new(_("Font color"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -3585,22 +3453,18 @@ void create_task_status(GtkWidget *notebook,
     gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(*task_status_color), TRUE);
     gtk_widget_show(*task_status_color);
     gtk_table_attach(GTK_TABLE(table), *task_status_color, 2, 3, 0, 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_color,
-                         _("Specifies the font color used to display the task text."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_color,
+                                _("Specifies the font color used to display the task text."));
 
     *task_status_icon_osb_set = gtk_check_button_new();
     gtk_widget_show(*task_status_icon_osb_set);
     gtk_table_attach(GTK_TABLE(table), *task_status_icon_osb_set, 0, 1, 1, 2, GTK_FILL, 0, 0, 0);
-    g_signal_connect(GTK_OBJECT(*task_status_icon_osb_set),
+    g_signal_connect(G_OBJECT(*task_status_icon_osb_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(task_status_toggle_button_callback),
+                       G_CALLBACK(task_status_toggle_button_callback),
                        NULL);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_icon_osb_set,
-                         _("If enabled, a custom opacity/saturation/brightness is used to display the task icon."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_icon_osb_set,
+                                _("If enabled, a custom opacity/saturation/brightness is used to display the task icon."));
 
     label = gtk_label_new(_("Icon opacity"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -3611,10 +3475,8 @@ void create_task_status(GtkWidget *notebook,
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(*task_status_icon_opacity), 100);
     gtk_widget_show(*task_status_icon_opacity);
     gtk_table_attach(GTK_TABLE(table), *task_status_icon_opacity, 2, 3, 1, 2, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_icon_opacity,
-                         _("Specifies the opacity (in %) used to display the task icon."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_icon_opacity,
+                                _("Specifies the opacity (in %) used to display the task icon."));
 
     label = gtk_label_new(_("Icon saturation"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -3625,10 +3487,8 @@ void create_task_status(GtkWidget *notebook,
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(*task_status_icon_saturation), 0);
     gtk_widget_show(*task_status_icon_saturation);
     gtk_table_attach(GTK_TABLE(table), *task_status_icon_saturation, 2, 3, 2, 3, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_icon_saturation,
-                         _("Specifies the saturation adjustment (in %) used to display the task icon."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_icon_saturation,
+                                _("Specifies the saturation adjustment (in %) used to display the task icon."));
 
     label = gtk_label_new(_("Icon brightness"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -3639,22 +3499,18 @@ void create_task_status(GtkWidget *notebook,
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(*task_status_icon_brightness), 0);
     gtk_widget_show(*task_status_icon_brightness);
     gtk_table_attach(GTK_TABLE(table), *task_status_icon_brightness, 2, 3, 3, 4, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_icon_brightness,
-                         _("Specifies the brightness adjustment (in %) used to display the task icon."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_icon_brightness,
+                                _("Specifies the brightness adjustment (in %) used to display the task icon."));
 
     *task_status_background_set = gtk_check_button_new();
     gtk_widget_show(*task_status_background_set);
     gtk_table_attach(GTK_TABLE(table), *task_status_background_set, 0, 1, 4, 5, GTK_FILL, 0, 0, 0);
-    g_signal_connect(GTK_OBJECT(*task_status_background_set),
+    g_signal_connect(G_OBJECT(*task_status_background_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(task_status_toggle_button_callback),
+                       G_CALLBACK(task_status_toggle_button_callback),
                        NULL);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_background_set,
-                         _("If enabled, a custom background is used to display the task."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_background_set,
+                                _("If enabled, a custom background is used to display the task."));
 
     label = gtk_label_new(_("Background"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -3664,11 +3520,9 @@ void create_task_status(GtkWidget *notebook,
     *task_status_background = create_background_combo(text);
     gtk_widget_show(*task_status_background);
     gtk_table_attach(GTK_TABLE(table), *task_status_background, 2, 3, 4, 5, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         *task_status_background,
-                         _("Selects the background used to display the task. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(*task_status_background,
+                                _("Selects the background used to display the task. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     if (*task_status_color == task_urgent_color) {
         label = gtk_label_new(_("Blinks"));
@@ -3724,11 +3578,9 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_format_line1), 16);
     gtk_table_attach(GTK_TABLE(table), clock_format_line1, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_format_line1,
-                         _("Specifies the format used to display the first line of the clock text. "
-                           "See 'man date' for all the available options."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_format_line1,
+                                _("Specifies the format used to display the first line of the clock text. "
+                                  "See 'man date' for all the available options."));
 
     row++, col = 2;
     label = gtk_label_new(_("Second line format"));
@@ -3742,11 +3594,9 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_format_line2), 16);
     gtk_table_attach(GTK_TABLE(table), clock_format_line2, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_format_line2,
-                         _("Specifies the format used to display the second line of the clock text. "
-                           "See 'man date' for all the available options."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_format_line2,
+                                _("Specifies the format used to display the second line of the clock text. "
+                                  "See 'man date' for all the available options."));
 
     row++, col = 2;
     label = gtk_label_new(_("First line timezone"));
@@ -3760,12 +3610,10 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_tmz_line1), 16);
     gtk_table_attach(GTK_TABLE(table), clock_tmz_line1, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_tmz_line1,
-                         _("Specifies the timezone used to display the first line of the clock text. If empty, the "
-                           "current timezone is used. "
-                           "Otherwise, it must be set to a valid value of the TZ environment variable."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_tmz_line1,
+                                _("Specifies the timezone used to display the first line of the clock text. If empty, the "
+                                  "current timezone is used. "
+                                  "Otherwise, it must be set to a valid value of the TZ environment variable."));
 
     row++, col = 2;
     label = gtk_label_new(_("Second line timezone"));
@@ -3779,12 +3627,10 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_tmz_line2), 16);
     gtk_table_attach(GTK_TABLE(table), clock_tmz_line2, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_tmz_line2,
-                         _("Specifies the timezone used to display the second line of the clock text. If empty, the "
-                           "current timezone is used. "
-                           "Otherwise, it must be set to a valid value of the TZ environment variable."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_tmz_line2,
+                                _("Specifies the timezone used to display the second line of the clock text. If empty, the "
+                                  "current timezone is used. "
+                                  "Otherwise, it must be set to a valid value of the TZ environment variable."));
 
     change_paragraph(parent);
 
@@ -3812,10 +3658,8 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_left_command), 50);
     gtk_table_attach(GTK_TABLE(table), clock_left_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_left_command,
-                         _("Specifies a command that will be executed when the clock receives a left click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_left_command,
+                                _("Specifies a command that will be executed when the clock receives a left click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Right click command"));
@@ -3829,10 +3673,8 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_right_command), 50);
     gtk_table_attach(GTK_TABLE(table), clock_right_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_right_command,
-                         _("Specifies a command that will be executed when the clock receives a right click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_right_command,
+                                _("Specifies a command that will be executed when the clock receives a right click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Middle click command"));
@@ -3846,10 +3688,8 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_mclick_command), 50);
     gtk_table_attach(GTK_TABLE(table), clock_mclick_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_mclick_command,
-                         _("Specifies a command that will be executed when the clock receives a middle click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_mclick_command,
+                                _("Specifies a command that will be executed when the clock receives a middle click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll up command"));
@@ -3863,10 +3703,8 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_uwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), clock_uwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_uwheel_command,
-                         _("Specifies a command that will be executed when the clock receives a mouse scroll up."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_uwheel_command,
+                                _("Specifies a command that will be executed when the clock receives a mouse scroll up."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll down command"));
@@ -3880,10 +3718,8 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_dwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), clock_dwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_dwheel_command,
-                         _("Specifies a command that will be executed when the clock receives a mouse scroll down."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_dwheel_command,
+                                _("Specifies a command that will be executed when the clock receives a mouse scroll down."));
 
     change_paragraph(parent);
 
@@ -3910,11 +3746,9 @@ void create_clock(GtkWidget *parent)
     gtk_widget_show(clock_background);
     gtk_table_attach(GTK_TABLE(table), clock_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_background,
-                         _("Selects the background used to display the clock. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_background,
+                                _("Selects the background used to display the clock. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     row++, col = 2;
     label = gtk_label_new(_("Horizontal padding"));
@@ -3927,11 +3761,9 @@ void create_clock(GtkWidget *parent)
     gtk_widget_show(clock_padding_x);
     gtk_table_attach(GTK_TABLE(table), clock_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_padding_x,
-                         _("Specifies the horizontal padding of the clock. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_padding_x,
+                                _("Specifies the horizontal padding of the clock. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Vertical padding"));
@@ -3944,21 +3776,17 @@ void create_clock(GtkWidget *parent)
     gtk_widget_show(clock_padding_y);
     gtk_table_attach(GTK_TABLE(table), clock_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_padding_y,
-                         _("Specifies the vertical padding of the clock. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_padding_y,
+                                _("Specifies the vertical padding of the clock. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 1;
     clock_font_line1_set = gtk_check_button_new();
     gtk_widget_show(clock_font_line1_set);
     gtk_table_attach(GTK_TABLE(table), clock_font_line1_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         clock_font_line1_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_font_line1_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font first line"));
@@ -3976,13 +3804,11 @@ void create_clock(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), clock_font_line1, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(clock_font_line1), TRUE);
-    gtk_tooltips_set_tip(tooltips,
-                         clock_font_line1,
-                         _("Specifies the font used to display the first line of the clock."),
-                         NULL);
-    g_signal_connect(GTK_OBJECT(clock_font_line1_set),
+    gtk_widget_set_tooltip_text(clock_font_line1,
+                                _("Specifies the font used to display the first line of the clock."));
+    g_signal_connect(G_OBJECT(clock_font_line1_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(font_set_callback),
+                       G_CALLBACK(font_set_callback),
                        clock_font_line1);
     font_set_callback(clock_font_line1_set, clock_font_line1);
 
@@ -3990,11 +3816,9 @@ void create_clock(GtkWidget *parent)
     clock_font_line2_set = gtk_check_button_new();
     gtk_widget_show(clock_font_line2_set);
     gtk_table_attach(GTK_TABLE(table), clock_font_line2_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         clock_font_line2_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_font_line2_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font second line"));
@@ -4012,13 +3836,11 @@ void create_clock(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), clock_font_line2, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(clock_font_line2), TRUE);
-    gtk_tooltips_set_tip(tooltips,
-                         clock_font_line2,
-                         _("Specifies the font used to display the second line of the clock."),
-                         NULL);
-    g_signal_connect(GTK_OBJECT(clock_font_line2_set),
+    gtk_widget_set_tooltip_text(clock_font_line2,
+                                _("Specifies the font used to display the second line of the clock."));
+    g_signal_connect(G_OBJECT(clock_font_line2_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(font_set_callback),
+                       G_CALLBACK(font_set_callback),
                        clock_font_line2);
     font_set_callback(clock_font_line2_set, clock_font_line2);
 
@@ -4062,11 +3884,9 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_format_tooltip), 30);
     gtk_table_attach(GTK_TABLE(table), clock_format_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_format_tooltip,
-                         _("Specifies the format used to display the clock tooltip. "
-                           "See 'man date' for the available options."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_format_tooltip,
+                                _("Specifies the format used to display the clock tooltip. "
+                                  "See 'man date' for the available options."));
 
     row++, col = 2;
     label = gtk_label_new(_("Timezone"));
@@ -4080,12 +3900,10 @@ void create_clock(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(clock_tmz_tooltip), 16);
     gtk_table_attach(GTK_TABLE(table), clock_tmz_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         clock_tmz_tooltip,
-                         _("Specifies the timezone used to display the clock tooltip. If empty, the current timezone "
-                           "is used. "
-                           "Otherwise, it must be set to a valid value of the TZ environment variable."),
-                         NULL);
+    gtk_widget_set_tooltip_text(clock_tmz_tooltip,
+                                _("Specifies the timezone used to display the clock tooltip. If empty, the current timezone "
+                                  "is used. "
+                                  "Otherwise, it must be set to a valid value of the TZ environment variable."));
 
     change_paragraph(parent);
 }
@@ -4273,11 +4091,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_interval);
     gtk_table_attach(GTK_TABLE(table), executor->execp_interval, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_interval,
-                         _("Specifies the interval at which the command is executed, in seconds. "
-                           "If zero, the command is executed only once."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_interval,
+                                _("Specifies the interval at which the command is executed, in seconds. "
+                                  "If zero, the command is executed only once."));
 
     row++, col = 2;
     label = gtk_label_new(_("Show icon"));
@@ -4290,11 +4106,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_has_icon);
     gtk_table_attach(GTK_TABLE(table), executor->execp_has_icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_has_icon,
-                         _("If enabled, the first line printed by the command is interpreted "
-                           "as a path to an image file."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_has_icon,
+                                _("If enabled, the first line printed by the command is interpreted "
+                                  "as a path to an image file."));
 
     row++, col = 2;
     label = gtk_label_new(_("Cache icon"));
@@ -4308,11 +4122,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_cache_icon);
     gtk_table_attach(GTK_TABLE(table), executor->execp_cache_icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_cache_icon,
-                         _("If enabled, the image is not reloaded from disk every time the command is executed if the "
-                           "path remains unchanged. Enabling this is recommended."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_cache_icon,
+                                _("If enabled, the image is not reloaded from disk every time the command is executed if the "
+                                  "path remains unchanged. Enabling this is recommended."));
 
     row++, col = 2;
     label = gtk_label_new(_("Continuous output"));
@@ -4325,14 +4137,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_continuous);
     gtk_table_attach(GTK_TABLE(table), executor->execp_continuous, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_continuous,
-                         _("If non-zero, the last execp_continuous lines from the output of "
-                           "the command are displayed, every execp_continuous lines; this is "
-                           "useful for showing the output of commands that run indefinitely, "
-                           "such as 'ping 127.0.0.1'. If zero, the output of the command is "
-                           "displayed after it finishes executing."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_continuous,
+                                _("If non-zero, the last execp_continuous lines from the output of "
+                                  "the command are displayed, every execp_continuous lines; this is "
+                                  "useful for showing the output of commands that run indefinitely, "
+                                  "such as 'ping 127.0.0.1'. If zero, the output of the command is "
+                                  "displayed after it finishes executing."));
     row++, col = 2;
     label = gtk_label_new(_("Display markup"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -4345,12 +4155,10 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_markup);
     gtk_table_attach(GTK_TABLE(table), executor->execp_markup, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_markup,
-                         _("If enabled, the output of the command is treated as Pango markup, "
-                           "which allows rich text formatting. Note that using this with commands "
-                           "that print data downloaded from the Internet is a potential security risk."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_markup,
+                                _("If enabled, the output of the command is treated as Pango markup, "
+                                  "which allows rich text formatting. Note that using this with commands "
+                                  "that print data downloaded from the Internet is a potential security risk."));
 
     row++, col = 2;
     label = gtk_label_new(_("Monitor"));
@@ -4372,10 +4180,8 @@ void create_execp(GtkWidget *stack, int i)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("5"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("6"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(executor->execp_monitor), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_monitor,
-                         _("Specifies the monitor on which to place the executor."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_monitor,
+                                _("Specifies the monitor on which to place the executor."));
 
     change_paragraph(parent);
 
@@ -4403,10 +4209,8 @@ void create_execp(GtkWidget *stack, int i)
     gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_left_command), 50);
     gtk_table_attach(GTK_TABLE(table), executor->execp_left_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_left_command,
-                         _("Specifies a command that will be executed when the executor receives a left click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_left_command,
+                                _("Specifies a command that will be executed when the executor receives a left click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Right click command"));
@@ -4420,10 +4224,8 @@ void create_execp(GtkWidget *stack, int i)
     gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_right_command), 50);
     gtk_table_attach(GTK_TABLE(table), executor->execp_right_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_right_command,
-                         _("Specifies a command that will be executed when the executor receives a right click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_right_command,
+                                _("Specifies a command that will be executed when the executor receives a right click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Middle click command"));
@@ -4437,10 +4239,8 @@ void create_execp(GtkWidget *stack, int i)
     gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_mclick_command), 50);
     gtk_table_attach(GTK_TABLE(table), executor->execp_mclick_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_mclick_command,
-                         _("Specifies a command that will be executed when the executor receives a middle click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_mclick_command,
+                                _("Specifies a command that will be executed when the executor receives a middle click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll up command"));
@@ -4454,10 +4254,8 @@ void create_execp(GtkWidget *stack, int i)
     gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_uwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), executor->execp_uwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_uwheel_command,
-                         _("Specifies a command that will be executed when the executor receives a mouse scroll up."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_uwheel_command,
+                                _("Specifies a command that will be executed when the executor receives a mouse scroll up."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll down command"));
@@ -4471,10 +4269,8 @@ void create_execp(GtkWidget *stack, int i)
     gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_dwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), executor->execp_dwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_dwheel_command,
-                         _("Specifies a command that will be executed when the executor receives a mouse scroll down."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_dwheel_command,
+                                _("Specifies a command that will be executed when the executor receives a mouse scroll down."));
 
     change_paragraph(parent);
 
@@ -4501,11 +4297,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_background);
     gtk_table_attach(GTK_TABLE(table), executor->execp_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_background,
-                         _("Selects the background used to display the executor. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_background,
+                                _("Selects the background used to display the executor. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     row++, col = 2;
     label = gtk_label_new(_("Horizontal padding"));
@@ -4518,11 +4312,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_padding_x);
     gtk_table_attach(GTK_TABLE(table), executor->execp_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_padding_x,
-                         _("Specifies the horizontal padding of the executor. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_padding_x,
+                                _("Specifies the horizontal padding of the executor. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Vertical padding"));
@@ -4535,21 +4327,17 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_show(executor->execp_padding_y);
     gtk_table_attach(GTK_TABLE(table), executor->execp_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_padding_y,
-                         _("Specifies the vertical padding of the executor. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_padding_y,
+                                _("Specifies the vertical padding of the executor. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 1;
     executor->execp_font_set = gtk_check_button_new();
     gtk_widget_show(executor->execp_font_set);
     gtk_table_attach(GTK_TABLE(table), executor->execp_font_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_font_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_font_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font"));
@@ -4563,9 +4351,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), executor->execp_font, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(executor->execp_font), TRUE);
-    g_signal_connect(GTK_OBJECT(executor->execp_font_set),
+    g_signal_connect(G_OBJECT(executor->execp_font_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(font_set_callback),
+                       G_CALLBACK(font_set_callback),
                        executor->execp_font);
     font_set_callback(executor->execp_font_set, executor->execp_font);
 
@@ -4645,11 +4433,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_tooltip), 50);
     gtk_table_attach(GTK_TABLE(table), executor->execp_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         executor->execp_tooltip,
-                         _("The tooltip text to display. Leave this empty to display an automatically generated "
-                           "tooltip with information about when the command was last executed."),
-                         NULL);
+    gtk_widget_set_tooltip_text(executor->execp_tooltip,
+                                _("The tooltip text to display. Leave this empty to display an automatically generated "
+                                  "tooltip with information about when the command was last executed."));
 
     change_paragraph(parent);
 }
@@ -4754,10 +4540,8 @@ void create_button(GtkWidget *stack, int i) {
     gtk_entry_set_width_chars(GTK_ENTRY(button->button_left_command), 50);
     gtk_table_attach(GTK_TABLE(table), button->button_left_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_left_command,
-                         _("Specifies a command that will be executed when the button receives a left click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_left_command,
+                                _("Specifies a command that will be executed when the button receives a left click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Right click command"));
@@ -4771,10 +4555,8 @@ void create_button(GtkWidget *stack, int i) {
     gtk_entry_set_width_chars(GTK_ENTRY(button->button_right_command), 50);
     gtk_table_attach(GTK_TABLE(table), button->button_right_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_right_command,
-                         _("Specifies a command that will be executed when the button receives a right click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_right_command,
+                                _("Specifies a command that will be executed when the button receives a right click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Middle click command"));
@@ -4788,10 +4570,8 @@ void create_button(GtkWidget *stack, int i) {
     gtk_entry_set_width_chars(GTK_ENTRY(button->button_mclick_command), 50);
     gtk_table_attach(GTK_TABLE(table), button->button_mclick_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_mclick_command,
-                         _("Specifies a command that will be executed when the button receives a middle click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_mclick_command,
+                                _("Specifies a command that will be executed when the button receives a middle click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll up command"));
@@ -4805,10 +4585,8 @@ void create_button(GtkWidget *stack, int i) {
     gtk_entry_set_width_chars(GTK_ENTRY(button->button_uwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), button->button_uwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_uwheel_command,
-                         _("Specifies a command that will be executed when the button receives a mouse scroll up."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_uwheel_command,
+                                _("Specifies a command that will be executed when the button receives a mouse scroll up."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll down command"));
@@ -4822,10 +4600,8 @@ void create_button(GtkWidget *stack, int i) {
     gtk_entry_set_width_chars(GTK_ENTRY(button->button_dwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), button->button_dwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_dwheel_command,
-                         _("Specifies a command that will be executed when the button receives a mouse scroll down."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_dwheel_command,
+                                _("Specifies a command that will be executed when the button receives a mouse scroll down."));
 
     change_paragraph(parent);
 
@@ -4852,11 +4628,9 @@ void create_button(GtkWidget *stack, int i) {
     gtk_widget_show(button->button_background);
     gtk_table_attach(GTK_TABLE(table), button->button_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_background,
-                         _("Selects the background used to display the button. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_background,
+                                _("Selects the background used to display the button. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     row++, col = 2;
     label = gtk_label_new(_("Horizontal padding"));
@@ -4869,11 +4643,9 @@ void create_button(GtkWidget *stack, int i) {
     gtk_widget_show(button->button_padding_x);
     gtk_table_attach(GTK_TABLE(table), button->button_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_padding_x,
-                         _("Specifies the horizontal padding of the button. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_padding_x,
+                                _("Specifies the horizontal padding of the button. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Vertical padding"));
@@ -4886,21 +4658,17 @@ void create_button(GtkWidget *stack, int i) {
     gtk_widget_show(button->button_padding_y);
     gtk_table_attach(GTK_TABLE(table), button->button_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_padding_y,
-                         _("Specifies the vertical padding of the button. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_padding_y,
+                                _("Specifies the vertical padding of the button. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 1;
     button->button_font_set = gtk_check_button_new();
     gtk_widget_show(button->button_font_set);
     gtk_table_attach(GTK_TABLE(table), button->button_font_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         button->button_font_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button->button_font_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font"));
@@ -4914,9 +4682,9 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), button->button_font, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(button->button_font), TRUE);
-    g_signal_connect(GTK_OBJECT(button->button_font_set),
+    g_signal_connect(G_OBJECT(button->button_font_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(font_set_callback),
+                       G_CALLBACK(font_set_callback),
                        button->button_font);
     font_set_callback(button->button_font_set, button->button_font);
 
@@ -5163,14 +4931,12 @@ void create_systemtray(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(systray_icon_order), _("Left to right"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(systray_icon_order), _("Right to left"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(systray_icon_order), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         systray_icon_order,
-                         _("Specifies the order used to arrange the system tray icons. \n"
-                           "'Ascending' means that icons are sorted in ascending order of their window names. \n"
-                           "'Descending' means that icons are sorted in descending order of their window names. \n"
-                           "'Left to right' means that icons are always added to the right. \n"
-                           "'Right to left' means that icons are always added to the left."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_icon_order,
+                                _("Specifies the order used to arrange the system tray icons. \n"
+                                  "'Ascending' means that icons are sorted in ascending order of their window names. \n"
+                                  "'Descending' means that icons are sorted in descending order of their window names. \n"
+                                  "'Left to right' means that icons are always added to the right. \n"
+                                  "'Right to left' means that icons are always added to the left."));
 
     row++;
     col = 2;
@@ -5192,11 +4958,9 @@ void create_systemtray(GtkWidget *parent)
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(systray_monitor), _("5"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(systray_monitor), _("6"));
     gtk_combo_box_set_active(GTK_COMBO_BOX(systray_monitor), 0);
-    gtk_tooltips_set_tip(tooltips,
-                         systray_monitor,
-                         _("Specifies the monitor on which to place the system tray. "
-                           "Due to technical limitations, the system tray cannot be displayed on multiple monitors."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_monitor,
+                                _("Specifies the monitor on which to place the system tray. "
+                                  "Due to technical limitations, the system tray cannot be displayed on multiple monitors."));
 
     change_paragraph(parent);
 
@@ -5223,11 +4987,9 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_background);
     gtk_table_attach(GTK_TABLE(table), systray_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         systray_background,
-                         _("Selects the background used to display the system tray. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_background,
+                                _("Selects the background used to display the system tray. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     row++;
     col = 2;
@@ -5241,11 +5003,9 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_padding_x);
     gtk_table_attach(GTK_TABLE(table), systray_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         systray_padding_x,
-                         _("Specifies the horizontal padding of the system tray. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_padding_x,
+                                _("Specifies the horizontal padding of the system tray. "
+                                  "This is the space between the border and the content inside."));
 
     row++;
     col = 2;
@@ -5259,11 +5019,9 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_padding_y);
     gtk_table_attach(GTK_TABLE(table), systray_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         systray_padding_y,
-                         _("Specifies the vertical padding of the system tray. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_padding_y,
+                                _("Specifies the vertical padding of the system tray. "
+                                  "This is the space between the border and the content inside."));
 
     row++;
     col = 2;
@@ -5291,10 +5049,8 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_icon_size);
     gtk_table_attach(GTK_TABLE(table), systray_icon_size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         systray_icon_size,
-                         _("Specifies the size of the system tray icons, in pixels."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_icon_size,
+                                _("Specifies the size of the system tray icons, in pixels."));
 
     row++;
     col = 2;
@@ -5309,10 +5065,8 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_icon_opacity);
     gtk_table_attach(GTK_TABLE(table), systray_icon_opacity, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         systray_icon_opacity,
-                         _("Specifies the opacity of the system tray icons, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_icon_opacity,
+                                _("Specifies the opacity of the system tray icons, in percent."));
 
     row++;
     col = 2;
@@ -5327,10 +5081,8 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_icon_saturation);
     gtk_table_attach(GTK_TABLE(table), systray_icon_saturation, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         systray_icon_saturation,
-                         _("Specifies the saturation adjustment of the system tray icons, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_icon_saturation,
+                                _("Specifies the saturation adjustment of the system tray icons, in percent."));
 
     row++;
     col = 2;
@@ -5345,10 +5097,8 @@ void create_systemtray(GtkWidget *parent)
     gtk_widget_show(systray_icon_brightness);
     gtk_table_attach(GTK_TABLE(table), systray_icon_brightness, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         systray_icon_brightness,
-                         _("Specifies the brightness adjustment of the system tray icons, in percent."),
-                         NULL);
+    gtk_widget_set_tooltip_text(systray_icon_brightness,
+                                _("Specifies the brightness adjustment of the system tray icons, in percent."));
 
     row++, col = 2;
     label = gtk_label_new(_("Name filter"));
@@ -5399,11 +5149,9 @@ void create_battery(GtkWidget *parent)
     gtk_widget_show(battery_hide_if_higher);
     gtk_table_attach(GTK_TABLE(table), battery_hide_if_higher, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_hide_if_higher,
-                         _("Minimum battery level for which to hide the batter applet. Use 101 to always show the "
-                           "batter applet."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_hide_if_higher,
+                                _("Minimum battery level for which to hide the batter applet. Use 101 to always show the "
+                                  "batter applet."));
 
     label = gtk_label_new(_("%"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -5442,10 +5190,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(battery_alert_cmd), 50);
     gtk_table_attach(GTK_TABLE(table), battery_alert_cmd, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_alert_cmd,
-                         _("Command to be executed when the alert threshold is reached."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_alert_cmd,
+                                _("Command to be executed when the alert threshold is reached."));
 
     row++, col = 2;
     label = gtk_label_new(_("Battery full command"));
@@ -5486,10 +5232,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(ac_connected_cmd), 50);
     gtk_table_attach(GTK_TABLE(table), ac_connected_cmd, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         ac_connected_cmd,
-                         _("Specifies a command that will be executed when AC is connected to the system."),
-                         NULL);
+    gtk_widget_set_tooltip_text(ac_connected_cmd,
+                                _("Specifies a command that will be executed when AC is connected to the system."));
 
     row++, col = 2;
     label = gtk_label_new(_("AC disconnected command"));
@@ -5503,10 +5247,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(ac_disconnected_cmd), 50);
     gtk_table_attach(GTK_TABLE(table), ac_disconnected_cmd, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         ac_disconnected_cmd,
-                         _("Specifies a command that will be executed when AC is disconnected to the system."),
-                         NULL);
+    gtk_widget_set_tooltip_text(ac_disconnected_cmd,
+                                _("Specifies a command that will be executed when AC is disconnected to the system."));
 
     change_paragraph(parent);
 
@@ -5534,11 +5276,9 @@ void create_battery(GtkWidget *parent)
     gtk_widget_show(battery_tooltip);
     gtk_table_attach(GTK_TABLE(table), battery_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_tooltip,
-                         _("If enabled, shows a tooltip with detailed battery information when the mouse is moved over "
-                           "the battery widget."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_tooltip,
+                                _("If enabled, shows a tooltip with detailed battery information when the mouse is moved over "
+                                  "the battery widget."));
 
     row++, col = 2;
     label = gtk_label_new(_("Left click command"));
@@ -5552,10 +5292,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(battery_left_command), 50);
     gtk_table_attach(GTK_TABLE(table), battery_left_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_left_command,
-                         _("Specifies a command that will be executed when the battery receives a left click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_left_command,
+                                _("Specifies a command that will be executed when the battery receives a left click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Right click command"));
@@ -5569,10 +5307,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(battery_right_command), 50);
     gtk_table_attach(GTK_TABLE(table), battery_right_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_right_command,
-                         _("Specifies a command that will be executed when the battery receives a right click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_right_command,
+                                _("Specifies a command that will be executed when the battery receives a right click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Middle click command"));
@@ -5586,10 +5322,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(battery_mclick_command), 50);
     gtk_table_attach(GTK_TABLE(table), battery_mclick_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_mclick_command,
-                         _("Specifies a command that will be executed when the battery receives a middle click."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_mclick_command,
+                                _("Specifies a command that will be executed when the battery receives a middle click."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll up command"));
@@ -5603,10 +5337,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(battery_uwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), battery_uwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_uwheel_command,
-                         _("Specifies a command that will be executed when the battery receives a mouse scroll up."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_uwheel_command,
+                                _("Specifies a command that will be executed when the battery receives a mouse scroll up."));
 
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll down command"));
@@ -5620,10 +5352,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(battery_dwheel_command), 50);
     gtk_table_attach(GTK_TABLE(table), battery_dwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_dwheel_command,
-                         _("Specifies a command that will be executed when the battery receives a mouse scroll down."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_dwheel_command,
+                                _("Specifies a command that will be executed when the battery receives a mouse scroll down."));
 
     change_paragraph(parent);
 
@@ -5650,11 +5380,9 @@ void create_battery(GtkWidget *parent)
     gtk_widget_show(battery_background);
     gtk_table_attach(GTK_TABLE(table), battery_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_background,
-                         _("Selects the background used to display the battery. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_background,
+                                _("Selects the background used to display the battery. "
+                                  "Backgrounds can be edited in the Backgrounds tab."));
 
     row++, col = 2;
     label = gtk_label_new(_("Horizontal padding"));
@@ -5667,11 +5395,9 @@ void create_battery(GtkWidget *parent)
     gtk_widget_show(battery_padding_x);
     gtk_table_attach(GTK_TABLE(table), battery_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_padding_x,
-                         _("Specifies the horizontal padding of the battery. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_padding_x,
+                                _("Specifies the horizontal padding of the battery. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Vertical padding"));
@@ -5684,21 +5410,17 @@ void create_battery(GtkWidget *parent)
     gtk_widget_show(battery_padding_y);
     gtk_table_attach(GTK_TABLE(table), battery_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_padding_y,
-                         _("Specifies the vertical padding of the battery. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_padding_y,
+                                _("Specifies the vertical padding of the battery. "
+                                  "This is the space between the border and the content inside."));
 
     row++, col = 1;
     battery_font_line1_set = gtk_check_button_new();
     gtk_widget_show(battery_font_line1_set);
     gtk_table_attach(GTK_TABLE(table), battery_font_line1_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         battery_font_line1_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_font_line1_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font first line"));
@@ -5715,13 +5437,11 @@ void create_battery(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), battery_font_line1, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(battery_font_line1), TRUE);
-    gtk_tooltips_set_tip(tooltips,
-                         battery_font_line1,
-                         _("Specifies the font used to display the first line of the battery text."),
-                         NULL);
-    g_signal_connect(GTK_OBJECT(battery_font_line1_set),
+    gtk_widget_set_tooltip_text(battery_font_line1,
+                                _("Specifies the font used to display the first line of the battery text."));
+    g_signal_connect(G_OBJECT(battery_font_line1_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(font_set_callback),
+                       G_CALLBACK(font_set_callback),
                        battery_font_line1);
     font_set_callback(battery_font_line1_set, battery_font_line1);
 
@@ -5729,11 +5449,9 @@ void create_battery(GtkWidget *parent)
     battery_font_line2_set = gtk_check_button_new();
     gtk_widget_show(battery_font_line2_set);
     gtk_table_attach(GTK_TABLE(table), battery_font_line2_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         battery_font_line2_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_font_line2_set,
+                                _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
+                                  "is used."));
     col++;
 
     label = gtk_label_new(_("Font second line"));
@@ -5750,13 +5468,11 @@ void create_battery(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), battery_font_line2, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(battery_font_line2), TRUE);
-    gtk_tooltips_set_tip(tooltips,
-                         battery_font_line2,
-                         _("Specifies the font used to display the second line of the battery text."),
-                         NULL);
-    g_signal_connect(GTK_OBJECT(battery_font_line2_set),
+    gtk_widget_set_tooltip_text(battery_font_line2,
+                                _("Specifies the font used to display the second line of the battery text."));
+    g_signal_connect(G_OBJECT(battery_font_line2_set),
                        "toggled",
-                       GTK_SIGNAL_FUNC(font_set_callback),
+                       G_CALLBACK(font_set_callback),
                        battery_font_line2);
     font_set_callback(battery_font_line2_set, battery_font_line2);
 
@@ -5772,10 +5488,8 @@ void create_battery(GtkWidget *parent)
     gtk_widget_show(battery_font_color);
     gtk_table_attach(GTK_TABLE(table), battery_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_font_color,
-                         _("Specifies the font clor used to display the battery text."),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_font_color,
+                                _("Specifies the font clor used to display the battery text."));
 
     row++, col = 2;
     label = gtk_label_new(_("First line format"));
@@ -5796,10 +5510,8 @@ void create_battery(GtkWidget *parent)
                             " %t: Time left. Shows \"hrs:mins\" when charging/discharging, or \"Full\".\n"
                             " %p: Percentage. Includes the % sign.\n"
                             " %p: Percentage. Without the % sign.";
-    gtk_tooltips_set_tip(tooltips,
-                         battery_format1,
-                         _(bat_format_spec),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_format1,
+                                _(bat_format_spec));
 
     row++, col = 2;
     label = gtk_label_new(_("Second line format"));
@@ -5813,10 +5525,8 @@ void create_battery(GtkWidget *parent)
     gtk_entry_set_width_chars(GTK_ENTRY(battery_format2), 16);
     gtk_table_attach(GTK_TABLE(table), battery_format2, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         battery_format2,
-                         _(bat_format_spec),
-                         NULL);
+    gtk_widget_set_tooltip_text(battery_format2,
+                                _(bat_format_spec));
 
     change_paragraph(parent);
 }
@@ -5850,10 +5560,8 @@ void create_tooltip(GtkWidget *parent)
     gtk_widget_show(tooltip_show_after);
     gtk_table_attach(GTK_TABLE(table), tooltip_show_after, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_show_after,
-                         _("Specifies a delay after which to show the tooltip when moving the mouse over an element."),
-                         NULL);
+    gtk_widget_set_tooltip_text(tooltip_show_after,
+                         _("Specifies a delay after which to show the tooltip when moving the mouse over an element."));
 
     label = gtk_label_new(_("seconds"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -5871,11 +5579,9 @@ void create_tooltip(GtkWidget *parent)
     tooltip_hide_after = gtk_spin_button_new_with_range(0, 10000, 0.1);
     gtk_widget_show(tooltip_hide_after);
     gtk_table_attach(GTK_TABLE(table), tooltip_hide_after, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_hide_after,
+    gtk_widget_set_tooltip_text(tooltip_hide_after,
                          _("Specifies a delay after which to hide the tooltip when moving the mouse outside an "
-                           "element."),
-                         NULL);
+                           "element."));
     col++;
 
     label = gtk_label_new(_("seconds"));
@@ -5909,11 +5615,9 @@ void create_tooltip(GtkWidget *parent)
     gtk_widget_show(tooltip_background);
     gtk_table_attach(GTK_TABLE(table), tooltip_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_background,
+    gtk_widget_set_tooltip_text(tooltip_background,
                          _("Selects the background used to display the tooltip. "
-                           "Backgrounds can be edited in the Backgrounds tab."),
-                         NULL);
+                           "Backgrounds can be edited in the Backgrounds tab."));
 
     row++, col = 2;
     label = gtk_label_new(_("Horizontal padding"));
@@ -5926,11 +5630,9 @@ void create_tooltip(GtkWidget *parent)
     gtk_widget_show(tooltip_padding_x);
     gtk_table_attach(GTK_TABLE(table), tooltip_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_padding_x,
+    gtk_widget_set_tooltip_text(tooltip_padding_x,
                          _("Specifies the horizontal padding of the tooltip. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+                           "This is the space between the border and the content inside."));
 
     row++, col = 2;
     label = gtk_label_new(_("Vertical padding"));
@@ -5943,21 +5645,16 @@ void create_tooltip(GtkWidget *parent)
     gtk_widget_show(tooltip_padding_y);
     gtk_table_attach(GTK_TABLE(table), tooltip_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_padding_y,
+    gtk_widget_set_tooltip_text(tooltip_padding_y,
                          _("Specifies the vertical padding of the tooltip. "
-                           "This is the space between the border and the content inside."),
-                         NULL);
+                           "This is the space between the border and the content inside."));
 
     row++, col = 1;
     tooltip_font_set = gtk_check_button_new();
     gtk_widget_show(tooltip_font_set);
     gtk_table_attach(GTK_TABLE(table), tooltip_font_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_font_set,
-                         _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
-                           "is used."),
-                         NULL);
+    gtk_widget_set_tooltip_text(tooltip_font_set, _("If not checked, the desktop theme font is used. "
+                                               "If checked, the custom font specified here is used."));
     col++;
 
     label = gtk_label_new(_("Font"));
@@ -5972,7 +5669,7 @@ void create_tooltip(GtkWidget *parent)
     col++;
     gtk_font_button_set_show_style(GTK_FONT_BUTTON(tooltip_font), TRUE);
     gtk_widget_set_tooltip_text(tooltip_font, _("Specifies the font used to display the text of the tooltip."));
-    g_signal_connect(GTK_OBJECT(tooltip_font_set), "toggled", GTK_SIGNAL_FUNC(font_set_callback), tooltip_font);
+    g_signal_connect(G_OBJECT(tooltip_font_set), "toggled", G_CALLBACK(font_set_callback), tooltip_font);
     font_set_callback(tooltip_font_set, tooltip_font);
 
     row++, col = 2;
@@ -5987,10 +5684,7 @@ void create_tooltip(GtkWidget *parent)
     gtk_widget_show(tooltip_font_color);
     gtk_table_attach(GTK_TABLE(table), tooltip_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_tooltips_set_tip(tooltips,
-                         tooltip_font_color,
-                         _("Specifies the font color used to display the text of the tooltip."),
-                         NULL);
+    gtk_widget_set_tooltip_text(tooltip_font_color, _("Specifies the font color used to display the text of the tooltip."));
 
     change_paragraph(parent);
 }

@@ -606,7 +606,6 @@ static gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event,
             }
         }
         show_popup_menu(treeview, event, userdata);
-        return TRUE;
     }
     return FALSE;
 }

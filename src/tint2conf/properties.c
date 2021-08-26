@@ -228,129 +228,67 @@ GtkWidget *create_properties()
     gtk_window_set_default_size(GTK_WINDOW(view), 920, 600);
     gtk_window_set_skip_pager_hint(GTK_WINDOW(view), TRUE);
     gtk_window_set_type_hint(GTK_WINDOW(view), GDK_WINDOW_TYPE_HINT_DIALOG);
-
-    dialog_vbox3 = gtk_dialog_get_content_area(GTK_DIALOG(view));
-    gtk_widget_show(dialog_vbox3);
-
-    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
-                                   GTK_POLICY_AUTOMATIC,
-                                   GTK_POLICY_AUTOMATIC);
-    gtk_box_pack_start(GTK_BOX(dialog_vbox3), scroll, TRUE, TRUE, 1);
-    gtk_widget_show(scroll);
+    
+    #define create_dialog_stack_button(name, response, callback, data) \
+    do {                                                                  \
+        button = gtk_button_new_from_stock(name);                         \
+        gtk_widget_show(button);                                          \
+        gtk_dialog_add_action_widget(GTK_DIALOG(view), button, response); \
+        g_signal_connect(button, "clicked", G_CALLBACK(callback), data);  \
+        gtk_widget_set_can_default(button, TRUE);                         \
+    } while (0)
+    create_dialog_stack_button("gtk-apply",  GTK_RESPONSE_APPLY,   applyClicked, NULL);
+    create_dialog_stack_button("gtk-cancel", GTK_RESPONSE_CANCEL, cancelClicked, view);
+    create_dialog_stack_button("gtk-ok",     GTK_RESPONSE_OK,         okClicked, view);
+    #undef create_dialog_stack_button
+    
+    // notebook
 
     notebook = gtk_notebook_new();
-    gtk_widget_show(notebook);
     gtk_container_set_border_width(GTK_CONTAINER(notebook), 5);
-    gtk_container_add(GTK_CONTAINER(scroll), notebook);
     gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_LEFT);
+    gtk_notebook_set_scrollable(GTK_NOTEBOOK(notebook), TRUE);
+    gtk_notebook_popup_enable(GTK_NOTEBOOK(notebook));
 
-    button = gtk_button_new_from_stock("gtk-apply");
-    gtk_widget_show(button);
-    gtk_dialog_add_action_widget(GTK_DIALOG(view), button, GTK_RESPONSE_APPLY);
-    g_signal_connect(button, "clicked", G_CALLBACK(applyClicked), NULL);
-    gtk_widget_set_can_default(button, TRUE);
+    #define create_page(text, widget) \
+    do {                               \
+        label = gtk_label_new(text);    \
+        widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);  \
+        gtk_container_set_border_width(GTK_CONTAINER(widget), 10);            \
+        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(widget), label); \
+        gtk_widget_show(label);                                                                \
+        gtk_widget_show(widget);                                                               \
+    } while (0)
+    create_page(_("Gradients"),    page_gradient);
+    create_page(_("Backgrounds"),  page_background);
+    create_page(_("Panel"),        page_panel);
+    create_page(_("Panel items"),  page_panel_items);
+    create_page(_("Taskbar"),      page_taskbar);
+    create_page(_("Task buttons"), page_task);
+    create_page(_("Launcher"),     page_launcher);
+    create_page(_("Clock"),        page_clock);
+    create_page(_("System tray"),  page_systemtray);
+    create_page(_("Battery"),      page_battery);
+    create_page(_("Tooltip"),      page_tooltip);
+    #undef create_page
 
-    button = gtk_button_new_from_stock("gtk-cancel");
-    gtk_widget_show(button);
-    gtk_dialog_add_action_widget(GTK_DIALOG(view), button, GTK_RESPONSE_CANCEL);
-    g_signal_connect(button, "clicked", G_CALLBACK(cancelClicked), view);
-    gtk_widget_set_can_default(button, TRUE);
-
-    button = gtk_button_new_from_stock("gtk-ok");
-    gtk_widget_show(button);
-    gtk_dialog_add_action_widget(GTK_DIALOG(view), button, GTK_RESPONSE_OK);
-    g_signal_connect(button, "clicked", G_CALLBACK(okClicked), view);
-    gtk_widget_set_can_default(button, TRUE);
-
-    // notebook
-    label = gtk_label_new(_("Gradients"));
-    gtk_widget_show(label);
-    page_gradient = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_gradient), 10);
-    gtk_widget_show(page_gradient);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_gradient), label);
     create_gradient(page_gradient);
-
-    label = gtk_label_new(_("Backgrounds"));
-    gtk_widget_show(label);
-    page_background = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_background), 10);
-    gtk_widget_show(page_background);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_background), label);
     create_background(page_background);
-
-    label = gtk_label_new(_("Panel"));
-    gtk_widget_show(label);
-    page_panel = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_panel), 10);
-    gtk_widget_show(page_panel);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_panel), label);
     create_panel(page_panel);
-
-    label = gtk_label_new(_("Panel items"));
-    gtk_widget_show(label);
-    page_panel_items = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_panel_items), 10);
-    gtk_widget_show(page_panel_items);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_panel_items), label);
     create_panel_items(page_panel_items);
-
-    label = gtk_label_new(_("Taskbar"));
-    gtk_widget_show(label);
-    page_taskbar = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_taskbar), 10);
-    gtk_widget_show(page_taskbar);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_taskbar), label);
     create_taskbar(page_taskbar);
-
-    label = gtk_label_new(_("Task buttons"));
-    gtk_widget_show(label);
-    page_task = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_task), 10);
-    gtk_widget_show(page_task);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_task), label);
     create_task(page_task);
-
-    label = gtk_label_new(_("Launcher"));
-    gtk_widget_show(label);
-    page_launcher = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_launcher), 10);
-    gtk_widget_show(page_launcher);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_launcher), label);
     create_launcher(page_launcher, GTK_WINDOW(view));
-
-    label = gtk_label_new(_("Clock"));
-    gtk_widget_show(label);
-    page_clock = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_clock), 10);
-    gtk_widget_show(page_clock);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_clock), label);
     create_clock(page_clock);
-
-    label = gtk_label_new(_("System tray"));
-    gtk_widget_show(label);
-    page_systemtray = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_systemtray), 10);
-    gtk_widget_show(page_systemtray);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_systemtray), label);
     create_systemtray(page_systemtray);
-
-    label = gtk_label_new(_("Battery"));
-    gtk_widget_show(label);
-    page_battery = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_battery), 10);
-    gtk_widget_show(page_battery);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_battery), label);
     create_battery(page_battery);
-
-    label = gtk_label_new(_("Tooltip"));
-    gtk_widget_show(label);
-    page_tooltip = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(page_tooltip), 10);
-    gtk_widget_show(page_tooltip);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(page_tooltip), label);
     create_tooltip(page_tooltip);
+    
+    dialog_vbox3 = gtk_dialog_get_content_area(GTK_DIALOG(view));
+    gtk_box_pack_start(GTK_BOX(dialog_vbox3), notebook, TRUE, TRUE, 1);
+
+    gtk_widget_show(dialog_vbox3);
+    gtk_widget_show(notebook);
 
     return view;
 }

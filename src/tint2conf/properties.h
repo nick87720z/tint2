@@ -114,9 +114,7 @@ extern GtkWidget *tooltip_background;
 // Separator
 typedef struct Separator {
     char name[256];
-    GtkWidget *container;
     GtkWidget *page_separator;
-    GtkWidget *page_label;
     GtkWidget *separator_background;
     GtkWidget *separator_color;
     GtkWidget *separator_style;
@@ -130,9 +128,7 @@ extern GArray *separators;
 // Executor
 typedef struct Executor {
     char name[256];
-    GtkWidget *container;
     GtkWidget *page_execp;
-    GtkWidget *page_label;
     GtkWidget *execp_name;
     GtkWidget *execp_command, *execp_interval, *execp_has_icon, *execp_cache_icon, *execp_show_tooltip;
     GtkWidget *execp_continuous, *execp_markup, *execp_tooltip, *execp_monitor;
@@ -147,9 +143,7 @@ extern GArray *executors;
 // Button
 typedef struct Button {
     char name[256];
-    GtkWidget *container;
     GtkWidget *page_button;
-    GtkWidget *page_label;
     GtkWidget *button_icon, *button_text, *button_tooltip;
     GtkWidget *button_left_command, *button_right_command;
     GtkWidget *button_mclick_command, *button_rclick_command, *button_uwheel_command, *button_dwheel_command;

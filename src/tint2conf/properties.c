@@ -45,7 +45,7 @@ GtkWidget *screen_position[12];
 GSList *screen_position_group;
 GtkWidget *panel_background;
 
-GtkWidget *notebook;
+GtkWidget *stack;
 
 // taskbar
 GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;
@@ -212,10 +212,9 @@ void font_set_callback(GtkWidget *widget, gpointer data)
 
 GtkWidget *create_properties()
 {
-    GtkWidget *view, *dialog_vbox3, *button;
+    GtkWidget *view, *dialog_vbox3, *button, *frame, *sidebar, *content_box;
     GtkWidget *page_panel, *page_panel_items, *page_launcher, *page_taskbar, *page_battery, *page_clock, *page_tooltip,
         *page_systemtray, *page_task, *page_background, *page_gradient;
-    GtkWidget *label;
 
     separators = g_array_new(FALSE, TRUE, sizeof(Separator));
     executors = g_array_new(FALSE, TRUE, sizeof(Executor));
@@ -243,21 +242,16 @@ GtkWidget *create_properties()
     #undef create_dialog_stack_button
     
     // notebook
-
-    notebook = gtk_notebook_new();
-    gtk_container_set_border_width(GTK_CONTAINER(notebook), 5);
-    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_LEFT);
-    gtk_notebook_set_scrollable(GTK_NOTEBOOK(notebook), TRUE);
-    gtk_notebook_popup_enable(GTK_NOTEBOOK(notebook));
+    
+    stack = gtk_stack_new();
+    gtk_stack_set_homogeneous(GTK_STACK(stack), FALSE);
 
     #define create_page(text, widget) \
     do {                               \
-        label = gtk_label_new(text);    \
         widget = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);  \
         gtk_container_set_border_width(GTK_CONTAINER(widget), 10);            \
-        gtk_notebook_append_page(GTK_NOTEBOOK(notebook), addScrollBarToWidget(widget), label); \
-        gtk_widget_show(label);                                                                \
-        gtk_widget_show(widget);                                                               \
+        gtk_stack_add_titled(GTK_STACK(stack), widget, NULL, text); \
+        gtk_widget_show(widget);                                                          \
     } while (0)
     create_page(_("Gradients"),    page_gradient);
     create_page(_("Backgrounds"),  page_background);
@@ -284,11 +278,25 @@ GtkWidget *create_properties()
     create_battery(page_battery);
     create_tooltip(page_tooltip);
     
-    dialog_vbox3 = gtk_dialog_get_content_area(GTK_DIALOG(view));
-    gtk_box_pack_start(GTK_BOX(dialog_vbox3), notebook, TRUE, TRUE, 1);
+    sidebar = gtk_stack_sidebar_new();
+    gtk_stack_sidebar_set_stack(GTK_STACK_SIDEBAR(sidebar), GTK_STACK(stack));
+    gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(gtk_bin_get_child(GTK_BIN(sidebar))), GTK_CORNER_TOP_RIGHT);
 
+    content_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_pack_start(GTK_BOX(content_box), sidebar, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(content_box), addScrollBarToWidget(stack), TRUE, TRUE, 0);
+    
+    frame = gtk_frame_new(NULL);
+    gtk_container_add(GTK_CONTAINER(frame), content_box);
+    
+    dialog_vbox3 = gtk_dialog_get_content_area(GTK_DIALOG(view));
+    gtk_box_pack_start(GTK_BOX(dialog_vbox3), frame, TRUE, TRUE, 0);
+
+    gtk_widget_show(sidebar);
+    gtk_widget_show(stack);
+    gtk_widget_show(content_box);
+    gtk_widget_show(frame);
     gtk_widget_show(dialog_vbox3);
-    gtk_widget_show(notebook);
 
     return view;
 }
@@ -4039,7 +4047,7 @@ void create_clock(GtkWidget *parent)
     change_paragraph(parent);
 }
 
-void create_separator(GtkWidget *notebook, int i)
+void create_separator(GtkWidget *stack, int i)
 {
     GtkWidget *label;
     GtkWidget *table;
@@ -4048,13 +4056,10 @@ void create_separator(GtkWidget *notebook, int i)
 
     separator->name[0] = '\0';
     snprintf(separator->name, sizeof(separator->name), "%s %d", _("Separator"), i + 1);
-    separator->page_label = gtk_label_new(separator->name);
-    gtk_widget_show(separator->page_label);
-    separator->page_separator = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    separator->container = addScrollBarToWidget(separator->page_separator);
+    separator->page_separator = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
     gtk_container_set_border_width(GTK_CONTAINER(separator->page_separator), 10);
     gtk_widget_show(separator->page_separator);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), separator->container, separator->page_label);
+    gtk_stack_add_titled(GTK_STACK(stack), separator->page_separator, NULL, separator->name);
 
     GtkWidget *parent = separator->page_separator;
 
@@ -4164,7 +4169,7 @@ void create_separator(GtkWidget *notebook, int i)
     change_paragraph(parent);
 }
 
-void create_execp(GtkWidget *notebook, int i)
+void create_execp(GtkWidget *stack, int i)
 {
     GtkWidget *label;
     GtkWidget *table;
@@ -4174,13 +4179,10 @@ void create_execp(GtkWidget *notebook, int i)
 
     executor->name[0] = '\0';
     snprintf(executor->name, sizeof(executor->name), "%s %d", _("Executor"), i + 1);
-    executor->page_label = gtk_label_new(executor->name);
-    gtk_widget_show(executor->page_label);
-    executor->page_execp = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    executor->container = addScrollBarToWidget(executor->page_execp);
+    executor->page_execp = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
     gtk_container_set_border_width(GTK_CONTAINER(executor->page_execp), 10);
     gtk_widget_show(executor->page_execp);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), executor->container, executor->page_label);
+    gtk_stack_add_titled(GTK_STACK(stack), executor->page_execp, NULL, executor->name);
 
     GtkWidget *parent = executor->page_execp;
 
@@ -4626,8 +4628,7 @@ void create_execp(GtkWidget *notebook, int i)
     change_paragraph(parent);
 }
 
-void create_button(GtkWidget *notebook, int i)
-{
+void create_button(GtkWidget *stack, int i) {
     GtkWidget *label;
     GtkWidget *table;
     int row, col;
@@ -4636,13 +4637,10 @@ void create_button(GtkWidget *notebook, int i)
 
     button->name[0] = '\0';
     snprintf(button->name, sizeof(button->name), "%s %d", _("Button"), i + 1);
-    button->page_label = gtk_label_new(button->name);
-    gtk_widget_show(button->page_label);
-    button->page_button = gtk_vbox_new(FALSE, DEFAULT_HOR_SPACING);
-    button->container = addScrollBarToWidget(button->page_button);
+    button->page_button = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
     gtk_container_set_border_width(GTK_CONTAINER(button->page_button), 10);
     gtk_widget_show(button->page_button);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), button->container, button->page_label);
+    gtk_stack_add_titled(GTK_STACK(stack), button->page_button, NULL, button->name);
 
     GtkWidget *parent = button->page_button;
 
@@ -4939,19 +4937,19 @@ void create_button(GtkWidget *notebook, int i)
 void separator_create_new()
 {
     g_array_set_size(separators, separators->len + 1);
-    create_separator(notebook, separators->len - 1);
+    create_separator(stack, separators->len - 1);
 }
 
 void execp_create_new()
 {
     g_array_set_size(executors, executors->len + 1);
-    create_execp(notebook, executors->len - 1);
+    create_execp(stack, executors->len - 1);
 }
 
 void button_create_new()
 {
     g_array_set_size(buttons, buttons->len + 1);
-    create_button(notebook, buttons->len - 1);
+    create_button(stack, buttons->len - 1);
 }
 
 Separator *separator_get_last()
@@ -4977,55 +4975,37 @@ Button *button_get_last()
 
 void separator_remove(int i)
 {
-    Separator *separator = &g_array_index(separators, Separator, i);
-
-    for (int i_page = 0; i_page < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook)); i_page++) {
-        GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), i_page);
-        if (page == separator->container) {
-            gtk_widget_hide(page);
-            gtk_notebook_remove_page(GTK_NOTEBOOK(notebook), i_page);
-        }
-    }
-
+    GtkWidget *page = g_array_index(separators, Separator, i).page_separator;
+    gtk_widget_hide(page);
+    gtk_container_remove(GTK_CONTAINER(stack), page);
     separators = g_array_remove_index(separators, i);
 }
 
 void execp_remove(int i)
 {
-    Executor *executor = &g_array_index(executors, Executor, i);
-
-    for (int i_page = 0; i_page < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook)); i_page++) {
-        GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), i_page);
-        if (page == executor->container) {
-            gtk_widget_hide(page);
-            gtk_notebook_remove_page(GTK_NOTEBOOK(notebook), i_page);
-        }
-    }
-
+    GtkWidget *page = g_array_index(executors, Executor, i).page_execp;
+    gtk_widget_hide(page);
+    gtk_container_remove(GTK_CONTAINER(stack), page);
     executors = g_array_remove_index(executors, i);
 }
 
 void button_remove(int i)
 {
-    Button *button = &g_array_index(buttons, Button, i);
-
-    for (int i_page = 0; i_page < gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook)); i_page++) {
-        GtkWidget *page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), i_page);
-        if (page == button->container) {
-            gtk_widget_hide(page);
-            gtk_notebook_remove_page(GTK_NOTEBOOK(notebook), i_page);
-        }
-    }
-
+    GtkWidget *page = g_array_index(buttons, Button, i).page_button;
+    gtk_widget_hide(page);
+    gtk_container_remove(GTK_CONTAINER(stack), page);
     buttons = g_array_remove_index(buttons, i);
 }
 
 void separator_update_indices()
 {
+    GValue name_value = G_VALUE_INIT;
+    g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < separators->len; i++) {
         Separator *separator = &g_array_index(separators, Separator, i);
         snprintf(separator->name, sizeof(separator->name), "%s %d", _("Separator"), i + 1);
-        gtk_label_set_text(GTK_LABEL(separator->page_label), separator->name);
+        g_value_set_static_string(&name_value, separator->name);
+        gtk_container_child_set_property(GTK_CONTAINER(stack), separator->page_separator, "title", &name_value);
     }
 
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
@@ -5054,10 +5034,13 @@ void separator_update_indices()
 
 void execp_update_indices()
 {
+    GValue name_value = G_VALUE_INIT;
+    g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < executors->len; i++) {
         Executor *executor = &g_array_index(executors, Executor, i);
         snprintf(executor->name, sizeof(executor->name), "%s %d", _("Executor"), i + 1);
-        gtk_label_set_text(GTK_LABEL(executor->page_label), executor->name);
+        g_value_set_static_string(&name_value, executor->name);
+        gtk_container_child_set_property(GTK_CONTAINER(stack), executor->page_execp, "title", &name_value);
     }
 
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
@@ -5086,10 +5069,13 @@ void execp_update_indices()
 
 void button_update_indices()
 {
+    GValue name_value = G_VALUE_INIT;
+    g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < buttons->len; i++) {
         Button *button = &g_array_index(buttons, Button, i);
         snprintf(button->name, sizeof(button->name), "%s %d", _("Button"), i + 1);
-        gtk_label_set_text(GTK_LABEL(button->page_label), button->name);
+        g_value_set_static_string(&name_value, button->name);
+        gtk_container_child_set_property(GTK_CONTAINER(stack), button->page_button, "title", &name_value);
     }
 
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);

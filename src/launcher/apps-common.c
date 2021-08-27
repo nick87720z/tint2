@@ -243,14 +243,14 @@ gboolean read_desktop_file_from_dir(const char *path, const char *file_name, Des
 
     subdirs = g_list_sort(subdirs, compare_strings);
     gboolean found = FALSE;
-    for (GList *l = subdirs; l; l = g_list_next(l)) {
+    for (GList *l = subdirs; l; l = l->next) {
         if (read_desktop_file_from_dir(l->data, file_name, entry)) {
             found = TRUE;
             break;
         }
     }
 
-    for (GList *l = subdirs; l; l = g_list_next(l)) {
+    for (GList *l = subdirs; l; l = l->next) {
         g_free(l->data);
     }
     g_list_free(subdirs);
@@ -266,7 +266,7 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 
     if (strchr(path, '/'))
         return read_desktop_file_full_path(path, entry);
-    for (const GSList *location = get_apps_locations(); location; location = g_slist_next(location)) {
+    for (const GSList *location = get_apps_locations(); location; location = location->next) {
         if (read_desktop_file_from_dir(location->data, path, entry))
             return TRUE;
     }

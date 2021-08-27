@@ -73,7 +73,7 @@ int freespace_get_max_size(Panel *panel)
     // Get space used by every element except the freespace
     int size = 0;
     int spacers = 0;
-    for (GList *walk = panel->area.children; walk; walk = g_list_next(walk)) {
+    for (GList *walk = panel->area.children; walk; walk = walk->next) {
         Area *a = (Area *)walk->data;
 
         if (!a->on_screen)

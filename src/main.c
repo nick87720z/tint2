@@ -521,7 +521,7 @@ void handle_x_event(XEvent *e)
         }
         if (e->xany.window == g_tooltip.window || !systray_enabled)
             break;
-        for (GSList *it = systray.list_icons; it; it = g_slist_next(it)) {
+        for (GSList *it = systray.list_icons; it; it = it->next) {
             if (((TrayWindow *)it->data)->win == e->xany.window) {
                 systray_destroy_event((TrayWindow *)it->data);
                 break;

@@ -215,7 +215,7 @@ void load_launcher_app_dir(const char *path)
 
     subdirs = g_list_sort(subdirs, compare_strings);
     GList *l;
-    for (l = subdirs; l; l = g_list_next(l)) {
+    for (l = subdirs; l; l = l->next) {
         gchar *dir = (gchar *)l->data;
         load_launcher_app_dir(dir);
         g_free(dir);
@@ -223,7 +223,7 @@ void load_launcher_app_dir(const char *path)
     g_list_free(subdirs);
 
     files = g_list_sort(files, compare_strings);
-    for (l = files; l; l = g_list_next(l)) {
+    for (l = files; l; l = l->next) {
         gchar *file = (gchar *)l->data;
         panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, strdup(file));
         g_free(file);

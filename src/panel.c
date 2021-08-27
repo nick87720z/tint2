@@ -591,7 +591,7 @@ gboolean resize_panel(void *obj)
                 taskbar->area.old_width != taskbar->area.width || taskbar->area.old_height != taskbar->area.height;
         }
     }
-    for (GList *l = panel->freespace_list; l; l = g_list_next(l))
+    for (GList *l = panel->freespace_list; l; l = l->next)
         resize_freespace(l->data);
     return FALSE;
 }

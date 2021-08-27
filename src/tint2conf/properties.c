@@ -1898,7 +1898,7 @@ void load_desktop_entries(const char *path, GList **entries)
 
     subdirs = g_list_sort(subdirs, compare_strings);
     GList *l;
-    for (l = subdirs; l; l = g_list_next(l)) {
+    for (l = subdirs; l; l = l->next) {
         gchar *dir = (gchar *)l->data;
         load_desktop_entries(dir, entries);
         g_free(dir);
@@ -1906,7 +1906,7 @@ void load_desktop_entries(const char *path, GList **entries)
     g_list_free(subdirs);
 
     files = g_list_sort(files, compare_strings);
-    for (l = files; l; l = g_list_next(l)) {
+    for (l = files; l; l = l->next) {
         gchar *file = (gchar *)l->data;
         load_desktop_entry(file, entries);
         g_free(file);
@@ -2446,7 +2446,7 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     fprintf(stderr, "tint2: Loading icon themes\n");
     GList *themes = NULL;
     const GSList *location;
-    for (location = get_icon_locations(); location; location = g_slist_next(location)) {
+    for (location = get_icon_locations(); location; location = location->next) {
         const gchar *path = (gchar *)location->data;
         load_icon_themes(path, NULL, &themes);
     }
@@ -2473,7 +2473,7 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
 
     fprintf(stderr, "tint2: Loading .desktop files\n");
     GList *entries = NULL;
-    for (location = get_apps_locations(); location; location = g_slist_next(location)) {
+    for (location = get_apps_locations(); location; location = location->next) {
         const gchar *path = (gchar *)location->data;
         load_desktop_entries(path, &entries);
     }

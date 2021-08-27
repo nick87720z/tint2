@@ -197,7 +197,7 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
                     current_dir = dir;
                     break;
                 }
-                dir_item = g_slist_next(dir_item);
+                dir_item = dir_item->next;
             }
         }
     }
@@ -250,7 +250,7 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
 IconTheme *load_theme_from_fs(const char *name, IconTheme *theme)
 {
     gchar *dir_name = NULL;
-    for (const GSList *location = get_icon_locations(); location; location = g_slist_next(location)) {
+    for (const GSList *location = get_icon_locations(); location; location = location->next) {
         gchar *path = (gchar *)location->data;
         dir_name = g_build_filename(path, name, NULL);
         if (g_file_test(dir_name, G_FILE_TEST_IS_DIR)) {
@@ -276,7 +276,7 @@ IconTheme *load_theme(const char *name)
         return NULL;
 
     gchar *file_name = NULL;
-    for (const GSList *location = get_icon_locations(); location; location = g_slist_next(location)) {
+    for (const GSList *location = get_icon_locations(); location; location = location->next) {
         gchar *path = (gchar *)location->data;
         file_name = g_build_filename(path, name, "index.theme", NULL);
         if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
@@ -352,7 +352,7 @@ void test_launcher_read_theme_file()
     GSList *item = theme->list_inherits;
     while (item != NULL) {
         fprintf(stderr, "tint2: Inherits:%s\n", (char *)item->data);
-        item = g_slist_next(item);
+        item = item->next;
     }
     item = theme->list_directories;
     while (item != NULL) {
@@ -367,7 +367,7 @@ void test_launcher_read_theme_file()
                                                                 ? "Scalable"
                                                                 : dir->type == ICON_DIR_TYPE_THRESHOLD ? "Threshold"
                                                                                                        : "?????");
-        item = g_slist_next(item);
+        item = item->next;
     }
     fprintf(stdout, RESET);
 }
@@ -379,7 +379,7 @@ gboolean str_list_contains(const GSList *list, const char *value)
         if (g_str_equal(item->data, value)) {
             return TRUE;
         }
-        item = g_slist_next(item);
+        item = item->next;
     }
     return FALSE;
 }
@@ -410,7 +410,7 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
                     pos++;
                     *queued = g_slist_append(*queued, strdup(parent));
                 }
-                item = g_slist_next(item);
+                item = item->next;
             }
         }
 
@@ -447,7 +447,7 @@ void load_fallbacks(IconThemeWrapper *wrapper)
 
     // Load wrapper->themes_fallback
     const GSList *location;
-    for (location = get_icon_locations(); location; location = g_slist_next(location)) {
+    for (location = get_icon_locations(); location; location = location->next) {
         gchar *path = (gchar *)location->data;
         GDir *d = g_dir_open(path, 0, NULL);
         if (d) {
@@ -599,7 +599,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
     size_t file_name_size = 4096;
     char *file_name = calloc(file_name_size, 1);
 
-    for (theme = themes; theme; theme = g_slist_next(theme)) {
+    for (theme = themes; theme; theme = theme->next) {
         if (debug_icons)
             fprintf(stderr, "tint2: Searching theme: %s\n", ((IconTheme *)theme->data)->name);
         ((IconTheme *)theme->data)->list_directories =
@@ -607,7 +607,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                                    compare_theme_directories,
                                    GINT_TO_POINTER(size));
         GSList *dir;
-        for (dir = ((IconTheme *)theme->data)->list_directories; dir; dir = g_slist_next(dir)) {
+        for (dir = ((IconTheme *)theme->data)->list_directories; dir; dir = dir->next) {
             // Closest match
             gboolean possible = directory_size_distance((IconThemeDir *)dir->data, size) < minimal_size &&
                                 (!best_file_theme ? TRUE : theme == best_file_theme);
@@ -620,8 +620,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
             if (debug_icons)
                 fprintf(stderr, "tint2: Searching directory: %s\n", ((IconThemeDir *)dir->data)->name);
             const GSList *base;
-            for (base = basenames; base; base = g_slist_next(base)) {
-                for (const GSList *ext = extensions; ext; ext = g_slist_next(ext)) {
+            for (base = basenames; base; base = base->next) {
+                for (const GSList *ext = extensions; ext; ext = ext->next) {
                     char *base_name = (char *)base->data;
                     char *theme_name = ((IconTheme *)theme->data)->name;
                     char *dir_name = ((IconThemeDir *)dir->data)->name;
@@ -687,8 +687,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
     {
         if (debug_icons)
             fprintf(stderr, "tint2: Searching unthemed icons\n");
-        for (const GSList *base = basenames; base; base = g_slist_next(base)) {
-            for (const GSList *ext = extensions; ext; ext = g_slist_next(ext)) {
+        for (const GSList *base = basenames; base; base = base->next) {
+            for (const GSList *ext = extensions; ext; ext = ext->next) {
                 char *base_name = (char *)base->data;
                 char *extension = (char *)ext->data;
                 size_t file_name_size2 = strlen(base_name) + strlen(icon_name) + strlen(extension) + 100;

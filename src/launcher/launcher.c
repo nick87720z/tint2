@@ -499,7 +499,7 @@ void launcher_load_icons(Launcher *launcher)
         launcherIcon->icon_size = launcher->icon_size;
         launcher_reload_icon(launcher, launcherIcon);
         area_gradients_create(&launcherIcon->area);
-        app = g_slist_next(app);
+        app = app->next;
     }
 }
 

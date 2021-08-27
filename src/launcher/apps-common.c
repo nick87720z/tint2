@@ -300,17 +300,12 @@ const GSList *get_apps_locations()
         return apps_locations;
 
     apps_locations = load_locations_from_env(apps_locations, "XDG_DATA_HOME", "applications", NULL);
-
-    apps_locations =
-        g_slist_append(apps_locations, g_build_filename(g_get_home_dir(), ".local/share/applications", NULL));
-
+    apps_locations = load_locations_from_dir(apps_locations, g_get_home_dir(), ".local/share/applications", NULL);
     apps_locations = load_locations_from_env(apps_locations, "XDG_DATA_DIRS", "applications", NULL);
 
-    apps_locations = g_slist_append(apps_locations, g_strdup("/usr/local/share/applications"));
-    apps_locations = g_slist_append(apps_locations, g_strdup("/usr/share/applications"));
-    apps_locations = g_slist_append(apps_locations, g_strdup("/opt/share/applications"));
-
-    apps_locations = slist_remove_duplicates(apps_locations, g_str_equal, g_free);
+    slist_append_uniq_dup(apps_locations, "/usr/local/share/applications", g_str_equal);
+    slist_append_uniq_dup(apps_locations, "/usr/share/applications", g_str_equal);
+    slist_append_uniq_dup(apps_locations, "/opt/share/applications", g_str_equal);
 
     return apps_locations;
 }

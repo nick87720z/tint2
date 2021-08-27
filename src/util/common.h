@@ -157,12 +157,14 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h);
 
 void close_all_fds();
 
+GSList *load_locations_from_dir(GSList *locations, const char *dir, ...);
+
 // Appends to the list locations all the directories contained in the environment variable var (split by ":").
 // Optional suffixes are added to each directory. The suffix arguments MUST end with NULL.
 // Returns the new value of the list.
 GSList *load_locations_from_env(GSList *locations, const char *var, ...);
 
-GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr);
+GSList *slist_append_uniq_dup(GSList *list, gconstpointer ref, GCompareFunc eq);
 
 // A trivial pointer comparator.
 gint cmp_ptr(gconstpointer a, gconstpointer b);

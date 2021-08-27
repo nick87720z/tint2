@@ -997,48 +997,130 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data)
 }
 #endif
 
+GSList *load_locations_from_dir(GSList *locations, const char *dir, ...) {
+    int buf_cap = 0;
+    char *buf = NULL;
+    fprintf(stderr, "%s: '%s'\n", __FUNCTION__, dir);
+    
+    int dir_len = strlen(dir);
+    if (dir_len > buf_cap)
+        buf = realloc(buf, (buf_cap = dir_len) + 1);
+    memcpy(buf, dir, dir_len);
+    buf[dir_len] = G_DIR_SEPARATOR;
+    
+    va_list ap;
+    va_start(ap, dir);
+    dir_len++;
+    for (const char *suffix = va_arg(ap, const char *); suffix; suffix = va_arg(ap, const char *)) {
+        int suf_len, buf_size_req;
+        suf_len = strlen(suffix);
+        buf_size_req = dir_len + suf_len;
+        if (buf_size_req > buf_cap)
+            buf = realloc(buf, (buf_cap = buf_size_req) + 1);
+        memcpy(buf + dir_len, suffix, suf_len);
+        buf[buf_size_req] = '\0';
+        
+        fprintf(stderr, " location: '%s'\n", buf);
+        locations = slist_append_uniq_dup(locations, buf, g_str_equal);
+    }
+    va_end(ap);
+    free(buf);
+
+    return locations;
+}
+
 GSList *load_locations_from_env(GSList *locations, const char *var, ...)
 {
+    int buf_cap = 0;
+    char *buf = NULL;
     char *value = getenv(var);
     if (value) {
+        fprintf(stderr, "%s: %s = '%s'\n", __FUNCTION__, var, value);
         value = strdup(value);
         char *p = value;
         char *t;
         for (char *token = strtok_r(value, ":", &t); token; token = strtok_r(NULL, ":", &t)) {
+            int tok_len = strlen(token);
+            if (tok_len > buf_cap)
+                buf = realloc(buf, (buf_cap = tok_len) + 1);
+            memcpy(buf, token, tok_len);
+            buf[tok_len] = G_DIR_SEPARATOR;
+
             va_list ap;
             va_start(ap, var);
+            tok_len++;
             for (const char *suffix = va_arg(ap, const char *); suffix; suffix = va_arg(ap, const char *)) {
-                locations = g_slist_append(locations, g_build_filename(token, suffix, NULL));
+                int suf_len, buf_size_req;
+                suf_len = strlen(suffix);
+                buf_size_req = tok_len + suf_len;
+                if (buf_size_req > buf_cap)
+                    buf = realloc(buf, (buf_cap = buf_size_req) + 1);
+                memcpy(buf + tok_len, suffix, suf_len);
+                buf[buf_size_req] = '\0';
+                
+                fprintf(stderr, " location: '%s'\n", buf);
+                locations = slist_append_uniq_dup(locations, buf, g_str_equal);
             }
             va_end(ap);
         }
         free(p);
+        free(buf);
     }
     return locations;
 }
 
-GSList *slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr)
+GSList *slist_append_uniq_dup(GSList *list, gconstpointer ref, GCompareFunc eq)
 {
-    GSList *new_list = NULL;
-
-    for (GSList *l1 = list; l1; l1 = g_slist_next(l1)) {
-        gboolean duplicate = FALSE;
-        for (GSList *l2 = new_list; l2; l2 = g_slist_next(l2)) {
-            if (eq(l1->data, l2->data)) {
-                duplicate = TRUE;
-                break;
-            }
-        }
-        if (!duplicate) {
-            new_list = g_slist_append(new_list, l1->data);
-            l1->data = NULL;
+    if (!list) {
+        list = g_slist_alloc();
+        list->next = NULL;
+        list->data = g_strdup(ref);
+    }
+    else for (GSList *e = list; e; e = e->next) {
+        if (eq(e->data, ref))
+            break;
+        if (e->next == NULL) {
+            e = e->next = g_slist_alloc();
+            e->next = NULL;
+            e->data = g_strdup(ref);
+            break;
         }
     }
-
-    g_slist_free_full(list, fr);
-
-    return new_list;
+    return list;
 }
+
+// Got some optimization, but became unused after bigger optimization
+//~ void slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr)
+//~ {
+    //~ GSList *l1, *prev, *rm;
+    
+    //~ if (!list->next)
+        //~ return;
+    
+    //~ l1 = (prev = list)->next;
+    //~ while (l1) {
+        //~ for (GSList *l0 = list; l0 != l1; l0 = l0->next)
+        //~ {
+            //~ if (l1->data == l0->data)
+            //~ {
+                //~ fprintf (stderr, " same: %s\n", (char *)l1->data);
+                //~ prev->next = l1 = (rm = l1)->next;
+                //~ goto l1_continue;
+            //~ }
+            //~ if (eq(l1->data, l0->data))
+            //~ {
+                //~ fprintf (stderr, " dup: %s\n", (char *)l1->data);
+                //~ prev->next = l1 = (rm = l1)->next;
+                //~ fr(rm->data);
+                //~ goto l1_continue;
+            //~ }
+        //~ }
+        //~ l1 = (prev = l1)->next;
+        //~ continue;
+    //~ l1_continue:
+        //~ g_slist_free_1(rm);
+    //~ }
+//~ }
 
 gint cmp_ptr(gconstpointer a, gconstpointer b)
 {

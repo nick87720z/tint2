@@ -69,20 +69,13 @@ const GSList *get_icon_locations()
     return icon_locations;
 }
 
-static GSList *icon_extensions = NULL;
-const GSList *get_icon_extensions()
-{
-    if (icon_extensions)
-        return icon_extensions;
-
-    icon_extensions = g_slist_append(icon_extensions, ".png");
-    icon_extensions = g_slist_append(icon_extensions, ".xpm");
-#ifdef HAVE_RSVG
-    icon_extensions = g_slist_append(icon_extensions, ".svg");
-#endif
-    icon_extensions = g_slist_append(icon_extensions, "");
-    return icon_extensions;
-}
+static char *icon_extensions[] = {
+    ".png", ".xpm",
+    #ifdef HAVE_RSVG
+    ".svg",
+    #endif
+    "", NULL
+};
 
 IconTheme *make_theme(const char *name)
 {
@@ -572,7 +565,6 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
         return result;
 
     const GSList *basenames = get_icon_locations();
-    const GSList *extensions = get_icon_extensions();
 
     GSList *theme;
 
@@ -616,11 +608,11 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                 fprintf(stderr, "tint2: Searching directory: %s\n", ((IconThemeDir *)dir->data)->name);
             const GSList *base;
             for (base = basenames; base; base = base->next) {
-                for (const GSList *ext = extensions; ext; ext = ext->next) {
+                for (char **ext = icon_extensions; *ext; ext++) {
                     char *base_name = (char *)base->data;
                     char *theme_name = ((IconTheme *)theme->data)->name;
                     char *dir_name = ((IconThemeDir *)dir->data)->name;
-                    char *extension = (char *)ext->data;
+                    char *extension = *ext;
                     if (strlen(base_name) + strlen(theme_name) + strlen(dir_name) + strlen(icon_name) +
                             strlen(extension) + 100 >
                         file_name_size) {
@@ -683,9 +675,9 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
         if (debug_icons)
             fprintf(stderr, "tint2: Searching unthemed icons\n");
         for (const GSList *base = basenames; base; base = base->next) {
-            for (const GSList *ext = extensions; ext; ext = ext->next) {
+            for (char **ext = icon_extensions; *ext; ext++) {
                 char *base_name = (char *)base->data;
-                char *extension = (char *)ext->data;
+                char *extension = *ext;
                 size_t file_name_size2 = strlen(base_name) + strlen(icon_name) + strlen(extension) + 100;
                 file_name = calloc(file_name_size2, 1);
                 // filename = directory/iconname.extension

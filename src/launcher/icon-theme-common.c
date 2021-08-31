@@ -43,11 +43,6 @@ typedef struct IconThemeDir {
     int threshold;
 } IconThemeDir;
 
-int parse_theme_line(char *line, char **key, char **value)
-{
-    return parse_dektop_line(line, key, value);
-}
-
 static GSList *icon_locations = NULL;
 // Do not free the result.
 const GSList *get_icon_locations()

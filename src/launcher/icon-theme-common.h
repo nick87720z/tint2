@@ -36,7 +36,7 @@ typedef struct IconTheme {
 // Parses a line of the form "key = value". Modifies the line.
 // Returns 1 if successful, and parts are not empty.
 // Key and value point to the parts.
-int parse_theme_line(char *line, char **key, char **value);
+#define parse_theme_line parse_dektop_line
 
 // Returns an IconThemeWrapper* containing the icon theme identified by the name icon_theme_name, all the
 // inherited themes, the hicolor theme and possibly fallback themes.

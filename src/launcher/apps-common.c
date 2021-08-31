@@ -29,18 +29,20 @@
 
 int parse_dektop_line(char *line, char **key, char **value)
 {
-    char *p;
-    int found = 0;
+    if (*line == '=')
+        return 0;
+
+    char *p = strchr(line, '=');    
+    if (!p)
+        return 0;
+
+    *p++ = '\0';
+    if (!*p)
+        return 0;
+
+    *value = p;
     *key = line;
-    for (p = line; *p; p++) {
-        if (*p == '=') {
-            *value = p + 1;
-            *p = '\0';
-            found = 1;
-            break;
-        }
-    }
-    return found && strlen(*key) && strlen(*value);
+    return 1;
 }
 
 void expand_exec(DesktopEntry *entry, const char *path)

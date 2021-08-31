@@ -1939,32 +1939,31 @@ void load_theme_file(const char *file_name, const char *theme_name, GList **them
     size_t line_size;
 
     while (getline(&line, &line_size, f) >= 0) {
-        char *key, *value;
-
-        int line_len = strlen(line);
-        if (line_len >= 1) {
-            if (line[line_len - 1] == '\n') {
-                line[line_len - 1] = '\0';
-                line_len--;
-            }
-        }
-
-        if (line_len == 0)
+        if (line[0] == '\n' || line[0] == '\0')
             continue;
 
-        if (parse_theme_line(line, &key, &value)) {
-            if (strcmp(key, "Name") == 0) {
-                IconTheme *theme = calloc(1, sizeof(IconTheme));
-                theme->name = strdup(theme_name);
-                theme->description = strdup(value);
-                *themes = g_list_append(*themes, theme);
-                break;
-            }
-        }
+        char *key, *value;
 
-        if (line[0] == '[' && line[line_len - 1] == ']' && strcmp(line, "[Icon Theme]") != 0) {
+        int line_len = strlen(line) - 1;
+        if (line[line_len] == '\n')
+            line[line_len] = '\0';
+        else
+            line_len++;
+
+        if (parse_theme_line(line, &key, &value) &&
+            value - key == sizeof("Name") &&
+            memcmp(key, "Name", sizeof("Name") - 1) == 0)
+        {
+            IconTheme *theme = calloc(1, sizeof(IconTheme));
+            theme->name = strdup(theme_name);
+            theme->description = strdup(value);
+            *themes = g_list_prepend(*themes, theme);
             break;
         }
+
+        if (line[0] == '[' && line[line_len - 1] == ']' &&
+            memcmp(line + 1, "Icon Theme", sizeof("Icon Theme") - 1) != 0)
+            break;
     }
     fclose(f);
     free(line);
@@ -1977,29 +1976,55 @@ void load_icon_themes(const gchar *path, const gchar *parent, GList **themes)
     GDir *d = g_dir_open(path, 0, NULL);
     if (!d)
         return;
+    int path_len = strlen(path);
+    int name_cap = 0;
     const gchar *name;
-    while ((name = g_dir_read_name(d))) {
-        gchar *file = g_build_filename(path, name, NULL);
-        if (parent && g_file_test(file, G_FILE_TEST_IS_REGULAR) && g_str_equal(name, "index.theme")) {
-            load_theme_file(file, parent, themes);
-        } else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
-            gboolean duplicate = FALSE;
-            if (g_file_test(file, G_FILE_TEST_IS_SYMLINK)) {
-#ifdef PATH_MAX
-                char real_path[PATH_MAX];
-#else
-                char real_path[65536];
-#endif
-                if (realpath(file, real_path)) {
-                    if (strstr(real_path, path) == real_path)
-                        duplicate = TRUE;
-                }
+
+    char *fpath_buf = NULL;
+    int fpath_cap = 0;
+
+    while ((name = g_dir_read_name(d)))
+    {
+        // Initial path buffer setup (copy path argument)
+        int name_len = strlen(name);
+        if (name_len > name_cap)
+        {
+            char *buf;
+            name_cap = name_len;
+            fpath_cap = path_len + 1 + name_len + 1 + sizeof("index.theme");
+            buf = realloc(fpath_buf, fpath_cap);
+            if (!fpath_buf) {
+                memcpy(buf, path, path_len);
+                buf[path_len] = G_DIR_SEPARATOR;
             }
-            if (!duplicate)
-                load_icon_themes(file, name, themes);
+            fpath_buf = buf;
         }
-        g_free(file);
+        // Must be directory and not symbolic link for theme in same directory
+        char *p = fpath_buf + path_len + 1;
+        memcpy(p, name, name_len + 1);
+        if (!g_file_test(fpath_buf, G_FILE_TEST_IS_DIR))
+            continue;
+        if (g_file_test(fpath_buf, G_FILE_TEST_IS_SYMLINK)) {
+#ifdef PATH_MAX
+            char real_path[PATH_MAX];
+#else
+            char real_path[65536];
+#endif
+            if (realpath(fpath_buf, real_path) &&
+                strstr(real_path, path) == real_path &&
+                !strchr(real_path + path_len + 1, G_DIR_SEPARATOR))
+                continue;
+        }
+        // Must contain index.theme
+        p += name_len;
+        *p++ = G_DIR_SEPARATOR;
+        memcpy(p, "index.theme", sizeof("index.theme"));
+        if (!g_file_test(fpath_buf, G_FILE_TEST_IS_REGULAR))
+            continue;
+
+        load_theme_file(fpath_buf, name, themes);
     }
+    free(fpath_buf);
     g_dir_close(d);
 }
 

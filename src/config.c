@@ -1123,8 +1123,7 @@ void add_entry(char *key, char *value)
         launcher_max_icon_size = atoi(value);
         break;
     case key_launcher_item_app: {
-        char *app = expand_tilde(value);
-        panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, app);
+        panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, expand_tilde(value));
         break;
     }
     case key_launcher_apps_dir: {

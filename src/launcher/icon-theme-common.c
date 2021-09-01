@@ -529,15 +529,8 @@ gint compare_theme_directories(gconstpointer a, gconstpointer b, gpointer size_q
     return abs(da->size - size) - abs(db->size - size);
 }
 
-Bool is_full_path(const char *s)
-{
-    return s && s[0] == '/';
-}
-
-Bool file_exists(const char *path)
-{
-    return g_file_test(path, G_FILE_TEST_EXISTS);
-}
+#define is_full_path(s)   ((Bool)(s[0] == '/'))
+#define file_exists(path) ((Bool)g_file_test(path, G_FILE_TEST_EXISTS))
 
 char *icon_path_from_full_path(const char *s)
 {

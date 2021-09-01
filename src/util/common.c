@@ -444,15 +444,14 @@ void tint_exec_no_sn(const char *command)
 char *expand_tilde(const char *s)
 {
     const gchar *home = g_get_home_dir();
-    if (home && (strcmp(s, "~") == 0 || strstr(s, "~/") == s)) {
+    if (home && (s[0] == '~') && (s[1] == '\0' || s[1] == '/')) {
         size_t buf_size = strlen(home) + strlen(s);
         char *result = calloc(buf_size, 1);
         strlcat(result, home, buf_size);
         strlcat(result, s + 1, buf_size);
         return result;
-    } else {
+    } else
         return strdup(s);
-    }
 }
 
 char *contract_tilde(const char *s)

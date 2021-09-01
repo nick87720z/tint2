@@ -71,41 +71,42 @@ void expand_exec(DesktopEntry *entry, const char *path)
             }
             if (*p == '%') {
                 p++;
-                if (!*p)
-                    break;
-                if (*p == 'i' && entry->icon != NULL) {
-                    snprintf(q, buf_size, "--icon '%s'", entry->icon);
-                    char *old = q;
-                    q += strlen("--icon ''");
-                    q += strlen(entry->icon);
-                    buf_size -= (size_t)(q - old);
-                    q--; // To balance the q++ in the for
-                } else if (*p == 'c' && entry->name != NULL) {
-                    snprintf(q, buf_size, "'%s'", entry->name);
-                    char *old = q;
-                    q += strlen("''");
-                    q += strlen(entry->name);
-                    buf_size -= (size_t)(q - old);
-                    q--; // To balance the q++ in the for
-                } else if (*p == 'c') {
-                    snprintf(q, buf_size, "'%s'", path);
-                    char *old = q;
-                    q += strlen("''");
-                    q += strlen(path);
-                    buf_size -= (size_t)(q - old);
-                    q--; // To balance the q++ in the for
-                } else if (*p == 'f' || *p == 'F') {
-                    snprintf(q, buf_size, "%c%c", '%', *p);
-                    q += 2;
-                    buf_size -= 2;
-                    q--; // To balance the q++ in the for
-                } else {
-                    // We don't care about other expansions
-                    q--; // Delete the last % from q
+                switch (*p) {
+                case 'i':   if (entry->icon) {
+                                snprintf(q, buf_size, "--icon '%s'", entry->icon);
+                                char *old = q;
+                                q += sizeof("--icon ''") - 1;
+                                q += strlen(entry->icon);
+                                buf_size -= (size_t)(q - old);
+                            }
+                            break;
+                case 'c':   if (entry->name) {
+                                snprintf(q, buf_size, "'%s'", entry->name);
+                                char *old = q;
+                                q += sizeof("''") - 1;
+                                q += strlen(entry->name);
+                                buf_size -= (size_t)(q - old);
+                            } else {
+                                snprintf(q, buf_size, "'%s'", path);
+                                char *old = q;
+                                q += sizeof("''") - 1;
+                                q += strlen(path);
+                                buf_size -= (size_t)(q - old);
+                            }
+                            break;
+                case 'F':
+                case 'f':   snprintf(q, buf_size, "%c%c", '%', *p);
+                            q += 2;
+                            buf_size -= 2;
+                            break;
+                case '\0':  goto endloop;
                 }
+                q--; // To balance the q++ in the for
+                     // Or delete the last % from q
                 continue;
             }
         }
+    endloop:
         *q = '\0';
         free(entry->exec);
         entry->exec = exec2;
@@ -150,17 +151,20 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
         int len = strlen(line);
         if (len == 0)
             continue;
-        if (line[len - 1] == '\n')
-            line[len - 1] = '\0';
+        if (line[--len] == '\n')
+            line[ len ] = '\0';
+        else len++;
         if (line[0] == '[') {
-            inside_desktop_entry = (strcmp(line, "[Desktop Entry]") == 0);
+            inside_desktop_entry = (len == sizeof("[Desktop Entry]")-1 &&
+                                    memcmp(line, "[Desktop Entry]", len) == 0);
         }
         char *key, *value;
-        if (inside_desktop_entry && parse_dektop_line(line, &key, &value)) {
+        if (inside_desktop_entry && parse_dektop_line(line, &key, &value))
+        {
             if (strstr(key, "Name") == key) {
-                if (strcmp(key, "Name") == 0 && lang_index_name > lang_index_default) {
-                    entry->name = strdup(value);
+                if (lang_index_name > lang_index_default && !key[sizeof("Name")-1]) {
                     lang_index_name = lang_index_default;
+                    entry->name = strdup(value);
                 } else {
                     for (int i = 0; languages[i] && i < lang_index_name; i++) {
                         gchar *localized_key = g_strdup_printf("Name[%s]", languages[i]);
@@ -174,9 +178,9 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                     }
                 }
             } else if (strstr(key, "GenericName") == key) {
-                if (strcmp(key, "GenericName") == 0 && lang_index_generic_name > lang_index_default) {
-                    entry->generic_name = strdup(value);
+                if (lang_index_generic_name > lang_index_default && !key[sizeof("GenericName")-1]) {
                     lang_index_generic_name = lang_index_default;
+                    entry->generic_name = strdup(value);
                 } else {
                     for (int i = 0; languages[i] && i < lang_index_generic_name; i++) {
                         gchar *localized_key = g_strdup_printf("GenericName[%s]", languages[i]);

@@ -2475,7 +2475,25 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
         const gchar *path = (gchar *)location->data;
         load_icon_themes(path, NULL, &themes);
     }
-    themes = g_list_sort(themes, compare_themes);
+    if (themes) {
+        themes = g_list_sort(themes, compare_themes);
+        GList *p = themes, *n;
+        while ((n = p->next))
+        {
+            IconTheme *tp, *tn;
+            char *sp, *sn;
+            sp = (tp = p->data)->name;
+            sn = (tn = n->data)->name;
+            if (strcmp(sp, sn) != 0) {
+                p = n;
+                continue;
+            }
+            themes = g_list_remove_link(themes, n);
+            g_list_free_1(n);
+            free_icon_theme(tn);
+            free(tn);
+        }
+    }
 
     GtkTreeIter iter;
     gtk_list_store_append(icon_themes, &iter);

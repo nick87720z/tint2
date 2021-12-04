@@ -1,4 +1,6 @@
 2021-10-14 master
+- Fixes:
+  - On dual monitor, when minimizing Chrome window it minimizes on the wrong monitor panel (issue #818)
 2021-05-29 17.0.1
 - Fixes:
   - Crash on panel cleanup in single-monitor execp (issue #801)

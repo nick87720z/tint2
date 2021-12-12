@@ -550,8 +550,10 @@ void handle_x_event(XEvent *e)
             memcpy(name, e->xclient.data.b, sizeof(e->xclient.data.b));
             for (GList *l = panel_config.execp_list; l; l = l->next) {
                 Execp *execp = (Execp *)l->data;
-                if (strncmp(name, execp->backend->name, sizeof(execp->backend->name) - 1) == 0)
+                if (strncmp(name, execp->backend->name, sizeof(execp->backend->name) - 1) == 0) {
+                    fprintf(stderr, "tint2: Refreshing executor: %s\n", name);
                     execp_force_update(execp);
+                }
             }
         }
         break;

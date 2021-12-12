@@ -593,6 +593,8 @@ The action semantics:
 
   * `execp = new` : Begins the configuration of a new executor plugin. Multiple such plugins are supported; just use multiple `E`s in `panel_items`. *(since 0.12.4)*
 
+  * `execp_name = text` : A name that can be used with `tint2-send refresh-execp` to re-execute the command.
+
   * `execp_command = text` : Command to execute. *(since 0.12.4)*
 
   * `execp_interval = integer` : The command is executed again after `execp_interval` seconds from the moment it exits. If zero, the command is executed only once. *(since 0.12.4)*

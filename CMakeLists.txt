@@ -290,6 +290,7 @@ add_executable(tint2-send src/tint2-send/tint2-send.c)
 target_link_libraries(tint2-send ${X11_LIBRARIES})
 
 install( TARGETS tint2 DESTINATION bin )
+install( TARGETS tint2-send DESTINATION bin )
 install( FILES tint2.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps )
 install( FILES tint2.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications )
 install( FILES themes/tint2rc DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/xdg/tint2 )

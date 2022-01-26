@@ -499,10 +499,14 @@ double tint_color_channel(double a, double b, double tint_weight)
 
 void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double tint_weight)
 {
+    Color c1 = *color1;
+    Color c2 = *color2;
+    double ratio =  sqrt(0.299 * c1.rgb[0] * c1.rgb[0] + 0.587 * c1.rgb[1] * c1.rgb[1] + 0.114 * c1.rgb[2] * c1.rgb[2]) /
+                    sqrt(0.299 * c2.rgb[0] * c2.rgb[0] + 0.587 * c2.rgb[1] * c2.rgb[1] + 0.114 * c2.rgb[2] * c2.rgb[2]);
     cairo_set_source_rgba(c,
-                          tint_color_channel(color1->rgb[0], color2->rgb[0], tint_weight),
-                          tint_color_channel(color1->rgb[1], color2->rgb[1], tint_weight),
-                          tint_color_channel(color1->rgb[2], color2->rgb[2], tint_weight),
+                          tint_color_channel(c1.rgb[0], c2.rgb[0] * ratio, tint_weight),
+                          tint_color_channel(c1.rgb[1], c2.rgb[1] * ratio, tint_weight),
+                          tint_color_channel(c1.rgb[2], c2.rgb[2] * ratio, tint_weight),
                           color1->alpha);
 }
 

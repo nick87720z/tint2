@@ -698,10 +698,7 @@ void task_refresh_thumbnail(Task *task)
                 __func__,
                 1000 * (task->thumbnail_last_update - now),
                 task->title ? task->title : "");
-    if (g_tooltip.mapped && (g_tooltip.area == &task->area)) {
-        tooltip_set_area(&task->area);
-        tooltip_update();
-    }
+    tooltip_update_for_area (&task->area);
 }
 
 void set_task_state(Task *task, TaskState state)

@@ -493,6 +493,7 @@ void draw(Area *a)
 double tint_color_channel(double a, double b, double tint_weight)
 {
     return  (tint_weight == 0.0) ? a :
+            (tint_weight == 1.0) ? b :
             sqrt(a*a * (1-tint_weight) + b*b * tint_weight);
 }
 

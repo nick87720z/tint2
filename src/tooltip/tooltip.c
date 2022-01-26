@@ -151,16 +151,21 @@ void tooltip_update_geometry()
     Panel *panel = g_tooltip.panel;
     int screen_width = server.monitors[panel->monitor].width;
 
+    #define GET_TEXT_PIXEL_EXTENTS(s, r) {                                               \
+        pango_layout_set_text(layout, (s), -1); \
+        pango_layout_get_pixel_extents(layout, NULL, (r)); \
+    }
+
     cairo_surface_t *cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
     cairo_t *c = cairo_create(cs);
     PangoContext *context = pango_cairo_create_context(c);
     pango_cairo_context_set_resolution(context, 96 * panel->scale);
     PangoLayout *layout = pango_layout_new(context);
-
     pango_layout_set_font_description(layout, g_tooltip.font_desc);
-    PangoRectangle r1, r2;
-    pango_layout_set_text(layout, "1234567890abcdef", -1);
-    pango_layout_get_pixel_extents(layout, &r1, &r2);
+
+    PangoRectangle r2;
+
+    GET_TEXT_PIXEL_EXTENTS("1234567890abcdef", &r2);
     int max_width = MIN(r2.width * 5, screen_width * 2 / 3);
 
     int img_width, img_useful;
@@ -170,10 +175,8 @@ void tooltip_update_geometry()
         max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
     }
     pango_layout_set_width(layout, max_width * PANGO_SCALE);
-
-    pango_layout_set_text(layout, g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", -1);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
-    pango_layout_get_pixel_extents(layout, &r1, &r2);
+    GET_TEXT_PIXEL_EXTENTS(g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", &r2);
     width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + r2.width;
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + r2.height;
 
@@ -194,6 +197,8 @@ void tooltip_update_geometry()
         x = panel->posx + panel->area.width;
     else
         x = panel->posx - width;
+
+    #undef GET_TEXT_PIXEL_EXTENTS
 
     g_object_unref(layout);
     g_object_unref(context);

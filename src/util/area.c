@@ -492,11 +492,8 @@ void draw(Area *a)
 
 double tint_color_channel(double a, double b, double tint_weight)
 {
-    double gamma = 2.2;
-    if (tint_weight == 0.0)
-        return a;
-    double result = sqrt((1.-tint_weight)*pow(a, gamma) + tint_weight * pow(b, gamma));
-    return result;
+    return  (tint_weight == 0.0) ? a :
+            sqrt(a*a * (1-tint_weight) + b*b * tint_weight);
 }
 
 void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double tint_weight)

@@ -162,9 +162,12 @@ void tooltip_update_geometry()
     pango_layout_set_text(layout, "1234567890abcdef", -1);
     pango_layout_get_pixel_extents(layout, &r1, &r2);
     int max_width = MIN(r2.width * 5, screen_width * 2 / 3);
-    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
-                                cairo_image_surface_get_width(g_tooltip.image);
+
+    int img_width, img_useful;
+    img_useful = g_tooltip.image && (img_width = cairo_image_surface_get_width(g_tooltip.image)) > 0;
+
+    if (img_useful) {
+        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
     }
     pango_layout_set_width(layout, max_width * PANGO_SCALE);
 
@@ -173,17 +176,21 @@ void tooltip_update_geometry()
     pango_layout_get_pixel_extents(layout, &r1, &r2);
     width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + r2.width;
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + r2.height;
-    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
-                                        cairo_image_surface_get_width(g_tooltip.image);
+
+    if (img_useful) {
+        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + img_width;
         height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image);
     }
 
-    if (panel_horizontal && panel_position & BOTTOM)
+    if (!panel_horizontal)
+        goto xlim;
+
+    if (panel_position & BOTTOM)
         y = panel->posy - height;
-    else if (panel_horizontal && panel_position & TOP)
+    else if (panel_position & TOP)
         y = panel->posy + panel->area.height;
-    else if (panel_position & LEFT)
+    else
+    xlim: if (panel_position & LEFT)
         x = panel->posx + panel->area.width;
     else
         x = panel->posx - width;

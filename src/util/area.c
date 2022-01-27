@@ -555,14 +555,12 @@ void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double ti
         rgb2[0] /= M, rgb2[1] /= M, rgb2[2] /= M, alpha *= M;
     }
     // fix alpha overflow via saturation
-    if (alpha > 1.0) {
-        double m = MIN(rgb2[0], MIN(rgb2[1], rgb2[2]));
-        m *= alpha;
-        M *= alpha;
-        L2 = (m + M) / 2;
-        double mul = (1 - L2) / (M - L2);
+    if (alpha > 1.0)
+    {
+        L2 *= C;
+        double mul = (1 - L2) / (alpha - L2);
         for (int i=0; i < 2; i++)
-            rgb2[i] = L2 + (rgb2[i] - L2) * mul;
+            rgb2[i] = L2 + (rgb2[i] * alpha - L2) * mul;
         alpha = 1.0;
     }
     cairo_set_source_rgba(c,

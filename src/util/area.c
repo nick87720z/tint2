@@ -490,6 +490,30 @@ void draw(Area *a)
     cairo_surface_destroy(cs);
 }
 
+double color_percieved_brightness(double *rgb)
+{
+    return  rgb[0] == 0  ?
+            (
+                rgb[1] == 0  ?  rgb[2] * sqrt(.114) :
+                rgb[2] == 0  ?  rgb[1] * sqrt(.587) :
+                sqrt(   .587 * rgb[1] * rgb[1] +
+                        .114 * rgb[2] * rgb[2] )
+            ) :
+            rgb[1] == 0  ?
+            (
+                rgb[2] == 0  ?  rgb[0] * sqrt(.299) :
+                sqrt(   .299 * rgb[0] * rgb[0] +
+                        .114 * rgb[2] * rgb[2] )
+            ) :
+            sqrt(   .299 * rgb[0] * rgb[0] +
+                    .587 * rgb[1] * rgb[1] + (
+                        rgb[2] == 0 ?
+                        0 :
+                        .114 * rgb[2] * rgb[2]
+                    )
+            );
+}
+
 double tint_color_channel(double a, double b, double tint_weight)
 {
     return  (tint_weight == 0.0) ? a :
@@ -503,12 +527,12 @@ void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double ti
     Color c2 = *color2;
     double ratio, l2;
 
-    l2 = sqrt(0.299 * c2.rgb[0] * c2.rgb[0] + 0.587 * c2.rgb[1] * c2.rgb[1] + 0.114 * c2.rgb[2] * c2.rgb[2]);    
+    l2 = color_percieved_brightness (color2->rgb);
     if (l2 == 0.0) {
         cairo_set_source_rgba(c, c1.rgb[0], c1.rgb[1], c1.rgb[2], color1->alpha);
         return;
     }
-    ratio = sqrt(0.299 * c1.rgb[0] * c1.rgb[0] + 0.587 * c1.rgb[1] * c1.rgb[1] + 0.114 * c1.rgb[2] * c1.rgb[2]) / l2;
+    ratio = color_percieved_brightness (color1->rgb) / l2;
     cairo_set_source_rgba(c,
                           tint_color_channel(c1.rgb[0], c2.rgb[0] * ratio, tint_weight),
                           tint_color_channel(c1.rgb[1], c2.rgb[1] * ratio, tint_weight),

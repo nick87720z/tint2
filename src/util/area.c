@@ -523,21 +523,46 @@ double tint_color_channel(double a, double b, double tint_weight)
 
 void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double tint_weight)
 {
-    Color c1 = *color1;
-    Color c2 = *color2;
-    double ratio, l2;
+    double  *rgb1 = color1->rgb,
+            *rgb2 = color2->rgb,
+            alpha = color1->alpha,
+            C, L1, L2;
 
-    l2 = color_percieved_brightness (color2->rgb);
-    if (l2 == 0.0) {
-        cairo_set_source_rgba(c, c1.rgb[0], c1.rgb[1], c1.rgb[2], color1->alpha);
+    // skip for grayscale content color, invisible or black target color
+    if (alpha == 0.0 || memcmp(rgb1, (double [3]){0.0, 0.0, 0.0}, sizeof(double) * 3) == 0 ||
+        (rgb2[0] == rgb2[1] && rgb2[0] == rgb2[2]) )
+    {
+        cairo_set_source_rgba(c, rgb1[0], rgb1[1], rgb1[2], alpha);
         return;
     }
-    ratio = color_percieved_brightness (color1->rgb) / l2;
+
+    C = (L1 = color_percieved_brightness(rgb1)) / (L2 = color_percieved_brightness(rgb2));
+
+    // decay brightness multiplier by L1 square curve
+    // (bent towards 0 for better compensation chance)
+    L1 *= alpha;
+    L1 *= L1;
+    C = C * (1 - L1) + L1;
+
+    // content color brightness match
+    rgb2[0] *= C;
+    rgb2[1] *= C;
+    rgb2[2] *= C;
+
+    // move color overflow to alpha
+    double M = MAX(rgb2[0], MAX(rgb2[1], rgb2[2]));
+    if (M > 1.0) {
+        rgb2[0] /= M, rgb2[1] /= M, rgb2[2] /= M, alpha *= M;
+    }
+    // clamp alpha channel
+    if (alpha > 1.0) {
+        alpha = 1.0;
+    }
     cairo_set_source_rgba(c,
-                          tint_color_channel(c1.rgb[0], c2.rgb[0] * ratio, tint_weight),
-                          tint_color_channel(c1.rgb[1], c2.rgb[1] * ratio, tint_weight),
-                          tint_color_channel(c1.rgb[2], c2.rgb[2] * ratio, tint_weight),
-                          color1->alpha);
+                          tint_color_channel(rgb1[0], rgb2[0], tint_weight),
+                          tint_color_channel(rgb1[1], rgb2[1], tint_weight),
+                          tint_color_channel(rgb1[2], rgb2[2], tint_weight),
+                          alpha);
 }
 
 void set_cairo_source_bg_color(Area *a, cairo_t *c)

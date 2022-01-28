@@ -303,12 +303,13 @@ int button_compute_desired_size(void *obj)
                            FALSE,
                            panel->scale);
         } else {
+            int x1 = icon_w ? icon_w + interior_padding : 0;
             get_text_size2(button->backend->font_desc,
                            &txt_height,
                            &txt_width,
                            panel->area.height,
-                           button->area.width - icon_w - (icon_w ? interior_padding : 0) - 2 * horiz_padding -
-                               left_right_border_width(&button->area),
+                           (!icon_w || x1 < 0 ? button->area.width : button->area.width - x1)
+                                - 2 * horiz_padding - left_right_border_width(&button->area),
                            button->backend->text,
                            strlen(button->backend->text),
                            PANGO_WRAP_WORD_CHAR,
@@ -322,7 +323,14 @@ int button_compute_desired_size(void *obj)
     }
 
     if (panel_horizontal) {
-        int new_size = txt_width + icon_w + (txt_width && icon_w ? interior_padding : 0);
+        int new_size, x1, x2;
+        new_size = !icon_w ? txt_width : !txt_width ? icon_w :
+                    (
+                        // Get bounding range, including both icon and text
+                        x1 = icon_w + interior_padding,
+                        x2 = x1 + txt_width,
+                        MAX(x2, icon_w) - MIN(x1, 0)
+                    );
         new_size += 2 * horiz_padding + left_right_border_width(&button->area);
         return new_size;
     } else {
@@ -366,8 +374,9 @@ gboolean resize_button(void *obj)
         available_w = panel->area.width;
         available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
     } else {
-        available_w =
-            area->width - icon_w - (icon_w ? interior_padding : 0) - 2 * horiz_padding - left_right_border_width(area);
+        int x1 = icon_w ? icon_w + interior_padding : 0;
+        available_w = (!icon_w || x1 < 0 ? button->area.width : button->area.width - x1)
+                        - 2 * horiz_padding - left_right_border_width(&button->area);
         available_h = panel->area.height;
     }
 
@@ -391,7 +400,14 @@ gboolean resize_button(void *obj)
 
     gboolean result = FALSE;
     if (panel_horizontal) {
-        int new_size = txt_width + icon_w + (txt_width && icon_w ? interior_padding : 0);
+        int new_size, x1, x2;
+        new_size = !icon_w ? txt_width : !txt_width ? icon_w :
+                    (
+                        // Get bounding range, including both icon and text
+                        x1 = icon_w + interior_padding,
+                        x2 = x1 + txt_width,
+                        MAX(x2, icon_w) - MIN(x1, 0)
+                    );
         new_size += 2 * horiz_padding + left_right_border_width(&button->area);
         if (new_size != button->area.width) {
             button->area.width = new_size;
@@ -410,21 +426,26 @@ gboolean resize_button(void *obj)
     button->frontend->texth = txt_height;
     if (button->backend->centered) {
         if (icon_w) {
+            int dx, pad, ix, tx;
+            dx = icon_w + interior_padding;
+            ix = dx < 0 ? -dx : 0;
+            tx = ix + dx;
+            pad = (button->area.width - MAX(ix + icon_w, tx + txt_width)) / 2;
             button->frontend->icony = (button->area.height - icon_h) / 2;
-            button->frontend->iconx =
-                (button->area.width - txt_width - (txt_width ? interior_padding : 0) - icon_w) / 2;
+            button->frontend->iconx = ix + pad;
             button->frontend->texty = (button->area.height - txt_height) / 2;
-            button->frontend->textx = button->frontend->iconx + icon_w + interior_padding;
+            button->frontend->textx = tx + pad;
         } else {
             button->frontend->texty = (button->area.height - txt_height) / 2;
             button->frontend->textx = (button->area.width - txt_width) / 2;
         }
     } else {
         if (icon_w) {
+            int dx = icon_w + interior_padding;
             button->frontend->icony = (button->area.height - icon_h) / 2;
-            button->frontend->iconx = left_border_width(&button->area) + horiz_padding;
+            button->frontend->iconx = (dx < 0 ? -dx : 0) + left_border_width(&button->area) + horiz_padding;
             button->frontend->texty = (button->area.height - txt_height) / 2;
-            button->frontend->textx = button->frontend->iconx + icon_w + interior_padding;
+            button->frontend->textx = button->frontend->iconx + dx;
         } else {
             button->frontend->texty = (button->area.height - txt_height) / 2;
             button->frontend->textx = left_border_width(&button->area) + horiz_padding;

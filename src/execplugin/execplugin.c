@@ -394,11 +394,11 @@ void execp_compute_icon_text_geometry(Execp *execp,
             *new_size = *txt_height + 2 * *vert_padding + top_bottom_border_width(area);
             *new_size = MAX(*new_size, *icon_h + 2 * *vert_padding + top_bottom_border_width(area));
         } else {
-            if (strlen(execp->backend->text)) {
-                *new_size = *icon_h + *interior_padding + *txt_height + 2 * *vert_padding + top_bottom_border_width(area);
-            } else {
-                *new_size = *icon_h + 2 * *vert_padding + top_bottom_border_width(area);
-            }
+            *new_size = 2 * *vert_padding + top_bottom_border_width(area) + (
+                            strlen(execp->backend->text)
+                            ? *txt_height + (*icon_h ? *icon_h + *interior_padding : 0)
+                            : *icon_h
+                        );
         }
         if (*new_size != area->height) {
             *resized = TRUE;

@@ -93,7 +93,14 @@ void config_read_file(const char *path)
 
 void config_write_color(FILE *fp, const char *name, GdkColor color, int opacity)
 {
-    fprintf(fp, "%s = #%02x%02x%02x %d\n", name, color.red >> 8, color.green >> 8, color.blue >> 8, opacity);
+    int p = color.red % (256*16) && color.green % (256*16) && color.blue % (256*16) ? 1 :
+            color.red % (256)    && color.green % (256)    && color.blue % (256)    ? 2 : 4;
+    int prec_loss = (4 - p) * 8;
+    fprintf(fp, "%s = #%0*x%0*x%0*x %d\n", name,
+            color.red   >> prec_loss, p,
+            color.green >> prec_loss, p,
+            color.blue  >> prec_loss, p,
+            opacity);
 }
 
 void config_write_gradients(FILE *fp)

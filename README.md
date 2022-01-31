@@ -1,4 +1,8 @@
 # Latest stable release: 17.0.2
+
+The final release of tint2 is 17.0.2.
+The code is frozen and no more feature requests are accepted.
+
 Changes: https://gitlab.com/o9000/tint2/blob/17.0.2/ChangeLog
 
 Documentation: [doc/tint2.md](doc/tint2.md)

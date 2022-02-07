@@ -481,6 +481,9 @@ void draw_task(void *obj, cairo_t *c)
     Task *task = (Task *)obj;
     Panel *panel = (Panel *)task->area.panel;
 
+    if (panel->g_task.has_icon)
+        draw_task_icon(task, task->_text_width);
+
     task->_text_width = 0;
     if (panel->g_task.has_text) {
         PangoContext *context = pango_cairo_create_context(c);
@@ -508,9 +511,6 @@ void draw_task(void *obj, cairo_t *c)
         g_object_unref(layout);
         g_object_unref(context);
     }
-
-    if (panel->g_task.has_icon)
-        draw_task_icon(task, task->_text_width);
 }
 
 void task_dump_geometry(void *obj, int indent)

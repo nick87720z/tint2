@@ -602,6 +602,9 @@ void set_cairo_source_border_color(Area *a, cairo_t *c)
 
 void draw_background(Area *a, cairo_t *c)
 {
+    cairo_push_group (c);
+    cairo_set_operator(c, CAIRO_OPERATOR_ADD);
+    
     if ((a->bg->fill_color.alpha > 0.0) ||
         (panel_config.mouse_effects && (a->has_mouse_over_effect || a->has_mouse_press_effect))) {
 
@@ -611,7 +614,7 @@ void draw_background(Area *a, cairo_t *c)
                   top_border_width(a),
                   a->width - left_right_border_width(a),
                   a->height - top_bottom_border_width(a),
-                  a->bg->border.radius - a->bg->border.width / 1.571);
+                  a->bg->border.radius - a->bg->border.width / 2.0);
         set_cairo_source_bg_color(a, c);
         cairo_fill(c);
     }
@@ -625,7 +628,7 @@ void draw_background(Area *a, cairo_t *c)
                   top_border_width(a),
                   a->width - left_right_border_width(a),
                   a->height - top_bottom_border_width(a),
-                  a->bg->border.radius - a->bg->border.width / 1.571);
+                  a->bg->border.radius - a->bg->border.width / 2.0);
         cairo_fill(c);
     }
 
@@ -644,6 +647,8 @@ void draw_background(Area *a, cairo_t *c)
 
         cairo_stroke(c);
     }
+    cairo_pop_group_to_source (c);
+    cairo_paint (c);
 }
 
 void remove_area(Area *a)

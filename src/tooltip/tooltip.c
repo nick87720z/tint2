@@ -281,7 +281,7 @@ void tooltip_update()
     Border b = g_tooltip.bg->border;
     if (server.real_transparency) {
         clear_pixmap(g_tooltip.window, 0, 0, width, height);
-        draw_rect(c, b.width, b.width, width - 2 * b.width, height - 2 * b.width, b.radius - b.width / 1.571);
+        draw_rect(c, b.width, b.width, width - 2 * b.width, height - 2 * b.width, b.radius - b.width / 2.0);
         cairo_set_source_rgba(c, bc.rgb[0], bc.rgb[1], bc.rgb[2], bc.alpha);
     } else {
         cairo_rectangle(c, 0., 0, width, height);
@@ -294,7 +294,9 @@ void tooltip_update()
     else
         cairo_rectangle(c, b.width / 2.0, b.width / 2.0, width - b.width, height - b.width);
     cairo_set_source_rgba(c, b.color.rgb[0], b.color.rgb[1], b.color.rgb[2], b.color.alpha);
+    cairo_set_operator (c, CAIRO_OPERATOR_ADD);
     cairo_stroke(c);
+    cairo_set_operator (c, CAIRO_OPERATOR_OVER);
 
     Color fc = g_tooltip.font_color;
     cairo_set_source_rgba(c, fc.rgb[0], fc.rgb[1], fc.rgb[2], fc.alpha);
@@ -304,24 +306,27 @@ void tooltip_update()
     pango_layout_set_font_description(layout, g_tooltip.font_desc);
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
     pango_layout_set_text(layout, g_tooltip.tooltip_text, -1);
-    PangoRectangle r1, r2;
-    pango_layout_get_pixel_extents(layout, &r1, &r2);
     pango_layout_set_width(layout, width * PANGO_SCALE);
     pango_layout_set_height(layout, height * PANGO_SCALE);
     pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
     // I do not know why this is the right way, but with the below cairo_move_to it seems to be centered (horiz. and
     // vert.)
-    cairo_move_to(c,
-                  -r1.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx * panel->scale,
-                  -r1.y / 2 + 1 + top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy * panel->scale);
+    {PangoRectangle ext;
+        pango_layout_get_pixel_extents(layout, &ext, NULL);
+        cairo_move_to(c,
+                      -ext.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx * panel->scale,
+                      -ext.y / 2 +  top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy * panel->scale + 1);
+    }
     pango_cairo_show_layout(c, layout);
     g_object_unref(layout);
     g_object_unref(context);
 
     if (g_tooltip.image) {
         cairo_translate(c,
-                        left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx * panel->scale,
-                        height - bottom_bg_border_width(g_tooltip.bg) - g_tooltip.paddingy * panel->scale - cairo_image_surface_get_height(g_tooltip.image));
+                        left_bg_border_width(g_tooltip.bg)            + g_tooltip.paddingx * panel->scale,
+                        height - bottom_bg_border_width(g_tooltip.bg) - g_tooltip.paddingy * panel->scale 
+                               - cairo_image_surface_get_height(g_tooltip.image)
+        );
         cairo_set_source_surface(c, g_tooltip.image, 0, 0);
         cairo_paint(c);
     }

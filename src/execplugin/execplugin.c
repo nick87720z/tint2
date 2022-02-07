@@ -727,8 +727,10 @@ int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffe
     ssize_t total = 0;
     while (1) {
         // Make sure there is free space in the buffer
-        if (*buffer_capacity - *buffer_length < 1024) {
-            *buffer_capacity *= 2;
+        ssize_t req_cap = *buffer_length + 1024;
+        if (*buffer_capacity < req_cap) {
+            do    *buffer_capacity *= 2;
+            while (*buffer_capacity < req_cap);
             *buffer = (char *)realloc(*buffer, *buffer_capacity);
         }
         ssize_t count = read(fd,
@@ -860,8 +862,6 @@ gboolean read_execp(void *obj)
             if (*start) {
                 execp->backend->tooltip = strdup(start);
                 rstrip(execp->backend->tooltip);
-                if (strlen(execp->backend->tooltip) > MAX_TOOLTIP_LEN)
-                    execp->backend->tooltip[MAX_TOOLTIP_LEN] = '\0';
             }
         }
         execp->backend->buf_stderr_length = 0;
@@ -880,10 +880,6 @@ gboolean read_execp(void *obj)
                 start += strlen(ansi_clear_screen);
                 memmove(execp->backend->buf_stderr, start, strlen(start) + 1);
                 execp->backend->buf_stderr_length = (ssize_t)strlen(execp->backend->buf_stderr);
-            }
-            if (execp->backend->buf_stderr_length > MAX_TOOLTIP_LEN) {
-                execp->backend->buf_stderr_length = MAX_TOOLTIP_LEN;
-                execp->backend->buf_stderr[execp->backend->buf_stderr_length] = '\0';
             }
             execp->backend->tooltip = strdup(execp->backend->buf_stderr);
             rstrip(execp->backend->tooltip);

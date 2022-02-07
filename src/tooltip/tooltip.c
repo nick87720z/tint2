@@ -151,42 +151,59 @@ void tooltip_update_geometry()
     Panel *panel = g_tooltip.panel;
     int screen_width = server.monitors[panel->monitor].width;
 
+    #define GET_TEXT_PIXEL_EXTENTS(s, r) {                                               \
+        pango_layout_set_text(layout, (s), -1); \
+        pango_layout_get_pixel_extents(layout, NULL, (r)); \
+    }
+
     cairo_surface_t *cs = cairo_xlib_surface_create(server.display, g_tooltip.window, server.visual, width, height);
     cairo_t *c = cairo_create(cs);
     PangoContext *context = pango_cairo_create_context(c);
     pango_cairo_context_set_resolution(context, 96 * panel->scale);
     PangoLayout *layout = pango_layout_new(context);
-
     pango_layout_set_font_description(layout, g_tooltip.font_desc);
-    PangoRectangle r1, r2;
-    pango_layout_set_text(layout, "1234567890abcdef", -1);
-    pango_layout_get_pixel_extents(layout, &r1, &r2);
-    int max_width = MIN(r2.width * 5, screen_width * 2 / 3);
-    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        max_width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
-                                cairo_image_surface_get_width(g_tooltip.image);
-    }
-    pango_layout_set_width(layout, max_width * PANGO_SCALE);
 
-    pango_layout_set_text(layout, g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", -1);
+    PangoRectangle r2;
+
+    GET_TEXT_PIXEL_EXTENTS("1234567890abcdef", &r2);
+
+    int img_width, img_useful, space;
+    img_useful = g_tooltip.image && (img_width = cairo_image_surface_get_width(g_tooltip.image)) > 0;
+    space = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale;
+
+    pango_layout_set_width(
+        layout,
+        strchr(g_tooltip.tooltip_text, '\n') ? -1 : (
+            img_useful  ? space + img_width
+                        : MIN(r2.width * 5, screen_width * 2 / 3)
+        ) * PANGO_SCALE
+    );
+
     pango_layout_set_wrap(layout, PANGO_WRAP_WORD);
-    pango_layout_get_pixel_extents(layout, &r1, &r2);
-    width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale + r2.width;
+    GET_TEXT_PIXEL_EXTENTS(g_tooltip.tooltip_text ? g_tooltip.tooltip_text : "1234567890abcdef", &r2);
     height = top_bottom_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingy * panel->scale + r2.height;
-    if (g_tooltip.image && cairo_image_surface_get_width(g_tooltip.image) > 0) {
-        width = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale +
-                                        cairo_image_surface_get_width(g_tooltip.image);
+
+    if (img_useful) {
+        width = space + MAX(img_width, r2.width);
         height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image);
+    } else {
+        width = space + r2.width;
     }
 
-    if (panel_horizontal && panel_position & BOTTOM)
+    if (!panel_horizontal)
+        goto xlim;
+
+    if (panel_position & BOTTOM)
         y = panel->posy - height;
-    else if (panel_horizontal && panel_position & TOP)
+    else if (panel_position & TOP)
         y = panel->posy + panel->area.height;
-    else if (panel_position & LEFT)
+    else
+    xlim: if (panel_position & LEFT)
         x = panel->posx + panel->area.width;
     else
         x = panel->posx - width;
+
+    #undef GET_TEXT_PIXEL_EXTENTS
 
     g_object_unref(layout);
     g_object_unref(context);

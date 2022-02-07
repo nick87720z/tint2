@@ -595,7 +595,6 @@ void add_entry(char *key, char *value)
         if (strlen(value) > 0) {
             free(bat1_format);
             bat1_format = strdup(value);
-            battery_enabled = 1;
         }
 #endif
     } else if (strcmp(key, "bat2_format") == 0) {

@@ -949,14 +949,14 @@ const char *time_to_string(int seconds, char *buffer, size_t buffer_size)
         int m = seconds / 60;
         seconds = seconds % 60;
         int s = seconds;
-        snprintf(buffer, buffer_size, "%d:%ds", m, s);
+        snprintf(buffer, buffer_size, "%d:%02ds", m, s);
     } else {
         int h = seconds / (60 * 60);
         seconds = seconds % (60 * 60);
         int m = seconds / 60;
         seconds = seconds % 60;
         int s = seconds;
-        snprintf(buffer, buffer_size, "%d:%d:%ds", h, m, s);
+        snprintf(buffer, buffer_size, "%d:%02d:%02ds", h, m, s);
     }
     return buffer;
 }

@@ -261,7 +261,7 @@ void handle_event_property_notify(XEvent *e)
         if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME) {
             if (task_update_title(task)) {
                 if (g_tooltip.mapped && (g_tooltip.area == (Area *)task)) {
-                    tooltip_update_contents_for((Area *)task);
+                    tooltip_set_area((Area *)task);
                     tooltip_update();
                 }
                 if (taskbar_sort_method == TASKBAR_SORT_TITLE)
@@ -421,7 +421,6 @@ void handle_x_event(XEvent *e)
     Panel *panel = get_panel(e->xany.window);
     switch (e->type) {
     case ButtonPress: {
-        tooltip_hide(0);
         handle_mouse_press_event(e);
         Area *area = find_area_under_mouse(panel, e->xbutton.x, e->xbutton.y);
         if (panel_config.mouse_effects)

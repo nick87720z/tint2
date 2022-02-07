@@ -13,6 +13,7 @@
 #include <fcntl.h>
 
 #include "window.h"
+#include "tooltip.h"
 #include "server.h"
 #include "panel.h"
 #include "timer.h"
@@ -720,9 +721,10 @@ void execp_timer_callback(void *arg)
     execp->backend->last_update_start_time = time(NULL);
 }
 
-void read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffer_capacity, gboolean *eof)
+int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffer_capacity, gboolean *eof)
 {
     *eof = FALSE;
+    ssize_t total = 0;
     while (1) {
         // Make sure there is free space in the buffer
         if (*buffer_capacity - *buffer_length < 1024) {
@@ -734,6 +736,7 @@ void read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buff
                              *buffer_capacity - *buffer_length - 1);
         if (count > 0) {
             // Successful read
+            total += count;
             *buffer_length += count;
             (*buffer)[*buffer_length] = '\0';
             continue;
@@ -754,6 +757,7 @@ void read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buff
         }
         break;
     }
+    return total;
 }
 
 gboolean starts_with(char *s, char *prefix)
@@ -802,6 +806,7 @@ gboolean read_execp(void *obj)
                    &execp->backend->buf_stdout_length,
                    &execp->backend->buf_stdout_capacity,
                    &stdout_eof);
+    int count =
     read_from_pipe(execp->backend->child_pipe_stderr,
                    &execp->backend->buf_stderr,
                    &execp->backend->buf_stderr_length,
@@ -809,6 +814,7 @@ gboolean read_execp(void *obj)
                    &stderr_eof);
 
     gboolean command_finished = stdout_eof && stderr_eof;
+    gboolean result = FALSE;
 
     if (command_finished) {
         execp->backend->child = 0;
@@ -864,7 +870,7 @@ gboolean read_execp(void *obj)
         execp->backend->last_update_finish_time = time(NULL);
         execp->backend->last_update_duration =
             execp->backend->last_update_finish_time - execp->backend->last_update_start_time;
-        return TRUE;
+        result = TRUE;
     } else if (execp->backend->continuous > 0) {
         // Handle stderr
         if (!execp->backend->has_user_tooltip) {
@@ -881,6 +887,8 @@ gboolean read_execp(void *obj)
             }
             execp->backend->tooltip = strdup(execp->backend->buf_stderr);
             rstrip(execp->backend->tooltip);
+            if (count > 0)
+                result = TRUE;
         } else {
             execp->backend->buf_stderr_length = 0;
             execp->backend->buf_stderr[execp->backend->buf_stderr_length] = '\0';
@@ -935,10 +943,10 @@ gboolean read_execp(void *obj)
             execp->backend->last_update_finish_time = time(NULL);
             execp->backend->last_update_duration =
                 execp->backend->last_update_finish_time - execp->backend->last_update_start_time;
-            return TRUE;
+            result = TRUE;
         }
     }
-    return FALSE;
+    return result;
 }
 
 const char *time_to_string(int seconds, char *buffer, size_t buffer_size)
@@ -1045,6 +1053,8 @@ void execp_update_post_read(Execp *execp)
         execp->area.resize_needed = TRUE;
         schedule_panel_redraw();
     }
+
+    tooltip_update_for_area(&execp->area);
 }
 
 void handle_execp_events()

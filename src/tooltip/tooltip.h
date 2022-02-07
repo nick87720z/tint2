@@ -49,13 +49,17 @@ void default_tooltip();
 // freed memory
 void cleanup_tooltip();
 
+// display update
+void tooltip_update();                        // update, using set area
+void tooltip_update_for_area(Area *area);     // comprehensive update func for use in widgets, FIXME
+void tooltip_set_area(Area *area);            // change associated area
+
+// TODO: undocumented
 void init_tooltip();
 void tooltip_trigger_show(Area *area, Panel *p, XEvent *e);
 void tooltip_show(void * /*arg*/);
-void tooltip_update();
 void tooltip_trigger_hide();
 void tooltip_hide(void * /*arg*/);
-void tooltip_update_contents_for(Area *area);
 void tooltip_default_font_changed();
 
 #endif // TOOLTIP_H

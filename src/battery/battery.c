@@ -25,6 +25,7 @@
 #include <pango/pangocairo.h>
 
 #include "window.h"
+#include "tooltip.h"
 #include "server.h"
 #include "panel.h"
 #include "battery.h"
@@ -416,6 +417,7 @@ void update_battery_tick(void *arg)
                     panels[i].battery.area.bg = panel_config.battery.area.bg;
                 schedule_panel_redraw();
             }
+            tooltip_update_for_area (&panels[i].battery.area);
         }
     }
 }

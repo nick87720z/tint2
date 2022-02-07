@@ -490,52 +490,114 @@ void draw(Area *a)
     cairo_surface_destroy(cs);
 }
 
+double color_percieved_brightness(double *rgb)
+{
+    return  rgb[0] == 0  ?
+            (
+                rgb[1] == 0  ?  rgb[2] * sqrt(.114) :
+                rgb[2] == 0  ?  rgb[1] * sqrt(.587) :
+                sqrt(   .587 * rgb[1] * rgb[1] +
+                        .114 * rgb[2] * rgb[2] )
+            ) :
+            rgb[1] == 0  ?
+            (
+                rgb[2] == 0  ?  rgb[0] * sqrt(.299) :
+                sqrt(   .299 * rgb[0] * rgb[0] +
+                        .114 * rgb[2] * rgb[2] )
+            ) :
+            sqrt(   .299 * rgb[0] * rgb[0] +
+                    .587 * rgb[1] * rgb[1] + (
+                        rgb[2] == 0 ?
+                        0 :
+                        .114 * rgb[2] * rgb[2]
+                    )
+            );
+}
+
 double tint_color_channel(double a, double b, double tint_weight)
 {
-    double gamma = 2.2;
-    if (tint_weight == 0.0)
-        return a;
-    double result = sqrt((1.-tint_weight)*pow(a, gamma) + tint_weight * pow(b, gamma));
-    return result;
+    return  (tint_weight == 0.0) ? a :
+            (tint_weight == 1.0) ? b :
+            sqrt(a*a * (1-tint_weight) + b*b * tint_weight);
 }
 
 void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double tint_weight)
 {
+    double  *rgb1 = color1->rgb,
+            *rgb2 = color2->rgb,
+            alpha = color1->alpha,
+            C, L1, L2;
+
+    // skip for grayscale content color, invisible or black target color
+    if (alpha == 0.0 || memcmp(rgb1, (double [3]){0.0, 0.0, 0.0}, sizeof(double) * 3) == 0 ||
+        (rgb2[0] == rgb2[1] && rgb2[0] == rgb2[2]) )
+    {
+        cairo_set_source_rgba(c, rgb1[0], rgb1[1], rgb1[2], alpha);
+        return;
+    }
+
+    C = (L1 = color_percieved_brightness(rgb1)) / (L2 = color_percieved_brightness(rgb2));
+
+    // decay brightness multiplier by L1 square curve
+    // (bent towards 0 for better compensation chance)
+    L1 *= alpha;
+    L1 *= L1;
+    C = C * (1 - L1) + L1;
+
+    // content color brightness match
+    rgb2[0] *= C;
+    rgb2[1] *= C;
+    rgb2[2] *= C;
+
+    // move color overflow to alpha
+    double M = MAX(rgb2[0], MAX(rgb2[1], rgb2[2]));
+    if (M > 1.0) {
+        rgb2[0] /= M, rgb2[1] /= M, rgb2[2] /= M, alpha *= M;
+    }
+    // fix alpha overflow via saturation
+    if (alpha > 1.0)
+    {
+        L2 *= C;
+        double mul = (1 - L2) / (alpha - L2);
+        for (int i=0; i < 2; i++)
+            rgb2[i] = L2 + (rgb2[i] * alpha - L2) * mul;
+        alpha = 1.0;
+    }
     cairo_set_source_rgba(c,
-                          tint_color_channel(color1->rgb[0], color2->rgb[0], tint_weight),
-                          tint_color_channel(color1->rgb[1], color2->rgb[1], tint_weight),
-                          tint_color_channel(color1->rgb[2], color2->rgb[2], tint_weight),
-                          color1->alpha);
+                          tint_color_channel(rgb1[0], rgb2[0], tint_weight),
+                          tint_color_channel(rgb1[1], rgb2[1], tint_weight),
+                          tint_color_channel(rgb1[2], rgb2[2], tint_weight),
+                          alpha);
 }
 
 void set_cairo_source_bg_color(Area *a, cairo_t *c)
 {
-    Color content_color;
-    if (a->_get_content_color)
+    Color content_color, *color;
+
+    color = (a->mouse_state == MOUSE_OVER) ? &a->bg->fill_color_hover :
+            (a->mouse_state == MOUSE_DOWN) ? &a->bg->fill_color_pressed :
+            &a->bg->fill_color;
+
+    if (a->_get_content_color) {
         a->_get_content_color(a, &content_color);
-    else
-        bzero(&content_color, sizeof(content_color));
-    if (a->mouse_state == MOUSE_OVER)
-        set_cairo_source_tinted(c, &a->bg->fill_color_hover, &content_color, a->bg->fill_content_tint_weight);
-    else if (a->mouse_state == MOUSE_DOWN)
-        set_cairo_source_tinted(c, &a->bg->fill_color_pressed, &content_color, a->bg->fill_content_tint_weight);
-    else
-        set_cairo_source_tinted(c, &a->bg->fill_color, &content_color, a->bg->fill_content_tint_weight);
+        set_cairo_source_tinted(c, color, &content_color, a->bg->fill_content_tint_weight);
+    } else
+        cairo_set_source_rgba (c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
 }
 
 void set_cairo_source_border_color(Area *a, cairo_t *c)
 {
-    Color content_color;
-    if (a->_get_content_color)
+    Color content_color, *color;
+
+    color = (a->mouse_state == MOUSE_OVER) ? &a->bg->border_color_hover :
+            (a->mouse_state == MOUSE_DOWN) ? &a->bg->border_color_pressed :
+            &a->bg->border.color;
+
+    if (a->_get_content_color) {
         a->_get_content_color(a, &content_color);
-    else
-        bzero(&content_color, sizeof(content_color));
-    if (a->mouse_state == MOUSE_OVER)
-        set_cairo_source_tinted(c, &a->bg->border_color_hover, &content_color, a->bg->border_content_tint_weight);
-    else if (a->mouse_state == MOUSE_DOWN)
-        set_cairo_source_tinted(c, &a->bg->border_color_pressed, &content_color, a->bg->border_content_tint_weight);
-    else
-        set_cairo_source_tinted(c, &a->bg->border.color, &content_color, a->bg->border_content_tint_weight);
+        set_cairo_source_tinted(c, color, &content_color, a->bg->border_content_tint_weight);
+    } else
+        cairo_set_source_rgba (c, color->rgb[0], color->rgb[1], color->rgb[2], color->alpha);
 }
 
 void draw_background(Area *a, cairo_t *c)

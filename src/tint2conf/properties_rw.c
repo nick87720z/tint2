@@ -87,7 +87,6 @@ void config_read_file(const char *path)
 void config_write_color(FILE *fp, const char *name, GdkRGBA *color)
 {
     double v;
-    int m;
     int p = (v = color->red   *  15, v=floor(v)) &&
             (v = color->green *  15, v=floor(v)) &&
             (v = color->blue  *  15, v=floor(v)) ? 1 :
@@ -95,15 +94,25 @@ void config_write_color(FILE *fp, const char *name, GdkRGBA *color)
             (v = color->green * 255, v=floor(v)) &&
             (v = color->blue  * 255, v=floor(v)) ? 2 : 4;
     switch (p) {
-        case 1: m = (1 <<  4) - 1; break;
-        case 2: m = (1 <<  8) - 1; break;
-        case 4: m = (1 << 16) - 1; break;
+        case 1: fprintf(fp, "%s = #%1x%1x%1x %d\n", name,
+                        (int)(15  * color->red  ),
+                        (int)(15  * color->green),
+                        (int)(15  * color->blue ),
+                        (int)(100 * color->alpha));
+                break;
+        case 2: fprintf(fp, "%s = #%02x%02x%02x %d\n", name,
+                        (int)(255 * color->red  ),
+                        (int)(255 * color->green),
+                        (int)(255 * color->blue ),
+                        (int)(100 * color->alpha));
+                break;
+        case 4: fprintf(fp, "%s = #%04x%04x%04x %d\n", name,
+                        (int)(65535 * color->red  ),
+                        (int)(65535 * color->green),
+                        (int)(65535 * color->blue ),
+                        (int)(100   * color->alpha));
+                break;
     }
-    fprintf(fp, "%s = #%0*x%0*x%0*x %d\n", name,
-            (int)(m   * color->red  ), p,
-            (int)(m   * color->green), p,
-            (int)(m   * color->blue ), p,
-            (int)(100 * color->alpha));
 }
 
 void config_write_gradients(FILE *fp)

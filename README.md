@@ -1,9 +1,9 @@
-# Latest stable release: 17.0.2
+# Latest stable release: 17.1
 
-The final release of tint2 is 17.0.2.
+The final release of tint2 is 17.1.
 The code is frozen and no more feature requests are accepted.
 
-Changes: https://gitlab.com/o9000/tint2/blob/17.0.2/ChangeLog
+Changes: https://gitlab.com/o9000/tint2/blob/17.1/ChangeLog
 
 Documentation: [manual.html](manual.html)
 
@@ -12,7 +12,7 @@ Compile it with (after you install the [dependencies](https://gitlab.com/o9000/t
 ```
 git clone https://gitlab.com/o9000/tint2.git
 cd tint2
-git checkout 17.0.2
+git checkout 17.1
 mkdir build
 cd build
 cmake ..
@@ -101,4 +101,6 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 ## More
 
 * [Tint2 wiki](https://gitlab.com/o9000/tint2/wikis/Home)
+Home)
+)
 Home)

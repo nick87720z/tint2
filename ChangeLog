@@ -1,4 +1,4 @@
-2021-12-11 master
+2022-02-09 17.1
 - Enhancements:
   - Added command to refresh executors (issue #747)
 2021-12-04 17.0.2
@@ -1040,6 +1040,7 @@ released tint-0.2
 2008-04-22
 - fork ttm projet from p://code.google.com/p/ttm/ (by Pål Staurland staura@gmail.com)
   while the projet is no longer in developpement, have not changed the name of 'tint'.
+.
 .
 .
 .

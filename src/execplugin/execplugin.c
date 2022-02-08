@@ -334,46 +334,45 @@ void execp_compute_icon_text_geometry(Execp *execp,
                                       int *new_size,
                                       gboolean *resized)
 {
-    int _icon_w, _icon_h, _vpad, _hpad, _inpad, _txt_width, _txt_height, _new_size;
+    int _icon_w, _icon_h, _vpad, _hpad, _inpad, _txt_width, _txt_height, _new_size, border_lr;
     gboolean _text_next_line, _resized;
     ExecpBackend * backend = execp->backend;
     Panel *panel = (Panel *)execp->area.panel;
     Area *area = &execp->area;
-    _hpad = (panel_horizontal ? area->paddingxlr : area->paddingy) * panel->scale;
-    _vpad = (panel_horizontal ? area->paddingy : area->paddingxlr) * panel->scale;
+    
+    if (panel_horizontal) _hpad = area->paddingxlr, _vpad = area->paddingy;
+    else                  _hpad = area->paddingy, _vpad = area->paddingxlr;
+    _hpad *= panel->scale;
+    _vpad *= panel->scale;
     _inpad = area->paddingx * panel->scale;
 
-    if (reload_icon(execp)) {
-        if (backend->icon) {
-            imlib_context_set_image(backend->icon);
-            _icon_w = imlib_image_get_width();
-            _icon_h = imlib_image_get_height();
-        } else {
-            _icon_w = _icon_h = 0;
-        }
-    } else {
+    if (backend->icon && reload_icon(execp)) {
+        imlib_context_set_image(backend->icon);
+        _icon_w = imlib_image_get_width();
+        _icon_h = imlib_image_get_height();
+    } else
         _icon_w = _icon_h = 0;
-    }
 
     _text_next_line = !panel_horizontal && _icon_w > area->width / 2;
+    border_lr = left_right_border_width(area);
 
-    int available_w, available_h;
+    int w_avail, h_avail;
     if (panel_horizontal) {
-        available_w = panel->area.width;
-        available_h = area->height - 2 * _vpad - left_right_border_width(area);
+        w_avail = panel->area.width;
+        h_avail = area->height - 2 * _vpad - border_lr;
     } else {
         int x1 = _icon_w ? _icon_w + _inpad : 0;
-        available_w = !_text_next_line
-                          ? (! _icon_w || x1 < 0 ? area->width : area->width - x1)
-                                - 2 * _hpad - left_right_border_width(area)
-                          : area->width - 2 * _hpad - left_right_border_width(area);
-        available_h = panel->area.height;
+        w_avail = (!_text_next_line ? (! _icon_w || x1 < 0
+                                        ? area->width
+                                        : area->width - x1) : area->width)
+                - 2 * _hpad - border_lr;
+        h_avail = panel->area.height;
     }
     get_text_size2(backend->font_desc,
                    &_txt_height,
                    &_txt_width,
-                   available_h,
-                   available_w,
+                   h_avail,
+                   w_avail,
                    backend->text,
                    strlen(backend->text),
                    PANGO_WRAP_WORD_CHAR,
@@ -382,7 +381,6 @@ void execp_compute_icon_text_geometry(Execp *execp,
                    backend->has_markup,
                    panel->scale);
 
-    _resized = FALSE;
     if (panel_horizontal) {
         int x1, x2;
         _new_size = ! _icon_w ? _txt_width : ! _txt_width ? _icon_w :
@@ -392,18 +390,18 @@ void execp_compute_icon_text_geometry(Execp *execp,
                         x2 = x1 + _txt_width,
                         MAX(x2, _icon_w) - MIN(x1, 0)
                     );
-        _new_size += 2 * _hpad + left_right_border_width(area);
-        if (_new_size < area->width && abs(_new_size - area->width) < 6) {
-            // we try to limit the number of resizes
+        _new_size += 2 * _hpad + border_lr;
+        if (_new_size < area->width && area->width - _new_size < 6) {
+            // trying to limit the number of resizes
             _new_size = area->width;
             _resized = TRUE;
-        } else {
+        } else
             _resized = _new_size != area->width;
-        }
     } else {
+        int border_tb = top_bottom_border_width(area);
         if (!_text_next_line) {
-            _new_size = _txt_height + 2 * _vpad + top_bottom_border_width(area);
-            _new_size = MAX(_new_size, _icon_h + 2 * _vpad + top_bottom_border_width(area));
+            _new_size = _txt_height + 2 * _vpad + border_tb;
+            _new_size = MAX(_new_size, _icon_h + 2 * _vpad + border_tb);
         } else {
             int y1, y2;
             _new_size = ! _icon_h ? _txt_height : ! _txt_height ? _icon_h :
@@ -413,11 +411,9 @@ void execp_compute_icon_text_geometry(Execp *execp,
                             y2 = y1 + _txt_height,
                             MAX(y2, _icon_h) - MIN(y1, 0)
                         );
-            _new_size += 2 * _vpad + top_bottom_border_width(area);
+            _new_size += 2 * _vpad + border_tb;
         }
-        if (_new_size != area->height) {
-            _resized = TRUE;
-        }
+        _resized = _new_size != area->height;
     }
     *icon_w = _icon_w ,
     *icon_h = _icon_h ,
@@ -814,31 +810,62 @@ int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffe
     return total;
 }
 
-gboolean starts_with(char *s, char *p)
-{
-    for (;; s++, p++) {
-        if (!*p)
-            return TRUE;
-        if (!*s || *s  !=  *p)
-            return FALSE;
-    }
-}
-
+#if 1
 char *last_substring(char *s, char *sub)
+// On my PC this function was 2x faster than below one.
+// Could be compiler or platform specific, so preserving both.
 {
-    char *result = NULL;
-    for (char *p = s; *p; p++) {
-        if (starts_with(p, sub))
-            result = p;
-    }
+    char *result = NULL,
+         *p = s;
+    
+    while( (p = strstr (p, sub)) )
+        result = p++;
+
     return result;
 }
+
+#else
+char *last_substring(char *s, char *sub)
+{
+ char *result = NULL,
+         *p=s, *q;
+
+    while (1) {
+        q=sub;
+
+        // search for first char
+        for(;; p++) {
+            if (!*p)
+                return result;
+            if (*p == *q)
+                break;
+        }
+        s=p;
+        
+        // when found, check for full substring
+        while (p++, q++, 1) {
+            if (!*q) {
+                result = s;
+                break;
+            }
+            if (!*p)
+                return result;
+
+            if (*p != *q) {
+                p = s += 1;
+                break;
+            }
+        }
+    }
+}
+#endif
 
 void rstrip(char *s)
 {
     char *p = strchr(s, '\0') - 1;
-    while ( p != s - 1 &&
-            (*p == ' ' || *p == '\n')
+    while (
+        p != s - 1 &&
+        (*p == ' ' || *p == '\n')
     ) p--;
     p[1] = 0;
 }

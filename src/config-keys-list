@@ -77,6 +77,7 @@ execp_lclick_command
 execp_markup
 execp_mclick_command
 execp_monitor
+execp_name
 execp_padding
 execp_rclick_command
 execp_tooltip

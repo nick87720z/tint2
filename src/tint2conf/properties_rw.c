@@ -7,6 +7,7 @@
 #include "properties.h"
 #include "properties_rw.h"
 #include "gradient_gui.h"
+#include "../util/color.h"
 
 void finalize_gradient();
 void finalize_bg();
@@ -92,7 +93,14 @@ void config_read_file(const char *path)
 
 void config_write_color(FILE *fp, const char *name, GdkColor color, int opacity)
 {
-    fprintf(fp, "%s = #%02x%02x%02x %d\n", name, color.red >> 8, color.green >> 8, color.blue >> 8, opacity);
+    int p = color.red % (256*16) && color.green % (256*16) && color.blue % (256*16) ? 1 :
+            color.red % (256)    && color.green % (256)    && color.blue % (256)    ? 2 : 4;
+    int prec_loss = (4 - p) * 8;
+    fprintf(fp, "%s = #%0*x%0*x%0*x %d\n", name,
+            color.red   >> prec_loss, p,
+            color.green >> prec_loss, p,
+            color.blue  >> prec_loss, p,
+            opacity);
 }
 
 void config_write_gradients(FILE *fp)
@@ -2094,13 +2102,13 @@ void add_entry(char *key, char *value)
 
 void hex2gdk(char *hex, GdkColor *color)
 {
-    if (hex == NULL || hex[0] != '#')
-        return;
-
-    color->red = 257 * (hex_char_to_int(hex[1]) * 16 + hex_char_to_int(hex[2]));
-    color->green = 257 * (hex_char_to_int(hex[3]) * 16 + hex_char_to_int(hex[4]));
-    color->blue = 257 * (hex_char_to_int(hex[5]) * 16 + hex_char_to_int(hex[6]));
-    color->pixel = 0;
+    int rgbi[3];
+    if (hex_to_rgb(hex, rgbi))
+        color->red   = rgbi[0],
+        color->green = rgbi[1],
+        color->blue  = rgbi[2];
+    else
+        color->red = color->green = color->blue = 0;
 }
 
 void set_action(char *event, GtkWidget *combo)

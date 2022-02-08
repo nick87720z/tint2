@@ -467,53 +467,68 @@ char *contract_tilde(const char *s)
 
 int hex_char_to_int(char c)
 {
-    int r;
-
-    if (c >= '0' && c <= '9')
-        r = c - '0';
-    else if (c >= 'a' && c <= 'f')
-        r = c - 'a' + 10;
-    else if (c >= 'A' && c <= 'F')
-        r = c - 'A' + 10;
-    else
-        r = 0;
-
-    return r;
+    switch (c) {
+    case '1': return 1;
+    case '2': return 2;
+    case '3': return 3;
+    case '4': return 4;
+    case '5': return 5;
+    case '6': return 6;
+    case '7': return 7;
+    case '8': return 8;
+    case '9': return 9;
+    case 'a': return 10;
+    case 'b': return 11;
+    case 'c': return 12;
+    case 'd': return 13;
+    case 'e': return 14;
+    case 'f': return 15;
+    case 'A': return 10;
+    case 'B': return 11;
+    case 'C': return 12;
+    case 'D': return 13;
+    case 'E': return 14;
+    case 'F': return 15;
+    default:  return 0;
+    }
 }
 
-int hex_to_rgb(char *hex, int *r, int *g, int *b)
+int hex_to_rgb(char *hex, int *rgb)
 {
     if (hex == NULL || hex[0] != '#')
         return (0);
 
-    int len = strlen(hex);
-    if (len == 3 + 1) {
-        *r = hex_char_to_int(hex[1]);
-        *g = hex_char_to_int(hex[2]);
-        *b = hex_char_to_int(hex[3]);
-    } else if (len == 6 + 1) {
-        *r = hex_char_to_int(hex[1]) * 16 + hex_char_to_int(hex[2]);
-        *g = hex_char_to_int(hex[3]) * 16 + hex_char_to_int(hex[4]);
-        *b = hex_char_to_int(hex[5]) * 16 + hex_char_to_int(hex[6]);
-    } else if (len == 12 + 1) {
-        *r = hex_char_to_int(hex[1]) * 16 + hex_char_to_int(hex[2]);
-        *g = hex_char_to_int(hex[5]) * 16 + hex_char_to_int(hex[6]);
-        *b = hex_char_to_int(hex[9]) * 16 + hex_char_to_int(hex[10]);
-    } else
+    int len = strlen(++hex);
+    switch (len) {
+    case 3:
+        rgb[0] = hex_char_to_int(hex[0]) << 12;
+        rgb[1] = hex_char_to_int(hex[1]) << 12;
+        rgb[2] = hex_char_to_int(hex[2]) << 12;
+        return 1;
+    case 6:
+        rgb[0] = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8;
+        rgb[1] = hex_char_to_int(hex[2]) << 12 | hex_char_to_int(hex[3]) << 8;
+        rgb[2] = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8;
+        return 1;
+    case 12:
+        rgb[0] = hex_char_to_int(hex[0]) << 12 | hex_char_to_int(hex[1]) << 8 | hex_char_to_int(hex[2])  << 4 | hex_char_to_int(hex[3]);
+        rgb[1] = hex_char_to_int(hex[4]) << 12 | hex_char_to_int(hex[5]) << 8 | hex_char_to_int(hex[6])  << 4 | hex_char_to_int(hex[7]);
+        rgb[2] = hex_char_to_int(hex[8]) << 12 | hex_char_to_int(hex[9]) << 8 | hex_char_to_int(hex[10]) << 4 | hex_char_to_int(hex[11]);
+        return 1;
+    default:
         return 0;
-
-    return 1;
+    }
 }
 
 void get_color(char *hex, double *rgb)
 {
-    int r, g, b;
-    r = g = b = 0;
-    hex_to_rgb(hex, &r, &g, &b);
-
-    rgb[0] = (r / 255.0);
-    rgb[1] = (g / 255.0);
-    rgb[2] = (b / 255.0);
+    int rgbi[3];
+    if (hex_to_rgb(hex, rgbi))
+        rgb[0] = rgbi[0] / ((1 << 16) - 1.0),
+        rgb[1] = rgbi[1] / ((1 << 16) - 1.0),
+        rgb[2] = rgbi[2] / ((1 << 16) - 1.0);
+    else
+        rgb[0] = rgb[1] = rgb[2] = 0;
 }
 
 void extract_values(const char *str, char **value1, char **value2, char **value3)

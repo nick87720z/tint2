@@ -5,7 +5,7 @@ The code is frozen and no more feature requests are accepted.
 
 Changes: https://gitlab.com/o9000/tint2/blob/17.0.2/ChangeLog
 
-Documentation: [doc/tint2.md](doc/tint2.md)
+Documentation: [manual.html](manual.html)
 
 Compile it with (after you install the [dependencies](https://gitlab.com/o9000/tint2/wikis/Install#dependencies)):
 
@@ -58,7 +58,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 # How do I ...
 
   * [Install](https://gitlab.com/o9000/tint2/wikis/Install)
-  * [Configure](https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md)
+  * [Configure](https://gitlab.com/o9000/tint2/blob/master/manual.html)
   * [Add applet not supported by tint2](https://gitlab.com/o9000/tint2/wikis/ThirdPartyApplets)
   * [Other frequently asked questions](https://gitlab.com/o9000/tint2/wikis/FAQ)
   * [Obtain a stack trace when tint2 crashes](https://gitlab.com/o9000/tint2/wikis/Debug)

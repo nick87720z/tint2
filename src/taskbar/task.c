@@ -478,17 +478,18 @@ void draw_task_icon(Task *task, int text_width)
 
 void draw_task(void *obj, cairo_t *c)
 {
+    PangoContext *context;
+    PangoLayout *layout;
+    Color *config_text;
+
     Task *task = (Task *)obj;
     Panel *panel = (Panel *)task->area.panel;
 
-    if (panel->g_task.has_icon)
-        draw_task_icon(task, task->_text_width);
-
     task->_text_width = 0;
     if (panel->g_task.has_text) {
-        PangoContext *context = pango_cairo_create_context(c);
+        context = pango_cairo_create_context(c);
         pango_cairo_context_set_resolution(context, 96 * panel->scale);
-        PangoLayout *layout = pango_layout_new(context);
+        layout = pango_layout_new(context);
         pango_layout_set_font_description(layout, panel->g_task.font_desc);
         pango_layout_set_text(layout, task->title, -1);
 
@@ -505,9 +506,12 @@ void draw_task(void *obj, cairo_t *c)
         pango_layout_get_pixel_size(layout, &task->_text_width, &task->_text_height);
         task->_text_posy = (panel->g_task.area.height - task->_text_height) / 2.0;
 
-        Color *config_text = &panel->g_task.font[task->current_state];
+        config_text = &panel->g_task.font[task->current_state];
+    }
+    if (panel->g_task.has_icon)
+        draw_task_icon(task, task->_text_width);
+    if (panel->g_task.has_text) {
         draw_text(layout, c, panel->g_task.text_posx, task->_text_posy, config_text, panel->font_shadow ? layout : NULL);
-
         g_object_unref(layout);
         g_object_unref(context);
     }

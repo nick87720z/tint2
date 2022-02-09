@@ -5,3 +5,6 @@ version.h
 *.todo
 packaging/make_ubuntu2.sh
 test_*.log
+#*#
+*~
+.*

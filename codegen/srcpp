@@ -5,56 +5,78 @@
 #    KEYWORD cmd
 # with 'cmd' output.
 
+preproc() {
+    sed -e '
+        /^ *'"${cmd_keyword} "'/{
+            s|^ *'"${cmd_keyword} "'||
+            e
+        }'
+}
+
+require_cmds() {
+    # check dependencies
+    for c in "$@"; do
+        type "$c" >/dev/null 2>&1 && continue
+        printf '%s\n' "$c is required, but not found."
+        exit 1
+    done
+}
+
+check_args() {
+    case $# in
+
+    # Require at least 1 argument: keyword
+    0)  printf '%s\n' \
+            "Usage:" \
+            "  $0 KEYWORD [TARGET_FILES...]" \
+            "  $0 KEYWORD" \
+            "TARGET_FILES - each 'file' is generated from proper 'file.in'." \
+            "Standard input/output are used if no files specified." \
+            >&2
+        exit 1
+    ;;
+    # Enter stdin processing without files argument
+    1)  preproc
+        exit $?
+    ;;
+    esac
+    cmd_keyword="$1"
+}
+
+### START ###
+
 export PATH="$(realpath $(dirname "$0")):${PATH}"
 
-preproc() {
-    sed -e '/^ *'"${cmd_keyword} "'/{ s/^ *'"${cmd_keyword} "'//; e' -e ' }'
-}
-
-# start
-
-# check dependencies
-
-type sed >/dev/null 2>&1 || {
-        printf '%s\n' "sed is required, but not found."
-        exit 1
-}
-
-# Arguments parsing.
-# Require at least 1 argument: keyword
-
-if [ $# -lt 1 ]; then
-        printf '%s\n' \
-                "Usage: $0 KEYWORD [TARGET_FILES...]" \
-                "TARGET_FILES - each 'file' is generated from proper 'file.in'." \
-                "Standard input/output are used if no files specified." \
-                >&2
-        exit 1
-fi
-cmd_keyword="$1"
+require_cmds sed
+check_args "$@"
 shift
 
-# Other arguments are files.
-
-if [ $# -eq 0 ]; then
-        preproc
-        exit
-fi
-
 for f in "$@"; do
-        cap="Do not edit. Auto-generated from '${f}.in'"
+    if ! [ -f "${f}.in" ]
+    then
+        if ! [ "${notfound_first}" ]
+        then
+            notfound_first=1
+            printf '%s\n' "Can't find files:" >&2
+        fi
+        printf '%s\n' "  ${f}" >&2
+        continue
+    fi
 
-        case "${f}" in
-        *.c | *.cc | *.cpp | *.cxx | *.h | *.hh | *.hpp | *.hxx | *.C | *.CC | *.CPP | *.CXX | *.H | *.HH | *.HPP | *.HXX | *.java )
-                cap="/* ${cap} */" ;;
-        *.sh | *.awk | *.py )
-                cap="# ${cap}" ;;
-        esac
+    f=$( realpath "${f}" )
 
-        pushd "$( dirname ${f} )" >/dev/null
-        f="$( basename "${f}" )"
-        printf '%s\n\n' "${cap}" > "${f}"
-        preproc < "${f}.in"     >> "${f}"
-        popd >/dev/null
+    cap="Do not edit. Auto-generated from '$( basename "${f}.in" )'"
+    case "${f}" in
+    (*.c|*.cc|*.cpp|*.cxx|*.h|*.hh|*.hpp|*.hxx|*.C|*.CC|*.CPP|*.CXX|*.H |*.HH|*.HPP|*.HXX|*.java)
+        cap="/* ${cap} */" ;;
+    (*.sh|*.awk|*.pl|*.py )
+        cap="# ${cap}" ;;
+    esac
+
+    pushd $(dirname "${f}") >/dev/null
+    f=$(basename "${f}")
+    printf '%s\n\n' "${cap}" > "${f}"
+    preproc < "${f}.in"     >> "${f}"
+    popd  >/dev/null
 done
 

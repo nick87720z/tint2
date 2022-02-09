@@ -2,7 +2,7 @@
 # vim: ft=sed
 
 {
-        s|[^[:alnum:]]|_|g # Replace unacceptable characters with underscores
-        s|.*|    key_&,|   # Keys are strings, prefixed with 'key_'
+    s|[^[:alnum:]]|_|g # Replace unacceptable characters with underscores
+    s|.*|    key_&,|   # Keys are strings, prefixed with 'key_'
 }
 

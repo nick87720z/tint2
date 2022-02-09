@@ -1,6 +1,25 @@
 2021-12-11 master
 - Enhancements:
-  - Added command to refresh executors (issue #747)
+  - Added command to refresh executors (issue #747) (Arash Rohani)
+  - Tooltip: live update, remove truncation by hardcoded value, don't wrap multiline text
+  - Never activate battery support without enabled battery applet
+  - Color tinting: try to preserve perceived lightness
+  - tint2conf: Don't auto-start theme editor with empty TINT2_CONFIG variable
+  - tint2conf: More convenient editor switcher sidebar with independed scrolling
+  - tint2conf: Colors, saved to config, use minimum required length (3, 6 or 12 hexdigits)
+  - Various optimizations and little cleanup
+  - Manual: Executor examples use 'stdbuf -oL' and continuous processes in more places
+- Fixes:
+  - Interpret negative "execp_continuous" value as false (0)
+  - init_timer: Did not ensure resulting name null-terminated, introducing indirect bug (possible security issue)
+  - Border radius was not confined by widget size, breaking shape in some cases (e.g. tray without icons)
+  - Fixed output format for time in logs - could easily take form of 0:0:0s instead of expected 0:00:00s
+  - Fixed subtle artifacts, resulting from incorrect border & background stiching
+  - Applet size and content position with negative icon<->text distance
+  - Fix parsing for color hexstrings with other format, than #FFFFFF (e.g. 1 or 4 hexdigits per channel)
+  - tint2conf: Theme context menu did not follow right-clicked theme if it was not selected before
+  - tint2conf: Delay opening theme context menu
+  - tint2conf: Much faster editor start due to optimized themes loading (bug #792)
 2021-12-04 17.0.2
 - Fixes:
   - On dual monitor, when minimizing Chrome window it minimizes on the wrong monitor panel (issue #818)

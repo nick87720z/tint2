@@ -645,7 +645,7 @@ execp_interval = 0
 
 ```
 execp = new
-execp_command = df -h | awk '/\/$/ { print $6 ": " $2 " " $5}'
+execp_command = while df -h; do sleep 1; done | stdbuf -oL awk '$6 == "/" { print $6 ": " $2 " " $5 }'
 execp_interval = 10
 ```
 
@@ -670,7 +670,7 @@ execp_background_id = 2
 
 ```
 execp = new
-execp_command = xprop -root -spy | awk '/^_NET_CURRENT_DESKTOP/ { print "Workspace " ($3 + 1) ; fflush(); }'
+execp_command = xprop -root -spy | stdbuf -oL awk '/^_NET_CURRENT_DESKTOP/ { print "Workspace " ($3 + 1) }'
 execp_interval = 1
 execp_continuous = 1
 ```
@@ -678,7 +678,7 @@ execp_continuous = 1
 ##### Desktop pager with icon
 
 ```
-execp_command = xprop -root -spy | awk -v home="$HOME" '/^_NET_CURRENT_DESKTOP/ { print home "/.config/myPager/" ($3 + 1) ".png\n" ; fflush(); }'
+execp_command = xprop -root -spy | stdbuf -oL awk -v home="$HOME" '/^_NET_CURRENT_DESKTOP/ { print home "/.config/myPager/" ($3 + 1) ".png\n" }'
 execp_interval = 1
 execp_has_icon = 1
 execp_cache_icon = 1
@@ -689,8 +689,8 @@ execp_continuous = 2
 
 ```
 execp = new
-execp_command = ping -i 1 -c 1 -W 1 -O -D -n $(ip route | grep default | grep via | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*') | awk '/no/ { print "<span foreground=\"#faa\">timeout</span>"; fflush(); }; /time=/ { gsub(/time=/, "", $8); printf "<span foreground=\"#7af\">%3.0f %s</span>\n", $8, $9; fflush(); } '
-execp_continuous = 0
+execp_command = ping -i 1 -W 1 -O -D -n $(ip route | grep '^default.* via' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*') | stdbuf -oL awk -F'[ =]' '/no answer/ { print "<span foreground=\"#faa\">timeout</span>" } /time=/ { printf "<span foreground=\"#7af\">%3.0f %s</span>\n", $11, $12 }'
+execp_continuous = 1
 execp_interval = 1
 execp_markup = 1
 ```

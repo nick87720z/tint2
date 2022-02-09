@@ -705,6 +705,15 @@ execp_interval = 1
 execp_continuous = 1
 ```
 
+#### X keyboard layout with icon and tooltip with
+
+```
+execp = new
+execp_command = skb | stdbuf -oL -eL awk -v "c=$(tput -Tansi.sys-old clear)" '{ print "/usr/share/xxkb/"tolower(substr($1,0,2))"15.xpm"; print c$1 | "cat >&2" }'
+execp_interval = 1
+execp_continuous = 1
+```
+
 ##### Network load
 
 ```

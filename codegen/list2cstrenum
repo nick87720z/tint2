@@ -1,8 +1,0 @@
-#!/bin/env -S sed -f
-# vim: ft=sed
-
-{
-        s|[^[:alnum:]]|_|g
-        s|.*|    key_&,|
-}
-

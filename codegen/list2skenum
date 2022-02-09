@@ -1,0 +1,8 @@
+#!/bin/env -S sed -f
+# vim: ft=sed
+
+{
+        s|[^[:alnum:]]|_|g # Replace unacceptable characters with underscores
+        s|.*|    key_&,|   # Keys are strings, prefixed with 'key_'
+}
+

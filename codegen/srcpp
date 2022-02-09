@@ -5,6 +5,8 @@
 #    KEYWORD cmd
 # with 'cmd' output.
 
+export PATH="$(realpath $(dirname "$0")):${PATH}"
+
 preproc() {
     sed -e '/^ *'"${cmd_keyword} "'/{ s/^ *'"${cmd_keyword} "'//; e' -e ' }'
 }

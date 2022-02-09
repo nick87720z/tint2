@@ -56,7 +56,7 @@ endif( ENABLE_RSVG )
 SET(CONFIG_KEYS_FILENAME_BASE "${PROJECT_SOURCE_DIR}/../config-keys")
 add_custom_command( OUTPUT  "${CONFIG_KEYS_FILENAME_BASE}.c"    "${CONFIG_KEYS_FILENAME_BASE}.h"
                     DEPENDS "${CONFIG_KEYS_FILENAME_BASE}-list" "${CONFIG_KEYS_FILENAME_BASE}.c.in" "${CONFIG_KEYS_FILENAME_BASE}.h.in"
-                    COMMAND codegen/source-gen LIST2CODE_CMD src/config-keys.c src/config-keys.h
+                    COMMAND codegen/srcpp LIST2CODE_CMD src/config-keys.c src/config-keys.h
                     VERBATIM
                     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../.." )
 

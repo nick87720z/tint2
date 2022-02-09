@@ -125,8 +125,8 @@ include_directories( ${PROJECT_BINARY_DIR}
                      ${RSVG_INCLUDE_DIRS}
                      ${SN_INCLUDE_DIRS} )
 
-set( SOURCES src/config.c
-             "${PROJECT_SOURCE_DIR}/src/config-keys.c"
+set( SOURCES src/config-keys.c
+             src/config.c
              src/panel.c
              src/util/server.c
              src/main.c
@@ -252,9 +252,10 @@ endif()
 
 add_custom_target( version ALL "${PROJECT_SOURCE_DIR}/get_version.sh" )
 
-add_custom_command( OUTPUT "${PROJECT_SOURCE_DIR}/src/config-keys.c" "${PROJECT_SOURCE_DIR}/src/config-keys.h"
-                    DEPENDS "${PROJECT_SOURCE_DIR}/src/config-keys-list" "${PROJECT_SOURCE_DIR}/src/config-keys.c.in" "${PROJECT_SOURCE_DIR}/src/config-keys.h.in"
-                    COMMAND "codegen/source-gen" LIST2CODE_CMD src/config-keys.c src/config-keys.h
+SET(CONFIG_KEYS_FILENAME_BASE "${PROJECT_SOURCE_DIR}/src/config-keys")
+add_custom_command( OUTPUT  "${CONFIG_KEYS_FILENAME_BASE}.c"    "${CONFIG_KEYS_FILENAME_BASE}.h"
+                    DEPENDS "${CONFIG_KEYS_FILENAME_BASE}-list" "${CONFIG_KEYS_FILENAME_BASE}.c.in" "${CONFIG_KEYS_FILENAME_BASE}.h.in"
+                    COMMAND codegen/srcpp LIST2CODE_CMD src/config-keys.c src/config-keys.h
                     VERBATIM
                     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" )
 

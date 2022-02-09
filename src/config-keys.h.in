@@ -4,7 +4,7 @@
 #define CONFIG_KEYS_H
 
 typedef enum {
-    LIST2CODE_CMD ../codegen/list2cstrenum < config-keys-list
+    LIST2CODE_CMD list2skenum < config-keys-list
     DICT_KEYS_NUM,
     key_invalid = -1
 } cfg_key_t;

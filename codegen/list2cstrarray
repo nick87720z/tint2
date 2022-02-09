@@ -1,5 +1,0 @@
-#!/bin/sh
-
-sed -E 's|[^[:alnum:]_]|_|g; s/.*/  \[key_& \]="&",/' \
-| column -s' ' --table
-

@@ -3,5 +3,5 @@
 #include "config-keys.h"
 
 char *cfg_keys[] = {
-    LIST2CODE_CMD ../codegen/list2cstrarray < config-keys-list
+    LIST2CODE_CMD list2csarray < config-keys-list
 };

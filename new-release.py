@@ -67,25 +67,23 @@ def get_last_version():
   tags = natsorted(run("git tag -l 'v*'").split("\n"))
   return tags[-1]
 
-def inc_version(v, feature=False, tiny=False):
-  if v.startswith("v0."):
-    assert v == "v0.14.6"
-    return "v15.0"
-
-  # v4.11 -> v4.12 or v5.0 or v4.11.1
+def inc_version(v, feature=False, breakage=False):
   parts = v.split(".")
+
   while len(parts) < 3:
     parts.append("0")
   assert len(parts) == 3
-  if feature:
+
+  if breakage:
     del parts[-1]
     parts[-2] = "v" + str(int(parts[-2].replace("v", "")) + 1)
     parts[-1] = "0"
-  elif tiny:
-    parts[-1] = str(int(parts[-1]) + 1)
-  else:
+  elif feature:
     del parts[-1]
     parts[-1] = str(int(parts[-1]) + 1)
+  else:
+    parts[-1] = str(int(parts[-1]) + 1)
+
   return ".".join([s for s in parts if s])
 
 def assert_equal(a, b):
@@ -94,24 +92,26 @@ def assert_equal(a, b):
     assert(False)
 
 def test_inc_version():
-  # auto
-  assert_equal(inc_version("v0.14.6"), "v15.0")
-  assert_equal(inc_version("v15"), "v15.1")
-  assert_equal(inc_version("v15.0"), "v15.1")
-  assert_equal(inc_version("v16.1"), "v16.2")
-  assert_equal(inc_version("v16.10"), "v16.11")
-  # fix
-  assert_equal(inc_version("v0.14.6", False), "v15.0")
-  assert_equal(inc_version("v15", False), "v15.1")
-  assert_equal(inc_version("v15.0", False), "v15.1")
-  assert_equal(inc_version("v16.1", False), "v16.2")
-  assert_equal(inc_version("v16.10", False), "v16.11")
+  # auto (fix change)
+  assert_equal(inc_version("v0.14.6"), "v0.14.7")
+  assert_equal(inc_version("v15"    ), "v15.0.1")
+  assert_equal(inc_version("v15.0"  ), "v15.0.1")
+  assert_equal(inc_version("v15.0.0"), "v15.0.1")
+  assert_equal(inc_version("v16.1"  ), "v16.1.1")
+  assert_equal(inc_version("v16.1.3"), "v16.1.4")
+  assert_equal(inc_version("v16.10" ), "v16.10.1")
   # feature
-  assert_equal(inc_version("v15", True), "v16.0")
-  assert_equal(inc_version("v15.0", True), "v16.0")
-  assert_equal(inc_version("v15.1", True), "v16.0")
-  assert_equal(inc_version("v15.2", True), "v16.0")
-  assert_equal(inc_version("v15.10", True), "v16.0")
+  assert_equal(inc_version("v15",    True), "v15.1")
+  assert_equal(inc_version("v15.0",  True), "v15.1")
+  assert_equal(inc_version("v16.1",  True), "v16.2")
+  assert_equal(inc_version("v16.1.7",True), "v16.2")
+  assert_equal(inc_version("v16.10", True), "v16.11")
+  # breakage
+  assert_equal(inc_version("v15",    False, True), "v16.0")
+  assert_equal(inc_version("v15.0",  True,  True), "v16.0")
+  assert_equal(inc_version("v15.0.1",False, True), "v16.0")
+  assert_equal(inc_version("v15.2",  True,  True), "v16.0")
+  assert_equal(inc_version("v15.10", False, True), "v16.0")
 
 def replace_in_file(path, before, after):
   with open(path, "r+") as f:
@@ -143,7 +143,7 @@ def update_log(path, version, date):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument("--feature", action="store_true")
-  parser.add_argument("--tiny", action="store_true")
+  parser.add_argument("--breakage", action="store_true")
   args = parser.parse_args()
 
   logging.basicConfig(format=ansi_lblue + "%(asctime)s %(pathname)s %(levelname)s" + ansi_reset + " %(message)s", level=logging.DEBUG)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
   old_version = get_last_version()
   info("Old version:", old_version)
 
-  version = inc_version(old_version, args.feature, args.tiny)
+  version = inc_version(old_version, args.feature, args.breakage)
   readable_version = version.replace("v", "")
   date = datetime.datetime.now().strftime("%Y-%m-%d")
   info("New version:", readable_version, version, date)

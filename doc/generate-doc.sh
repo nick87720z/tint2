@@ -1,16 +1,17 @@
-#!/bin/bash
+#!/bin/sh
 
-# You can install md2man with gem install md2man. You need gem and ruby-dev.
+# Dependencies:
+# go-md2man: https://github.com/cpuguy83/go-md2man
+# discount: http://www.pell.portland.or.us/~orc/Code/discount/
 
-set -e
-set -x
+set -e -x
 
-md2man-roff tint2.md > tint2.1
+go-md2man -in=tint2.md > tint2.1
 
-cat header.html > manual.html
-cat tint2.md | sed 's/^# TINT2 .*$/# TINT2/g' | md2man-html >> manual.html
-cat footer.html >> manual.html
+markdown -f githubtags < tint2.md |
+sed 's/^# TINT2 .*$/# TINT2/g'    |
+cat header.html - footer.html > manual.html
 
-cat header.html > readme.html
-cat ../README.md | sed 's|doc/tint2.md|manual.html|g' | md2man-html >> readme.html
-cat footer.html >> readme.html
+markdown -f githubtags < ../README.md |
+sed 's|doc/tint2.md|manual.html|g'    |
+cat header.html - footer.html > readme.html

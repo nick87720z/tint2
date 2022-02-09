@@ -10,7 +10,8 @@ pkg_check_modules( GTHREAD2 REQUIRED gthread-2.0 )
 pkg_check_modules( GTK3 REQUIRED gtk+-x11-3.0 )
 pkg_check_modules( RSVG librsvg-2.0>=2.36.0 )
 
-include_directories( ../util
+include_directories( ..
+                     ../util
                      ${X11_T2C_INCLUDE_DIRS}
                      ${GLIB2_INCLUDE_DIRS}
                      ${GOBJECT2_INCLUDE_DIRS}
@@ -19,7 +20,8 @@ include_directories( ../util
                      ${GTK3_INCLUDE_DIRS}
                      ${RSVG_INCLUDE_DIRS} )
 
-set(SOURCES ../util/common.c
+set(SOURCES ../config-keys.c
+            ../util/common.c
             ../util/bt.c
             ../util/strnatcmp.c
             ../util/cache.c
@@ -50,6 +52,13 @@ if( ENABLE_RSVG )
     add_definitions( -DHAVE_RSVG )
   endif( RSVG_FOUND )
 endif( ENABLE_RSVG )
+
+SET(CONFIG_KEYS_FILENAME_BASE "${PROJECT_SOURCE_DIR}/../config-keys")
+add_custom_command( OUTPUT  "${CONFIG_KEYS_FILENAME_BASE}.c"    "${CONFIG_KEYS_FILENAME_BASE}.h"
+                    DEPENDS "${CONFIG_KEYS_FILENAME_BASE}-list" "${CONFIG_KEYS_FILENAME_BASE}.c.in" "${CONFIG_KEYS_FILENAME_BASE}.h.in"
+                    COMMAND codegen/source-gen LIST2CODE_CMD src/config-keys.c src/config-keys.h
+                    VERBATIM
+                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../.." )
 
 link_directories( ${X11_T2C_LIBRARY_DIRS}
                   ${GLIB2_LIBRARY_DIRS}

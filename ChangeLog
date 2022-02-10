@@ -1,4 +1,4 @@
-2021-12-11 master
+2022-02-10 17.0.3
 - Enhancements:
   - Added command to refresh executors (issue #747) (Arash Rohani)
   - Tooltip: live update, remove truncation by hardcoded value, don't wrap multiline text

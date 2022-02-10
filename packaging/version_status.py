@@ -382,7 +382,7 @@ def get_openbsd_versions():
 
 def get_tint2_version():
   print >> sys.stderr, "Upstream ..."
-  readme = http_download_txt("https://gitlab.com/o9000/tint2/raw/master/README.md")
+  readme = http_download_txt("https://gitlab.com/nick87720z/tint2/raw/master/README.md")
   version = readme.split("\n", 1)[0].split(":", 1)[-1].strip()
   return version
 

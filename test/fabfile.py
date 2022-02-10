@@ -84,7 +84,7 @@ def install_deps():
 @roles('runner')
 def pull_code():
   if not exists('/home/runner/tint2'):
-    sudo('cd; git clone https://gitlab.com/o9000/tint2.git', user='runner')
+    sudo('cd; git clone https://gitlab.com/nick87720z/tint2.git', user='runner')
   if not exists('/home/runner/tint2.wiki'):
     sudo('cd; git clone git@gitlab.com:o9000/tint2.wiki.git', user='runner')
   sudo('cd; git config --global user.name "tint2.runner"', user='runner')

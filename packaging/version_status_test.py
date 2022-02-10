@@ -105,7 +105,7 @@ Architecture: amd64
 Maintainer: Jens John <dev@2ion.de>
 Installed-Size: 1230
 Depends: libatk1.0-0 (>= 1.12.4), libc6 (>= 2.15), libcairo2 (>= 1.2.4), libfontconfig1 (>= 2.11), libfreetype6 (>= 2.2.1), libgdk-pixbuf2.0-0 (>= 2.22.0), libglib2.0-0 (>= 2.35.9), libgtk2.0-0 (>= 2.14.0), libimlib2 (>= 1.4.5), libpango-1.0-0 (>= 1.20.0), libpangocairo-1.0-0 (>= 1.14.0), libpangoft2-1.0-0 (>= 1.14.0), librsvg2-2 (>= 2.14.4), libstartup-notification0 (>= 0.4), libx11-6, libxcomposite1 (>= 1:0.3-1), libxdamage1 (>= 1:1.1), libxfixes3, libxinerama1, libxrandr2 (>= 2:1.2.99.3), libxrender1
-Homepage: https://gitlab.com/o9000/tint2/
+Homepage: https://gitlab.com/nick87720z/tint2/
 Priority: optional
 Section: x11
 Filename: pool/main/t/tint2/tint2_0.14.6-1_amd64.deb
@@ -171,7 +171,7 @@ pkgver=0.14.6
 pkgrel=2
 pkgdesc='Basic, good-looking task manager for WMs'
 arch=('x86_64' 'i686')
-url='https://gitlab.com/o9000/tint2'
+url='https://gitlab.com/nick87720z/tint2'
 license=('GPL2')
 depends=('gtk2' 'imlib2' 'startup-notification')
 makedepends=('cmake' 'startup-notification' 'git' 'ninja' 'setconf')
@@ -197,7 +197,7 @@ package() {
   DESTDIR="$pkgdir" ninja -C build install
 }
 
-# getver: gitlab.com/o9000/tint2/blob/master/README.md
+# getver: gitlab.com/nick87720z/tint2/blob/master/README.md
 # vim: ts=2 sw=2 et:"""
     version, maintainer = arch_pkgbuild_extract_version(pkgbuild)
     self.assertEqual(version, "0.14.6")

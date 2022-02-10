@@ -352,7 +352,7 @@ def compile_remotely_and_report(host):
 def run_test(config, index, use_asan):
   print_err("Running test", index, "for config", config)
   print("# Test", index, "(ASAN on)" if use_asan else "")
-  print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/o9000/tint2/blob/master/test/" + config))
+  print("Config: [{0}]({1})".format(config.split("/")[-1].replace(".tint2rc", ""), "https://gitlab.com/nick87720z/tint2/blob/master/test/" + config))
   for i in range(repeats):
     test("./build/tint2", config, use_asan)
 
@@ -388,7 +388,7 @@ def check_busy():
 
 def checkout(version):
   print_err("Checking out tint2 version", version, "...")
-  p = run("rm -rf tmpclone; git clone https://gitlab.com/o9000/tint2.git tmpclone; cd tmpclone; git checkout {0}".format(version), True)
+  p = run("rm -rf tmpclone; git clone https://gitlab.com/nick87720z/tint2.git tmpclone; cd tmpclone; git checkout {0}".format(version), True)
   out, _ = p.communicate()
   if p.returncode != 0:
     print_err(out)

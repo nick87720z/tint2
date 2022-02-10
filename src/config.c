@@ -4,6 +4,7 @@
 *
 * Copyright (C) 2007 Pål Staurland (staura@gmail.com)
 * Modified (C) 2008 thierry lorthiois (lorthiois@bbsoft.fr) from Omega distribution
+* Modified (C) 2022 Nikita Zlobin (nick87720z@gmail.com)
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License version 2

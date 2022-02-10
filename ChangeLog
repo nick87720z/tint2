@@ -20,6 +20,8 @@
   - tint2conf: Theme context menu did not follow right-clicked theme if it was not selected before
   - tint2conf: Delay opening theme context menu
   - tint2conf: Much faster editor start due to optimized themes loading (bug #792)
+- Maintainance:
+  - Adopted https://gitlab.com/o9000/tint2 after end-of-life announce
 2021-12-04 17.0.2
 - Fixes:
   - On dual monitor, when minimizing Chrome window it minimizes on the wrong monitor panel (issue #818)

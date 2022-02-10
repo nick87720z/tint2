@@ -776,7 +776,7 @@ This manual page was originally written by Daniel Moerner <dmoerner@gmail.com>, 
 It was adopted from the tint2 docs.
 
 ## SEE ALSO
-The main website https://gitlab.com/o9000/tint2
+The main website https://gitlab.com/nick87720z/tint2
 and the wiki page at https://gitlab.com/o9000/tint2/wikis/home.
 
 This documentation is also provided in HTML and Markdown format in the system's default location

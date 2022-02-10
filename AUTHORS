@@ -10,6 +10,7 @@ tint2 is developped by :
 - Mishael A Sibiryakov (death@junki.org) : freespace
 - Sebastian Reichel <sre@ring0.de> : battery, various fixes, debian package maintainer
 - Chris Lee <chrlee at protonmail> : bug fixes, maintainer starting with v16.3
+- Nikita Zlobin <nick87720z@gmail.com>: adopted after unexpected code freeze at v17.0.2
 
 Contributors:
   Kwaku Yeboah <kwakuyeboah@gmail.com> : wiki page

@@ -36,7 +36,7 @@ void print_usage()
             "  -h, --help               Display this help and exits.\n"
             "\n"
             "For more information, run `man tint2` or visit the project page\n"
-            "<https://gitlab.com/o9000/tint2>.\n");
+            "<https://gitlab.com/nick87720z/tint2>.\n");
 }
 
 void handle_cli_arguments(int argc, char **argv)

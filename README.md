@@ -1,16 +1,13 @@
 # Latest stable release: 17.0.2
 
-The final release of tint2 is 17.0.2.
-The code is frozen and no more feature requests are accepted.
-
-Changes: https://gitlab.com/o9000/tint2/blob/17.0.2/ChangeLog
+Changes: https://gitlab.com/nick87720z/tint2/blob/17.0.2/ChangeLog
 
 Documentation: [doc/tint2.md](doc/tint2.md)
 
 Compile it with (after you install the [dependencies](https://gitlab.com/o9000/tint2/wikis/Install#dependencies)):
 
 ```
-git clone https://gitlab.com/o9000/tint2.git
+git clone https://gitlab.com/nick87720z/tint2.git
 cd tint2
 git checkout 17.0.2
 mkdir build
@@ -29,9 +26,17 @@ update-mime-database /usr/local/share/mime
 
 And then you can run the panel `tint2` and the configuration program `tint2conf`.
 
-Please report any problems to https://gitlab.com/o9000/tint2/issues. Your feedback is much appreciated.
+Please report any problems to https://gitlab.com/nick87720z/tint2/issues. Your feedback is much appreciated.
 
 P.S. GitLab is now the official location of the tint2 project, migrated from Google Code, which is shutting down. In case you are wondering why not GitHub, BitBucket etc., we chose GitLab because it is open source, it is mature and works well, looks cool and has a very nice team.
+
+## Need help
+
+I had to adopt tint2 from [o9000](https://gitlab.com/o9000/tint2) rather automatically after it was suddenly sentenced to end-of-life by previous maintainer without warning. My free time is too limited, so I may not be able to keep pace with all bugs and feature requests, some of whom need to be recovered yet (Chris Lee disabled sections for MR and issues).
+
+There already was number of fixes, optimizations and just enhancements since 2021, just now I just merging whatever I already have. There are still few more ideas to implement, until I can consider tint2's development is exhausted without breaking some of its own core rules, starting with lightweightness and versatility.
+
+Testing for BSD specifically will not be possible as I don't use it anywhere, so at least POSIX specifications have to be preferred, avoiding GNU extensions as well.
 
 # What is tint2?
 
@@ -58,7 +63,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 # How do I ...
 
   * [Install](https://gitlab.com/o9000/tint2/wikis/Install)
-  * [Configure](https://gitlab.com/o9000/tint2/blob/master/doc/tint2.md)
+  * [Configure](https://gitlab.com/nick87720z/tint2/blob/master/doc/tint2.md)
   * [Add applet not supported by tint2](https://gitlab.com/o9000/tint2/wikis/ThirdPartyApplets)
   * [Other frequently asked questions](https://gitlab.com/o9000/tint2/wikis/FAQ)
   * [Obtain a stack trace when tint2 crashes](https://gitlab.com/o9000/tint2/wikis/Debug)
@@ -71,21 +76,21 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 # How can I help out?
 
-  * Report bugs and ask questions on the [issue tracker](https://gitlab.com/o9000/tint2/issues);
+  * Report bugs and ask questions on the [issue tracker](https://gitlab.com/nick87720z/tint2/issues);
   * Contribute to the development by helping us fix bugs and suggesting new features. Please read the contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 # Links
-  * Home page: https://gitlab.com/o9000/tint2
-  * Git repository: https://gitlab.com/o9000/tint2.git
+  * Home page: https://gitlab.com/nick87720z/tint2
+  * Git repository: https://gitlab.com/nick87720z/tint2.git
   * Documentation: https://gitlab.com/o9000/tint2/wikis/home
   * Downloads: https://gitlab.com/o9000/tint2-archive/tree/master or https://code.google.com/p/tint2/downloads/list
-  * Old project location (inactive): https://code.google.com/p/tint2
+  * Old project locations (inactive): https://gitlab.com/o9000/tint2 https://code.google.com/p/tint2
 
 # Screenshots
 
 ## Default config:
 
-![Screenshot_2016-01-23_14-42-57](https://gitlab.com/o9000/tint2/uploads/948fa74eca60864352a033580350b4c3/Screenshot_2016-01-23_14-42-57.png)
+![Screenshot_2016-01-23_14-42-57](https://gitlab.com/nick87720z/tint2/uploads/948fa74eca60864352a033580350b4c3/Screenshot_2016-01-23_14-42-57.png)
 
 ## Various configs:
 

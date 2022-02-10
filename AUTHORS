@@ -1,3 +1,6 @@
+tint2 is based on the ttm source code (http://code.google.com/p/ttm/)
+- 2007-2008 Pål Staurland <staura@gmail.com>
+
 tint2 is developped by :
 - Thierry Lorthiois <lorthiois@bbsoft.fr> from Omega distribution
 - Andreas Fink <andreas.fink85@googlemail.com>
@@ -7,9 +10,6 @@ tint2 is developped by :
 - Mishael A Sibiryakov (death@junki.org) : freespace
 - Sebastian Reichel <sre@ring0.de> : battery, various fixes, debian package maintainer
 - Chris Lee <chrlee at protonmail> : bug fixes, maintainer starting with v16.3
-
-tint2 is based on the ttm source code (http://code.google.com/p/ttm/)
-- 2007-2008 Pål Staurland <staura@gmail.com>
 
 Contributors:
   Kwaku Yeboah <kwakuyeboah@gmail.com> : wiki page

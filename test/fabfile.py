@@ -58,7 +58,7 @@ def install_deps():
     'libglib2.0-dev',
     'libcairo2-dev',
     'libglib2.0-dev',
-    'libgtk2.0-dev',
+    'libgtk3.0-dev',
     'libimlib2-dev',
     'libpango1.0-dev',
     'librsvg2-dev',

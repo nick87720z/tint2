@@ -64,10 +64,10 @@ extern gboolean always_show_all_desktop_tasks;
 extern TaskbarSortMethod taskbar_sort_method;
 extern Alignment taskbar_alignment;
 
+extern GHashTable *win_to_task;
 // win_to_task holds for every Window an array of tasks. Usually the array contains only one
 // element. However for omnipresent windows (windows which are visible in every taskbar) the array
 // contains to every Task* on each panel a pointer (i.e. GPtrArray.len == server.num_desktops)
-extern GHashTable *win_to_task;
 
 extern Task *active_task;
 extern Task *task_drag;
@@ -81,26 +81,26 @@ gboolean resize_taskbar(void *obj);
 void taskbar_default_font_changed();
 void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode);
 
-// Reloads the entire list of tasks from the window manager and recreates the task buttons.
 void taskbar_refresh_tasklist();
+// Reloads the entire list of tasks from the window manager and recreates the task buttons.
 
-// Returns the task button for this window. If there are multiple buttons, returns the first one.
 Task *get_task(Window win);
+// Returns the task button for this window. If there are multiple buttons, returns the first one.
 
+GPtrArray *get_task_buttons(Window win);
 // Returns the task buttons for this window, usually having only one element.
 // However for windows shown on all desktops, there are multiple buttons, one for each taskbar.
-GPtrArray *get_task_buttons(Window win);
 
-// Change state of a taskbar (ACTIVE or NORMAL)
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state);
+// Change state of a taskbar (ACTIVE or NORMAL)
 
-// Updates the visibility of all taskbars
 void update_all_taskbars_visibility();
+// Updates the visibility of all taskbars
 
 void update_minimized_icon_positions(void *p);
 
-// Sorts the taskbar(s) on which the window is present.
 void sort_taskbar_for_win(Window win);
+// Sorts the taskbar(s) on which the window is present.
 
 void sort_tasks(Taskbar *taskbar);
 

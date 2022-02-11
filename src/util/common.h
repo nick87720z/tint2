@@ -20,8 +20,9 @@
 #define MIN3(a, b, c) MIN(MIN(a, b), c)
 #define ATOB(x)       (atoi((x)) > 0)
 
+typedef enum MouseAction
 // mouse actions
-typedef enum MouseAction {
+{
     NONE,
     CLOSE,
     TOGGLE,
@@ -44,28 +45,28 @@ void log_string(int fd, const char *s);
 
 void dump_backtrace(int log_fd);
 
-// sleep() returns early when signals arrive. This function does not.
 void safe_sleep(int seconds);
+// sleep() returns early when signals arrive. This function does not.
 
 const char *signal_name(int sig);
 
 const char *get_home_dir();
 
-// Copies a file to another path
 void copy_file(const char *path_src, const char *path_dest);
+// Copies a file to another path
 
+int str_index(const char *s, char *array[], int size);
 // Finds string in sorted strings array.
 // Array must be sorted with strcmp-compatible comparison method.
-int str_index(const char *s, char *array[], int size);
 
 int compare_strings(const void *a, const void *b);
 
+gboolean parse_line(const char *line, char **key, char **value);
 // Parses lines with the format 'key = value' into key and value.
 // Strips key and value.
 // Values may contain any graphical characters with spaces in the middle.
 // Returns 1 if both key and value could be read, zero otherwise.
 // !!! returned strings are part of line and should not be used with free or realloc.
-gboolean parse_line(const char *line, char **key, char **value);
 
 int extract_values(
 /// Delimits string to value tokens by replacing terminating delimiters with null byte.
@@ -81,56 +82,58 @@ int extract_values(
     /// Maximum (positive) number of tokens to be returned.
 );
 
+pid_t tint_exec(
 // Executes a command in a shell.
-pid_t tint_exec(const char *command,
-                const char *dir,
-                const char *tooltip,
-                Time time,
-                Area *area,
-                int x,
-                int y,
-                gboolean terminal,
-                gboolean startup_notification);
+    const char *command,
+    const char *dir,
+    const char *tooltip,
+    Time time,
+    Area *area,
+    int x,
+    int y,
+    gboolean terminal,
+    gboolean startup_notification);
+
 void tint_exec_no_sn(const char *command);
 int setenvd(const char *name, const int value);
 
+char *expand_tilde(const char *s);
 // Returns a copy of s in which "~" is expanded to the path to the user's home directory.
 // The caller takes ownership of the string.
-char *expand_tilde(const char *s);
 
+char *contract_tilde(const char *s);
 // The opposite of expand_tilde: replaces the path to the user's home directory with "~".
 // The caller takes ownership of the string.
-char *contract_tilde(const char *s);
 
-// Color
+// Color utils
 int hex_char_to_int(char c);
 int hex_to_rgb(char *hex, int *rgb);
 void get_color(char *hex, double *rgb);
 
 Imlib_Image load_image(const char *path, int cached);
 
+void adjust_asb (   DATA32 *data, int w, int h,
 // Adjusts the alpha/saturation/brightness on an ARGB image.
-// Parameters:
-// * alpha_adjust: multiplicative:
-//    * 0 = full transparency
-//    * 1 = no adjustment
-//    * 2 = twice the current opacity
-// * satur_adjust: additive:
-//   * -1 = full grayscale
-//   *  0 = no adjustment
-//   *  1 = full color
-// * bright_adjust: additive:
-//   * -1 = black
-//   *  0 = no adjustment
-//   *  1 = white
-void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adjust, float bright_adjust);
-Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness);
-void adjust_color(Color *color, int alpha, int saturation, int brightness);
+                    float alpha_adjust,     // multiplicative:
+                                            //  0 = full transparency
+                                            //  1 = no adjustment
+                                            //  2 = twice the current opacity
+                    float satur_adjust,     // additive:
+                                            // -1 = full grayscale
+                                            //  0 = no adjustment
+                                            //  1 = full color
+                    float bright_adjust);   // additive:
+                                            // -1 = black
+                                            //  0 = no adjustment
+                                            //  1 = white
+Imlib_Image adjust_icon  (Imlib_Image original, int alpha, int saturation, int brightness);
+void        adjust_color (Color      *color,    int alpha, int saturation, int brightness);
+// Ditto
 
 void create_heuristic_mask(DATA32 *data, int w, int h);
 
-// Renders the current Imlib image to a drawable. Wrapper around imlib_render_image_on_drawable.
 void render_image(Drawable d, int x, int y);
+// Renders the current Imlib image to a drawable. Wrapper around imlib_render_image_on_drawable.
 
 void get_text_size2(const PangoFontDescription *font,
                     int *height,
@@ -148,26 +151,25 @@ void get_text_size2(const PangoFontDescription *font,
 gboolean layout_set_markup_strip_colors(PangoLayout *layout, const char *markup);
 void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color, PangoLayout *shadow_layout);
 
-// Draws a rounded rectangle
 void draw_rect(cairo_t *c, double x, double y, double w, double h, double r);
 void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int border_mask);
+// Draws a rounded rectangle
 
-// Clears the pixmap (with transparent color)
 void clear_pixmap(Pixmap p, int x, int y, int w, int h);
+// Clears the pixmap (with transparent color)
 
 void close_all_fds();
 
 GSList *load_locations_from_dir(GSList *locations, const char *dir, ...);
-
-// Appends to the list locations all the directories contained in the environment variable var (split by ":").
-// Optional suffixes are added to each directory. The suffix arguments MUST end with NULL.
-// Returns the new value of the list.
 GSList *load_locations_from_env(GSList *locations, const char *var, ...);
 
 GSList *slist_append_uniq_dup(GSList *list, gconstpointer ref, GCompareFunc eq);
+// Appends to the list locations all the directories contained in the environment variable var (split by ":").
+// Optional suffixes are added to each directory. The suffix arguments MUST end with NULL.
+// Returns the new value of the list.
 
-// A trivial pointer comparator.
 gint cmp_ptr(gconstpointer a, gconstpointer b);
+// A trivial pointer comparator.
 
 GString *tint2_g_string_replace(GString *s, const char *from, const char *to);
 

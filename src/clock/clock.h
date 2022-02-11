@@ -14,9 +14,7 @@
 #include "area.h"
 
 typedef struct Clock {
-    // always start with area
-    Area area;
-
+    Area area;  // always start with area
     Color font;
     int time1_posy;
     int time2_posy;

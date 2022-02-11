@@ -39,8 +39,8 @@ extern MouseAction mouse_scroll_down;
 extern MouseAction mouse_tilt_left;
 extern MouseAction mouse_tilt_right;
 
-// panel mode
 typedef enum TaskbarMode {
+// panel mode
     SINGLE_DESKTOP,
     MULTI_DESKTOP,
 } TaskbarMode;
@@ -51,8 +51,8 @@ typedef enum Layer {
     TOP_LAYER,
 } Layer;
 
-// panel position
 typedef enum PanelPosition {
+// panel position
     LEFT = 0x01,
     RIGHT = 0x02,
     CENTER = 0X04,
@@ -96,7 +96,7 @@ extern gboolean task_dragged;
 extern gboolean panel_autohide;
 extern int panel_autohide_show_timeout;
 extern int panel_autohide_hide_timeout;
-extern int panel_autohide_height; // for vertical panels this is of course the width
+extern int panel_autohide_height; // for vertical panels this is, of course, the width
 extern gboolean panel_shrink;
 extern StrutPolicy panel_strut_policy;
 extern char *panel_items_order;
@@ -132,6 +132,7 @@ typedef struct Panel {
     int monitor;
     gboolean font_shadow;
     gboolean mouse_effects;
+
     // Mouse effects for icons
     int mouse_over_alpha;
     int mouse_over_saturation;
@@ -174,15 +175,12 @@ extern Panel panel_config;
 extern Panel *panels;
 extern int num_panels;
 
-// default global data
-void default_panel();
+void default_panel();   // default global data
+void cleanup_panel();   // freed memory
 
-// freed memory
-void cleanup_panel();
-
+void init_panel();
 // realloc panels according to number of monitor
 // use panel_config as default value
-void init_panel();
 
 void init_panel_size_and_position(Panel *panel);
 gboolean resize_panel(void *obj);
@@ -198,11 +196,11 @@ void set_panel_properties(Panel *p);
 void set_panel_window_geometry(Panel *panel);
 void set_panel_layer(Panel *p, Layer layer);
 
-// draw background panel
 void set_panel_background(Panel *p);
+// draw background panel
 
-// detect witch panel
 Panel *get_panel(Window win);
+// detect witch panel
 
 Taskbar *click_taskbar(Panel *panel, int x, int y);
 Task *click_task(Panel *panel, int x, int y);

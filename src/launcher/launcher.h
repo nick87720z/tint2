@@ -17,16 +17,14 @@ void load_icon_themes();
 void free_icon_themes();
 
 typedef struct Launcher {
-    // always start with area
-    Area area;
+    Area area;          // always start with area
     GSList *list_apps;  // List of char*, each is a path to a app.desktop file
     GSList *list_icons; // List of LauncherIcon*
     int icon_size;
 } Launcher;
 
 typedef struct LauncherIcon {
-    // always start with area
-    Area area;
+    Area area;          // always start with area
     char *config_path;
     Imlib_Image image;
     Imlib_Image image_hover;
@@ -54,11 +52,13 @@ extern gboolean launcher_icon_theme_override;
 extern Background *launcher_icon_bg;
 extern GList *launcher_icon_gradients;
 
-// default global data
 void default_launcher();
+// default global data
 
-// initialize launcher : y position, precision, ...
 void init_launcher();
+// initialize launcher : y position, precision, ...
+// NOTE: dumb (not implemented)
+
 void init_launcher_panel(void *panel);
 void cleanup_launcher();
 void cleanup_launcher_theme(Launcher *launcher);
@@ -67,8 +67,9 @@ gboolean resize_launcher(void *obj);
 void draw_launcher(void *obj, cairo_t *c);
 void launcher_default_icon_theme_changed();
 
-// Populates the list_icons list
 void launcher_load_icons(Launcher *launcher);
+// Populates the list_icons list
+
 void launcher_action(LauncherIcon *icon, XEvent *e, int x, int y);
 
 void test_launcher_read_desktop_file();

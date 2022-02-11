@@ -23,7 +23,7 @@
 #include "timer.h"
 
 typedef struct {
-    Area *area; // never ever use the area attribut if you are not 100% sure that this area was not freed
+    Area *area; // don't use the area attribute if not 100% sure that this area was not freed
     char *tooltip_text;
     Panel *panel;
     Window window;
@@ -43,15 +43,15 @@ typedef struct {
 
 extern Tooltip g_tooltip;
 
-// default global data
 void default_tooltip();
+// default global data
 
-// freed memory
 void cleanup_tooltip();
+// freed memory
 
 // display update
 void tooltip_update();                        // update, using set area
-void tooltip_update_for_area(Area *area);     // comprehensive update func for use in widgets, FIXME
+void tooltip_update_for_area(Area *area);     // comprehensive update function for use in widgets, FIXME
 void tooltip_set_area(Area *area);            // change associated area
 
 // TODO: undocumented

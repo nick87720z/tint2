@@ -42,42 +42,44 @@ typedef struct {
 
 #define INIT_TIMER(t) init_timer(&t, #t)
 
-// Initialize the timer module.
 void default_timers();
+// Initialize the timer module.
 
-// Destroy the timer module.
 void cleanup_timers();
+// Destroy the timer module.
 
-// Initialize a timer. Caller keeps ownership.
 void init_timer(Timer *timer, const char *name);
+// Initialize a timer. Caller keeps ownership.
 
-// Destroy a timer. Does not free() the pointer.
 void destroy_timer(Timer *timer);
+// Destroy a timer. Does not free() the pointer.
 
-// Modify a timer.
 void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, TimerCallback *callback, void *arg);
+// Modify a timer.
 
 void stop_timer(Timer *timer);
 
+struct timeval *get_duration_to_next_timer_expiration();
 // Get the time duration to the next expiration time, or NULL if there is no active timer.
 // Do not free the pointer; it is harmless to change its contents.
-struct timeval *get_duration_to_next_timer_expiration();
 
-// Trigger all expired timers, and reschedule them if they are periodic timers
 void handle_expired_timers();
+// Trigger all expired timers, and reschedule them if they are periodic timers
 
 // Time helper functions.
 
-// Returns -1 if t1 < t2, 0 if t1 == t2, 1 if t1 > t2
 gint compare_timespecs(const struct timespec *t1, const struct timespec *t2);
+// Returns  -1 if t1 <  t2,
+//           0 if t1 == t2,
+//           1 if t1 > t2
 
 struct timespec add_msec_to_timespec(struct timespec ts, int msec);
 
+double profiling_get_time();
 // Returns the time difference in seconds between the current time and the last time this function was called.
 // At the first call returns zero.
-double profiling_get_time();
 
-// Get current time in seconds, from an unspecified origin.
 double get_time();
+// Get current time in seconds, from an unspecified origin.
 
 #endif // TIMER_H

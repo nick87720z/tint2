@@ -130,14 +130,10 @@ typedef enum BorderMask {
 #define BORDER_ALL (BORDER_TOP | BORDER_BOTTOM | BORDER_LEFT | BORDER_RIGHT)
 
 typedef struct Border {
-    // It's essential that the first member is color
-    Color color;
-    // Width in pixels
-    int width;
-    // Corner radius
-    int radius;
-    // Mask: bitwise OR of BorderMask
-    int mask;
+    Color color;    // It's essential that the first member is color
+    int width;      // Width in pixels
+    int radius;     // Corner radius
+    int mask;       // Mask: bitwise OR of BorderMask
 } Border;
 
 typedef enum MouseState { MOUSE_NORMAL, MOUSE_OVER, MOUSE_DOWN, MOUSE_STATE_COUNT } MouseState;
@@ -146,14 +142,18 @@ typedef struct Background {
     // Normal state
     Color fill_color;
     Border border;
+
     // On mouse hover
     Color fill_color_hover;
     Color border_color_hover;
+
     // On mouse press
     Color fill_color_pressed;
     Color border_color_pressed;
-    // Pointer to a GradientClass or NULL, no ownership
+
     GradientClass *gradients[MOUSE_STATE_COUNT];
+    // Pointer to a GradientClass or NULL, no ownership
+
     double fill_content_tint_weight;
     double border_content_tint_weight;
 } Background;
@@ -178,98 +178,87 @@ typedef enum ChangeState {
 struct Panel;
 
 typedef struct Area {
-    // Position relative to the panel window
-    int posx, posy;
-    // Size, including borders
-    int width, height;
+    int posx, posy;     // Position relative to the panel window
+    int width, height;  // Size, including borders
     int old_width, old_height;
     Background *bg;
-    // Each element is a GradientInstance attached to this Area (list can be empty)
     GList *gradient_instances_by_state[MOUSE_STATE_COUNT];
-    // Each element is a GradientInstance that depends on this Area's geometry (position or size)
-    GList *dependent_gradients;
-    // List of children, each one a pointer to Area
-    GList *children;
-    // Pointer to the parent Area or NULL
-    void *parent;
-    // Pointer to the Panel that contains this Area
-    void *panel;
+                                // Each element is a GradientInstance attached to this Area (list can be empty)
+    GList *dependent_gradients; // Each element is a GradientInstance that depends on this Area's geometry (position or size)
+    GList *children;            // List of children, each one a pointer to Area
+    void *parent;               // Pointer to the parent Area or NULL
+    void *panel;                // Pointer to the Panel that contains this Area
     Layout size_mode;
     Alignment alignment;
     gboolean has_mouse_over_effect;
     gboolean has_mouse_press_effect;
-    // TODO padding/spacing is a clusterfuck
-    // paddingxlr = padding
-    // paddingy = vertical padding, sometimes
-    // paddingx = spacing
-    int paddingxlr, paddingx, paddingy;
+    int paddingxlr, // padding
+        paddingx,   // spacing
+        paddingy;   // vertical padding, sometimes
+                    // TODO: sort out padding/spacing terminology
     MouseState mouse_state;
-    // Set to non-zero if the Area is visible. An object may exist but stay hidden.
-    gboolean on_screen;
-    // Set to non-zero if the size of the Area has to be recalculated.
-    gboolean resize_needed;
-    // Set to non-zero if the Area has to be redrawn.
-    // Do not set this directly; use schedule_redraw() instead.
-    gboolean _redraw_needed;
-    // Set to non-zero if the position/size has changed, thus _on_change_layout needs to be called
-    ChangeState _changed;
-    // This is the pixmap on which the Area is rendered. Render to it directly if needed.
-    Pixmap pix;
+    gboolean on_screen;         // Set to non-zero if the Area is visible. An object may exist but stay hidden.
+    gboolean resize_needed;     // Set to non-zero if the size of the Area has to be recalculated.
+    gboolean _redraw_needed;    // Set to non-zero if the Area has to be redrawn.
+                                // Do not set this directly; use schedule_redraw() instead.
+    ChangeState _changed;       // Set to non-zero if the position/size has changed, thus _on_change_layout needs to be called
+    Pixmap pix;                 // This is the pixmap on which the Area is rendered. Render to it directly if needed.
     Pixmap pix_by_state[MOUSE_STATE_COUNT];
     char name[32];
 
     // Callbacks
 
-    // Called on draw before any drawing takes place, obj = pointer to the Area
     void (*_clear)(void *obj);
+    // Called on draw before any drawing takes place, obj = pointer to the Area
 
-    // Called on draw, obj = pointer to the Area
     void (*_draw_foreground)(void *obj, cairo_t *c);
+    // Called on draw, obj = pointer to the Area
 
+    gboolean (*_resize)(void *obj);
     // Called on resize, obj = pointer to the Area
     // Returns 1 if the new size is different than the previous size.
-    gboolean (*_resize)(void *obj);
 
+    int (*_compute_desired_size)(void *obj);
     // Called before resize, obj = pointer to the Area
     // Returns the desired size of the Area
-    int (*_compute_desired_size)(void *obj);
 
+    void (*_on_change_layout)(void *obj);
     // Implemented only to override the default layout algorithm for this widget.
     // For example, if this widget is a cell in a table, its position and size should be computed here.
-    void (*_on_change_layout)(void *obj);
 
-    // Returns a copy of the tooltip to be displayed for this widget.
-    // The caller takes ownership of the pointer.
     char *(*_get_tooltip_text)(void *obj);
+    // Return a copy of the tooltip to be displayed for this widget.
+    // The caller takes ownership of the pointer.
     cairo_surface_t *(*_get_tooltip_image)(void *obj);
 
+    gboolean (*_is_under_mouse)(void *obj, int x, int y);
     // Returns true if the Area handles a mouse event at the given x, y coordinates relative to the window.
     // Leave this to NULL to use a default implementation.
-    gboolean (*_is_under_mouse)(void *obj, int x, int y);
 
-    // Prints the geometry of the object on stderr, with left indentation of indent spaces.
     void (*_dump_geometry)(void *obj, int indent);
+    // Prints the geometry of the object on stderr, with left indentation of indent spaces.
 
     void (*_get_content_color)(void *obj, Color *color);
 } Area;
 
-// Initializes the Background member to default values.
 void init_background(Background *bg);
+// Initializes the Background member to default values.
 
 // Layout
 
+void initialize_positions(
 // Called on startup to initialize the positions of all Areas in the Area tree.
-// Parameters:
-// * obj: pointer to Area
-// * offset: offset in pixels from left/top, relative to the window
-void initialize_positions(void *obj, int offset);
+// Arguments:
+    void *obj,  // pointer to Area
+    int offset  // offset in pixels from left/top, relative to the window
+);
 
-// Relayouts the Area and its children. Normally called on the root of the tree (i.e. the Panel).
 void relayout(Area *a);
+// Relayouts the Area and its children. Normally called on the root of the tree (i.e. the Panel).
 
+int relayout_with_constraint(Area *a, int maximum_size);
 // Distributes the Area's size to its children, repositioning them as needed.
 // If maximum_size > 0, it is an upper limit for the child size.
-int relayout_with_constraint(Area *a, int maximum_size);
 
 int compute_desired_size(Area *a);
 int container_compute_desired_size(Area *a);
@@ -322,24 +311,24 @@ int top_bottom_bg_border_width(Background *bg);
 
 // Rendering
 
-// Sets the redraw_needed flag on the area and its descendants
 void schedule_redraw(Area *a);
+// Sets the redraw_needed flag on the area and its descendants
 
-// Recreates the Area pixmap and draws the background and the foreground
 void draw(Area *a);
+// Recreates the Area pixmap and draws the background and the foreground
 
-// Draws the background of the Area
 void draw_background(Area *a, cairo_t *c);
+// Draws the background of the Area
 
+void draw_tree(Area *a);
 // Explores the entire Area subtree (only if the on_screen flag set)
 // and draws the areas with the redraw_needed flag set
-void draw_tree(Area *a);
 
-// Clears the on_screen flag, sets the size to zero and triggers a parent resize
 void hide(Area *a);
+// Clears the on_screen flag, sets the size to zero and triggers a parent resize
 
-// Sets the on_screen flag and triggers a parent and area resize
 void show(Area *a);
+// Sets the on_screen flag and triggers a parent and area resize
 
 // Area tree
 
@@ -349,18 +338,18 @@ void free_area(Area *a);
 
 // Mouse events
 
+Area *find_area_under_mouse(void *root, int x, int y);
 // Returns the area under the mouse for the given x, y mouse coordinates relative to the window.
 // If no area is found, returns the root.
-Area *find_area_under_mouse(void *root, int x, int y);
 
-// Returns true if the Area handles a mouse event at the given x, y coordinates relative to the window.
 gboolean area_is_under_mouse(void *obj, int x, int y);
+// Returns true if the Area handles a mouse event at the given x, y coordinates relative to the window.
 
+gboolean full_width_area_is_under_mouse(void *obj, int x, int y);
 // Returns true if the Area handles a mouse event at the given x, y coordinates relative to the window.
 // The Area will also handle clicks on the border of its ancestors, including the panel.
 // Useful so that a click at the edge of the screen is still handled by task buttons etc., even if technically
 // they are outside the drawing area of the button.
-gboolean full_width_area_is_under_mouse(void *obj, int x, int y);
 
 void area_gradients_create(Area *area);
 void area_gradients_free(Area *area);

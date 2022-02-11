@@ -29,16 +29,14 @@ typedef enum GradientConfigType {
 
 typedef struct GradientConfigColorStop {
     Color color;
-    // offset in 0-1
-    double offset;
+    double offset;  // offset in 0-1
 } GradientConfigColorStop;
 
 typedef struct GradientConfig {
     GradientConfigType type;
     GradientConfigColorStop start_color;
     GradientConfigColorStop end_color;
-    // Each element is a GradientConfigColorStop
-    GList *extra_color_stops;
+    GList *extra_color_stops;   // Each element is a GradientConfigColorStop
 } GradientConfig;
 
 void gradient_create_new(GradientConfigType t);

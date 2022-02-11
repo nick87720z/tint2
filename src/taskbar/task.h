@@ -39,8 +39,10 @@ typedef struct GlobalTask {
     Background *background[TASK_STATE_COUNT];
     GList *gradient[TASK_STATE_COUNT];
     int config_background_mask;
-    // starting position for text ~ task_padding + task_border + icon_size
+
     double text_posx, text_height;
+    // starting position for text ~ task_padding + task_border + icon_size
+
     gboolean has_font;
     gboolean has_content_tint;
     PangoFontDescription *font_desc;
@@ -51,10 +53,11 @@ typedef struct GlobalTask {
     int thumbnail_width;
 } GlobalTask;
 
+typedef struct Task
 // Stores information about a task.
 // Warning: any dynamically allocated members are shared between the Task instances created for the same window
 // (if the task appears on all desktops, there will be a different instance on each desktop's taskbar).
-typedef struct Task {
+{
     Area area;
     Window win;
     int desktop;
@@ -70,6 +73,7 @@ typedef struct Task {
     char *title;
     char *application;
     int urgent_tick;
+
     // These may not be up-to-date
     int win_x;
     int win_y;
@@ -102,10 +106,10 @@ void set_task_state(Task *task, TaskState state);
 void task_handle_mouse_event(Task *task, MouseAction action);
 void task_refresh_thumbnail(Task *task);
 
+Task *find_active_task(Task *current_task);
 // Given a pointer to the task that is currently under the mouse (current_task),
 // returns a pointer to the Task for the active window on the same taskbar.
 // If not found, returns the current task.
-Task *find_active_task(Task *current_task);
 
 Task *next_task(Task *task);
 Task *prev_task(Task *task);

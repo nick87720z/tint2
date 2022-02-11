@@ -31,13 +31,14 @@ typedef struct ButtonBackend {
     char *rclick_command;
     char *uwheel_command;
     char *dwheel_command;
-    // paddingxlr = horizontal padding left/right
-    // paddingx = horizontal padding between childs
-    int paddingxlr, paddingx, paddingy;
+
+    int paddingxlr, // horizontal padding left/right
+        paddingx,   // horizontal padding between childs
+        paddingy;
     Background *bg;
 
-    // List of Button which are frontends for this backend, one for each panel
     GList *instances;
+    // List of Button which are frontends for this backend, one for each panel
 } ButtonBackend;
 
 typedef struct ButtonFrontend {

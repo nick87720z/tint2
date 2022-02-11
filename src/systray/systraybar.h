@@ -15,10 +15,11 @@
 #include "timer.h"
 #include <X11/extensions/Xdamage.h>
 
-// XEMBED messages
 #define XEMBED_EMBEDDED_NOTIFY 0
-// Flags for _XEMBED_INFO
+// XEMBED messages
+
 #define XEMBED_MAPPED (1 << 0)
+// Flags for _XEMBED_INFO
 
 typedef enum SystraySortMethod {
     SYSTRAY_SORT_ASCENDING,
@@ -28,8 +29,7 @@ typedef enum SystraySortMethod {
 } SystraySortMethod;
 
 typedef struct {
-    // always start with area
-    Area area;
+    Area area;  // always start with area
 
     GSList *list_icons;
     SystraySortMethod sort;
@@ -38,37 +38,32 @@ typedef struct {
 } Systray;
 
 typedef struct {
-    // The actual tray icon window (created by the application)
-    Window win;
-    // The parent window created by tint2 to embed the icon
-    Window parent;
+    Window win;     // The actual tray icon window (created by the application)
+    Window parent;  // The parent window created by tint2 to embed the icon
     int x, y;
     int width, height;
     int depth;
     gboolean reparented;
     gboolean embedded;
-    // Process PID or zero.
-    int pid;
-    // A number that is incremented for each new icon, used to sort them by the order in which they were created.
-    int chrono;
-    // Name of the tray icon window.
-    char *name;
+    int pid;        // Process PID or zero.
+    int chrono;     // A number that is incremented for each new icon, used to sort them by the order in which they were created.
+    char *name;     // Name of the tray icon window.
+    
     // Members used for rendering
     struct timespec time_last_render;
     int num_fast_renders;
     Timer render_timer;
+
     // Members used for resizing
     int bad_size_counter;
     struct timespec time_last_resize;
     Timer resize_timer;
-    // Icon contents if we are compositing the icon, otherwise null
-    Imlib_Image image;
-    // XDamage
-    Damage damage;
+
+    Imlib_Image image;  // Icon contents if we are compositing the icon, otherwise null
+    Damage damage;      // XDamage
 } TrayWindow;
 
-// net_sel_win != None when protocol started
-extern Window net_sel_win;
+extern Window net_sel_win;  // net_sel_win != None when protocol started
 extern Systray systray;
 extern gboolean refresh_systray;
 extern gboolean systray_enabled;
@@ -77,15 +72,12 @@ extern int systray_monitor;
 extern gboolean systray_profile;
 extern char *systray_hide_name_filter;
 
-// default global data
-void default_systray();
+void default_systray(); // default global data
+void cleanup_systray(); // freed memory
 
-// freed memory
-void cleanup_systray();
-
-// initialize protocol and panel position
 void init_systray();
 void init_systray_panel(void *p);
+// initialize protocol and panel position
 
 void draw_systray(void *obj, cairo_t *c);
 gboolean resize_systray(void *obj);

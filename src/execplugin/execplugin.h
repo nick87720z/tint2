@@ -19,15 +19,12 @@ extern bool debug_executors;
 // backend's config and state variables.
 
 typedef struct ExecpBackend {
-    // Config:
+// Config:
     char name[21];
-    // Command to execute at a specified interval
-    char *command;
-    // Interval in seconds
-    int interval;
+    char *command;  // Command to execute at a specified interval
+    int interval;   // Interval in seconds
     int monitor;
-    // 1 if first line of output is an icon path
-    gboolean has_icon;
+    gboolean has_icon;  // 1 if first line of output is an icon path
     gboolean cache_icon;
     int icon_w;
     int icon_h;
@@ -44,9 +41,9 @@ typedef struct ExecpBackend {
     char *rclick_command;
     char *uwheel_command;
     char *dwheel_command;
-    // paddingxlr = horizontal padding left/right
-    // paddingx = horizontal padding between childs
-    int paddingxlr, paddingx, paddingy;
+    int paddingxlr, // horizontal padding left/right
+        paddingx,   // horizontal padding between childs
+        paddingy;
     Background *bg;
 
     // Backend state:
@@ -63,27 +60,23 @@ typedef struct ExecpBackend {
     ssize_t buf_stderr_length;
     ssize_t buf_stderr_capacity;
 
-    // Text extracted from the output buffer
-    char *text;
-    // Icon path extracted from the output buffer
-    char *icon_path;
+    char *text;         // Text extracted from the output buffer
+    char *icon_path;    // Icon path extracted from the output buffer
     Imlib_Image icon;
     gchar tooltip_text[512];
 
-    // The time the last command was started
-    time_t last_update_start_time;
-    // The time the last output was obtained
-    time_t last_update_finish_time;
-    // The time it took to execute last command
-    time_t last_update_duration;
+    time_t last_update_start_time;  // The time the last command was started
+    time_t last_update_finish_time; // The time the last output was obtained
+    time_t last_update_duration;    // The time it took to execute last command
 
-    // List of Execp which are frontends for this backend, one for each panel
     GList *instances;
+    // List of Execp which are frontends for this backend, one for each panel
+
     GTree *cmd_pids;
 } ExecpBackend;
 
 typedef struct ExecpFrontend {
-    // Frontend state:
+// Frontend state:
     int iconx;
     int icony;
     int textx;
@@ -94,62 +87,63 @@ typedef struct ExecpFrontend {
 
 typedef struct Execp {
     Area area;
-    // All elements have the backend pointer set. However only backend elements have ownership.
-    ExecpBackend *backend;
-    // Set only for frontend Execp items.
-    ExecpFrontend *frontend;
+
+    ExecpBackend *backend;      // All elements have the backend pointer set.
+                                // However only backend elements have ownership.
+
+    ExecpFrontend *frontend;    // Set only for frontend Execp items.
     bool dummy;
 } Execp;
 
+void default_execp();
 // Called before the config is read and panel_config/panels are created.
 // Afterwards, the config parsing code creates the array of Execp in panel_config and populates the configuration fields
 // in the backend.
 // Probably does nothing.
-void default_execp();
 
+Execp *create_execp();
 // Creates a new Execp item with only the backend field set. The state is NOT initialized. The config is initialized to
 // the default values.
 // This will be used by the config code to populate its backedn config fields.
-Execp *create_execp();
 
 void destroy_execp(void *obj);
 
+void init_execp();
 // Called after the config is read and panel_config is populated, but before panels are created.
 // Initializes the state of the backend items.
 // panel_config.panel_items is used to determine which backend items are enabled. The others should be destroyed and
 // removed from panel_config.execp_list.
-void init_execp();
 
+void init_execp_panel(void *panel);
 // Called after each on-screen panel is created, with a pointer to the panel.
 // Initializes the state of the frontend items. Also adds a pointer to it in backend->instances.
 // At this point the Area has not been added yet to the GUI tree, but it will be added right away.
-void init_execp_panel(void *panel);
 
+void cleanup_execp();
 // Called just before the panels are destroyed. Afterwards, tint2 exits or restarts and reads the config again.
 // Releases all frontends and then all the backends.
 // The frontend items are not freed by this function, only their members. The items are Areas which are freed in the
 // GUI element tree cleanup function (remove_area).
-void cleanup_execp();
 
-// Called on draw, obj = pointer to the front-end Execp item.
 void draw_execp(void *obj, cairo_t *c);
+// Called on draw, obj = pointer to the front-end Execp item.
 
+gboolean resize_execp(void *obj);
 // Called on resize, obj = pointer to the front-end Execp item.
 // Returns 1 if the new size is different than the previous size.
-gboolean resize_execp(void *obj);
 
-// Called on mouse click event.
 void execp_action(void *obj, int button, int x, int y, Time time);
+// Called on mouse click event.
 
 void execp_cmd_completed(Execp *obj, pid_t pid);
 
+gboolean read_execp(void *obj);
 // Called to check if new output from the command can be read.
 // No command might be running.
 // Returns 1 if the output has been updated and a redraw is needed.
-gboolean read_execp(void *obj);
 
-// Called for Execp front elements when the command output has changed.
 void execp_update_post_read(Execp *execp);
+// Called for Execp front elements when the command output has changed.
 
 void execp_default_font_changed();
 

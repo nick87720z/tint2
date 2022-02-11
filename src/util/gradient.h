@@ -13,8 +13,7 @@ typedef enum GradientType { GRADIENT_VERTICAL, GRADIENT_HORIZONTAL, GRADIENT_CEN
 
 typedef struct ColorStop {
     Color color;
-    // offset in 0-1
-    double offset;
+    double offset;  // offset in 0-1
 } ColorStop;
 
 typedef enum SizeVariable {
@@ -33,29 +32,27 @@ typedef enum SizeVariable {
 typedef struct Offset {
     SizeVariable variable;
     union {
-        // if variable == SIZE_CONST
-        double constant_value;
-        // else
-        double multiplier;
+        double constant_value;  // variable == SIZE_CONST
+        double multiplier;      // variable != SIZE_CONST
     };
 } Offset;
 
 #define CONST_OFFSET(offset) (!(offset)->variable)
 
 typedef struct ControlPoint {
-    // Each element is an Offset
     Offset *offsets_x;
     Offset *offsets_y;
-    // Defined only for radial gradients
+    // Each element is an Offset
+
     Offset *offsets_r;
+    // Defined only for radial gradients
 } ControlPoint;
 
 typedef struct GradientClass {
     GradientType type;
     Color start_color;
     Color end_color;
-    // Each element is a ColorStop
-    GList *extra_color_stops;
+    GList *extra_color_stops;   // Each element is a ColorStop
     ControlPoint from;
     ControlPoint to;
 } GradientClass;

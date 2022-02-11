@@ -100,8 +100,8 @@ typedef struct Property {
     Atom type;
 } Property;
 
-// Returns the name of an Atom as string. Do not free the string.
 const char *GetAtomName(Display *disp, Atom a);
+// Returns the name of an Atom as string. Do not free the string.
 
 typedef struct Monitor {
     int x;
@@ -127,22 +127,21 @@ typedef struct Server {
     Window composite_manager;
     gboolean real_transparency;
     gboolean disable_transparency;
-    // current desktop
-    int desktop;
+    int desktop;        // current desktop
     int screen;
     int depth;
-    int num_desktops;
-    // number of monitor (without monitor included into another one)
+    int num_desktops;   // number of monitor (without monitor included into another one)
     int num_monitors;
+
+    Viewport *viewports;
     // Non-null only if WM uses viewports (compiz) and number of viewports > 1.
     // In that case there are num_desktops viewports.
-    Viewport *viewports;
+
     Monitor *monitors;
     gboolean got_root_win;
     Visual *visual;
     Visual *visual32;
-    // root background
-    Pixmap root_pmap;
+    Pixmap root_pmap;   // root background
     GC gc;
     Colormap colormap;
     Colormap colormap32;
@@ -158,8 +157,8 @@ typedef struct Server {
 
 extern Server server;
 
-// freed memory
 void cleanup_server();
+// freed memory
 
 void send_event32(Window win, Atom at, long data1, long data2, long data3);
 int get_property32(Window win, Atom at, Atom type);
@@ -173,11 +172,12 @@ void server_init_xdamage();
 int x11_io_error(Display *display);
 void handle_crash(const char *reason);
 
-// detect root background
 void get_root_pixmap();
+// detect root background
 
-// detect monitors and desktops
 void get_monitors();
+// detect monitors and desktops
+
 void sort_monitors();
 void print_monitors();
 void get_desktops();
@@ -186,8 +186,8 @@ GSList *get_desktop_names();
 int get_current_desktop();
 void change_desktop(int desktop);
 
-// Forward mouse click to the desktop window
 void forward_click(XEvent *e);
+// Forward mouse click to the desktop window
 
 #ifdef HAVE_SN
 void error_trap_push(SnDisplay *display, Display *xdisplay);

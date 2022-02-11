@@ -20,8 +20,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-// Compare, recognizing numeric strings. Case sensitive.
 int strnatcmp(char const *a, char const *b);
+// Compare, recognizing numeric strings. Case sensitive.
 
-// Compare, recognizing numeric strings. Case insensitive.
 int strnatcasecmp(char const *a, char const *b);
+// Compare, recognizing numeric strings. Case insensitive.

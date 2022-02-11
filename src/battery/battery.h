@@ -93,11 +93,11 @@ static inline void battery_state_set_time(BatteryState *state, int seconds)
     state->time.seconds = seconds;
 }
 
-// default global data
 void default_battery();
+// default global data
 
-// freed memory
 void cleanup_battery();
+// freed memory
 
 void update_battery_tick(void *arg);
 int update_battery();

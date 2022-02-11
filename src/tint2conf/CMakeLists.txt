@@ -53,12 +53,12 @@ if( ENABLE_RSVG )
   endif( RSVG_FOUND )
 endif( ENABLE_RSVG )
 
-#~ SET(CONFIG_KEYS_FILENAME_BASE "${PROJECT_SOURCE_DIR}/../config-keys")
-#~ add_custom_command( OUTPUT  "${CONFIG_KEYS_FILENAME_BASE}.c"    "${CONFIG_KEYS_FILENAME_BASE}.h"
-                    #~ DEPENDS "${CONFIG_KEYS_FILENAME_BASE}-list" "${CONFIG_KEYS_FILENAME_BASE}.c.in" "${CONFIG_KEYS_FILENAME_BASE}.h.in"
-                    #~ COMMAND codegen/srcpp LIST2CODE_CMD src/config-keys.c src/config-keys.h
-                    #~ VERBATIM
-                    #~ WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../.." )
+SET(CONFIG_KEYS_FILENAME_BASE "${PROJECT_SOURCE_DIR}/../config-keys")
+add_custom_command( OUTPUT  "${CONFIG_KEYS_FILENAME_BASE}.c"    "${CONFIG_KEYS_FILENAME_BASE}.h"
+                    DEPENDS "${CONFIG_KEYS_FILENAME_BASE}-list" "${CONFIG_KEYS_FILENAME_BASE}.c.in" "${CONFIG_KEYS_FILENAME_BASE}.h.in"
+                    COMMAND codegen/srcpp LIST2CODE_CMD src/config-keys.c src/config-keys.h
+                    VERBATIM
+                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/../.." )
 
 link_directories( ${X11_T2C_LIBRARY_DIRS}
                   ${GLIB2_LIBRARY_DIRS}

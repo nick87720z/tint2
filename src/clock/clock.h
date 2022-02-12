@@ -37,15 +37,16 @@ extern char *clock_uwheel_command;
 extern char *clock_dwheel_command;
 extern gboolean clock_enabled;
 
-// default global data
 void default_clock();
+// default global data
 
-// freed memory
 void cleanup_clock();
+// freed memory
 
-// initialize clock : y position, precision, ...
 void init_clock();
 void init_clock_panel(void *panel);
+// initialize clock : y position, precision, ...
+
 void clock_default_font_changed();
 
 void draw_clock(void *obj, cairo_t *c);

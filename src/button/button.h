@@ -17,7 +17,7 @@
 // backend's config and state variables.
 
 typedef struct ButtonBackend {
-    // Config:
+// Config:
     char *icon_name;
     char *text;
     char *tooltip;
@@ -42,7 +42,7 @@ typedef struct ButtonBackend {
 } ButtonBackend;
 
 typedef struct ButtonFrontend {
-    // Frontend state:
+// Frontend state:
     Imlib_Image icon;
     Imlib_Image icon_hover;
     Imlib_Image icon_pressed;
@@ -59,52 +59,54 @@ typedef struct ButtonFrontend {
 
 typedef struct Button {
     Area area;
-    // All elements have the backend pointer set. However only backend elements have ownership.
+
     ButtonBackend *backend;
-    // Set only for frontend Button items.
+    // All elements have the backend pointer set. However only backend elements have ownership.
+
     ButtonFrontend *frontend;
+    // Set only for frontend Button items.
 } Button;
 
+void default_button();
 // Called before the config is read and panel_config/panels are created.
 // Afterwards, the config parsing code creates the array of Button in panel_config and populates the configuration
 // fields
 // in the backend.
 // Probably does nothing.
-void default_button();
 
+Button *create_button();
 // Creates a new Button item with only the backend field set. The state is NOT initialized. The config is initialized to
 // the default values.
 // This will be used by the config code to populate its backedn config fields.
-Button *create_button();
 
 void destroy_button(void *obj);
 
+void init_button();
 // Called after the config is read and panel_config is populated, but before panels are created.
 // Initializes the state of the backend items.
 // panel_config.panel_items is used to determine which backend items are enabled. The others should be destroyed and
 // removed from panel_config.button_list.
-void init_button();
 
+void init_button_panel(void *panel);
 // Called after each on-screen panel is created, with a pointer to the panel.
 // Initializes the state of the frontend items. Also adds a pointer to it in backend->instances.
 // At this point the Area has not been added yet to the GUI tree, but it will be added right away.
-void init_button_panel(void *panel);
 
+void cleanup_button();
 // Called just before the panels are destroyed. Afterwards, tint2 exits or restarts and reads the config again.
 // Releases all frontends and then all the backends.
 // The frontend items are not freed by this function, only their members. The items are Areas which are freed in the
 // GUI element tree cleanup function (remove_area).
-void cleanup_button();
 
-// Called on draw, obj = pointer to the front-end Button item.
 void draw_button(void *obj, cairo_t *c);
+// Called on draw, obj = pointer to the front-end Button item.
 
+gboolean resize_button(void *obj);
 // Called on resize, obj = pointer to the front-end Button item.
 // Returns 1 if the new size is different than the previous size.
-gboolean resize_button(void *obj);
 
-// Called on mouse click event.
 void button_action(void *obj, int button, int x, int y, Time time);
+// Called on mouse click event.
 
 void button_default_font_changed();
 void button_default_icon_theme_changed();

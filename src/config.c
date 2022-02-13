@@ -692,7 +692,7 @@ void add_entry(char *key, char *value)
         Execp *execp = get_or_create_last_execp();
         execp->backend->name[0] = 0;
         if (strlen(value) > sizeof(execp->backend->name) - 1)
-            fprintf(stderr, RED "tint2: execp_name cannot be more than %ld bytes: '%s'" RESET "\n",
+            fprintf(stderr, RED "tint2: execp_name cannot be longer than %ld bytes: '%s'" RESET "\n",
                     sizeof(execp->backend->name) - 1, value);
         else if (strlen(value) > 0)
             snprintf (execp->backend->name, sizeof(execp->backend->name), value);

@@ -20,6 +20,21 @@
 #define MIN3(a, b, c) MIN(MIN(a, b), c)
 #define ATOB(x)       (atoi((x)) > 0)
 
+#define BUF_0TERM(s)                                                                     \
+/** Write null byte to the end of static buffer */                                       \
+( s[ sizeof(s) / sizeof(*s) - 1 ]='\0' )
+
+#define STRBUF_AUTO(n,s)                                                                 \
+/** Create static (auto) string buffer n with size                                       \
+    Setting last byte to null */                                                         \
+char n[s]={ [(s)-1]='\0' }
+
+#define STRBUF_AUTO_PRINTF(n, ...)                                                       \
+/** Print text to static string buffer, ensuring terminating null */                     \
+do{ BUF_0TERM (n);                                                                       \
+    snprintf(n, sizeof(n)-1, ##__VA_ARGS__);                                             \
+} while (0)
+
 typedef enum MouseAction
 // mouse actions
 {

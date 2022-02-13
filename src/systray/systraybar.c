@@ -130,7 +130,7 @@ void init_systray_panel(void *p)
     systray.area.panel = panel;
     systray.area._dump_geometry = systray_dump_geometry;
     systray.area._compute_desired_size = systray_compute_desired_size;
-    snprintf(systray.area.name, sizeof(systray.area.name), "Systray");
+    snprintf (systray.area.name, sizeof(systray.area.name)-1, "Systray");
     if (!systray.area.bg)
         systray.area.bg = &g_array_index(backgrounds, Background, 0);
     show(&systray.area);

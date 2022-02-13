@@ -695,7 +695,7 @@ void add_entry(char *key, char *value)
             fprintf(stderr, RED "tint2: execp_name cannot be longer than %ld bytes: '%s'" RESET "\n",
                     sizeof(execp->backend->name) - 1, value);
         else if (strlen(value) > 0)
-            snprintf (execp->backend->name, sizeof(execp->backend->name), value);
+            snprintf (execp->backend->name, sizeof(execp->backend->name)-1, value);
         break;
     }
     case key_execp_command: {

@@ -53,6 +53,7 @@
 #include "signals.h"
 #include "bt.h"
 #include "strnatcmp.h"
+#include "common.h"
 
 void write_string(int fd, const char *s)
 {
@@ -157,7 +158,7 @@ const char *signal_name(int sig)
         return "SIGSYS: Bad system call.";
     }
     static char s[64];
-    snprintf(s, sizeof(s), "SIG=%d: Unknown", sig);
+    STRBUF_AUTO_PRINTF(s, "SIG=%d: Unknown", sig);
     return s;
 }
 
@@ -272,7 +273,7 @@ extern char *config_path;
 int setenvd(const char *name, const int value)
 {
     char buf[256];
-    snprintf(buf, sizeof(buf), "%d", value);
+    STRBUF_AUTO_PRINTF (buf, "%d", value);
     return setenv(name, buf, 1);
 }
 
@@ -801,7 +802,7 @@ Imlib_Image load_image(const char *path, int cached)
 #ifdef HAVE_RSVG
     if (!image && g_str_has_suffix(path, ".svg")) {
         char tmp_filename[128];
-        snprintf(tmp_filename, sizeof(tmp_filename), "/tmp/tint2-%d-%lu.png", (int)getpid(), counter);
+        STRBUF_AUTO_PRINTF (tmp_filename, "/tmp/tint2-%d-%lu.png", (int)getpid(), counter);
         counter++;
         int fd = open(tmp_filename, O_CREAT | O_EXCL, 0600);
         if (fd >= 0) {

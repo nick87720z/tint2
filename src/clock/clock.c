@@ -78,9 +78,9 @@ void default_clock()
     time1_font_desc = NULL;
     time2_has_font = FALSE;
     time2_font_desc = NULL;
-    buf_time[0] = '\0';
-    buf_date[0] = '\0';
-    buf_tooltip[0] = '\0';
+    buf_time[0]    = '\0', BUF_0TERM (buf_time);
+    buf_date[0]    = '\0', BUF_0TERM (buf_date);
+    buf_tooltip[0] = '\0', BUF_0TERM (buf_tooltip);
 }
 
 void cleanup_clock()
@@ -185,7 +185,7 @@ void init_clock_panel(void *p)
     clock_init_fonts();
     clock->area.parent = p;
     clock->area.panel = p;
-    snprintf(clock->area.name, sizeof(clock->area.name), "Clock");
+    snprintf(clock->area.name, sizeof(clock->area.name)-1, "Clock");
     clock->area._is_under_mouse = full_width_area_is_under_mouse;
     clock->area.has_mouse_press_effect = clock->area.has_mouse_over_effect =
         panel_config.mouse_effects && (clock_lclick_command || clock_mclick_command || clock_rclick_command ||

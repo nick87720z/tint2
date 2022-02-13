@@ -73,7 +73,7 @@ void expand_exec(DesktopEntry *entry, const char *path)
                 p++;
                 switch (*p) {
                 case 'i':   if (entry->icon) {
-                                snprintf(q, buf_size, "--icon '%s'", entry->icon);
+                                snprintf(q, buf_size-1, "--icon '%s'", entry->icon);
                                 char *old = q;
                                 q += sizeof("--icon ''") - 1;
                                 q += strlen(entry->icon);
@@ -81,13 +81,13 @@ void expand_exec(DesktopEntry *entry, const char *path)
                             }
                             break;
                 case 'c':   if (entry->name) {
-                                snprintf(q, buf_size, "'%s'", entry->name);
+                                snprintf(q, buf_size-1, "'%s'", entry->name);
                                 char *old = q;
                                 q += sizeof("''") - 1;
                                 q += strlen(entry->name);
                                 buf_size -= (size_t)(q - old);
                             } else {
-                                snprintf(q, buf_size, "'%s'", path);
+                                snprintf(q, buf_size-1, "'%s'", path);
                                 char *old = q;
                                 q += sizeof("''") - 1;
                                 q += strlen(path);
@@ -95,7 +95,7 @@ void expand_exec(DesktopEntry *entry, const char *path)
                             }
                             break;
                 case 'F':
-                case 'f':   snprintf(q, buf_size, "%c%c", '%', *p);
+                case 'f':   snprintf(q, buf_size-1, "%c%c", '%', *p);
                             q += 2;
                             buf_size -= 2;
                             break;

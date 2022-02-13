@@ -27,6 +27,7 @@ Separator *create_separator()
     separator->style = SEPARATOR_DOTS;
     separator->thickness = 3;
     separator->area.paddingxlr = 1;
+    BUF_0TERM (separator->area.name);
     return separator;
 }
 
@@ -79,7 +80,7 @@ void init_separator_panel(void *p)
         return;
 
     // panel->separator_list is now a copy of the pointer panel_config.separator_list
-    // We make it a deep copy
+    // We make it a deep list copy
     panel->separator_list = g_list_copy_deep(panel_config.separator_list, copy_separator, NULL);
 
     for (GList *l = panel->separator_list; l; l = l->next) {
@@ -88,7 +89,7 @@ void init_separator_panel(void *p)
             separator->area.bg = &g_array_index(backgrounds, Background, 0);
         separator->area.parent = p;
         separator->area.panel = p;
-        snprintf(separator->area.name, sizeof(separator->area.name), "separator");
+        snprintf (separator->area.name, sizeof(separator->area.name)-1, "separator");
         separator->area.size_mode = LAYOUT_FIXED;
         separator->area.resize_needed = TRUE;
         separator->area.on_screen = TRUE;

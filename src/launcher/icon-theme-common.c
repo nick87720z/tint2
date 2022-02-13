@@ -608,9 +608,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                                          strlen(extension) + 100;
                         file_name = realloc(file_name, file_name_size);
                     }
-                    file_name[0] = '\0';
                     // filename = directory/$(themename)/subdirectory/iconname.extension
-                    snprintf(file_name, (size_t)file_name_size, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
+                    snprintf(file_name, (size_t)file_name_size - 1, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
                     if (debug_icons)
                         fprintf(stderr, "tint2: Checking %s\n", file_name);
                     if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
@@ -669,7 +668,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                 size_t file_name_size2 = strlen(base_name) + strlen(icon_name) + strlen(extension) + 100;
                 file_name = calloc(file_name_size2, 1);
                 // filename = directory/iconname.extension
-                snprintf(file_name, file_name_size2, "%s/%s%s", base_name, icon_name, extension);
+                snprintf(file_name, file_name_size2 - 1, "%s/%s%s", base_name, icon_name, extension);
                 if (debug_icons)
                     fprintf(stderr, "tint2: Checking %s\n", file_name);
                 if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {

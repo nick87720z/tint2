@@ -34,6 +34,7 @@ Button *create_button()
     
     backend->centered = TRUE;
     backend->font_color.alpha = 0.5;
+    BUF_0TERM (button->area.name);
     return button;
 }
 
@@ -45,6 +46,7 @@ gpointer create_button_frontend(gconstpointer arg, gpointer data)
     button_frontend->frontend = (gpointer)(button_frontend + 1);
     ButtonBackend *backend = button_frontend->backend = button_backend->backend;
     backend->instances = g_list_append(backend->instances, button_frontend);
+    BUF_0TERM (button_frontend->area.name);
     return button_frontend;
 }
 
@@ -147,7 +149,7 @@ void init_button_panel(void *p)
         area->panel = panel;
         area->_dump_geometry = button_dump_geometry;
         area->_compute_desired_size = button_compute_desired_size;
-        snprintf(area->name, sizeof(area->name), "Button");
+        snprintf(area->name, sizeof(area->name)-1, "Button");
         area->_draw_foreground = draw_button;
         area->size_mode = LAYOUT_FIXED;
         area->_resize = resize_button;

@@ -1240,10 +1240,10 @@ void set_panel_items(const char *items)
     int execp_index = -1;
     int button_index = -1;
 
+    STRBUF_AUTO (buffer, 256);
     for (; items && *items; items++) {
         const char *value = NULL;
         const char *name = NULL;
-        char buffer[256];
 
         char v = *items;
         if (v == 'B') {
@@ -1266,20 +1266,17 @@ void set_panel_items(const char *items)
             name = _("Free space");
         } else if (v == ':') {
             separator_index++;
-            buffer[0] = '\0';
-            snprintf(buffer, sizeof(buffer), "%s %d", _("Separator"), separator_index + 1);
+            snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Separator"), separator_index + 1);
             name = buffer;
             value = ":";
         } else if (v == 'E') {
             execp_index++;
-            buffer[0] = '\0';
-            snprintf(buffer, sizeof(buffer), "%s %d", _("Executor"), execp_index + 1);
+            snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Executor"), execp_index + 1);
             name = buffer;
             value = "E";
         } else if (v == 'P') {
             button_index++;
-            buffer[0] = '\0';
-            snprintf(buffer, sizeof(buffer), "%s %d", _("Button"), button_index + 1);
+            snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Button"), button_index + 1);
             name = buffer;
             value = "P";
         } else {
@@ -3914,9 +3911,7 @@ void create_separator(GtkWidget *stack, int i)
     GtkWidget *table;
     int row, col;
     Separator *separator = &g_array_index(separators, Separator, i);
-
-    separator->name[0] = '\0';
-    snprintf(separator->name, sizeof(separator->name), "%s %d", _("Separator"), i + 1);
+    STRBUF_AUTO_PRINTF (separator->name, "%s %d", _("Separator"), i + 1);
     separator->page_separator = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
     gtk_container_set_border_width(GTK_CONTAINER(separator->page_separator), 10);
     gtk_widget_show(separator->page_separator);
@@ -4038,8 +4033,7 @@ void create_execp(GtkWidget *stack, int i)
 
     Executor *executor = &g_array_index(executors, Executor, i);
 
-    executor->name[0] = '\0';
-    snprintf(executor->name, sizeof(executor->name), "%s %d", _("Executor"), i + 1);
+    STRBUF_AUTO_PRINTF (executor->name, "%s %d", _("Executor"), i + 1);
     executor->page_execp = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
     gtk_container_set_border_width(GTK_CONTAINER(executor->page_execp), 10);
     gtk_widget_show(executor->page_execp);
@@ -4464,8 +4458,7 @@ void create_button(GtkWidget *stack, int i) {
 
     Button *button = &g_array_index(buttons, Button, i);
 
-    button->name[0] = '\0';
-    snprintf(button->name, sizeof(button->name), "%s %d", _("Button"), i + 1);
+    STRBUF_AUTO_PRINTF (button->name, "%s %d", _("Button"), i + 1);
     button->page_button = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
     gtk_container_set_border_width(GTK_CONTAINER(button->page_button), 10);
     gtk_widget_show(button->page_button);
@@ -4814,7 +4807,7 @@ void separator_update_indices()
     g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < separators->len; i++) {
         Separator *separator = &g_array_index(separators, Separator, i);
-        snprintf(separator->name, sizeof(separator->name), "%s %d", _("Separator"), i + 1);
+        snprintf(separator->name, sizeof(separator->name)-1, "%s %d", _("Separator"), i + 1);
         g_value_set_static_string(&name_value, separator->name);
         gtk_container_child_set_property(GTK_CONTAINER(stack), separator->page_separator, "title", &name_value);
     }
@@ -4832,9 +4825,7 @@ void separator_update_indices()
         if (g_str_equal(value, ":")) {
             separator_index++;
             char buffer[256];
-            buffer[0] = '\0';
-            snprintf(buffer, sizeof(buffer), "%s %d", _("Separator"), separator_index + 1);
-
+            STRBUF_AUTO_PRINTF (buffer, "%s %d", _("Separator"), separator_index + 1);
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
 
@@ -4849,7 +4840,7 @@ void execp_update_indices()
     g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < executors->len; i++) {
         Executor *executor = &g_array_index(executors, Executor, i);
-        snprintf(executor->name, sizeof(executor->name), "%s %d", _("Executor"), i + 1);
+        snprintf(executor->name, sizeof(executor->name)-1, "%s %d", _("Executor"), i + 1);
         g_value_set_static_string(&name_value, executor->name);
         gtk_container_child_set_property(GTK_CONTAINER(stack), executor->page_execp, "title", &name_value);
     }
@@ -4867,9 +4858,7 @@ void execp_update_indices()
         if (g_str_equal(value, "E")) {
             execp_index++;
             char buffer[256];
-            buffer[0] = '\0';
-            snprintf(buffer, sizeof(buffer), "%s %d", _("Executor"), execp_index + 1);
-
+            STRBUF_AUTO_PRINTF (buffer, "%s %d", _("Executor"), execp_index + 1);
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
 
@@ -4884,7 +4873,7 @@ void button_update_indices()
     g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < buttons->len; i++) {
         Button *button = &g_array_index(buttons, Button, i);
-        snprintf(button->name, sizeof(button->name), "%s %d", _("Button"), i + 1);
+        snprintf(button->name, sizeof(button->name)-1, "%s %d", _("Button"), i + 1);
         g_value_set_static_string(&name_value, button->name);
         gtk_container_child_set_property(GTK_CONTAINER(stack), button->page_button, "title", &name_value);
     }
@@ -4902,9 +4891,7 @@ void button_update_indices()
         if (g_str_equal(value, "P")) {
             button_index++;
             char buffer[256];
-            buffer[0] = '\0';
-            snprintf(buffer, sizeof(buffer), "%s %d", _("Button"), button_index + 1);
-
+            STRBUF_AUTO_PRINTF (buffer, "%s %d", _("Button"), button_index + 1);
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
 

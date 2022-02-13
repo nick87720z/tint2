@@ -114,7 +114,7 @@ void default_panel()
     gradients = g_array_new(0, 0, sizeof(GradientClass));
 
     memset(&panel_config, 0, sizeof(Panel));
-    snprintf(panel_config.area.name, sizeof(panel_config.area.name), "Panel");
+    snprintf(panel_config.area.name, sizeof(panel_config.area.name)-1, "Panel");
     panel_config.mouse_over_alpha = 100;
     panel_config.mouse_over_saturation = 0;
     panel_config.mouse_over_brightness = 10;
@@ -235,7 +235,7 @@ void init_panel()
             p->area.bg = &g_array_index(backgrounds, Background, 0);
         p->area.parent = p;
         p->area.panel = p;
-        snprintf(p->area.name, sizeof(p->area.name), "Panel %d", i);
+        snprintf(p->area.name, sizeof(p->area.name)-1, "Panel %d", i);
         p->area.on_screen = TRUE;
         p->area.resize_needed = TRUE;
         p->area.size_mode = LAYOUT_DYNAMIC;

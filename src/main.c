@@ -734,7 +734,7 @@ void handle_panel_refresh()
     if (debug_frames) {
         for (int i = 0; i < num_panels; i++) {
             char path[256];
-            snprintf(path, sizeof(path), "tint2-%d-panel-%d-frame-%d.png", getpid(), i, frame);
+            STRBUF_AUTO_PRINTF (path, "tint2-%d-panel-%d-frame-%d.png", getpid(), i, frame);
             save_panel_screenshot(&panels[i], path);
         }
     }

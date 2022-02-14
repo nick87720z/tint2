@@ -683,6 +683,7 @@ void set_panel_items_order(Panel *p)
         case 'T':
             for (int j = 0; j < p->num_desktops; j++)
                 p->area.children = g_list_append(p->area.children, &p->taskbar[j]);
+            break;
 #ifdef ENABLE_BATTERY
         case 'B':
             p->area.children = g_list_append(p->area.children, &p->battery);

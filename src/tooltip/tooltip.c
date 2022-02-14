@@ -212,10 +212,9 @@ void tooltip_update_geometry()
 }
 
 void tooltip_adjust_geometry()
+// adjust coordinates and size to not go offscreen
+// it seems quite impossible that the height needs to be adjusted, but we do it anyway.
 {
-    // adjust coordinates and size to not go offscreen
-    // it seems quite impossible that the height needs to be adjusted, but we do it anyway.
-
     Panel *panel = g_tooltip.panel;
     int screen_width = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
     int screen_height = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height;

@@ -374,13 +374,12 @@ void draw_launcher_icon(void *obj, cairo_t *c)
     if (!panel_config.mouse_effects)
         goto im_default;
     switch (launcherIcon->area.mouse_state) {
-    case MOUSE_OVER:
-        image = launcherIcon->image_hover ? launcherIcon->image_hover : launcherIcon->image;
-    case MOUSE_DOWN:
-        image = launcherIcon->image_pressed ? launcherIcon->image_pressed : launcherIcon->image;
+    case MOUSE_OVER:    image = launcherIcon->image_hover   ? launcherIcon->image_hover   : launcherIcon->image;
+                        break;
+    case MOUSE_DOWN:    image = launcherIcon->image_pressed ? launcherIcon->image_pressed : launcherIcon->image;
+                        break;
     default:
-    im_default:
-        image = launcherIcon->image;
+    im_default:         image = launcherIcon->image;
     }
     imlib_context_set_image(image);
     render_image(launcherIcon->area.pix, 0, 0);

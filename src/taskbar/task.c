@@ -506,6 +506,7 @@ void draw_task(void *obj, cairo_t *c)
     if (panel->g_task.has_icon)
         draw_task_icon(task, task->_text_width);
     if (panel->g_task.has_text) {
+        // NOTE: possible false warning about potentially uninitialized `config_text`, `layout`, `context`
         draw_text(layout, c, panel->g_task.text_posx, task->_text_posy, config_text, panel->font_shadow ? layout : NULL);
         g_object_unref(layout);
         g_object_unref(context);

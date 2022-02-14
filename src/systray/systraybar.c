@@ -1202,9 +1202,10 @@ void systray_render_icon_from_image(TrayWindow *traywin)
 }
 
 void systray_render_icon_composited(void *t)
+// we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
+// we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
+
 {
-    // we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
-    // we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
     TrayWindow *traywin = t;
 
     if (systray_profile)

@@ -444,12 +444,11 @@ XSettingsResult xsettings_client_get_setting(XSettingsClient *client, const char
 }
 
 Bool xsettings_client_process_event(XSettingsClient *client, XEvent *xev)
+/*  The checks here will not unlikely cause us to reread
+    the properties from the manager window a number of
+    times when the manager changes from A->B. But manager changes
+    are going to be pretty rare. */
 {
-    /* The checks here will not unlikely cause us to reread
-    * the properties from the manager window a number of
-    * times when the manager changes from A->B. But manager changes
-    * are going to be pretty rare.
-    */
     if (xev->xany.window == RootWindow(server.display, server.screen)) {
         if (xev->xany.type == ClientMessage && xev->xclient.message_type == server.atom.MANAGER) {
             check_manager_window(client);

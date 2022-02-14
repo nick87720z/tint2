@@ -52,12 +52,9 @@ struct psy_battery {
 };
 
 struct psy_mains {
-    /* generic properties */
-    gchar *name;
-    /* sysfs files */
-    gchar *path_online;
-    /* values */
-    gboolean online;
+    gchar *name;        /* generic properties */
+    gchar *path_online; /* sysfs files */
+    gboolean online;    /* values */
 };
 
 static gboolean is_file_non_empty(const char *path)

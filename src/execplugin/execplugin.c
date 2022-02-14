@@ -19,8 +19,6 @@
 #include "timer.h"
 #include "common.h"
 
-#define MAX_TOOLTIP_LEN 4096
-
 bool debug_executors = false;
 
 void execp_timer_callback(void *arg);

@@ -191,8 +191,8 @@ static XSettingsList *parse_settings(unsigned char *data, size_t len)
 
     buffer.pos += 3;
 
-    if ((result = fetch_card32(&buffer, &serial   )) != XSETTINGS_SUCCESS) ||
-        (result = fetch_card32(&buffer, &n_entries)) != XSETTINGS_SUCCESS)
+    if ((result = fetch_card32(&buffer, &serial   )) != XSETTINGS_SUCCESS ||
+        (result = fetch_card32(&buffer, &n_entries)) != XSETTINGS_SUCCESS
     ) goto out;
 
     for (i = 0; i < n_entries; i++) {

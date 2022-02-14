@@ -37,7 +37,7 @@ Execp *create_execp()
 {
     Execp *execp = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpBackend));
     ExecpBackend *backend = execp->backend = (gpointer)(execp + 1);
-    
+
     backend->child_pipe_stdout = -1;
     backend->child_pipe_stderr = -1;
     backend->cmd_pids = g_tree_new(cmp_ptr);
@@ -935,13 +935,12 @@ gboolean read_execp(void *obj)
                 *end = '\0';
             free_and_null(backend->text);
             free_and_null(backend->icon_path);
-            if (!backend->has_icon) {
+            if (!backend->has_icon)
                 backend->text = strdup(backend->buf_stdout);
-            } else {
+            else {
                 char *text = strchr(backend->buf_stdout, '\n');
                 if (text) {
-                    *text = '\0';
-                    text++;
+                    *text++ = '\0';
                     backend->text = strdup(text);
                 } else {
                     backend->text = strdup("");
@@ -975,13 +974,12 @@ gboolean read_execp(void *obj)
         // Handle stdout
         free_and_null(backend->text);
         free_and_null(backend->icon_path);
-        if (!backend->has_icon) {
+        if (!backend->has_icon)
             backend->text = strdup(backend->buf_stdout);
-        } else {
+        else {
             char *text = strchr(backend->buf_stdout, '\n');
             if (text) {
-                *text = '\0';
-                text++;
+                *text++ = '\0';
                 backend->text = strdup(text);
             } else {
                 backend->text = strdup("");
@@ -997,10 +995,8 @@ gboolean read_execp(void *obj)
         if (!backend->has_user_tooltip) {
             free_and_null(backend->tooltip);
             char *start = last_substring(backend->buf_stderr, ansi_clear_screen);
-            if (start)
-                start += strlen(ansi_clear_screen);
-            else
-                start = backend->buf_stderr;
+            start = start   ? start + strlen(ansi_clear_screen)
+                            : backend->buf_stderr;
             if (*start) {
                 backend->tooltip = strdup(start);
                 rstrip(backend->tooltip);

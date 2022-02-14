@@ -463,7 +463,9 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
                                (unsigned)w,
                                (unsigned)h);
     else
-        ximg = XGetImage(server.display, win, 0, 0, (unsigned)w, (unsigned)h, AllPlanes, ZPixmap);
+        ximg = XGetImage(   server.display, win,
+                            0, 0, (unsigned)w, (unsigned)h,
+                            AllPlanes, ZPixmap );
     if (!ximg) {
         fprintf(stderr, RED "tint2: !ximg" RESET "\n");
         goto err0;

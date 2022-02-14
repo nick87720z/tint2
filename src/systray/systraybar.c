@@ -192,8 +192,7 @@ gboolean resize_systray(void *obj)
 
     if (systray.icon_size > 0) {
         long icon_size = systray.icon_size;
-        XChangeProperty(server.display,
-                        net_sel_win,
+        XChangeProperty(server.display, net_sel_win,
                         server.atom._NET_SYSTEM_TRAY_ICON_SIZE,
                         XA_CARDINAL,
                         32,
@@ -232,18 +231,13 @@ void draw_systray(void *obj, cairo_t *c)
     if (systray_composited) {
         if (render_background)
             XFreePixmap(server.display, render_background);
-        render_background =
-            XCreatePixmap(server.display, server.root_win, systray.area.width, systray.area.height, server.depth);
+        render_background = XCreatePixmap(  server.display,     server.root_win,
+                                            systray.area.width, systray.area.height, server.depth);
         XCopyArea(server.display,
-                  systray.area.pix,
-                  render_background,
-                  server.gc,
-                  0,
-                  0,
-                  systray.area.width,
-                  systray.area.height,
-                  0,
-                  0);
+                  systray.area.pix, render_background, server.gc,
+                  0, 0,
+                  systray.area.width, systray.area.height,
+                  0, 0);
     }
 
     refresh_systray = TRUE;
@@ -413,8 +407,7 @@ void start_net()
     // v0.3 trayer specification. tint2 always horizontal.
     // Vertical panel will draw the systray horizontal.
     long orientation = 0;
-    XChangeProperty(server.display,
-                    net_sel_win,
+    XChangeProperty(server.display, net_sel_win,
                     server.atom._NET_SYSTEM_TRAY_ORIENTATION,
                     XA_CARDINAL,
                     32,
@@ -423,8 +416,7 @@ void start_net()
                     1);
     if (systray.icon_size > 0) {
         long icon_size = systray.icon_size;
-        XChangeProperty(server.display,
-                        net_sel_win,
+        XChangeProperty(server.display, net_sel_win,
                         server.atom._NET_SYSTEM_TRAY_ICON_SIZE,
                         XA_CARDINAL,
                         32,
@@ -433,8 +425,7 @@ void start_net()
                         1);
     }
     long padding = 0;
-    XChangeProperty(server.display,
-                    net_sel_win,
+    XChangeProperty(server.display, net_sel_win,
                     server.atom._NET_SYSTEM_TRAY_PADDING,
                     XA_CARDINAL,
                     32,
@@ -447,8 +438,7 @@ void start_net()
         vid = XVisualIDFromVisual(server.visual32);
     else
         vid = XVisualIDFromVisual(server.visual);
-    XChangeProperty(server.display,
-                    net_sel_win,
+    XChangeProperty(server.display, net_sel_win,
                     XInternAtom(server.display, "_NET_SYSTEM_TRAY_VISUAL", False),
                     XA_VISUALID,
                     32,
@@ -552,16 +542,11 @@ static gint compare_traywindows(gconstpointer a, gconstpointer b)
 #endif
 
     switch (systray.sort) {
-    case SYSTRAY_SORT_ASCENDING:
-        return g_ascii_strncasecmp(traywin_a->name, traywin_b->name, -1);
-    case SYSTRAY_SORT_DESCENDING:
-        return -g_ascii_strncasecmp(traywin_a->name, traywin_b->name, -1);
-    case SYSTRAY_SORT_LEFT2RIGHT:
-        return traywin_a->chrono - traywin_b->chrono;
-    case SYSTRAY_SORT_RIGHT2LEFT:
-        return traywin_b->chrono - traywin_a->chrono;
-    default:
-        return 0;
+    case SYSTRAY_SORT_ASCENDING:    return g_ascii_strncasecmp(traywin_a->name, traywin_b->name, -1);
+    case SYSTRAY_SORT_DESCENDING:   return -g_ascii_strncasecmp(traywin_a->name, traywin_b->name, -1);
+    case SYSTRAY_SORT_LEFT2RIGHT:   return traywin_a->chrono - traywin_b->chrono;
+    case SYSTRAY_SORT_RIGHT2LEFT:   return traywin_b->chrono - traywin_a->chrono;
+    default:                        return 0;
     }
 }
 
@@ -710,13 +695,8 @@ gboolean add_icon(Window win)
 
     if (systray_profile)
         fprintf(stderr, "tint2: XCreateWindow(...)\n");
-    Window parent = XCreateWindow(server.display,
-                                  panel->main_win,
-                                  0,
-                                  0,
-                                  systray.icon_size,
-                                  systray.icon_size,
-                                  0,
+    Window parent = XCreateWindow(server.display, panel->main_win,
+                                  0, 0, systray.icon_size, systray.icon_size, 0,
                                   attr.depth,
                                   InputOutput,
                                   visual,
@@ -1189,15 +1169,10 @@ void systray_render_icon_from_image(TrayWindow *traywin)
         return;
     imlib_context_set_image(traywin->image);
     XCopyArea(server.display,
-              render_background,
-              systray.area.pix,
-              server.gc,
-              traywin->x - systray.area.posx,
-              traywin->y - systray.area.posy,
-              traywin->width,
-              traywin->height,
-              traywin->x - systray.area.posx,
-              traywin->y - systray.area.posy);
+              render_background, systray.area.pix, server.gc,
+              traywin->x - systray.area.posx,   traywin->y - systray.area.posy,
+              traywin->width,                   traywin->height,
+              traywin->x - systray.area.posx,   traywin->y - systray.area.posy);
     render_image(systray.area.pix, traywin->x - systray.area.posx, traywin->y - systray.area.posy);
 }
 
@@ -1264,7 +1239,8 @@ void systray_render_icon_composited(void *t)
     // Very ugly hack, but somehow imlib2 is not able to get the image from the traywindow itself,
     // so we first render the tray window onto a pixmap, and then we tell imlib2 to use this pixmap as
     // drawable. If someone knows why it does not work with the traywindow itself, please tell me ;)
-    Pixmap tmp_pmap = XCreatePixmap(server.display, traywin->win, traywin->width, traywin->height, 32);
+    Pixmap tmp_pmap = XCreatePixmap(server.display, traywin->win,
+                                    traywin->width, traywin->height, 32);
     if (!tmp_pmap) {
         goto on_systray_error;
     }
@@ -1312,14 +1288,8 @@ void systray_render_icon_composited(void *t)
                      pict_image,
                      None,
                      pict_drawable,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     0,
-                     traywin->width,
-                     traywin->height);
+                     0, 0, 0, 0,
+                     0, 0, traywin->width, traywin->height);
     XRenderFreePicture(server.display, pict_image);
     XRenderFreePicture(server.display, pict_drawable);
     // end of the ugly hack and we can continue as before

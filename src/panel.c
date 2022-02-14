@@ -278,13 +278,8 @@ void init_panel()
         // catch some events
         XSetWindowAttributes att = {.colormap = server.colormap, .background_pixel = 0, .border_pixel = 0};
         unsigned long mask = CWEventMask | CWColormap | CWBackPixel | CWBorderPixel;
-        p->main_win = XCreateWindow(server.display,
-                                    server.root_win,
-                                    p->posx,
-                                    p->posy,
-                                    p->area.width,
-                                    p->area.height,
-                                    0,
+        p->main_win = XCreateWindow(server.display, server.root_win,
+                                    p->posx, p->posy, p->area.width, p->area.height, 0,
                                     server.depth,
                                     InputOutput,
                                     server.visual,
@@ -613,7 +608,9 @@ void update_strut(Panel *p)
     StrutType struts[STRUT_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     if (panel_horizontal ^ panel_pivot_struts) {
         int height = p->area.height + p->marginy;
-        if (panel_strut_policy == STRUT_MINIMUM || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))
+        if (panel_strut_policy == STRUT_MINIMUM
+            || (panel_strut_policy == STRUT_FOLLOW_SIZE && panel_autohide && p->is_hidden))
+
             height = p->hidden_height;
         if (panel_position & TOP) {
             struts[STRUT_TOP] = height + monitor.y;
@@ -643,16 +640,14 @@ void update_strut(Panel *p)
         }
     }
     // Old specification : fluxbox need _NET_WM_STRUT.
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom._NET_WM_STRUT,
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
                     (unsigned char *)&struts,
                     STRUT_COUNT_OLD);
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom._NET_WM_STRUT_PARTIAL,
                     XA_CARDINAL,
                     32,
@@ -676,50 +671,41 @@ void set_panel_items_order(Panel *p)
     {
         int i = p - panels;
         switch (panel_items_order[k]) {
-        case 'L':
-            p->area.children = g_list_append(p->area.children, &p->launcher);
-            p->launcher.area.resize_needed = TRUE;
-            break;
-        case 'T':
-            for (int j = 0; j < p->num_desktops; j++)
-                p->area.children = g_list_append(p->area.children, &p->taskbar[j]);
-            break;
+        case 'L':   p->area.children = g_list_append(p->area.children, &p->launcher);
+                    p->launcher.area.resize_needed = TRUE;
+                    break;
+        case 'T':   for (int j = 0; j < p->num_desktops; j++)
+                        p->area.children = g_list_append(p->area.children, &p->taskbar[j]);
+                    break;
 #ifdef ENABLE_BATTERY
-        case 'B':
-            p->area.children = g_list_append(p->area.children, &p->battery);
-            break;
+        case 'B':   p->area.children = g_list_append(p->area.children, &p->battery);
+                    break;
 #endif
-        case 'S':
-            if (systray_on_monitor(i, num_panels))
-                p->area.children = g_list_append(p->area.children, &systray);
-            break;
-        case 'C':
-            p->area.children = g_list_append(p->area.children, &p->clock);
-            break;
-        case 'F': {
-            GList *item = g_list_nth(p->freespace_list, i_freespace);
-            i_freespace++;
-            if (item)
-                p->area.children = g_list_append(p->area.children, (Area *)item->data);
-            break;
-        } case ':': {
-            GList *item = g_list_nth(p->separator_list, i_separator);
-            i_separator++;
-            if (item)
-                p->area.children = g_list_append(p->area.children, (Area *)item->data);
-            break;
-        } case 'E': {
-            GList *item = g_list_nth(p->execp_list, i_execp);
-            i_execp++;
-            if (item)
-                p->area.children = g_list_append(p->area.children, (Area *)item->data);
-            break;
-        } case 'P': {
-            GList *item = g_list_nth(p->button_list, i_button);
-            i_button++;
-            if (item)
-                p->area.children = g_list_append(p->area.children, (Area *)item->data);
-            break;
+        case 'S':   if (systray_on_monitor(i, num_panels))
+                        p->area.children = g_list_append(p->area.children, &systray);
+                    break;
+        case 'C':   p->area.children = g_list_append(p->area.children, &p->clock);
+                    break;
+        case 'F': { GList *item = g_list_nth(p->freespace_list, i_freespace);
+                    i_freespace++;
+                    if (item)
+                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                    break;
+        }case ':': {GList *item = g_list_nth(p->separator_list, i_separator);
+                    i_separator++;
+                    if (item)
+                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                    break;
+        }case 'E': {GList *item = g_list_nth(p->execp_list, i_execp);
+                    i_execp++;
+                    if (item)
+                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                    break;
+        }case 'P': {GList *item = g_list_nth(p->button_list, i_button);
+                    i_button++;
+                    if (item)
+                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                    break;
         }}
     }
     initialize_positions(&p->area, 0);
@@ -728,8 +714,7 @@ void set_panel_items_order(Panel *p)
 void place_panel_all_desktops(Panel *p)
 {
     long val = ALL_DESKTOPS;
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom._NET_WM_DESKTOP,
                     XA_CARDINAL,
                     32,
@@ -746,8 +731,7 @@ void set_panel_layer(Panel *p, Layer layer)
     state[2] = server.atom._NET_WM_STATE_STICKY;
     state[3] = layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
     int num_atoms = layer == NORMAL_LAYER ? 3 : 4;
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom._NET_WM_STATE,
                     XA_ATOM,
                     32,
@@ -787,26 +771,18 @@ void set_panel_window_geometry(Panel *panel)
     XSetWMNormalHints(server.display, panel->main_win, &size_hints);
 
     if (!panel->is_hidden)
-        XMoveResizeWindow(server.display,
-                          panel->main_win,
-                          panel->posx,
-                          panel->posy,
-                          panel->area.width,
-                          panel->area.height);
+        XMoveResizeWindow(server.display, panel->main_win,
+                          panel->posx, panel->posy, panel->area.width, panel->area.height);
     else if (panel_horizontal)
-        XMoveResizeWindow(server.display,
-                          panel->main_win,
+        XMoveResizeWindow(server.display, panel->main_win,
                           panel->posx,
                           panel_position & TOP ? panel->posy : panel->posy + panel->area.height - panel_autohide_height,
-                          panel->hidden_width,
-                          panel->hidden_height);
+                          panel->hidden_width, panel->hidden_height);
     else
-        XMoveResizeWindow(server.display,
-                          panel->main_win,
+        XMoveResizeWindow(server.display, panel->main_win,
                           panel_position & LEFT ? panel->posx : panel->posx + panel->area.width - panel_autohide_height,
                           panel->posy,
-                          panel->hidden_width,
-                          panel->hidden_height);
+                          panel->hidden_width, panel->hidden_height);
 }
 
 void set_panel_properties(Panel *p)
@@ -817,16 +793,14 @@ void set_panel_properties(Panel *p)
     gsize len;
     gchar *name = g_locale_to_utf8(panel_window_name, -1, NULL, &len, NULL);
     if (name != NULL) {
-        XChangeProperty(server.display,
-                        p->main_win,
+        XChangeProperty(server.display, p->main_win,
                         server.atom._NET_WM_NAME,
                         server.atom.UTF8_STRING,
                         8,
                         PropModeReplace,
                         (unsigned char *)name,
                         (int)len);
-        XChangeProperty(server.display,
-                        p->main_win,
+        XChangeProperty(server.display, p->main_win,
                         server.atom._NET_WM_ICON_NAME,
                         server.atom.UTF8_STRING,
                         8,
@@ -837,8 +811,7 @@ void set_panel_properties(Panel *p)
     }
 
     long pid = getpid();
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom._NET_WM_PID,
                     XA_CARDINAL,
                     32,
@@ -847,8 +820,7 @@ void set_panel_properties(Panel *p)
                     1);
 
     // Dock
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom._NET_WM_WINDOW_TYPE,
                     XA_ATOM,
                     32,
@@ -875,8 +847,7 @@ void set_panel_properties(Panel *p)
 
     // Undecorated
     long prop[5] = {2, 0, 0, 0, 0};
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom._MOTIF_WM_HINTS,
                     server.atom._MOTIF_WM_HINTS,
                     32,
@@ -886,8 +857,7 @@ void set_panel_properties(Panel *p)
 
     // XdndAware - Register for Xdnd events
     Atom version = 4;
-    XChangeProperty(server.display,
-                    p->main_win,
+    XChangeProperty(server.display, p->main_win,
                     server.atom.XdndAware,
                     XA_ATOM,
                     32,
@@ -944,11 +914,9 @@ void set_panel_background(Panel *p)
 
 Panel *get_panel(Window win)
 {
-    for (int i = 0; i < num_panels; i++) {
-        if (panels[i].main_win == win) {
+    for (int i = 0; i < num_panels; i++)
+        if (panels[i].main_win == win)
             return &panels[i];
-        }
-    }
     return NULL;
 }
 
@@ -1167,13 +1135,14 @@ void save_panel_screenshot(const Panel *panel, const char *path)
     Imlib_Image img = imlib_create_image_from_drawable(0, 0, 0, panel->area.width, panel->area.height, 1);
 
     if (!img) {
-        XImage *ximg =
-            XGetImage(server.display, panel->temp_pmap, 0, 0, panel->area.width, panel->area.height, AllPlanes, ZPixmap);
-
+        XImage *ximg = XGetImage(   server.display, panel->temp_pmap,
+                                    0, 0, panel->area.width, panel->area.height,
+                                    AllPlanes, ZPixmap);
         if (ximg) {
             DATA32 *pixels = (DATA32 *)calloc(panel->area.width * panel->area.height, sizeof(DATA32));
-            for (int x = 0; x < panel->area.width; x++) {
-                for (int y = 0; y < panel->area.height; y++) {
+            for (int x = 0; x < panel->area.width; x++)
+                for (int y = 0; y < panel->area.height; y++)
+                {
                     DATA32 xpixel = XGetPixel(ximg, x, y);
 
                     DATA32 r = (xpixel >> 16) & 0xff;
@@ -1184,7 +1153,6 @@ void save_panel_screenshot(const Panel *panel, const char *path)
                     DATA32 argb = (a << 24) | (r << 16) | (g << 8) | b;
                     pixels[y * panel->area.width + x] = argb;
                 }
-            }
             XDestroyImage(ximg);
             img = imlib_create_image_using_data(panel->area.width, panel->area.height, pixels);
         }
@@ -1209,8 +1177,8 @@ void save_screenshot(const char *path)
     if (panel->area.width > server.monitors[0].width)
         panel->area.width = server.monitors[0].width;
 
-    panel->temp_pmap =
-        XCreatePixmap(server.display, server.root_win, panel->area.width, panel->area.height, server.depth);
+    panel->temp_pmap = XCreatePixmap(   server.display, server.root_win,
+                                        panel->area.width, panel->area.height, server.depth);
     render_panel(panel);
 
     XSync(server.display, False);

@@ -123,7 +123,8 @@ void walk_windows(Window node, window_callback_t *callback, char *action, char *
     Window *children = 0;
     unsigned int nchildren = 0;
     if (!XQueryTree(display, node,
-                    &root, &parent, &children, &nchildren)) {
+                    &root, &parent, &children, &nchildren))
+    {
         return;
     }
     for (unsigned int i = 0; i < nchildren; i++) {

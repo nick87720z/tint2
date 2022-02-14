@@ -629,59 +629,40 @@ void handle_panel_refresh()
         if (!panel->is_hidden || panel->area.resize_needed) {
             if (panel->temp_pmap)
                 XFreePixmap(server.display, panel->temp_pmap);
-            panel->temp_pmap = XCreatePixmap(server.display,
-                                             server.root_win,
-                                             panel->area.width,
-                                             panel->area.height,
-                                             server.depth);
+            panel->temp_pmap = XCreatePixmap(server.display,    server.root_win,
+                                             panel->area.width, panel->area.height, server.depth);
             render_panel(panel);
         }
 
         if (panel->is_hidden) {
             if (!panel->hidden_pixmap) {
-                panel->hidden_pixmap = XCreatePixmap(server.display,
-                                                     server.root_win,
-                                                     panel->hidden_width,
-                                                     panel->hidden_height,
-                                                     server.depth);
+                panel->hidden_pixmap = XCreatePixmap(server.display,        server.root_win,
+                                                     panel->hidden_width,   panel->hidden_height, server.depth);
                 int xoff = 0, yoff = 0;
                 if (panel_horizontal && panel_position & BOTTOM)
                     yoff = panel->area.height - panel->hidden_height;
                 else if (!panel_horizontal && panel_position & RIGHT)
                     xoff = panel->area.width - panel->hidden_width;
                 XCopyArea(server.display,
-                          panel->area.pix,
-                          panel->hidden_pixmap,
-                          server.gc,
-                          xoff,
-                          yoff,
-                          panel->hidden_width,
-                          panel->hidden_height,
-                          0,
-                          0);
+                          panel->area.pix, panel->hidden_pixmap, server.gc,
+                          xoff,                 yoff,
+                          panel->hidden_width,  panel->hidden_height,
+                          0, 0);
             }
             XCopyArea(server.display,
-                      panel->hidden_pixmap,
-                      panel->main_win,
-                      server.gc,
-                      0,
-                      0,
-                      panel->hidden_width,
-                      panel->hidden_height,
-                      0,
-                      0);
+                      panel->hidden_pixmap, panel->main_win, server.gc,
+                      0, 0,
+                      panel->hidden_width,  panel->hidden_height,
+                      0, 0);
             XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->hidden_pixmap);
         } else {
             XCopyArea(server.display,
                       panel->temp_pmap,
                       panel->main_win,
                       server.gc,
-                      0,
-                      0,
-                      panel->area.width,
-                      panel->area.height,
-                      0,
-                      0);
+                      0, 0,
+                      panel->area.width,    panel->area.height,
+                      0, 0);
             if (panel == (Panel *)systray.area.panel) {
                 if (refresh_systray && panel && !panel->is_hidden) {
                     refresh_systray = FALSE;

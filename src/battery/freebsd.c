@@ -30,8 +30,8 @@ gboolean battery_os_init()
     size_t len = sizeof(sysctl_out);
 
     return (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) ||
-           (sysctlbyname("hw.acpi.battery.time", &sysctl_out, &len, NULL, 0) == 0) ||
-           (sysctlbyname("hw.acpi.battery.life", &sysctl_out, &len, NULL, 0) == 0);
+           (sysctlbyname("hw.acpi.battery.time",  &sysctl_out, &len, NULL, 0) == 0) ||
+           (sysctlbyname("hw.acpi.battery.life",  &sysctl_out, &len, NULL, 0) == 0);
 }
 
 void battery_os_free()
@@ -47,15 +47,12 @@ int battery_os_update(BatteryState *state)
 
     if (sysctlbyname("hw.acpi.battery.state", &sysctl_out, &len, NULL, 0) == 0) {
         switch (sysctl_out) {
-        case 1:
-            state->state = BATTERY_DISCHARGING;
-            break;
-        case 2:
-            state->state = BATTERY_CHARGING;
-            break;
-        default:
-            state->state = BATTERY_FULL;
-            break;
+        case 1: state->state = BATTERY_DISCHARGING;
+                break;
+        case 2: state->state = BATTERY_CHARGING;
+                break;
+        default:state->state = BATTERY_FULL;
+                break;
         }
     } else {
         fprintf(stderr, "tint2: power update: no such sysctl");

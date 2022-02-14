@@ -63,9 +63,9 @@ void fps_compute_stats(double *low, double *median, double *high, double *sample
         return;
     float total = fps_distribution[0];
     *samples = (double)fps_distribution[0];
-    float cum_low = 0.05f * total;
-    float cum_median = 0.5f * total;
-    float cum_high = 0.95f * total;
+    float cum_low    = 0.05f * total;
+    float cum_median = 0.5f  * total;
+    float cum_high   = 0.95f * total;
     float cum = 0;
     for (int i = 1; i <= 166; i++) {
         double value =

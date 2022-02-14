@@ -133,9 +133,8 @@ unlock:
 
 const gchar *get_from_cache(Cache *cache, const gchar *key)
 {
-    if (!cache->_table)
-        return NULL;
-    return g_hash_table_lookup(cache->_table, key);
+    return cache->_table    ? g_hash_table_lookup(cache->_table, key)
+                            : NULL;
 }
 
 void add_to_cache(Cache *cache, const gchar *key, const gchar *value)

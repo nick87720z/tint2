@@ -363,15 +363,10 @@ void draw_tree(Area *a)
 
     if (a->pix)
         XCopyArea(server.display,
-                  a->pix,
-                  ((Panel *)a->panel)->temp_pmap,
-                  server.gc,
-                  0,
-                  0,
-                  a->width,
-                  a->height,
-                  a->posx,
-                  a->posy);
+                  a->pix, ((Panel *)a->panel)->temp_pmap, server.gc,
+                  0,        0,
+                  a->width, a->height,
+                  a->posx,  a->posy);
     else
         fprintf(stderr, RED "tint2: %s %d: area %s has no pixmap!!!" RESET "\n", __FILE__, __LINE__, a->name);
 
@@ -451,8 +446,8 @@ void draw(Area *a)
 
     {int pix_i = a->has_mouse_over_effect ? a->mouse_state : 0;
         if (! a->pix_by_state[pix_i]) {
-            a->pix_by_state[pix_i] = a->pix =
-                XCreatePixmap(server.display, server.root_win, a->width, a->height, server.depth);
+            a->pix_by_state[pix_i] = a->pix = XCreatePixmap(server.display, server.root_win,
+                                                            a->width, a->height, server.depth);
         } else
             a->pix = a->pix_by_state[pix_i];
     }
@@ -460,15 +455,10 @@ void draw(Area *a)
     if (!a->_clear) {
         // Add layer of root pixmap (or clear pixmap if real_transparency==true)
         XCopyArea(server.display,
-                  ((Panel *)a->panel)->temp_pmap,
-                  a->pix,
-                  server.gc,
-                  a->posx,
-                  a->posy,
-                  a->width,
-                  a->height,
-                  0,
-                  0);
+                  ((Panel *)a->panel)->temp_pmap, a->pix, server.gc,
+                  a->posx,  a->posy,
+                  a->width, a->height,
+                  0, 0);
     } else {
         a->_clear(a);
     }

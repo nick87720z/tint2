@@ -52,22 +52,19 @@ void cleanup_gradient(GradientClass *g)
 {
     g_list_free_full(g->extra_color_stops, free);
     switch (g->type) {
-    case GRADIENT_VERTICAL:
-        free(g->from.offsets_y);
-        free(g->to.offsets_y);
-        break;
-    case GRADIENT_HORIZONTAL:
-        free(g->from.offsets_x);
-        free(g->to.offsets_x);
-        break;
-    case GRADIENT_CENTERED:
-        free(g->from.offsets_x);
-        free(g->from.offsets_y);
-        free(g->from.offsets_r);
-        free(g->to.offsets_x);
-        free(g->to.offsets_y);
-        free(g->to.offsets_r);
-        break;
+    case GRADIENT_VERTICAL:     free(g->from.offsets_y);
+                                free(g->to.offsets_y);
+                                break;
+    case GRADIENT_HORIZONTAL:   free(g->from.offsets_x);
+                                free(g->to.offsets_x);
+                                break;
+    case GRADIENT_CENTERED:     free(g->from.offsets_x);
+                                free(g->from.offsets_y);
+                                free(g->from.offsets_r);
+                                free(g->to.offsets_x);
+                                free(g->to.offsets_y);
+                                free(g->to.offsets_r);
+                                break;
     }
     memset(g, 0, sizeof(*g));
 }

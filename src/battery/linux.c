@@ -145,7 +145,8 @@ static gboolean init_linux_battery(struct psy_battery *bat)
     bat->unit = 'W';
 
     if (!is_file_non_empty(bat->path_level_now) ||
-        !is_file_non_empty(bat->path_level_full)) {
+        !is_file_non_empty(bat->path_level_full))
+    {
         g_free(bat->path_level_now);
         g_free(bat->path_level_full);
         g_free(bat->path_rate_now);
@@ -421,9 +422,9 @@ int battery_os_update(BatteryState *state)
         total_level_full += bat->level_full;
         total_rate_now += bat->rate_now;
 
-        charging |= (bat->status == BATTERY_CHARGING);
+        charging    |= (bat->status == BATTERY_CHARGING);
         discharging |= (bat->status == BATTERY_DISCHARGING);
-        full |= (bat->status == BATTERY_FULL);
+        full        |= (bat->status == BATTERY_FULL);
     }
 
     for (l = mains; l != NULL; l = l->next) {
@@ -442,10 +443,10 @@ int battery_os_update(BatteryState *state)
 
     /* calculate seconds */
     if (total_rate_now > 0) {
-        if (state->state == BATTERY_CHARGING)
-            seconds = 3600 * (total_level_full - total_level_now) / total_rate_now;
-        else if (state->state == BATTERY_DISCHARGING)
-            seconds = 3600 * total_level_now / total_rate_now;
+        seconds = 3600 * (  state->state == BATTERY_CHARGING
+                            ? total_level_full - total_level_now
+                            : total_level_now )
+                        / total_rate_now;
         seconds = MAX(0, seconds);
     }
     battery_state_set_time(state, seconds);
@@ -457,14 +458,9 @@ int battery_os_update(BatteryState *state)
     state->ac_connected = ac_connected;
 
     if (state->state == BATTERY_UNKNOWN) {
-        if (ac_connected) {
-            if (total_rate_now == 0 && state->percentage >= 90)
-                state->state = BATTERY_FULL;
-            else
-                state->state = BATTERY_CHARGING;
-        } else {
-            state->state = BATTERY_DISCHARGING;
-        }
+        state->state =  !ac_connected                                   ? BATTERY_DISCHARGING
+                        :total_rate_now == 0 && state->percentage >= 90 ? BATTERY_FULL
+                        :                                               BATTERY_CHARGING;
     }
 
     return 0;
@@ -472,7 +468,7 @@ int battery_os_update(BatteryState *state)
 
 static gchar *level_human_readable(struct psy_battery *bat)
 {
-    gint now = bat->level_now;
+    gint now  = bat->level_now;
     gint full = bat->level_full;
 
     if (full >= 1000000) {
@@ -499,15 +495,10 @@ static gchar *rate_human_readable(struct psy_battery *bat)
     gint rate = bat->rate_now;
     gchar unit = bat->unit;
 
-    if (rate >= 1000000) {
-        return g_strdup_printf("%d.%d %c", rate / 1000000, (rate % 1000000) / 100000, unit);
-    } else if (rate >= 1000) {
-        return g_strdup_printf("%d.%d m%c", rate / 1000, (rate % 1000) / 100, unit);
-    } else if (rate > 0) {
-        return g_strdup_printf("%d µ%c", rate, unit);
-    } else {
-        return g_strdup_printf("0 %c", unit);
-    }
+    return  (rate >= 1000000) ? g_strdup_printf("%d.%d %c", rate / 1000000, (rate % 1000000) / 100000, unit) :
+            (rate >= 1000   ) ? g_strdup_printf("%d.%d m%c", rate / 1000, (rate % 1000) / 100, unit) :
+            (rate > 0)        ? g_strdup_printf("%d µ%c", rate, unit) :
+                                g_strdup_printf("0 %c", unit);
 }
 
 char *battery_os_tooltip()

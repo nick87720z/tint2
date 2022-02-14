@@ -576,8 +576,7 @@ void on_change_task(void *obj)
                         panel->posy + task->area.posy,
                         task->area.width,
                         task->area.height};
-        XChangeProperty(server.display,
-                        task->win,
+        XChangeProperty(server.display, task->win,
                         server.atom._NET_WM_ICON_GEOMETRY,
                         XA_CARDINAL,
                         32,

@@ -52,8 +52,9 @@ void expand_exec(DesktopEntry *entry, const char *path)
     // %c -> Name
     // %k -> path
     if (entry->exec) {
-        size_t buf_size = strlen(entry->exec) + (entry->name ? strlen(entry->name) : 1) +
-                (entry->icon ? strlen(entry->icon) : 1) + 100;
+        size_t buf_size = strlen(entry->exec)
+                        + (entry->name ? strlen(entry->name) : 1)
+                        + (entry->icon ? strlen(entry->icon) : 1) + 100;
         char *exec2 = calloc(buf_size, 1);
         char *p, *q;
         // p will never point to an escaped char

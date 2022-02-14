@@ -48,20 +48,20 @@ void init_signals()
     sigaction(SIGCHLD, &sa_chld, 0);
 
     struct sigaction sa = {.sa_handler = signal_handler, .sa_flags = SA_RESTART};
-    sigaction(SIGUSR1, &sa, 0);
-    sigaction(SIGUSR2, &sa, 0);
-    sigaction(SIGINT, &sa, 0);
-    sigaction(SIGTERM, &sa, 0);
-    sigaction(SIGHUP, &sa, 0);
+    sigaction(SIGUSR1,  &sa, 0);
+    sigaction(SIGUSR2,  &sa, 0);
+    sigaction(SIGINT,   &sa, 0);
+    sigaction(SIGTERM,  &sa, 0);
+    sigaction(SIGHUP,   &sa, 0);
 
 #ifdef BACKTRACE_ON_SIGNAL
     struct sigaction sa_crash = {.sa_handler = crash_handler};
-    sigaction(SIGSEGV, &sa_crash, 0);
-    sigaction(SIGFPE, &sa_crash, 0);
-    sigaction(SIGPIPE, &sa_crash, 0);
-    sigaction(SIGBUS, &sa_crash, 0);
-    sigaction(SIGABRT, &sa_crash, 0);
-    sigaction(SIGSYS, &sa_crash, 0);
+    sigaction(SIGSEGV,  &sa_crash, 0);
+    sigaction(SIGFPE,   &sa_crash, 0);
+    sigaction(SIGPIPE,  &sa_crash, 0);
+    sigaction(SIGBUS,   &sa_crash, 0);
+    sigaction(SIGABRT,  &sa_crash, 0);
+    sigaction(SIGSYS,   &sa_crash, 0);
 #endif
 }
 

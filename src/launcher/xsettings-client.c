@@ -191,13 +191,9 @@ static XSettingsList *parse_settings(unsigned char *data, size_t len)
 
     buffer.pos += 3;
 
-    result = fetch_card32(&buffer, &serial);
-    if (result != XSETTINGS_SUCCESS)
-        goto out;
-
-    result = fetch_card32(&buffer, &n_entries);
-    if (result != XSETTINGS_SUCCESS)
-        goto out;
+    if ((result = fetch_card32(&buffer, &serial   )) != XSETTINGS_SUCCESS) ||
+        (result = fetch_card32(&buffer, &n_entries)) != XSETTINGS_SUCCESS)
+    ) goto out;
 
     for (i = 0; i < n_entries; i++) {
         CARD8 type;
@@ -205,14 +201,12 @@ static XSettingsList *parse_settings(unsigned char *data, size_t len)
         CARD32 v_int;
         size_t pad_len;
 
-        result = fetch_card8(&buffer, &type);
-        if (result != XSETTINGS_SUCCESS)
+        if ((result = fetch_card8(&buffer, &type)) != XSETTINGS_SUCCESS)
             goto out;
 
         buffer.pos += 1;
 
-        result = fetch_card16(&buffer, &name_len);
-        if (result != XSETTINGS_SUCCESS)
+        if ((result = fetch_card16(&buffer, &name_len)) != XSETTINGS_SUCCESS)
             goto out;
 
         pad_len = XSETTINGS_PAD(name_len, 4);
@@ -238,57 +232,44 @@ static XSettingsList *parse_settings(unsigned char *data, size_t len)
         setting->name[name_len] = '\0';
         buffer.pos += pad_len;
 
-        result = fetch_card32(&buffer, &v_int);
-        if (result != XSETTINGS_SUCCESS)
+        if ((result = fetch_card32(&buffer, &v_int)) != XSETTINGS_SUCCESS)
             goto out;
         setting->last_change_serial = v_int;
 
         switch (type) {
-        case XSETTINGS_TYPE_INT:
-            result = fetch_card32(&buffer, &v_int);
-            if (result != XSETTINGS_SUCCESS)
-                goto out;
-            setting->data.v_int = (INT32)v_int;
-            break;
-        case XSETTINGS_TYPE_STRING:
-            result = fetch_card32(&buffer, &v_int);
-            if (result != XSETTINGS_SUCCESS)
-                goto out;
+        case XSETTINGS_TYPE_INT:    if ((result = fetch_card32(&buffer, &v_int)) != XSETTINGS_SUCCESS)
+                                        goto out;
+                                    setting->data.v_int = (INT32)v_int;
+                                    break;
+        case XSETTINGS_TYPE_STRING: if ((result = fetch_card32(&buffer, &v_int)) != XSETTINGS_SUCCESS)
+                                        goto out;
 
-            pad_len = XSETTINGS_PAD(v_int, 4);
-            if (v_int + 1 == 0 || /* Guard against wrap-around */
-                BYTES_LEFT(&buffer) < pad_len) {
-                result = XSETTINGS_ACCESS;
-                goto out;
-            }
+                                    pad_len = XSETTINGS_PAD(v_int, 4);
+                                    if (v_int + 1 == 0 || /* Guard against wrap-around */
+                                        BYTES_LEFT(&buffer) < pad_len)
+                                    {
+                                        result = XSETTINGS_ACCESS;
+                                        goto out;
+                                    }
 
-            setting->data.v_string = calloc(v_int + 1, 1);
-            if (!setting->data.v_string) {
-                result = XSETTINGS_NO_MEM;
-                goto out;
-            }
+                                    setting->data.v_string = calloc(v_int + 1, 1);
+                                    if (!setting->data.v_string) {
+                                        result = XSETTINGS_NO_MEM;
+                                        goto out;
+                                    }
 
-            memcpy(setting->data.v_string, buffer.pos, v_int);
-            setting->data.v_string[v_int] = '\0';
-            buffer.pos += pad_len;
-            break;
-        case XSETTINGS_TYPE_COLOR:
-            result = fetch_ushort(&buffer, &setting->data.v_color.red);
-            if (result != XSETTINGS_SUCCESS)
-                goto out;
-            result = fetch_ushort(&buffer, &setting->data.v_color.green);
-            if (result != XSETTINGS_SUCCESS)
-                goto out;
-            result = fetch_ushort(&buffer, &setting->data.v_color.blue);
-            if (result != XSETTINGS_SUCCESS)
-                goto out;
-            result = fetch_ushort(&buffer, &setting->data.v_color.alpha);
-            if (result != XSETTINGS_SUCCESS)
-                goto out;
-            break;
-        default:
-            /* Quietly ignore unknown types */
-            break;
+                                    memcpy(setting->data.v_string, buffer.pos, v_int);
+                                    setting->data.v_string[v_int] = '\0';
+                                    buffer.pos += pad_len;
+                                    break;
+        case XSETTINGS_TYPE_COLOR:  if ((result = fetch_ushort(&buffer, &setting->data.v_color.red  )) != XSETTINGS_SUCCESS ||
+                                        (result = fetch_ushort(&buffer, &setting->data.v_color.green)) != XSETTINGS_SUCCESS ||
+                                        (result = fetch_ushort(&buffer, &setting->data.v_color.blue )) != XSETTINGS_SUCCESS ||
+                                        (result = fetch_ushort(&buffer, &setting->data.v_color.alpha)) != XSETTINGS_SUCCESS
+                                    ) goto out;
+                                    break;
+        default:                    /* Quietly ignore unknown types */
+                                    break;
         }
 
         setting->type = type;
@@ -304,18 +285,14 @@ out:
 
     if (result != XSETTINGS_SUCCESS) {
         switch (result) {
-        case XSETTINGS_NO_MEM:
-            fprintf(stderr, "tint2: Out of memory reading XSETTINGS property\n");
-            break;
-        case XSETTINGS_ACCESS:
-            fprintf(stderr, "tint2: Invalid XSETTINGS property (read off end)\n");
-            break;
-        case XSETTINGS_DUPLICATE_ENTRY:
-            fprintf(stderr, "tint2: Duplicate XSETTINGS entry for '%s'\n", setting->name);
+        case XSETTINGS_NO_MEM:          fprintf(stderr, "tint2: Out of memory reading XSETTINGS property\n");
+                                        break;
+        case XSETTINGS_ACCESS:          fprintf(stderr, "tint2: Invalid XSETTINGS property (read off end)\n");
+                                        break;
+        case XSETTINGS_DUPLICATE_ENTRY: fprintf(stderr, "tint2: Duplicate XSETTINGS entry for '%s'\n", setting->name);
         case XSETTINGS_FAILED:
         case XSETTINGS_SUCCESS:
-        case XSETTINGS_NO_ENTRY:
-            break;
+        case XSETTINGS_NO_ENTRY:        break;
         }
 
         if (setting)
@@ -426,10 +403,11 @@ void xsettings_client_destroy(XSettingsClient *client)
     if (!client)
         return;
     if (client->watch)
+    {
         client->watch(RootWindow(client->display, client->screen), False, 0, client->cb_data);
-    if (client->manager_window && client->watch)
-        client->watch(client->manager_window, False, 0, client->cb_data);
-
+        if (client->manager_window)
+            client->watch(client->manager_window, False, 0, client->cb_data);
+    }
     xsettings_list_free(client->settings);
     free(client);
 }
@@ -437,10 +415,9 @@ void xsettings_client_destroy(XSettingsClient *client)
 XSettingsResult xsettings_client_get_setting(XSettingsClient *client, const char *name, XSettingsSetting **setting)
 {
     XSettingsSetting *search = xsettings_list_lookup(client->settings, name);
-    return
-        !search ? XSETTINGS_NO_ENTRY
-    :   (*setting = xsettings_setting_copy(search)) ? XSETTINGS_SUCCESS
-    :   XSETTINGS_NO_MEM;
+    return  !search ? XSETTINGS_NO_ENTRY
+        :   (*setting = xsettings_setting_copy(search)) ? XSETTINGS_SUCCESS
+        :   XSETTINGS_NO_MEM;
 }
 
 Bool xsettings_client_process_event(XSettingsClient *client, XEvent *xev)

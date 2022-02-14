@@ -1409,9 +1409,8 @@ done:;
 
 gboolean config_read()
 {
-    if (config_path)
-        return config_read_file(config_path);
-    return config_read_default_path();
+    return config_path  ? config_read_file (config_path)
+                        : config_read_default_path ();
 }
 
 #endif

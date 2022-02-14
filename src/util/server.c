@@ -546,9 +546,9 @@ int get_current_desktop()
 
 void change_desktop(int desktop)
 {
-    if (!server.viewports) {
+    if (!server.viewports)
         send_event32(server.root_win, server.atom._NET_CURRENT_DESKTOP, desktop, 0, 0);
-    } else {
+    else {
         send_event32(server.root_win,
                      server.atom._NET_DESKTOP_VIEWPORT,
                      server.viewports[desktop].x,
@@ -578,9 +578,9 @@ void server_init_visual()
     // inspired by freedesktops fdclock ;)
     XVisualInfo templ = {.screen = server.screen, .depth = 32, .class = TrueColor};
     int nvi;
-    XVisualInfo *xvi =
-        XGetVisualInfo(server.display, VisualScreenMask | VisualDepthMask | VisualClassMask, &templ, &nvi);
-
+    XVisualInfo *xvi = XGetVisualInfo(  server.display,
+                                        VisualScreenMask | VisualDepthMask | VisualClassMask,
+                                        &templ, &nvi);
     Visual *visual = NULL;
     if (xvi) {
         XRenderPictFormat *format;

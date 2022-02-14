@@ -50,7 +50,7 @@ void default_tooltip()
     g_tooltip.font_color.rgb[0] = 1;
     g_tooltip.font_color.rgb[1] = 1;
     g_tooltip.font_color.rgb[2] = 1;
-    g_tooltip.font_color.alpha = 1;
+    g_tooltip.font_color.alpha  = 1;
     just_shown = FALSE;
 }
 
@@ -83,13 +83,8 @@ void init_tooltip()
     unsigned long mask = CWEventMask | CWColormap | CWBorderPixel | CWBackPixel | CWOverrideRedirect;
     if (g_tooltip.window)
         XDestroyWindow(server.display, g_tooltip.window);
-    g_tooltip.window = XCreateWindow(server.display,
-                                     server.root_win,
-                                     0,
-                                     0,
-                                     100,
-                                     20,
-                                     0,
+    g_tooltip.window = XCreateWindow(server.display, server.root_win,
+                                     0, 0, 100, 20, 0,
                                      server.depth,
                                      InputOutput,
                                      server.visual,
@@ -198,10 +193,7 @@ void tooltip_update_geometry()
     else if (panel_position & TOP)
         y = panel->posy + panel->area.height;
     else
-    xlim: if (panel_position & LEFT)
-        x = panel->posx + panel->area.width;
-    else
-        x = panel->posx - width;
+    xlim: x = panel->posx + (panel_position & LEFT ? panel->area.width : -width);
 
     #undef GET_TEXT_PIXEL_EXTENTS
 
@@ -216,11 +208,12 @@ void tooltip_adjust_geometry()
 // it seems quite impossible that the height needs to be adjusted, but we do it anyway.
 {
     Panel *panel = g_tooltip.panel;
-    int screen_width = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
+    int screen_width  = server.monitors[panel->monitor].x + server.monitors[panel->monitor].width;
     int screen_height = server.monitors[panel->monitor].y + server.monitors[panel->monitor].height;
-    if (x + width <= screen_width && y + height <= screen_height && x >= server.monitors[panel->monitor].x &&
-        y >= server.monitors[panel->monitor].y)
-        return; // no adjustment needed
+    if (x + width  <= screen_width              && 
+        y + height <= screen_height             && 
+        x >= server.monitors[panel->monitor].x  &&
+        y >= server.monitors[panel->monitor].y) return; // no adjustment needed
 
     int min_x, min_y, max_width, max_height;
     if (panel_horizontal) {

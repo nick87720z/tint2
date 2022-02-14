@@ -100,62 +100,35 @@ void safe_sleep(int seconds)
 const char *signal_name(int sig)
 {
     switch (sig) {
-    case SIGHUP:
-        return "SIGHUP: Hangup (POSIX).";
-    case SIGINT:
-        return "SIGINT: Interrupt (ANSI).";
-    case SIGQUIT:
-        return "SIGQUIT: Quit (POSIX).";
-    case SIGILL:
-        return "SIGILL: Illegal instruction (ANSI).";
-    case SIGTRAP:
-        return "SIGTRAP: Trace trap (POSIX).";
-    case SIGABRT:
-        return "SIGABRT/SIGIOT: Abort (ANSI) / IOT trap (4.2 BSD).";
-    case SIGBUS:
-        return "SIGBUS: BUS error (4.2 BSD).";
-    case SIGFPE:
-        return "SIGFPE: Floating-point exception (ANSI).";
-    case SIGKILL:
-        return "SIGKILL: Kill, unblockable (POSIX).";
-    case SIGUSR1:
-        return "SIGUSR1: User-defined signal 1 (POSIX).";
-    case SIGSEGV:
-        return "SIGSEGV: Segmentation violation (ANSI).";
-    case SIGUSR2:
-        return "SIGUSR2: User-defined signal 2 (POSIX).";
-    case SIGPIPE:
-        return "SIGPIPE: Broken pipe (POSIX).";
-    case SIGALRM:
-        return "SIGALRM: Alarm clock (POSIX).";
-    case SIGTERM:
-        return "SIGTERM: Termination (ANSI).";
+    case SIGHUP:    return "SIGHUP: Hangup (POSIX).";
+    case SIGINT:    return "SIGINT: Interrupt (ANSI).";
+    case SIGQUIT:   return "SIGQUIT: Quit (POSIX).";
+    case SIGILL:    return "SIGILL: Illegal instruction (ANSI).";
+    case SIGTRAP:   return "SIGTRAP: Trace trap (POSIX).";
+    case SIGABRT:   return "SIGABRT/SIGIOT: Abort (ANSI) / IOT trap (4.2 BSD).";
+    case SIGBUS:    return "SIGBUS: BUS error (4.2 BSD).";
+    case SIGFPE:    return "SIGFPE: Floating-point exception (ANSI).";
+    case SIGKILL:   return "SIGKILL: Kill, unblockable (POSIX).";
+    case SIGUSR1:   return "SIGUSR1: User-defined signal 1 (POSIX).";
+    case SIGSEGV:   return "SIGSEGV: Segmentation violation (ANSI).";
+    case SIGUSR2:   return "SIGUSR2: User-defined signal 2 (POSIX).";
+    case SIGPIPE:   return "SIGPIPE: Broken pipe (POSIX).";
+    case SIGALRM:   return "SIGALRM: Alarm clock (POSIX).";
+    case SIGTERM:   return "SIGTERM: Termination (ANSI).";
     // case SIGSTKFLT: return "SIGSTKFLT: Stack fault.";
-    case SIGCHLD:
-        return "SIGCHLD: Child status has changed (POSIX).";
-    case SIGCONT:
-        return "SIGCONT: Continue (POSIX).";
-    case SIGSTOP:
-        return "SIGSTOP: Stop, unblockable (POSIX).";
-    case SIGTSTP:
-        return "SIGTSTP: Keyboard stop (POSIX).";
-    case SIGTTIN:
-        return "SIGTTIN: Background read from tty (POSIX).";
-    case SIGTTOU:
-        return "SIGTTOU: Background write to tty (POSIX).";
-    case SIGURG:
-        return "SIGURG: Urgent condition on socket (4.2 BSD).";
-    case SIGXCPU:
-        return "SIGXCPU: CPU limit exceeded (4.2 BSD).";
-    case SIGXFSZ:
-        return "SIGXFSZ: File size limit exceeded (4.2 BSD).";
-    case SIGVTALRM:
-        return "SIGVTALRM: Virtual alarm clock (4.2 BSD).";
-    case SIGPROF:
-        return "SIGPROF: Profiling alarm clock (4.2 BSD).";
+    case SIGCHLD:   return "SIGCHLD: Child status has changed (POSIX).";
+    case SIGCONT:   return "SIGCONT: Continue (POSIX).";
+    case SIGSTOP:   return "SIGSTOP: Stop, unblockable (POSIX).";
+    case SIGTSTP:   return "SIGTSTP: Keyboard stop (POSIX).";
+    case SIGTTIN:   return "SIGTTIN: Background read from tty (POSIX).";
+    case SIGTTOU:   return "SIGTTOU: Background write to tty (POSIX).";
+    case SIGURG:    return "SIGURG: Urgent condition on socket (4.2 BSD).";
+    case SIGXCPU:   return "SIGXCPU: CPU limit exceeded (4.2 BSD).";
+    case SIGXFSZ:   return "SIGXFSZ: File size limit exceeded (4.2 BSD).";
+    case SIGVTALRM: return "SIGVTALRM: Virtual alarm clock (4.2 BSD).";
+    case SIGPROF:   return "SIGPROF: Profiling alarm clock (4.2 BSD).";
     // case SIGPWR: return "SIGPWR: Power failure restart (System V).";
-    case SIGSYS:
-        return "SIGSYS: Bad system call.";
+    case SIGSYS:    return "SIGSYS: Bad system call.";
     }
     static char s[64];
     STRBUF_AUTO_PRINTF(s, "SIG=%d: Unknown", sig);
@@ -568,36 +541,28 @@ void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adju
         // transparent => nothing to do.
         if (a == 0)
             continue;
+
         int r = (argb >> 16) & 0xff;
-        int g = (argb >> 8) & 0xff;
-        int b = (argb)&0xff;
+        int g = (argb >>  8) & 0xff;
+        int b = (argb      ) & 0xff;
 
         // Convert RGB to HSV
         int cmax = MAX3(r, g, b);
         int cmin = MIN3(r, g, b);
         int delta = cmax - cmin;
         float brightness = cmax / 255.0f;
-        float saturation;
-        if (cmax != 0)
-            saturation = delta / (float)cmax;
-        else
-            saturation = 0;
+        float saturation = (cmax != 0) ? delta / (float)cmax : 0;
         float hue;
-        if (saturation == 0) {
-            hue = 0;
-        } else {
-            float redc = (cmax - r) / (float)delta;
+        if (saturation == 0) hue = 0;
+        else {
+            float redc   = (cmax - r) / (float)delta;
             float greenc = (cmax - g) / (float)delta;
-            float bluec = (cmax - b) / (float)delta;
-            if (r == cmax)
-                hue = bluec - greenc;
-            else if (g == cmax)
-                hue = 2.0f + redc - bluec;
-            else
-                hue = 4.0f + greenc - redc;
-            hue = hue / 6.0f;
-            if (hue < 0)
-                hue = hue + 1.0f;
+            float bluec  = (cmax - b) / (float)delta;
+            hue = (r == cmax) ? bluec - greenc
+                : (g == cmax) ? redc - bluec + 2.0f
+                :               greenc - redc + 4.0f;
+            hue /= 6.0f;
+            if (hue < 0) hue += 1.0f;
         }
 
         // Adjust H, S
@@ -608,9 +573,9 @@ void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adju
         a = CLAMP(a, 0, 255);
 
         // Convert HSV to RGB
-        if (saturation == 0) {
+        if (saturation == 0)
             r = g = b = (int)(brightness * 255.0f + 0.5f);
-        } else {
+        else {
             float h2 = (hue - (int)hue) * 6.0f;
             float f = h2 - (int)(h2);
             float p = brightness * (1.0f - saturation);
@@ -618,36 +583,30 @@ void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adju
             float t = brightness * (1.0f - (saturation * (1.0f - f)));
 
             switch ((int)h2) {
-            case 0:
-                r = (int)(brightness * 255.0f + 0.5f);
-                g = (int)(t * 255.0f + 0.5f);
-                b = (int)(p * 255.0f + 0.5f);
-                break;
-            case 1:
-                r = (int)(q * 255.0f + 0.5f);
-                g = (int)(brightness * 255.0f + 0.5f);
-                b = (int)(p * 255.0f + 0.5f);
-                break;
-            case 2:
-                r = (int)(p * 255.0f + 0.5f);
-                g = (int)(brightness * 255.0f + 0.5f);
-                b = (int)(t * 255.0f + 0.5f);
-                break;
-            case 3:
-                r = (int)(p * 255.0f + 0.5f);
-                g = (int)(q * 255.0f + 0.5f);
-                b = (int)(brightness * 255.0f + 0.5f);
-                break;
-            case 4:
-                r = (int)(t * 255.0f + 0.5f);
-                g = (int)(p * 255.0f + 0.5f);
-                b = (int)(brightness * 255.0f + 0.5f);
-                break;
-            case 5:
-                r = (int)(brightness * 255.0f + 0.5f);
-                g = (int)(p * 255.0f + 0.5f);
-                b = (int)(q * 255.0f + 0.5f);
-                break;
+            case 0: r = (int)(brightness * 255.0f + 0.5f);
+                    g = (int)(t * 255.0f + 0.5f);
+                    b = (int)(p * 255.0f + 0.5f);
+                    break;
+            case 1: r = (int)(q * 255.0f + 0.5f);
+                    g = (int)(brightness * 255.0f + 0.5f);
+                    b = (int)(p * 255.0f + 0.5f);
+                    break;
+            case 2: r = (int)(p * 255.0f + 0.5f);
+                    g = (int)(brightness * 255.0f + 0.5f);
+                    b = (int)(t * 255.0f + 0.5f);
+                    break;
+            case 3: r = (int)(p * 255.0f + 0.5f);
+                    g = (int)(q * 255.0f + 0.5f);
+                    b = (int)(brightness * 255.0f + 0.5f);
+                    break;
+            case 4: r = (int)(t * 255.0f + 0.5f);
+                    g = (int)(p * 255.0f + 0.5f);
+                    b = (int)(brightness * 255.0f + 0.5f);
+                    break;
+            case 5: r = (int)(brightness * 255.0f + 0.5f);
+                    g = (int)(p * 255.0f + 0.5f);
+                    b = (int)(q * 255.0f + 0.5f);
+                    break;
             }
         }
 
@@ -702,7 +661,8 @@ void render_image(Drawable d, int x, int y)
         return;
     }
 
-    int w = imlib_image_get_width(), h = imlib_image_get_height();
+    int w = imlib_image_get_width() ,
+        h = imlib_image_get_height();
 
     Pixmap pixmap = XCreatePixmap(server.display, server.root_win, w, h, 32);
     imlib_context_set_drawable(pixmap);
@@ -714,15 +674,15 @@ void render_image(Drawable d, int x, int y)
     imlib_context_set_blend(0);
     imlib_render_image_on_drawable(0, 0);
 
-    Picture pict = XRenderCreatePicture(server.display,
-                                        pixmap,
+    Picture pict = XRenderCreatePicture(server.display, pixmap,
                                         XRenderFindStandardFormat(server.display, PictStandardARGB32),
-                                        0,
-                                        0);
-    Picture pict_drawable =
-        XRenderCreatePicture(server.display, d, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
-    Picture pict_mask =
-        XRenderCreatePicture(server.display, mask, XRenderFindStandardFormat(server.display, PictStandardARGB32), 0, 0);
+                                        0, 0);
+    Picture pict_drawable = XRenderCreatePicture (server.display, d,
+                                                  XRenderFindVisualFormat(server.display, server.visual),
+                                                  0, 0);
+    Picture pict_mask = XRenderCreatePicture (server.display, mask,
+                                              XRenderFindStandardFormat(server.display, PictStandardARGB32),
+                                              0, 0);
     XRenderComposite(server.display, PictOpOver, pict, pict_mask, pict_drawable, 0, 0, 0, 0, x, y, w, h);
 
     XRenderFreePicture(server.display, pict_mask);
@@ -769,12 +729,9 @@ void draw_shadow(cairo_t *c, int posx, int posy, PangoLayout *shadow_layout)
     for (i = -shadow_size; i <= shadow_size; i++) {
         for (j = -shadow_size; j <= shadow_size; j++) {
             cairo_set_source_rgba(c,
-                                  0.0,
-                                  0.0,
-                                  0.0,
-                                  1.0 -
-                                      (1.0 - shadow_edge_alpha) *
-                                          sqrt((i * i + j * j) / (double)(shadow_size * shadow_size)));
+                                  0.0, 0.0, 0.0,
+                                  1.0 - (1.0 - shadow_edge_alpha) *
+                                        sqrt((i * i + j * j) / (double)(shadow_size * shadow_size)));
             pango_cairo_update_layout(c, shadow_layout);
             cairo_move_to(c, posx + i, posy + j);
             pango_cairo_show_layout(c, shadow_layout);
@@ -865,10 +822,10 @@ void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
 void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int border_mask)
 {
     double c1;
-    int border_top = border_mask & BORDER_TOP,
-        border_bottom = border_mask & BORDER_BOTTOM,
-        border_right = border_mask & BORDER_RIGHT,
-        border_left = border_mask & BORDER_LEFT;
+    int border_top      = border_mask & BORDER_TOP,
+        border_bottom   = border_mask & BORDER_BOTTOM,
+        border_right    = border_mask & BORDER_RIGHT,
+        border_left     = border_mask & BORDER_LEFT;
     r = MIN(MIN(w, h) / 2, r);
     c1 = 0.55228475 * r;
 
@@ -951,7 +908,8 @@ void get_text_size2(const PangoFontDescription *font,
     available_width = MAX(0, available_width);
     available_height = MAX(0, available_height);
 
-    Pixmap pmap = XCreatePixmap(server.display, server.root_win, available_height, available_width, server.depth);
+    Pixmap pmap = XCreatePixmap(server.display, server.root_win,
+                                available_height, available_width, server.depth);
     cairo_surface_t *cs =
         cairo_xlib_surface_create(server.display, pmap, server.visual, available_height, available_width);
     cairo_t *c = cairo_create(cs);
@@ -1165,19 +1123,19 @@ void get_image_mean_color(const Imlib_Image image, Color *mean_color)
     DATA32 *data = imlib_image_get_data_for_reading_only();
     DATA32 sum_r, sum_g, sum_b, count;
     sum_r = sum_g = sum_b = count = 0;
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++)
+    {
         DATA32 argb, a, r, g, b;
         argb = data[i];
         a = (argb >> 24) & 0xff;
         r = (argb >> 16) & 0xff;
-        g = (argb >> 8) & 0xff;
-        b = (argb) & 0xff;
-        if (a) {
-            sum_r += r;
-            sum_g += g;
-            sum_b += b;
+        g = (argb >>  8) & 0xff;
+        b = (argb      ) & 0xff;
+        if (a)
+            sum_r += r,
+            sum_g += g,
+            sum_b += b,
             count++;
-        }
     }
 
     if (!count)
@@ -1192,19 +1150,20 @@ void adjust_color(Color *color, int alpha, int saturation, int brightness)
 {
     if (alpha == 100 && saturation == 0 && brightness == 0)
         return;
-    DATA32 argb = (((DATA32)(color->alpha * 255) & 0xff) << 24) |
-            (((DATA32)(color->rgb[0] * 255) & 0xff) << 16) |
-            (((DATA32)(color->rgb[1] * 255) & 0xff) << 8) |
-            (((DATA32)(color->rgb[2] * 255) & 0xff) << 0);
-    adjust_asb(&argb, 1, 1, alpha / 100.0, saturation / 100.0, brightness / 100.0);
+
+    DATA32 argb =   (((DATA32)(color->alpha  * 255) & 0xff) << 24) |
+                    (((DATA32)(color->rgb[0] * 255) & 0xff) << 16) |
+                    (((DATA32)(color->rgb[1] * 255) & 0xff) <<  8) |
+                    (((DATA32)(color->rgb[2] * 255) & 0xff) <<  0);
+    adjust_asb (&argb, 1, 1, alpha / 100.0, saturation / 100.0, brightness / 100.0);
     DATA32 a = (argb >> 24) & 0xff;
     DATA32 r = (argb >> 16) & 0xff;
-    DATA32 g = (argb >> 8) & 0xff;
-    DATA32 b = (argb) & 0xff;
-    color->alpha = a / 255.;
-    color->rgb[0] = r / 255.;
-    color->rgb[1] = g / 255.;
-    color->rgb[2] = b / 255.;
+    DATA32 g = (argb >>  8) & 0xff;
+    DATA32 b = (argb      ) & 0xff;
+    color->alpha  = a / 255.0;
+    color->rgb[0] = r / 255.0;
+    color->rgb[1] = g / 255.0;
+    color->rgb[2] = b / 255.0;
 }
 
 void dump_image_data(const char *file_name, const char *name)

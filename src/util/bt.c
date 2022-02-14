@@ -63,8 +63,8 @@ static void bt_error_callback(void *data, const char *msg, int errnum)
 }
 
 static int bt_full_callback(void *data, uintptr_t pc,
-                     const char *filename, int lineno,
-                     const char *function)
+                            const char *filename, int lineno,
+                            const char *function)
 {
     struct backtrace *bt = (struct backtrace *)data;
     bt_add_frame(bt, function);

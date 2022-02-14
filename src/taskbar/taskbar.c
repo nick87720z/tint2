@@ -117,7 +117,8 @@ void taskbar_save_orderings()
             for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
                                                                             : taskbar->area.children;
                  c;
-                 c = c->next) {
+                 c = c->next)
+            {
                 Task *t = (Task *)c->data;
                 Window *window = calloc(1, sizeof(Window));
                 *window = t->win;
@@ -302,20 +303,20 @@ void init_taskbar_panel(void *p)
         panel->g_task.maximum_height = server.monitors[panel->monitor].height;
 
     if (panel_horizontal) {
-        panel->g_task.area.posy = panel->g_taskbar.area.posy +
-                                  top_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]) +
-                                  panel->g_taskbar.area.paddingy * panel->scale;
+        panel->g_task.area.posy = panel->g_taskbar.area.posy
+                                + top_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
+                                + panel->g_taskbar.area.paddingy * panel->scale;
         panel->g_task.area.width = panel->g_task.maximum_width;
-        panel->g_task.area.height = panel->g_taskbar.area.height -
-                                    top_bottom_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]) -
-                                    2 * panel->g_taskbar.area.paddingy * panel->scale;
+        panel->g_task.area.height = panel->g_taskbar.area.height
+                                    - top_bottom_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
+                                    - 2 * panel->g_taskbar.area.paddingy * panel->scale;
     } else {
-        panel->g_task.area.posx = panel->g_taskbar.area.posx +
-                                  left_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]) +
-                                  panel->g_taskbar.area.paddingy * panel->scale;
-        panel->g_task.area.width = panel->g_taskbar.area.width -
-                                   left_right_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]) -
-                                   2 * panel->g_taskbar.area.paddingy * panel->scale;
+        panel->g_task.area.posx = panel->g_taskbar.area.posx
+                                + left_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
+                                + panel->g_taskbar.area.paddingy * panel->scale;
+        panel->g_task.area.width =  panel->g_taskbar.area.width
+                                    - left_right_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
+                                    - 2 * panel->g_taskbar.area.paddingy * panel->scale;
         panel->g_task.area.height = panel->g_task.maximum_height * panel->scale;
     }
 
@@ -347,9 +348,11 @@ void init_taskbar_panel(void *p)
                    FALSE,
                    panel->scale);
 
-    panel->g_task.text_posx = left_bg_border_width(panel->g_task.background[0]) + panel->g_task.area.paddingxlr * panel->scale;
-    panel->g_task.text_height =
-        panel->g_task.area.height - (2 * panel->g_task.area.paddingy * panel->scale) - top_bottom_border_width(&panel->g_task.area);
+    panel->g_task.text_posx = left_bg_border_width(panel->g_task.background[0])
+                            + panel->g_task.area.paddingxlr * panel->scale;
+    panel->g_task.text_height = panel->g_task.area.height
+                                - (2 * panel->g_task.area.paddingy * panel->scale)
+                                - top_bottom_border_width(&panel->g_task.area);
     if (panel->g_task.has_icon) {
         panel->g_task.icon_size1 = MIN(MIN(panel->g_task.maximum_width * panel->scale, panel->g_task.maximum_height * panel->scale),
                                        MIN(panel->g_task.area.width, panel->g_task.area.height)) -
@@ -437,14 +440,14 @@ void taskbar_remove_task(Window *win)
 Task *get_task(Window win)
 {
     GPtrArray *task_buttons = get_task_buttons(win);
-    return task_buttons ?
-        g_ptr_array_index(task_buttons, 0) : NULL;
+    return  task_buttons ?
+            g_ptr_array_index(task_buttons, 0) : NULL;
 }
 
 GPtrArray *get_task_buttons(Window win)
 {
-    return (win_to_task && taskbar_enabled) ?
-        g_hash_table_lookup(win_to_task, &win) : NULL;
+    return  (win_to_task && taskbar_enabled) ?
+            g_hash_table_lookup(win_to_task, &win) : NULL;
 }
 
 static Window *sort_windows = NULL;
@@ -630,7 +633,8 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
             schedule_redraw(&taskbar->bar_name.area);
         }
         if (taskbar_mode == MULTI_DESKTOP &&
-            panels[0].g_taskbar.background[TASKBAR_NORMAL] != panels[0].g_taskbar.background[TASKBAR_ACTIVE]) {
+            panels[0].g_taskbar.background[TASKBAR_NORMAL] != panels[0].g_taskbar.background[TASKBAR_ACTIVE])
+        {
             GList *l = taskbar->area.children;
             if (taskbarname_enabled)
                 l = l->next;
@@ -670,8 +674,8 @@ gboolean contained_within(Task *a, Task *b)
 
 gint compare_task_centers(Task *a, Task *b, Taskbar *taskbar)
 {
-    int trivial = compare_tasks_trivial(a, b, taskbar),
-        a_horiz_c, a_vert_c, b_horiz_c, b_vert_c;
+    int a_horiz_c, a_vert_c, b_horiz_c, b_vert_c,
+        trivial = compare_tasks_trivial(a, b, taskbar);
 
     return  trivial != NONTRIVIAL ? trivial
         // If a window has the same coordinates and size as the other,
@@ -714,18 +718,12 @@ gint compare_tasks(Task *a, Task *b, Taskbar *taskbar)
         return trivial;
         
     switch (taskbar_sort_method) {
-    case TASKBAR_NOSORT:
-        return 0;
-    case TASKBAR_SORT_CENTER:
-        return compare_task_centers(a, b, taskbar);
-    case TASKBAR_SORT_TITLE:
-        return compare_task_titles(a, b, taskbar);
-    case TASKBAR_SORT_APPLICATION:
-        return compare_task_applications(a, b, taskbar);
-    case TASKBAR_SORT_LRU:
-        return compare_timespecs(&a->last_activation_time, &b->last_activation_time);
-    case TASKBAR_SORT_MRU:
-        return -compare_timespecs(&a->last_activation_time, &b->last_activation_time);
+    case TASKBAR_NOSORT:            return 0;
+    case TASKBAR_SORT_CENTER:       return compare_task_centers(a, b, taskbar);
+    case TASKBAR_SORT_TITLE:        return compare_task_titles(a, b, taskbar);
+    case TASKBAR_SORT_APPLICATION:  return compare_task_applications(a, b, taskbar);
+    case TASKBAR_SORT_LRU:          return compare_timespecs(&a->last_activation_time, &b->last_activation_time);
+    case TASKBAR_SORT_MRU:          return -compare_timespecs(&a->last_activation_time, &b->last_activation_time);
     }
     return 0;
 }
@@ -807,11 +805,13 @@ void taskbar_update_thumbnails(void *arg)
             for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
                                                                             : taskbar->area.children;
                  c;
-                 c = c->next) {
+                 c = c->next)
+            {
                 Task *t = (Task *)c->data;
                 if ((mode == THUMB_MODE_ALL && t->current_state == TASK_ACTIVE && !g_list_find(taskbar_thumbnail_jobs_done, t)) ||
                     (mode == THUMB_MODE_ACTIVE_WINDOW && t->current_state == TASK_ACTIVE) ||
-                    (mode == THUMB_MODE_TOOLTIP_WINDOW && g_tooltip.mapped && g_tooltip.area == &t->area)) {
+                    (mode == THUMB_MODE_TOOLTIP_WINDOW && g_tooltip.mapped && g_tooltip.area == &t->area))
+                {
                     task_refresh_thumbnail(t);
                     if (mode == THUMB_MODE_ALL)
                         taskbar_thumbnail_jobs_done = g_list_append(taskbar_thumbnail_jobs_done, t);

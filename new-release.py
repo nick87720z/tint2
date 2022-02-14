@@ -168,6 +168,7 @@ if __name__ == '__main__':
   replace_in_file("README.md", old_version.replace("v", ""), readable_version)
   update_man("doc/tint2.md", readable_version, date)
   update_log("ChangeLog", readable_version, date)
+  run("./update-generated.sh")
   run("git commit -am 'Release %s'" % readable_version)
   run("git tag -a %s -m 'version %s'" % (version, readable_version))
   run("git tag -a %s -m 'version %s'" % (readable_version, readable_version))

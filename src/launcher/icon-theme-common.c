@@ -601,13 +601,12 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                     char *theme_name = ((IconTheme *)theme->data)->name;
                     char *dir_name = ((IconThemeDir *)dir->data)->name;
                     char *extension = *ext;
-                    if (strlen(base_name) + strlen(theme_name) + strlen(dir_name) + strlen(icon_name) +
-                            strlen(extension) + 100 >
-                        file_name_size) {
-                        file_name_size = strlen(base_name) + strlen(theme_name) + strlen(dir_name) + strlen(icon_name) +
-                                         strlen(extension) + 100;
-                        file_name = realloc(file_name, file_name_size);
-                    }
+
+                    size_t fname_size_new = strlen(base_name) + strlen(theme_name) + strlen(dir_name) +
+                                            strlen(icon_name) + strlen(extension)  + 100;
+                    if (fname_size_new > file_name_size)
+                        file_name = realloc(file_name, (file_name_size = fname_size_new));
+
                     // filename = directory/$(themename)/subdirectory/iconname.extension
                     snprintf(file_name, (size_t)file_name_size - 1, "%s/%s/%s/%s%s", base_name, theme_name, dir_name, icon_name, extension);
                     if (debug_icons)

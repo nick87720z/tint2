@@ -65,10 +65,7 @@ static gboolean is_file_non_empty(const char *path)
     char buffer[1024];
     size_t count = fread(buffer, 1, sizeof(buffer), f);
     fclose(f);
-    if (count > 0)
-        return TRUE;
-    else
-        return FALSE;
+    return count > 0;
 }
 
 static void uevent_battery_update()

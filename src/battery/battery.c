@@ -148,13 +148,9 @@ char *strnappend(char *dest, const char *addendum, size_t limit)
 // Result is undefined if either dest or addendum are not null-terminated
 // WARNING: limit is used completely, it's programmer responsibility to recerve place for terminating null
 {
-    char *tmp = strdup(dest);
-
-    // Actually concatenate them.
-    snprintf(dest, limit, "%s%s", tmp, addendum);
-
-    free(tmp);
-    return dest;
+    char *pos = memchr(dest, '\0', limit);
+    return pos  ? (snprintf(pos, limit-(pos-dest), "%s", addendum), dest)
+                : NULL;
 }
 
 void battery_update_text(char *dest, char *format)

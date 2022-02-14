@@ -41,9 +41,8 @@ void destroy_separator(void *obj)
 
 gpointer copy_separator(gconstpointer arg, gpointer data)
 {
-    Separator *old = (Separator *)arg;
-    Separator *copy = (Separator *)calloc(1, sizeof(Separator));
-    memcpy(copy, old, sizeof(Separator));
+    Separator *copy = malloc(sizeof(Separator));
+    memcpy(copy, arg, sizeof(Separator));
     return copy;
 }
 

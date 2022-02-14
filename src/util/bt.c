@@ -35,11 +35,9 @@ static void bt_add_frame(struct backtrace *bt, const char *fname)
     if (bt->frame_count >= BT_MAX_FRAMES)
         return;
     struct backtrace_frame *frame = &bt->frames[bt->frame_count];
-    if (fname && *fname) {
-        strncpy(frame->name, fname, BT_FRAME_SIZE);
-    } else {
-        strncpy(frame->name, "??", BT_FRAME_SIZE);
-    }
+    strncpy(frame->name,
+            fname && *fname ? fname : "??",
+            BT_FRAME_SIZE);
     bt->frame_count++;
 }
 
@@ -57,8 +55,6 @@ static const char *get_exe()
     if (ret > 0)
         return buf;
     ret = readlink("/proc/curproc/file", buf, sizeof(buf)-1);
-    if (ret > 0)
-        return buf;
     return buf;
 }
 

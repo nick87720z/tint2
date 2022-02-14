@@ -1022,6 +1022,8 @@ gboolean read_execp(void *obj)
 }
 
 const char *time_to_string(int s, char *buffer, size_t buffer_size)
+// WARNING: buffer size is used completely,
+// it's programmer responsibility to reserve place for terminating null
 {
     if (s < 60) {
         snprintf(buffer, buffer_size, "%ds", s);

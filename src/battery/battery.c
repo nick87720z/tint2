@@ -143,8 +143,10 @@ void cleanup_battery()
     battery_os_free();
 }
 
-// Appends addendum to dest, and does not allow dest to grow over limit (including NULL terminator).
 char *strnappend(char *dest, const char *addendum, size_t limit)
+// Appends addendum to dest, and does not allow dest to grow over limit (including NULL terminator).
+// Result is undefined if either dest or addendum are not null-terminated
+// WARNING: limit is used completely, it's programmer responsibility to recerve place for terminating null
 {
     char *tmp = strdup(dest);
 

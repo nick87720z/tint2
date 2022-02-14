@@ -667,15 +667,11 @@ void execp_action(void *obj, int button, int x, int y, Time time)
     
     char *command = NULL;
     switch (button) {
-        #define BUTTON_CASE(i,c) case i: \
-                                    command = backend->c; \
-                                    break
-        BUTTON_CASE(1, lclick_command);
-        BUTTON_CASE(2, mclick_command);
-        BUTTON_CASE(3, rclick_command);
-        BUTTON_CASE(4, uwheel_command);
-        BUTTON_CASE(5, dwheel_command);
-        #undef BUTTON_CASE
+        BUTTON_CASE(1, backend->lclick_command);
+        BUTTON_CASE(2, backend->mclick_command);
+        BUTTON_CASE(3, backend->rclick_command);
+        BUTTON_CASE(4, backend->uwheel_command);
+        BUTTON_CASE(5, backend->dwheel_command);
     }
     if (command) {
         setenvd("EXECP_X", x);

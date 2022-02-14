@@ -323,21 +323,11 @@ void clock_action(void *obj, int button, int x, int y, Time time)
 {
     char *command = NULL;
     switch (button) {
-    case 1:
-        command = clock_lclick_command;
-        break;
-    case 2:
-        command = clock_mclick_command;
-        break;
-    case 3:
-        command = clock_rclick_command;
-        break;
-    case 4:
-        command = clock_uwheel_command;
-        break;
-    case 5:
-        command = clock_dwheel_command;
-        break;
+        BUTTON_CASE (1, clock_lclick_command);
+        BUTTON_CASE (2, clock_mclick_command);
+        BUTTON_CASE (3, clock_rclick_command);
+        BUTTON_CASE (4, clock_uwheel_command);
+        BUTTON_CASE (5, clock_dwheel_command);
     }
     tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
 }

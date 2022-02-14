@@ -232,4 +232,9 @@ Imlib_Image scale_icon(Imlib_Image original, int icon_size);
 void save_screenshot(const char *path);
 void save_panel_screenshot(const Panel *panel, const char *path);
 
+/// Helper shortcut macroses
+
+#define BUTTON_CASE(i,c) case i:    command = c;                                         \
+                                    break
+
 #endif

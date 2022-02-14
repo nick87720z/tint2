@@ -505,21 +505,11 @@ void battery_action(void *obj, int button, int x, int y, Time time)
 {
     char *command = NULL;
     switch (button) {
-    case 1:
-        command = battery_lclick_command;
-        break;
-    case 2:
-        command = battery_mclick_command;
-        break;
-    case 3:
-        command = battery_rclick_command;
-        break;
-    case 4:
-        command = battery_uwheel_command;
-        break;
-    case 5:
-        command = battery_dwheel_command;
-        break;
+        BUTTON_CASE (1, battery_lclick_command);
+        BUTTON_CASE (2, battery_mclick_command);
+        BUTTON_CASE (3, battery_rclick_command);
+        BUTTON_CASE (4, battery_uwheel_command);
+        BUTTON_CASE (5, battery_dwheel_command);
     }
     tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
 }

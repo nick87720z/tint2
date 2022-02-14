@@ -563,15 +563,11 @@ void button_action(void *obj, int mouse_button, int x, int y, Time time)
     ButtonBackend *backend = button->backend;
     char *command = NULL;
     switch (mouse_button) {
-        #define BUTTON_CASE(i,c) case i: \
-                                    command = backend->c; \
-                                    break
-        BUTTON_CASE(1, lclick_command);
-        BUTTON_CASE(2, mclick_command);
-        BUTTON_CASE(3, rclick_command);
-        BUTTON_CASE(4, uwheel_command);
-        BUTTON_CASE(5, dwheel_command);
-        #undef BUTTON_CASE
+        BUTTON_CASE(1, backend->lclick_command);
+        BUTTON_CASE(2, backend->mclick_command);
+        BUTTON_CASE(3, backend->rclick_command);
+        BUTTON_CASE(4, backend->uwheel_command);
+        BUTTON_CASE(5, backend->dwheel_command);
     }
     tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
 }

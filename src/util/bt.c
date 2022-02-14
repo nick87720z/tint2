@@ -52,6 +52,7 @@ static void bt_add_frame(struct backtrace *bt, const char *fname)
 static const char *get_exe()
 {
     static char buf[256] = {0};
+    BUF_0TERM (buf);
     ssize_t ret = readlink("/proc/self/exe", buf, sizeof(buf)-1);
     if (ret > 0)
         return buf;

@@ -44,11 +44,16 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 # Features
 
-  * Panel with taskbar, system tray, clock and launcher icons;
-  * Easy to customize: color/transparency on fonts, icons, borders and backgrounds;
+  * Panel with configurable set of applets:
+    - taskbar, system tray, clock, launcher
+    - arbitrary buttons with configurable commands per each mouse button (including scroll buttons)
+    - executors - like buttons, but using configurable command to set appearance (see manual)
+  * Easy to customize:
+    - Color/transparency on fonts, icons, borders and backgrounds;  
+    **Note:** Full transparency requires a compositor such as Compton (if not provided already by the window manager, as in Compiz/Unity, KDE or XFCE);
+    - Customizable mouse events;
   * Pager like capability: move tasks between workspaces (virtual desktops), switch between workspaces;
-  * Multi-monitor capability: create one panel per monitor, showing only the tasks from the current monitor;
-  * Customizable mouse events.
+  * Multi-monitor capability: create a panel for each monitor, showing only the tasks from that monitor;
 
 # Goals
 
@@ -72,7 +77,6 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
   * Graphical glitches on Intel graphics cards can be avoided by changing the acceleration method to UXA ([issue 595](https://gitlab.com/o9000/tint2/issues/595))
   * Window managers that do not follow exactly the EWMH specification might not interact well with tint2 ([issue 627](https://gitlab.com/o9000/tint2/issues/627)).
-  * Full transparency requires a compositor such as Compton (if not provided already by the window manager, as in Compiz/Unity, KDE or XFCE).
 
 # How can I help out?
 

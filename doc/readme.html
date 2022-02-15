@@ -246,11 +246,24 @@ update-mime-database /usr/local/share/mime
 <h1>Features</h1>
 
 <ul>
-<li>Panel with taskbar, system tray, clock and launcher icons;</li>
-<li>Easy to customize: color/transparency on fonts, icons, borders and backgrounds;</li>
+<li>Panel with configurable set of applets:
+
+<ul>
+<li>taskbar, system tray, clock, launcher</li>
+<li>arbitrary buttons with configurable commands per each mouse button (including scroll buttons)</li>
+<li>executors - like buttons, but using configurable command to set appearance (see manual)</li>
+</ul>
+</li>
+<li>Easy to customize:
+
+<ul>
+<li>Color/transparency on fonts, icons, borders and backgrounds;<br/>
+<strong>Note:</strong> Full transparency requires a compositor such as Compton (if not provided already by the window manager, as in Compiz/Unity, KDE or XFCE);</li>
+<li>Customizable mouse events;</li>
+</ul>
+</li>
 <li>Pager like capability: move tasks between workspaces (virtual desktops), switch between workspaces;</li>
-<li>Multi-monitor capability: create one panel per monitor, showing only the tasks from the current monitor;</li>
-<li>Customizable mouse events.</li>
+<li>Multi-monitor capability: create a panel for each monitor, showing only the tasks from that monitor;</li>
 </ul>
 
 
@@ -286,7 +299,6 @@ update-mime-database /usr/local/share/mime
 <ul>
 <li>Graphical glitches on Intel graphics cards can be avoided by changing the acceleration method to UXA (<a href="https://gitlab.com/o9000/tint2/issues/595">issue 595</a>)</li>
 <li>Window managers that do not follow exactly the EWMH specification might not interact well with tint2 (<a href="https://gitlab.com/o9000/tint2/issues/627">issue 627</a>).</li>
-<li>Full transparency requires a compositor such as Compton (if not provided already by the window manager, as in Compiz/Unity, KDE or XFCE).</li>
 </ul>
 
 

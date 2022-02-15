@@ -871,7 +871,7 @@ To hide the clock, comment \fB\fCtime1\_format\fR and \fB\fCtime2\_format\fR\&.
 .IP \(bu 2
 \fB\fCexecp = new\fR : Begins the configuration of a new executor plugin. Multiple such plugins are supported; just use multiple \fB\fCE\fRs in \fB\fCpanel\_items\fR\&. \fI(since 0.12.4)\fP
 .IP \(bu 2
-\fB\fCexecp\_name = text\fR : A name that can be used with \fB\fCtint2\-send refresh\-execp\fR to re\-execute the command.
+\fB\fCexecp\_name = text\fR : A name that can be used with \fB\fCtint2\-send refresh\-execp\fR to re\-execute the command. \fI(since 17.0.2)\fP
 .IP \(bu 2
 \fB\fCexecp\_command = text\fR : Command to execute. \fI(since 0.12.4)\fP
 .IP \(bu 2
@@ -887,7 +887,21 @@ To hide the clock, comment \fB\fCtime1\_format\fR and \fB\fCtime2\_format\fR\&.
 .IP \(bu 2
 \fB\fCexecp\_icon\_h = integer\fR : See \fB\fCexecp\_icon\_w\fR\&. \fI(since 0.12.4)\fP
 .IP \(bu 2
-\fB\fCexecp\_tooltip = text\fR : The tooltip. If left empty, no tooltip is displayed. If missing, the standard error of the command is shown as a tooltip (an ANSI clear screen sequence can reset the contents, bash: \fB\fCprintf '\\e[2J'\fR, C: \fB\fCprintf("\\x1b[2J");\fR). If the standard error is empty, the tooltip will show information about the time when the command was last executed. \fI(since 0.12.4)\fP
+\fB\fCexecp\_tooltip = text\fR : The tooltip. If left empty \- no tooltip is displayed. If missing \- the standard error of the command is shown as a tooltip. If the standard error is empty, the tooltip will show information about the time when the command was last executed. \fI(since 0.12.4)\fP
+.br
+An ANSI clear screen sequence can reset the contents:
+.RS
+.IP \(bu 2
+shell: \fB\fCprintf '\\e[2J'\fR
+.IP \(bu 2
+C:     \fB\fCprintf ("\\x1b[2J");\fR
+.IP \(bu 2
+shell using tput from ncurses: \fB\fCtput clear\fR)
+.br
+\fBNote:\fP previous tint2 versions don't set TERM, so this must be done manually \- \fB\fCtput \-Tansi.sys\-old clear\fR
+
+.RE
+
 .IP \(bu 2
 \fB\fCexecp\_font = [FAMILY\-LIST] [STYLE\-OPTIONS] [SIZE]\fR : The font used to draw the text.  \fI(since 0.12.4)\fP
 .IP \(bu 2

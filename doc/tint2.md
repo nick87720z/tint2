@@ -593,7 +593,7 @@ The action semantics:
 
   * `execp = new` : Begins the configuration of a new executor plugin. Multiple such plugins are supported; just use multiple `E`s in `panel_items`. *(since 0.12.4)*
 
-  * `execp_name = text` : A name that can be used with `tint2-send refresh-execp` to re-execute the command.
+  * `execp_name = text` : A name that can be used with `tint2-send refresh-execp` to re-execute the command. *(since 17.0.2)*
 
   * `execp_command = text` : Command to execute. *(since 0.12.4)*
 
@@ -609,7 +609,12 @@ The action semantics:
 
   * `execp_icon_h = integer` : See `execp_icon_w`. *(since 0.12.4)*
 
-  * `execp_tooltip = text` : The tooltip. If left empty, no tooltip is displayed. If missing, the standard error of the command is shown as a tooltip (an ANSI clear screen sequence can reset the contents, bash: `printf '\e[2J'`, C: `printf("\x1b[2J");`). If the standard error is empty, the tooltip will show information about the time when the command was last executed. *(since 0.12.4)*
+  * `execp_tooltip = text` : The tooltip. If left empty - no tooltip is displayed. If missing - the standard error of the command is shown as a tooltip. If the standard error is empty, the tooltip will show information about the time when the command was last executed. *(since 0.12.4)*  
+    An ANSI clear screen sequence can reset the contents:
+    - shell: `printf '\e[2J'`
+    - C:     `printf ("\x1b[2J");`
+    - shell using tput from ncurses: `tput clear`)  
+    **Note:** previous tint2 versions don't set TERM, so this must be done manually - `tput -Tansi.sys-old clear`
 
   * `execp_font = [FAMILY-LIST] [STYLE-OPTIONS] [SIZE]` : The font used to draw the text.  *(since 0.12.4)*
 

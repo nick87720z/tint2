@@ -805,6 +805,11 @@ int main(int argc, char **argv)
                     "Run tint2 with environment variable G_SLICE=always-malloc "
                     "in case of strange behavior or crashes\n");
 #endif
+    if (setenv ("TERM", "ansi.sys-old", 1)) // For executor comands, using `tput clear`
+    {                                       // TODO: tint could implement color terminal
+        fprintf(stderr, RED "tint2: %s %d: setenv failed!" RESET "\n",
+                __FILE__, __LINE__);
+    }
     gboolean restart;
     do {
         restart = FALSE;

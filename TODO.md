@@ -25,6 +25,7 @@ Compatible default - non-continuous shell;
 - Support for RAW video streaming (ffmpeg is good candidate for streamer);
 - Focus / pointer hover events;
 - Ability to hold a window like taskbar task entry (feature group 1 - 2/1)
+- Support sgr sequences for color, font, alignment etc - converting them into pango markup
 
 ## Taskbar
 

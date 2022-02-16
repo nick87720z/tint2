@@ -76,12 +76,17 @@ int str_index(const char *s, char *array[], int size);
 
 int compare_strings(const void *a, const void *b);
 
-gboolean parse_line(const char *line, char **key, char **value);
-// Parses lines with the format 'key = value' into key and value.
-// Strips key and value.
-// Values may contain any graphical characters with spaces in the middle.
-// Returns 1 if both key and value could be read, zero otherwise.
-// !!! returned strings are part of line and should not be used with free or realloc.
+int parse_line(const char *line, char **key, char **value);
+/// Parses lines with the format 'key = value' into key and value.
+/// Strips surrounding space from key and value.
+/// Values may contain any graphical characters with spaces in the middle.
+/// Returns 1 if both key and value could be read, zero otherwise
+/// (single '=' per line produces empty strings for key and valye)
+/// !!! returned strings are part of line and should not be used with free or realloc.
+
+#define PARSED_OK    0x1
+#define PARSED_KEY   0x2
+#define PARSED_VALUE 0x4
 
 int extract_values(
 /// Delimits string to value tokens by replacing terminating delimiters with null byte.

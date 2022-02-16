@@ -200,18 +200,21 @@ int compare_strings(const void *a, const void *b)
     return strnatcasecmp((const char *)a, (const char *)b);
 }
 
-gboolean parse_line(const char *line, char **key, char **value)
+#define SPN_SPACE " \t\r\n"
+
+int parse_line(const char *line, char **key, char **value)
 {
     char *a, *b, c;
+    int result = PARSED_OK;
 
     /* fail if comment or empty */
     if ((c = line[0]) == '#' || c == '\n' || c == '\0')
-        return FALSE;
+        return 0;
 
     /* skip leading whitespace */
-    line += strspn(line, " \t\r\n");
+    line += strspn(line, SPN_SPACE);
     if ( !(a = strchr(line, '=')) )
-        return FALSE;
+        return 0;
 
     /* set key null terminator */
     if (a == line)
@@ -220,10 +223,12 @@ gboolean parse_line(const char *line, char **key, char **value)
         b = a;
         while (g_ascii_isspace(* --b));
         *(++b) = '\0';
+        if (b != a)
+            result |= PARSED_KEY;
     }
 
     /* + skip value leading space */
-    a++, a += strspn(a, " \t\r\n");
+    a++, a += strspn(a, SPN_SPACE);
 
     *key = (char *)line;
     *value = a;
@@ -238,7 +243,8 @@ gboolean parse_line(const char *line, char **key, char **value)
         b[1] = '\0';
     }
 
-    return TRUE;
+    return a != b   ? result | PARSED_VALUE
+                    : result;
 }
 
 extern char *config_path;

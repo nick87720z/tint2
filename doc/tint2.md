@@ -91,9 +91,11 @@ The tint2 config file starts with the options defining background elements with 
 
   * `rounded = number_of_pixels` : the corner radius
 
+  * `rounded_corners = TL TR BR BL`: corners to be rounded (top left, top right, bottom right, bottom left). If not specified - all corners are rounded.
+
   * `border_width = integer` : the border width in pixels
 
-  * `border_sides = LRTB` : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used. *(since 0.12.12)*
+  * `border_sides = LRTB` : sides to draw the border on (left, right, top, bottom). If not specified - all sides are used. *(since 0.12.12)*
 
   * `background_color = color opacity`
     * `color` is specified in hex RGB, e.g. #ff0000 is red

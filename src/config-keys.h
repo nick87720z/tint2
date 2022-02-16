@@ -129,6 +129,7 @@ typedef enum {
     key_pressed_gradient_id,
     key_primary_monitor_first,
     key_rounded,
+    key_rounded_corners,
     key_scale_relative_to_dpi,
     key_scale_relative_to_screen_height,
     key_separator,

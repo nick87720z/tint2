@@ -273,21 +273,22 @@ void tooltip_update()
     Border b = g_tooltip.bg->border;
     if (server.real_transparency) {
         clear_pixmap(g_tooltip.window, 0, 0, width, height);
-        draw_rect(c, b.width, b.width, width - 2 * b.width, height - 2 * b.width, b.radius - b.width / 2.0);
+        draw_rect(c, b.width, b.width, width - 2 * b.width, height - 2 * b.width, b.radius - b.width / 2.0, g_tooltip.bg->border.rmask);
         cairo_set_source_rgba(c, bc.rgb[0], bc.rgb[1], bc.rgb[2], bc.alpha);
     } else {
         cairo_rectangle(c, 0., 0, width, height);
         cairo_set_source_rgb(c, bc.rgb[0], bc.rgb[1], bc.rgb[2]);
     }
-    cairo_fill(c);
+    cairo_fill_preserve (c);
     cairo_set_line_width(c, b.width);
     if (server.real_transparency)
-        draw_rect(c, b.width / 2.0, b.width / 2.0, width - b.width, height - b.width, b.radius);
+        draw_rect(c, 0.0, 0.0, width, height, b.radius + b.width / 2.0, g_tooltip.bg->border.rmask);
     else
-        cairo_rectangle(c, b.width / 2.0, b.width / 2.0, width - b.width, height - b.width);
+        cairo_rectangle(c, 0.0, 0.0, width, height);
     cairo_set_source_rgba(c, b.color.rgb[0], b.color.rgb[1], b.color.rgb[2], b.color.alpha);
     cairo_set_operator (c, CAIRO_OPERATOR_ADD);
-    cairo_stroke(c);
+    cairo_set_fill_rule (c, CAIRO_FILL_RULE_EVEN_ODD);
+    cairo_fill (c);
     cairo_set_operator (c, CAIRO_OPERATOR_OVER);
 
     Color fc = g_tooltip.font_color;

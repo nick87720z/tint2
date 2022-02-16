@@ -820,70 +820,43 @@ Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int bri
     return copy;
 }
 
-void draw_rect(cairo_t *c, double x, double y, double w, double h, double r)
+void draw_rect(cairo_t *c, double x, double y, double w, double h, double r, int corner_mask)
 {
-    draw_rect_on_sides(c, x, y, w, h, r, BORDER_ALL);
+    draw_rect_on_sides(c, x, y, w, h, r, corner_mask);
 }
 
-void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int border_mask)
+void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int corner_mask)
 {
     double c1;
-    int border_top      = border_mask & BORDER_TOP,
-        border_bottom   = border_mask & BORDER_BOTTOM,
-        border_right    = border_mask & BORDER_RIGHT,
-        border_left     = border_mask & BORDER_LEFT;
     r = MIN(MIN(w, h) / 2, r);
-    c1 = 0.55228475 * r;
+    c1 = 0.5522847498 * r;
+    int rtl = corner_mask & CORNER_TL ? r : 0,
+        rtr = corner_mask & CORNER_TR ? r : 0,
+        rbr = corner_mask & CORNER_BR ? r : 0,
+        rbl = corner_mask & CORNER_BL ? r : 0;
 
-    cairo_move_to(c, x + r, y);
+    cairo_move_to(c, x + rtl, y);
+
     // Top line
-    if (border_top)
-        cairo_rel_line_to(c, w - 2 * r, 0);
-    else
-        cairo_rel_move_to(c, w - 2 * r, y);
+    cairo_line_to (c, x+w-rtr, y);
     // Top right corner
-    if (r > 0) {
-        if (border_top && border_right)
-            cairo_rel_curve_to(c, c1, 0.0, r, r - c1, r, r);
-        else
-            cairo_rel_move_to(c, r, r);
-    }
+    if (rtr > 0)
+        cairo_curve_to (c, x+w-r+c1, y, x+w, y+r-c1, x+w, r);
     // Right line
-    if (border_right)
-        cairo_rel_line_to(c, 0, h - 2 * r);
-    else
-        cairo_rel_move_to(c, 0, h - 2 * r);
+    cairo_line_to (c, x+w, y+h-rbr);
     // Bottom right corner
-    if (r > 0) {
-        if (border_bottom && border_right)
-            cairo_rel_curve_to(c, 0.0, c1, c1 - r, r, -r, r);
-        else
-            cairo_rel_move_to(c, -r, r);
-    }
+    if (rbr > 0)
+        cairo_curve_to (c, x+w, y+h-r+c1, x+w-r+c1, y+h, x+w-r, y+h);
     // Bottom line
-    if (border_bottom)
-        cairo_rel_line_to(c, -w + 2 * r, 0);
-    else
-        cairo_rel_move_to(c, -w + 2 * r, 0);
+    cairo_line_to (c, x+rbl, y+h);
     // Bottom left corner
-    if (r > 0) {
-        if (border_bottom && border_left)
-            cairo_rel_curve_to(c, -c1, 0, -r, c1 - r, -r, -r);
-        else
-            cairo_rel_move_to(c, -r, -r);
-    }
+    if (rbl > 0)
+        cairo_curve_to (c, x+r-c1, y+h, x, y+h-r+c1, x, y+h-r);
     // Left line
-    if (border_left)
-        cairo_rel_line_to(c, 0, -h + 2 * r);
-    else
-        cairo_rel_move_to(c, 0, -h + 2 * r);
+    cairo_line_to (c, x, y+rtl);
     // Top left corner
-    if (r > 0) {
-        if (border_top && border_left)
-            cairo_rel_curve_to(c, 0, -c1, r - c1, -r, r, -r);
-        else
-            cairo_rel_move_to(c, r, -r);
-    }
+    if (rtl > 0)
+        cairo_curve_to (c, x, y+r-c1, x+r-c1, y, x+r, y);
 }
 
 void clear_pixmap(Pixmap p, int x, int y, int w, int h)

@@ -120,20 +120,17 @@
 //   The caller takes ownership of the pointer.
 //   The Area's _get_tooltip_text member must point to this function.
 
-typedef enum BorderMask {
-    BORDER_TOP = 1 << 0,
-    BORDER_BOTTOM = 1 << 1,
-    BORDER_LEFT = 1 << 2,
-    BORDER_RIGHT = 1 << 3
-} BorderMask;
-
+typedef enum BorderMask { BORDER_TOP=1, BORDER_BOTTOM=2, BORDER_LEFT=4, BORDER_RIGHT=8 } BorderMask;
+typedef enum CornerMask { CORNER_TL=1,  CORNER_TR=2,     CORNER_BR=4,   CORNER_BL=8    } CornerMask;
 #define BORDER_ALL (BORDER_TOP | BORDER_BOTTOM | BORDER_LEFT | BORDER_RIGHT)
+#define CORNER_ALL (CORNER_TL | CORNER_TR | CORNER_BR | CORNER_BL)
 
 typedef struct Border {
     Color color;    // It's essential that the first member is color
     int width;      // Width in pixels
     int radius;     // Corner radius
-    int mask;       // Mask: bitwise OR of BorderMask
+    int mask;       // BorderMask bitfield
+    int rmask;      // CornerMask bitfield
 } Border;
 
 typedef enum MouseState { MOUSE_NORMAL, MOUSE_OVER, MOUSE_DOWN, MOUSE_STATE_COUNT } MouseState;

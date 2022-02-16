@@ -41,7 +41,8 @@ Area *mouse_over_area = NULL;
 void init_background(Background *bg)
 {
     memset(bg, 0, sizeof(Background));
-    bg->border.mask = BORDER_TOP | BORDER_BOTTOM | BORDER_LEFT | BORDER_RIGHT;
+    bg->border.mask = BORDER_ALL;
+    bg->border.rmask = CORNER_ALL;
 }
 
 void initialize_positions(void *obj, int offset)
@@ -587,53 +588,71 @@ void set_cairo_source_border_color(Area *a, cairo_t *c)
 
 void draw_background(Area *a, cairo_t *c)
 {
-    cairo_push_group (c);
-    cairo_set_operator(c, CAIRO_OPERATOR_ADD);
-    
-    if ((a->bg->fill_color.alpha > 0.0) ||
-        (panel_config.mouse_effects && (a->has_mouse_over_effect || a->has_mouse_press_effect))) {
+    int bg_set = 0;
+    int x = left_border_width (a),
+        y = top_border_width (a),
+        w = a->width - left_right_border_width (a),
+        h = a->height - top_bottom_border_width (a),
+        r = a->bg->border.radius - a->bg->border.width / 2.0;
 
+    #define bg_compose                                                                   \
+        if (!bg_set) do{                                                                 \
+            cairo_push_group (c);                                                        \
+            cairo_rectangle (c, x, y, w, h);                                             \
+            bg_set = 1;                                                                  \
+        }while(0)
+
+    // Border stich level (1)
+    cairo_push_group (c);
+
+    // Background composition level (2)
+    if ((a->bg->fill_color.alpha > 0.0) ||
+        (panel_config.mouse_effects && (a->has_mouse_over_effect || a->has_mouse_press_effect)))
+    {
         // Not sure about this
-        draw_rect(c,
-                  left_border_width(a),
-                  top_border_width(a),
-                  a->width - left_right_border_width(a),
-                  a->height - top_bottom_border_width(a),
-                  a->bg->border.radius - a->bg->border.width / 2.0);
+        bg_compose;
         set_cairo_source_bg_color(a, c);
-        cairo_fill(c);
+        cairo_fill_preserve(c);
     }
     for (GList *l = a->gradient_instances_by_state[a->mouse_state]; l; l = l->next) {
         GradientInstance *gi = (GradientInstance *)l->data;
         if (!gi->pattern)
             update_gradient(gi);
         cairo_set_source(c, gi->pattern);
-        draw_rect(c,
-                  left_border_width(a),
-                  top_border_width(a),
-                  a->width - left_right_border_width(a),
-                  a->height - top_bottom_border_width(a),
-                  a->bg->border.radius - a->bg->border.width / 2.0);
-        cairo_fill(c);
+        bg_compose;
+        cairo_fill_preserve(c);
     }
 
+    // Clip entire composition - ultimate solution against remaining artifacts
+    if (bg_set)
+        cairo_new_path (c);
+    draw_rect(c,
+              x, y, w, h, r,
+              a->bg->border.rmask);
+    if (bg_set) {
+        cairo_pop_group_to_source (c);
+        cairo_fill_preserve (c);
+    }
+
+    // At last - stich border (in additive - stich is not overlay)
     if (a->bg->border.width > 0) {
         cairo_set_line_width(c, a->bg->border.width);
 
         // draw border inside (x, y, width, height)
         set_cairo_source_border_color(a, c);
         draw_rect_on_sides(c,
-                           left_border_width(a) / 2.,
-                           top_border_width(a) / 2.,
-                           a->width - left_right_border_width(a) / 2.,
-                           a->height - top_bottom_border_width(a) / 2.,
-                           a->bg->border.radius,
-                           a->bg->border.mask);
+                           0, 0, a->width, a->height,
+                           a->bg->border.radius + a->bg->border.width / 2.0,
+                           a->bg->border.rmask);
 
-        cairo_stroke(c);
+        cairo_set_operator (c, CAIRO_OPERATOR_ADD);
+        cairo_set_fill_rule (c, CAIRO_FILL_RULE_EVEN_ODD);
+        cairo_fill(c);
     }
     cairo_pop_group_to_source (c);
     cairo_paint (c);
+
+    #undef bg_compose
 }
 
 void remove_area(Area *a)

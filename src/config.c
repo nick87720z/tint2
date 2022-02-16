@@ -332,6 +332,25 @@ void add_entry(char *key, char *value)
         read_border_color_press = FALSE;
         break;
     }
+    case key_rounded_corners: {
+        Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
+        bg->border.rmask = 0;
+        char *values[4];
+        if (extract_values(value, values, 4))
+            for (int i=0; i<4 && values[i]; i++) {
+                if (strcmp(values[i], "tl") == 0 || strcmp(values[i], "TL") == 0)
+                    bg->border.rmask |= CORNER_TL;
+                if (strcmp(values[i], "tr") == 0 || strcmp(values[i], "TR") == 0)
+                    bg->border.rmask |= CORNER_TR;
+                if (strcmp(values[i], "br") == 0 || strcmp(values[i], "BR") == 0)
+                    bg->border.rmask |= CORNER_BR;
+                if (strcmp(values[i], "bl") == 0 || strcmp(values[i], "BL") == 0)
+                    bg->border.rmask |= CORNER_BL;
+            }
+        if (!bg->border.rmask)
+            bg->border.radius = 0;
+        break;
+    }
     case key_border_width:
         g_array_index(backgrounds, Background, backgrounds->len - 1)
             .border.width = atoi(value);

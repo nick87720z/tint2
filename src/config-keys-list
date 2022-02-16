@@ -121,6 +121,7 @@ panel_window_name
 pressed_gradient_id
 primary_monitor_first
 rounded
+rounded_corners
 scale_relative_to_dpi
 scale_relative_to_screen_height
 separator

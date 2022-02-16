@@ -128,6 +128,7 @@ char *cfg_keys[] = {
     [key_pressed_gradient_id                    ]="pressed_gradient_id",
     [key_primary_monitor_first                  ]="primary_monitor_first",
     [key_rounded                                ]="rounded",
+    [key_rounded_corners                        ]="rounded_corners",
     [key_scale_relative_to_dpi                  ]="scale_relative_to_dpi",
     [key_scale_relative_to_screen_height        ]="scale_relative_to_screen_height",
     [key_separator                              ]="separator",

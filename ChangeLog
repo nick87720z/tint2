@@ -8,6 +8,7 @@
   - Found few regressions, possibly introduced between versions 17.0.2 and 17.0.3
   - GTK2 was still listed among current dependencies in few places
   - snprintf sometimes could overwrite terminating null in fixed buffers, resulting to unpredictable possible crashes
+  - Last possible artifacts in area / tooltip draw (try thick border lines with rounding)
 2022-02-10 17.0.3
 - Enhancements:
   - Added command to refresh executors (issue #747) (Arash Rohani)

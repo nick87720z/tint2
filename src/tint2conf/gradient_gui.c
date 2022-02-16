@@ -219,10 +219,8 @@ void gradient_create_new(GradientConfigType t)
 
 gpointer copy_GradientConfigColorStop(gconstpointer arg, gpointer data)
 {
-    GradientConfigColorStop *old = (GradientConfigColorStop *)arg;
-
     GradientConfigColorStop *copy = (GradientConfigColorStop *)calloc(1, sizeof(GradientConfigColorStop));
-    memcpy(copy, old, sizeof(GradientConfigColorStop));
+    *copy = *(GradientConfigColorStop *)arg;
     return copy;
 }
 
@@ -452,10 +450,8 @@ void gradient_stop_create_new()
 
     GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)g_index)->data;
     GradientConfigColorStop *stop = (GradientConfigColorStop *)calloc(1, sizeof(GradientConfigColorStop));
-    if (g->extra_color_stops)
-        memcpy(stop, g_list_last(g->extra_color_stops)->data, sizeof(GradientConfigColorStop));
-    else
-        memcpy(stop, &g->start_color, sizeof(GradientConfigColorStop));
+    *stop = g->extra_color_stops ? *(GradientConfigColorStop *) g_list_last(g->extra_color_stops)->data
+                                : g->start_color;
     g->extra_color_stops = g_list_append(g->extra_color_stops, stop);
     GtkTreeIter iter;
     gtk_list_store_append(gradient_stop_ids, &iter);

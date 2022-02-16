@@ -208,7 +208,7 @@ void init_panel()
 
     panels = calloc(num_panels, sizeof(Panel));
     for (int i = 0; i < num_panels; i++) {
-        memcpy(&panels[i], &panel_config, sizeof(Panel));
+        panels[i] = panel_config;
         INIT_TIMER(panels[i].autohide_timer);
     }
 

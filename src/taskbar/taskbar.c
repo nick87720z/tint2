@@ -367,7 +367,7 @@ void init_taskbar_panel(void *p)
     panel->taskbar = calloc(server.num_desktops, sizeof(Taskbar));
     for (int j = 0; j < panel->num_desktops; j++) {
         taskbar = &panel->taskbar[j];
-        memcpy(&taskbar->area, &panel->g_taskbar.area, sizeof(Area));
+        taskbar->area = panel->g_taskbar.area;
         taskbar->desktop = j;
         taskbar->area.bg = panel->g_taskbar.background[j == server.desktop ? TASKBAR_ACTIVE : TASKBAR_NORMAL];
         area_gradients_free(&taskbar->area);

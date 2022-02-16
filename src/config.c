@@ -317,22 +317,18 @@ void add_entry(char *key, char *value)
         // 'rounded' is the first parameter => alloc a new background
         if (backgrounds->len > 0) {
             Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-            if (!read_bg_color_hover)
-                memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
-            if (!read_border_color_hover)
-                memcpy(&bg->border_color_hover, &bg->border, sizeof(Color));
-            if (!read_bg_color_press)
-                memcpy(&bg->fill_color_pressed, &bg->fill_color_hover, sizeof(Color));
-            if (!read_border_color_press)
-                memcpy(&bg->border_color_pressed, &bg->border_color_hover, sizeof(Color));
+            if (!read_bg_color_hover)       bg->fill_color_hover     = bg->fill_color;
+            if (!read_border_color_hover)   bg->border_color_hover   = bg->border.color;
+            if (!read_bg_color_press)       bg->fill_color_pressed   = bg->fill_color_hover;
+            if (!read_border_color_press)   bg->border_color_pressed = bg->border_color_hover;
         }
         Background bg;
         init_background(&bg);
         bg.border.radius = atoi(value);
         g_array_append_val(backgrounds, bg);
-        read_bg_color_hover = FALSE;
+        read_bg_color_hover     = FALSE;
         read_border_color_hover = FALSE;
-        read_bg_color_press = FALSE;
+        read_bg_color_press     = FALSE;
         read_border_color_press = FALSE;
         break;
     }
@@ -1327,14 +1323,10 @@ gboolean config_read_file(const char *path)
 
     if (backgrounds->len > 0) {
         Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
-        if (!read_bg_color_hover)
-            memcpy(&bg->fill_color_hover, &bg->fill_color, sizeof(Color));
-        if (!read_border_color_hover)
-            memcpy(&bg->border_color_hover, &bg->border, sizeof(Color));
-        if (!read_bg_color_press)
-            memcpy(&bg->fill_color_pressed, &bg->fill_color_hover, sizeof(Color));
-        if (!read_border_color_press)
-            memcpy(&bg->border_color_pressed, &bg->border_color_hover, sizeof(Color));
+        if (!read_bg_color_hover)       bg->fill_color_hover     = bg->fill_color;
+        if (!read_border_color_hover)   bg->border_color_hover   = bg->border.color;
+        if (!read_bg_color_press)       bg->fill_color_pressed   = bg->fill_color_hover;
+        if (!read_border_color_press)   bg->border_color_pressed = bg->border_color_hover;
     }
 
     return TRUE;

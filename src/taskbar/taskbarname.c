@@ -57,7 +57,7 @@ void init_taskbarname_panel(void *p)
     GSList *l = list;
     for (int j = 0; j < panel->num_desktops; j++) {
         Taskbar *taskbar = &panel->taskbar[j];
-        memcpy(&taskbar->bar_name.area, &panel->g_taskbar.area_name, sizeof(Area));
+        taskbar->bar_name.area = panel->g_taskbar.area_name;
         taskbar->bar_name.area.parent = taskbar;
         taskbar->bar_name.area.has_mouse_over_effect = panel_config.mouse_effects;
         taskbar->bar_name.area.has_mouse_press_effect = panel_config.mouse_effects;

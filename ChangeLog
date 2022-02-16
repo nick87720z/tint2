@@ -1,3 +1,13 @@
+2020-02-10 master
+- Enhancements:
+  - Added option "rounded_corners" to disable rounding for separate corners
+  - "tput clear" command in executors is possible without "-T" option (TERM is set to better value than "dumb")
+  - Enhanced API documentation comment style to look more like documentation right in code (resemble doxygen output)
+- Fixes:
+  - Fixed build with the Ninja cmake generator (cmake `-GNinja` option)
+  - Found few regressions, possibly introduced between versions 17.0.2 and 17.0.3
+  - GTK2 was still listed among current dependencies in few places
+  - snprintf sometimes could overwrite terminating null in fixed buffers, resulting to unpredictable possible crashes
 2022-02-10 17.0.3
 - Enhancements:
   - Added command to refresh executors (issue #747) (Arash Rohani)

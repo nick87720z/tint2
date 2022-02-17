@@ -114,13 +114,13 @@ extern GtkWidget *tooltip_background;
 // Separator
 typedef struct Separator {
     char name[256];
-    GtkWidget *page_separator;
-    GtkWidget *separator_background;
-    GtkWidget *separator_color;
-    GtkWidget *separator_style;
-    GtkWidget *separator_size;
-    GtkWidget *separator_padding_x;
-    GtkWidget *separator_padding_y;
+    GtkWidget *page;
+    GtkWidget *bg;
+    GtkWidget *color;
+    GtkWidget *style;
+    GtkWidget *size;
+    GtkWidget *padx;
+    GtkWidget *pady;
 } Separator;
 
 extern GArray *separators;
@@ -128,14 +128,14 @@ extern GArray *separators;
 // Executor
 typedef struct Executor {
     char name[256];
-    GtkWidget *page_execp;
-    GtkWidget *execp_name;
-    GtkWidget *execp_command, *execp_interval, *execp_has_icon, *execp_cache_icon, *execp_show_tooltip;
-    GtkWidget *execp_continuous, *execp_markup, *execp_tooltip, *execp_monitor;
-    GtkWidget *execp_left_command, *execp_right_command;
-    GtkWidget *execp_mclick_command, *execp_rclick_command, *execp_uwheel_command, *execp_dwheel_command;
-    GtkWidget *execp_font, *execp_font_set, *execp_font_color, *execp_padding_x, *execp_padding_y, *execp_centered;
-    GtkWidget *execp_background, *execp_icon_w, *execp_icon_h;
+    GtkWidget *page;
+    GtkWidget *id;
+    GtkWidget *cmd, *interval, *has_icon, *cache_icon, *show_tooltip;
+    GtkWidget *cont, *markup, *tooltip, *mon;
+    GtkWidget *cmd_lclick, *cmd_rclick, *cmd_mclick;
+    GtkWidget *cmd_uwheel, *cmd_dwheel;
+    GtkWidget *font, *font_use, *font_color, *padx, *pady, *centered;
+    GtkWidget *bg, *iw, *ih;
 } Executor;
 
 extern GArray *executors;
@@ -143,13 +143,12 @@ extern GArray *executors;
 // Button
 typedef struct Button {
     char name[256];
-    GtkWidget *page_button;
-    GtkWidget *button_icon, *button_text, *button_tooltip;
-    GtkWidget *button_left_command, *button_right_command;
-    GtkWidget *button_mclick_command, *button_rclick_command, *button_uwheel_command, *button_dwheel_command;
-    GtkWidget *button_font, *button_font_set, *button_font_color, *button_padding_x, *button_padding_y,
-        *button_centered;
-    GtkWidget *button_background, *button_max_icon_size;
+    GtkWidget *page;
+    GtkWidget *icon, *text, *tooltip;
+    GtkWidget *cmd_lclick, *cmd_rclick, *cmd_mclick;
+    GtkWidget *cmd_uwheel, *cmd_dwheel;
+    GtkWidget *font, *font_use, *font_color, *padx, *pady, *centered;
+    GtkWidget *bg, *max_icon_size;
 } Button;
 
 extern GArray *buttons;

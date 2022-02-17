@@ -788,24 +788,24 @@ void config_write_separator(FILE *fp)
         fprintf(fp, "separator = new\n");
         fprintf(fp,
                 "separator_background_id = %d\n",
-                gtk_combo_box_get_active(GTK_COMBO_BOX(separator->separator_background)));
+                gtk_combo_box_get_active(GTK_COMBO_BOX(separator->bg)));
         GdkRGBA color;
-        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(separator->separator_color), &color);
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(separator->color), &color);
         config_write_color(fp, "separator_color", &color);
         // fprintf(fp, "separator_style = %d\n",
-        // (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->separator_style)));
+        // (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->style)));
         fprintf(fp,
                 "separator_style = %s\n",
-                gtk_combo_box_get_active(GTK_COMBO_BOX(separator->separator_style)) == 0
+                gtk_combo_box_get_active(GTK_COMBO_BOX(separator->style)) == 0
                     ? "empty"
-                    : gtk_combo_box_get_active(GTK_COMBO_BOX(separator->separator_style)) == 1 ? "line" : "dots");
+                    : gtk_combo_box_get_active(GTK_COMBO_BOX(separator->style)) == 1 ? "line" : "dots");
         fprintf(fp,
                 "separator_size = %d\n",
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->separator_size)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->size)));
         fprintf(fp,
                 "separator_padding = %d %d\n",
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->separator_padding_x)),
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->separator_padding_y)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->padx)),
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(separator->pady)));
         fprintf(fp, "\n");
     }
 }
@@ -819,60 +819,60 @@ void config_write_execp(FILE *fp)
         Executor *executor = &g_array_index(executors, Executor, i);
 
         fprintf(fp, "execp = new\n");
-        fprintf(fp, "execp_name = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_name)));
-        fprintf(fp, "execp_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_command)));
-        fprintf(fp, "execp_interval = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->execp_interval)));
+        fprintf(fp, "execp_name = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->id)));
+        fprintf(fp, "execp_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd)));
+        fprintf(fp, "execp_interval = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->interval)));
         fprintf(fp,
                 "execp_has_icon = %d\n",
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_has_icon)) ? 1 : 0);
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->has_icon)) ? 1 : 0);
         fprintf(fp,
                 "execp_cache_icon = %d\n",
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_cache_icon)) ? 1 : 0);
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->cache_icon)) ? 1 : 0);
         fprintf(fp,
                 "execp_continuous = %d\n",
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->execp_continuous)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->cont)));
         fprintf(fp,
                 "execp_markup = %d\n",
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_markup)) ? 1 : 0);
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->markup)) ? 1 : 0);
         fprintf(fp, "execp_monitor = ");
-        if (gtk_combo_box_get_active(GTK_COMBO_BOX(executor->execp_monitor)) <= 0) {
+        if (gtk_combo_box_get_active(GTK_COMBO_BOX(executor->mon)) <= 0) {
             fprintf(fp, "all");
-        } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(executor->execp_monitor)) == 1) {
+        } else if (gtk_combo_box_get_active(GTK_COMBO_BOX(executor->mon)) == 1) {
             fprintf(fp, "primary");
         } else {
-            fprintf(fp, "%d", MAX(1, gtk_combo_box_get_active(GTK_COMBO_BOX(executor->execp_monitor)) - 1));
+            fprintf(fp, "%d", MAX(1, gtk_combo_box_get_active(GTK_COMBO_BOX(executor->mon)) - 1));
         }
         fprintf(fp, "\n");
 
-        if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_show_tooltip))) {
+        if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->show_tooltip))) {
             fprintf(fp, "execp_tooltip = \n");
         } else {
-            const gchar *text = gtk_entry_get_text(GTK_ENTRY(executor->execp_tooltip));
+            const gchar *text = gtk_entry_get_text(GTK_ENTRY(executor->tooltip));
             if (strlen(text) > 0)
                 fprintf(fp, "execp_tooltip = %s\n", text);
         }
 
-        fprintf(fp, "execp_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_left_command)));
-        fprintf(fp, "execp_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_right_command)));
-        fprintf(fp, "execp_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_mclick_command)));
-        fprintf(fp, "execp_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_uwheel_command)));
-        fprintf(fp, "execp_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->execp_dwheel_command)));
+        fprintf(fp, "execp_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_lclick)));
+        fprintf(fp, "execp_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_rclick)));
+        fprintf(fp, "execp_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_mclick)));
+        fprintf(fp, "execp_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_uwheel)));
+        fprintf(fp, "execp_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_dwheel)));
 
-        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_font_set)))
-            fprintf(fp, "execp_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(executor->execp_font)));
+        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->font_use)))
+            fprintf(fp, "execp_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(executor->font)));
         GdkRGBA color;
-        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(executor->execp_font_color), &color);
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(executor->font_color), &color);
         config_write_color(fp, "execp_font_color", &color);
         fprintf(fp,
                 "execp_padding = %d %d\n",
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->execp_padding_x)),
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->execp_padding_y)));
-        fprintf(fp, "execp_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(executor->execp_background)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->padx)),
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->pady)));
+        fprintf(fp, "execp_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(executor->bg)));
         fprintf(fp,
                 "execp_centered = %d\n",
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->execp_centered)) ? 1 : 0);
-        fprintf(fp, "execp_icon_w = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->execp_icon_w)));
-        fprintf(fp, "execp_icon_h = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->execp_icon_h)));
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->centered)) ? 1 : 0);
+        fprintf(fp, "execp_icon_w = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->iw)));
+        fprintf(fp, "execp_icon_h = %d\n", (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->ih)));
 
         fprintf(fp, "\n");
     }
@@ -887,35 +887,35 @@ void config_write_button(FILE *fp)
         Button *button = &g_array_index(buttons, Button, i);
 
         fprintf(fp, "button = new\n");
-        if (strlen(gtk_entry_get_text(GTK_ENTRY(button->button_icon))))
-            fprintf(fp, "button_icon = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_icon)));
-        if (gtk_entry_get_text(GTK_ENTRY(button->button_text)))
-            fprintf(fp, "button_text = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_text)));
-        if (strlen(gtk_entry_get_text(GTK_ENTRY(button->button_tooltip))))
-            fprintf(fp, "button_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_tooltip)));
+        if (strlen(gtk_entry_get_text(GTK_ENTRY(button->icon))))
+            fprintf(fp, "button_icon = %s\n", gtk_entry_get_text(GTK_ENTRY(button->icon)));
+        if (gtk_entry_get_text(GTK_ENTRY(button->text)))
+            fprintf(fp, "button_text = %s\n", gtk_entry_get_text(GTK_ENTRY(button->text)));
+        if (strlen(gtk_entry_get_text(GTK_ENTRY(button->tooltip))))
+            fprintf(fp, "button_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(button->tooltip)));
 
-        fprintf(fp, "button_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_left_command)));
-        fprintf(fp, "button_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_right_command)));
-        fprintf(fp, "button_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_mclick_command)));
-        fprintf(fp, "button_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_uwheel_command)));
-        fprintf(fp, "button_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->button_dwheel_command)));
+        fprintf(fp, "button_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->cmd_lclick)));
+        fprintf(fp, "button_rclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->cmd_rclick)));
+        fprintf(fp, "button_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->cmd_mclick)));
+        fprintf(fp, "button_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->cmd_uwheel)));
+        fprintf(fp, "button_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->cmd_dwheel)));
 
-        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->button_font_set)))
-            fprintf(fp, "button_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(button->button_font)));
+        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->font_use)))
+            fprintf(fp, "button_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(button->font)));
         GdkRGBA color;
-        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button->button_font_color), &color);
+        gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button->font_color), &color);
         config_write_color(fp, "button_font_color", &color);
         fprintf(fp,
                 "button_padding = %d %d\n",
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->button_padding_x)),
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->button_padding_y)));
-        fprintf(fp, "button_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(button->button_background)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->padx)),
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->pady)));
+        fprintf(fp, "button_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(button->bg)));
         fprintf(fp,
                 "button_centered = %d\n",
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->button_centered)) ? 1 : 0);
+                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button->centered)) ? 1 : 0);
         fprintf(fp,
                 "button_max_icon_size = %d\n",
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->button_max_icon_size)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->max_icon_size)));
 
         fprintf(fp, "\n");
     }
@@ -1140,6 +1140,7 @@ void add_entry(char *key, char *value)
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_corner_radius), atoi(value));
         background_force_update();
         break;
+    case key_rounded_corners: break; // TODO tint2conf key_rounded_corners support
     case key_border_width:
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_width), atoi(value));
         background_force_update();
@@ -1893,7 +1894,7 @@ void add_entry(char *key, char *value)
         break;
     case key_separator_background_id: {
         int id = background_index_safe(atoi(value));
-        gtk_combo_box_set_active(GTK_COMBO_BOX(separator_get_last()->separator_background), id);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(separator_get_last()->bg), id);
         break; }
     case key_separator_color: {
         extract_values(value, values, 3);
@@ -1902,24 +1903,24 @@ void add_entry(char *key, char *value)
         if (values[1]) {
             col.alpha = atoi(values[1]) / 100.0;
         }
-        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(separator_get_last()->separator_color), &col);
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(separator_get_last()->color), &col);
         break; }
     case key_separator_style: {
         int i = str_index(value, (char *[]){"dots", "empty", "line"}, 3);
         if (i != -1)
             gtk_combo_box_set_active(
-                GTK_COMBO_BOX(separator_get_last()->separator_style),
+                GTK_COMBO_BOX(separator_get_last()->style),
                 (int []) {2,0,1} [i]
             );
         break; }
     case key_separator_size:
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_size), atoi(value));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->size), atoi(value));
         break;
     case key_separator_padding:
         extract_values(value, values, 3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->padx), atoi(values[0]));
         if (values[1])
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->separator_padding_y), atoi(values[1]));
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator_get_last()->pady), atoi(values[1]));
         break;
 
     /* Executor */
@@ -1927,58 +1928,54 @@ void add_entry(char *key, char *value)
         execp_create_new();
         break;
     case key_execp_name:
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_name), value);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->id), value);
         break;
     case key_execp_command:
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_command), value);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->cmd), value);
         break;
     case key_execp_interval:
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_interval), atoi(value));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->interval), atoi(value));
         break;
     case key_execp_has_icon:
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_has_icon), atoi(value));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->has_icon), atoi(value));
         break;
     case key_execp_cache_icon:
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_cache_icon), atoi(value));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->cache_icon), atoi(value));
         break;
     case key_execp_continuous:
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_continuous), atoi(value));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->cont), atoi(value));
         break;
     case key_execp_markup:
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_markup), atoi(value));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->markup), atoi(value));
         break;
     case key_execp_monitor:
         gtk_combo_box_set_active(
-            GTK_COMBO_BOX(execp_get_last()->execp_monitor),
+            GTK_COMBO_BOX(execp_get_last()->mon),
             (int[]) {1,2,3,4,5,6,0,1} [ str_index(value, (char *[]){"1", "2", "3", "4", "5", "6", "all", "primary"}, 8) ]
         );
         break;
     case key_execp_tooltip:
-        if (strlen(value) > 0) {
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_show_tooltip), 1);
-        } else {
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_show_tooltip), 0);
-        }
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_tooltip), value);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->show_tooltip), strlen(value) > 0);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->tooltip), value);
         break;
     case key_execp_lclick_command:
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_left_command), value);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->cmd_lclick), value);
         break;
     case key_execp_rclick_command:
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_right_command), value);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->cmd_rclick), value);
         break;
     case key_execp_mclick_command:
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_mclick_command), value);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->cmd_mclick), value);
         break;
     case key_execp_uwheel_command:
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_uwheel_command), value);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->cmd_uwheel), value);
         break;
     case key_execp_dwheel_command:
-        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->execp_dwheel_command), value);
+        gtk_entry_set_text(GTK_ENTRY(execp_get_last()->cmd_dwheel), value);
         break;
     case key_execp_font:
-        gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->execp_font), value);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_font_set), TRUE);
+        gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->font), value);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->font_use), TRUE);
         break;
     case key_execp_font_color: {
         extract_values(value, values, 3);
@@ -1987,26 +1984,26 @@ void add_entry(char *key, char *value)
         if (values[1]) {
             col.alpha = atoi(values[1]) / 100.0;
         }
-        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(execp_get_last()->execp_font_color), &col);
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(execp_get_last()->font_color), &col);
         break; }
     case key_execp_padding:
         extract_values(value, values, 3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->padx), atoi(values[0]));
         if (values[1])
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_padding_y), atoi(values[1]));
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->pady), atoi(values[1]));
         break;
     case key_execp_background_id: {
         int id = background_index_safe(atoi(value));
-        gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->execp_background), id);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->bg), id);
         break; }
     case key_execp_icon_w:
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_icon_w), atoi(value));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->iw), atoi(value));
         break;
     case key_execp_icon_h:
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->execp_icon_h), atoi(value));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->ih), atoi(value));
         break;
     case key_execp_centered:
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->execp_centered), atoi(value));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->centered), atoi(value));
         break;
 
     /* Button */
@@ -2014,32 +2011,32 @@ void add_entry(char *key, char *value)
         button_create_new();
         break;
     case key_button_icon:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_icon), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->icon), value);
         break;
     case key_button_text:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_text), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->text), value);
         break;
     case key_button_tooltip:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_tooltip), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->tooltip), value);
         break;
     case key_button_lclick_command:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_left_command), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->cmd_lclick), value);
         break;
     case key_button_rclick_command:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_right_command), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->cmd_rclick), value);
         break;
     case key_button_mclick_command:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_mclick_command), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->cmd_mclick), value);
         break;
     case key_button_uwheel_command:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_uwheel_command), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->cmd_uwheel), value);
         break;
     case key_button_dwheel_command:
-        gtk_entry_set_text(GTK_ENTRY(button_get_last()->button_dwheel_command), value);
+        gtk_entry_set_text(GTK_ENTRY(button_get_last()->cmd_dwheel), value);
         break;
     case key_button_font:
-        gtk_font_button_set_font_name(GTK_FONT_BUTTON(button_get_last()->button_font), value);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->button_font_set), TRUE);
+        gtk_font_button_set_font_name(GTK_FONT_BUTTON(button_get_last()->font), value);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->font_use), TRUE);
         break;
     case key_button_font_color: {
         extract_values(value, values, 3);
@@ -2048,23 +2045,23 @@ void add_entry(char *key, char *value)
         if (values[1]) {
             col.alpha = atoi(values[1]) / 100.0;
         }
-        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(button_get_last()->button_font_color), &col);
+        gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(button_get_last()->font_color), &col);
         break; }
     case key_button_padding:
         extract_values(value, values, 3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_x), atoi(values[0]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->padx), atoi(values[0]));
         if (values[1])
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_padding_y), atoi(values[1]));
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->pady), atoi(values[1]));
         break;
     case key_button_background_id: {
         int id = background_index_safe(atoi(value));
-        gtk_combo_box_set_active(GTK_COMBO_BOX(button_get_last()->button_background), id);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(button_get_last()->bg), id);
         break; }
     case key_button_centered:
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->button_centered), atoi(value));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button_get_last()->centered), atoi(value));
         break;
     case key_button_max_icon_size:
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->button_max_icon_size), atoi(value));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->max_icon_size), atoi(value));
         break;
     default:
         if (g_regex_match_simple("task.*_font_color", key, 0, 0)) {

@@ -3912,12 +3912,12 @@ void create_separator(GtkWidget *stack, int i)
     int row, col;
     Separator *separator = &g_array_index(separators, Separator, i);
     STRBUF_AUTO_PRINTF (separator->name, "%s %d", _("Separator"), i + 1);
-    separator->page_separator = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(separator->page_separator), 10);
-    gtk_widget_show(separator->page_separator);
-    gtk_stack_add_titled(GTK_STACK(stack), separator->page_separator, NULL, separator->name);
+    separator->page = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
+    gtk_container_set_border_width(GTK_CONTAINER(separator->page), 10);
+    gtk_widget_show(separator->page);
+    gtk_stack_add_titled(GTK_STACK(stack), separator->page, NULL, separator->name);
 
-    GtkWidget *parent = separator->page_separator;
+    GtkWidget *parent = separator->page;
 
     table = gtk_table_new(1, 2, FALSE);
     gtk_widget_show(table);
@@ -3945,9 +3945,9 @@ void create_separator(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    separator->separator_background = create_background_combo(_("Separator"));
-    gtk_widget_show(separator->separator_background);
-    gtk_table_attach(GTK_TABLE(table), separator->separator_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    separator->bg = create_background_combo(_("Separator"));
+    gtk_widget_show(separator->bg);
+    gtk_table_attach(GTK_TABLE(table), separator->bg, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -3957,15 +3957,15 @@ void create_separator(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    separator->separator_color = gtk_color_button_new();
-    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(separator->separator_color), TRUE);
-    gtk_widget_show(separator->separator_color);
+    separator->color = gtk_color_button_new();
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(separator->color), TRUE);
+    gtk_widget_show(separator->color);
     GdkRGBA color = {   .red   = 0x77 / 255.0,
                         .green = 0x77 / 255.0,
                         .blue  = 0x77 / 255.0,
                         .alpha = 0.9 };
-    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(separator->separator_color), &color);
-    gtk_table_attach(GTK_TABLE(table), separator->separator_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(separator->color), &color);
+    gtk_table_attach(GTK_TABLE(table), separator->color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -3975,14 +3975,14 @@ void create_separator(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    separator->separator_style = gtk_combo_box_text_new();
-    gtk_widget_show(separator->separator_style);
-    gtk_table_attach(GTK_TABLE(table), separator->separator_style, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    separator->style = gtk_combo_box_text_new();
+    gtk_widget_show(separator->style);
+    gtk_table_attach(GTK_TABLE(table), separator->style, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(separator->separator_style), _("Empty"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(separator->separator_style), _("Line"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(separator->separator_style), _("Dots"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(separator->separator_style), 2);
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(separator->style), _("Empty"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(separator->style), _("Line"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(separator->style), _("Dots"));
+    gtk_combo_box_set_active(GTK_COMBO_BOX(separator->style), 2);
 
     row++, col = 2;
     label = gtk_label_new(_("Size"));
@@ -3991,10 +3991,10 @@ void create_separator(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    separator->separator_size = gtk_spin_button_new_with_range(0, 10000, 1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator->separator_size), 3);
-    gtk_widget_show(separator->separator_size);
-    gtk_table_attach(GTK_TABLE(table), separator->separator_size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    separator->size = gtk_spin_button_new_with_range(0, 10000, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator->size), 3);
+    gtk_widget_show(separator->size);
+    gtk_table_attach(GTK_TABLE(table), separator->size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4004,10 +4004,10 @@ void create_separator(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    separator->separator_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator->separator_padding_x), 1);
-    gtk_widget_show(separator->separator_padding_x);
-    gtk_table_attach(GTK_TABLE(table), separator->separator_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    separator->padx = gtk_spin_button_new_with_range(0, 500, 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(separator->padx), 1);
+    gtk_widget_show(separator->padx);
+    gtk_table_attach(GTK_TABLE(table), separator->padx, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4017,9 +4017,9 @@ void create_separator(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    separator->separator_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-    gtk_widget_show(separator->separator_padding_y);
-    gtk_table_attach(GTK_TABLE(table), separator->separator_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    separator->pady = gtk_spin_button_new_with_range(0, 500, 1);
+    gtk_widget_show(separator->pady);
+    gtk_table_attach(GTK_TABLE(table), separator->pady, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     change_paragraph(parent);
@@ -4034,12 +4034,12 @@ void create_execp(GtkWidget *stack, int i)
     Executor *executor = &g_array_index(executors, Executor, i);
 
     STRBUF_AUTO_PRINTF (executor->name, "%s %d", _("Executor"), i + 1);
-    executor->page_execp = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(executor->page_execp), 10);
-    gtk_widget_show(executor->page_execp);
-    gtk_stack_add_titled(GTK_STACK(stack), executor->page_execp, NULL, executor->name);
+    executor->page = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
+    gtk_container_set_border_width(GTK_CONTAINER(executor->page), 10);
+    gtk_widget_show(executor->page);
+    gtk_stack_add_titled(GTK_STACK(stack), executor->page, NULL, executor->name);
 
-    GtkWidget *parent = executor->page_execp;
+    GtkWidget *parent = executor->page;
 
     table = gtk_table_new(1, 2, FALSE);
     gtk_widget_show(table);
@@ -4067,13 +4067,13 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_name = gtk_entry_new();
-    gtk_widget_show(executor->execp_name);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_name), 20);
-    gtk_entry_set_max_length(GTK_ENTRY(executor->execp_name), 20);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_name, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->id = gtk_entry_new();
+    gtk_widget_show(executor->id);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->id), 20);
+    gtk_entry_set_max_length(GTK_ENTRY(executor->id), 20);
+    gtk_table_attach(GTK_TABLE(table), executor->id, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_name,
+    gtk_widget_set_tooltip_text(executor->id,
                                 _("Specifies a name that can be used with `tint2-send refresh-execp` to re-execute "
                                   "the command."));
 
@@ -4084,12 +4084,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_command = gtk_entry_new();
-    gtk_widget_show(executor->execp_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_command), 50);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cmd = gtk_entry_new();
+    gtk_widget_show(executor->cmd);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->cmd), 50);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_command, _("Specifies the command to execute."));
+    gtk_widget_set_tooltip_text(executor->cmd, _("Specifies the command to execute."));
 
     row++, col = 2;
     label = gtk_label_new(_("Interval"));
@@ -4098,11 +4098,11 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_interval = gtk_spin_button_new_with_range(0, 1000000, 1);
-    gtk_widget_show(executor->execp_interval);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_interval, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->interval = gtk_spin_button_new_with_range(0, 1000000, 1);
+    gtk_widget_show(executor->interval);
+    gtk_table_attach(GTK_TABLE(table), executor->interval, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_interval,
+    gtk_widget_set_tooltip_text(executor->interval,
                                 _("Specifies the interval at which the command is executed, in seconds. "
                                   "If zero, the command is executed only once."));
 
@@ -4113,11 +4113,11 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_has_icon = gtk_check_button_new();
-    gtk_widget_show(executor->execp_has_icon);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_has_icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->has_icon = gtk_check_button_new();
+    gtk_widget_show(executor->has_icon);
+    gtk_table_attach(GTK_TABLE(table), executor->has_icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_has_icon,
+    gtk_widget_set_tooltip_text(executor->has_icon,
                                 _("If enabled, the first line printed by the command is interpreted "
                                   "as a path to an image file."));
 
@@ -4128,12 +4128,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_cache_icon = gtk_check_button_new();
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(executor->execp_cache_icon), 1);
-    gtk_widget_show(executor->execp_cache_icon);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_cache_icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cache_icon = gtk_check_button_new();
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(executor->cache_icon), 1);
+    gtk_widget_show(executor->cache_icon);
+    gtk_table_attach(GTK_TABLE(table), executor->cache_icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_cache_icon,
+    gtk_widget_set_tooltip_text(executor->cache_icon,
                                 _("If enabled, the image is not reloaded from disk every time the command is executed if the "
                                   "path remains unchanged. Enabling this is recommended."));
 
@@ -4144,11 +4144,11 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_continuous = gtk_spin_button_new_with_range(0, 1000000, 1);
-    gtk_widget_show(executor->execp_continuous);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_continuous, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cont = gtk_spin_button_new_with_range(0, 1000000, 1);
+    gtk_widget_show(executor->cont);
+    gtk_table_attach(GTK_TABLE(table), executor->cont, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_continuous,
+    gtk_widget_set_tooltip_text(executor->cont,
                                 _("If non-zero, the last execp_continuous lines from the output of "
                                   "the command are displayed, every execp_continuous lines; this is "
                                   "useful for showing the output of commands that run indefinitely, "
@@ -4161,12 +4161,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_markup = gtk_check_button_new();
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(executor->execp_markup), 1);
-    gtk_widget_show(executor->execp_markup);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_markup, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->markup = gtk_check_button_new();
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(executor->markup), 1);
+    gtk_widget_show(executor->markup);
+    gtk_table_attach(GTK_TABLE(table), executor->markup, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_markup,
+    gtk_widget_set_tooltip_text(executor->markup,
                                 _("If enabled, the output of the command is treated as Pango markup, "
                                   "which allows rich text formatting. Note that using this with commands "
                                   "that print data downloaded from the Internet is a potential security risk."));
@@ -4178,20 +4178,20 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_monitor = gtk_combo_box_text_new();
-    gtk_widget_show(executor->execp_monitor);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_monitor, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->mon = gtk_combo_box_text_new();
+    gtk_widget_show(executor->mon);
+    gtk_table_attach(GTK_TABLE(table), executor->mon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("All"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("Primary"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("1"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("2"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("3"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("4"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("5"));
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->execp_monitor), _("6"));
-    gtk_combo_box_set_active(GTK_COMBO_BOX(executor->execp_monitor), 0);
-    gtk_widget_set_tooltip_text(executor->execp_monitor,
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("All"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("Primary"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("1"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("2"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("3"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("4"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("5"));
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(executor->mon), _("6"));
+    gtk_combo_box_set_active(GTK_COMBO_BOX(executor->mon), 0);
+    gtk_widget_set_tooltip_text(executor->mon,
                                 _("Specifies the monitor on which to place the executor."));
 
     change_paragraph(parent);
@@ -4215,12 +4215,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_left_command = gtk_entry_new();
-    gtk_widget_show(executor->execp_left_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_left_command), 50);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_left_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cmd_lclick = gtk_entry_new();
+    gtk_widget_show(executor->cmd_lclick);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->cmd_lclick), 50);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_lclick, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_left_command,
+    gtk_widget_set_tooltip_text(executor->cmd_lclick,
                                 _("Specifies a command that will be executed when the executor receives a left click."));
 
     row++, col = 2;
@@ -4230,12 +4230,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_right_command = gtk_entry_new();
-    gtk_widget_show(executor->execp_right_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_right_command), 50);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_right_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cmd_rclick = gtk_entry_new();
+    gtk_widget_show(executor->cmd_rclick);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->cmd_rclick), 50);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_rclick, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_right_command,
+    gtk_widget_set_tooltip_text(executor->cmd_rclick,
                                 _("Specifies a command that will be executed when the executor receives a right click."));
 
     row++, col = 2;
@@ -4245,12 +4245,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_mclick_command = gtk_entry_new();
-    gtk_widget_show(executor->execp_mclick_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_mclick_command), 50);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_mclick_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cmd_mclick = gtk_entry_new();
+    gtk_widget_show(executor->cmd_mclick);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->cmd_mclick), 50);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_mclick, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_mclick_command,
+    gtk_widget_set_tooltip_text(executor->cmd_mclick,
                                 _("Specifies a command that will be executed when the executor receives a middle click."));
 
     row++, col = 2;
@@ -4260,12 +4260,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_uwheel_command = gtk_entry_new();
-    gtk_widget_show(executor->execp_uwheel_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_uwheel_command), 50);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_uwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cmd_uwheel = gtk_entry_new();
+    gtk_widget_show(executor->cmd_uwheel);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->cmd_uwheel), 50);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_uwheel, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_uwheel_command,
+    gtk_widget_set_tooltip_text(executor->cmd_uwheel,
                                 _("Specifies a command that will be executed when the executor receives a mouse scroll up."));
 
     row++, col = 2;
@@ -4275,12 +4275,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_dwheel_command = gtk_entry_new();
-    gtk_widget_show(executor->execp_dwheel_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_dwheel_command), 50);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_dwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->cmd_dwheel = gtk_entry_new();
+    gtk_widget_show(executor->cmd_dwheel);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->cmd_dwheel), 50);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_dwheel, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_dwheel_command,
+    gtk_widget_set_tooltip_text(executor->cmd_dwheel,
                                 _("Specifies a command that will be executed when the executor receives a mouse scroll down."));
 
     change_paragraph(parent);
@@ -4304,11 +4304,11 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_background = create_background_combo(_("Executor"));
-    gtk_widget_show(executor->execp_background);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->bg = create_background_combo(_("Executor"));
+    gtk_widget_show(executor->bg);
+    gtk_table_attach(GTK_TABLE(table), executor->bg, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_background,
+    gtk_widget_set_tooltip_text(executor->bg,
                                 _("Selects the background used to display the executor. "
                                   "Backgrounds can be edited in the Backgrounds tab."));
 
@@ -4319,11 +4319,11 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-    gtk_widget_show(executor->execp_padding_x);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->padx = gtk_spin_button_new_with_range(0, 500, 1);
+    gtk_widget_show(executor->padx);
+    gtk_table_attach(GTK_TABLE(table), executor->padx, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_padding_x,
+    gtk_widget_set_tooltip_text(executor->padx,
                                 _("Specifies the horizontal padding of the executor. "
                                   "This is the space between the border and the content inside."));
 
@@ -4334,19 +4334,19 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-    gtk_widget_show(executor->execp_padding_y);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->pady = gtk_spin_button_new_with_range(0, 500, 1);
+    gtk_widget_show(executor->pady);
+    gtk_table_attach(GTK_TABLE(table), executor->pady, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_padding_y,
+    gtk_widget_set_tooltip_text(executor->pady,
                                 _("Specifies the vertical padding of the executor. "
                                   "This is the space between the border and the content inside."));
 
     row++, col = 1;
-    executor->execp_font_set = gtk_check_button_new();
-    gtk_widget_show(executor->execp_font_set);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_font_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_widget_set_tooltip_text(executor->execp_font_set,
+    executor->font_use = gtk_check_button_new();
+    gtk_widget_show(executor->font_use);
+    gtk_table_attach(GTK_TABLE(table), executor->font_use, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    gtk_widget_set_tooltip_text(executor->font_use,
                                 _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
                                   "is used."));
     col++;
@@ -4357,16 +4357,16 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_font = gtk_font_button_new_with_font(get_default_font());
-    gtk_widget_show(executor->execp_font);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_font, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->font = gtk_font_button_new_with_font(get_default_font());
+    gtk_widget_show(executor->font);
+    gtk_table_attach(GTK_TABLE(table), executor->font, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_font_button_set_show_style(GTK_FONT_BUTTON(executor->execp_font), TRUE);
-    g_signal_connect(G_OBJECT(executor->execp_font_set),
+    gtk_font_button_set_show_style(GTK_FONT_BUTTON(executor->font), TRUE);
+    g_signal_connect(G_OBJECT(executor->font_use),
                        "toggled",
                        G_CALLBACK(font_set_callback),
-                       executor->execp_font);
-    font_set_callback(executor->execp_font_set, executor->execp_font);
+                       executor->font);
+    font_set_callback(executor->font_use, executor->font);
 
     row++, col = 2;
     label = gtk_label_new(_("Font color"));
@@ -4375,10 +4375,10 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_font_color = gtk_color_button_new();
-    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(executor->execp_font_color), TRUE);
-    gtk_widget_show(executor->execp_font_color);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->font_color = gtk_color_button_new();
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(executor->font_color), TRUE);
+    gtk_widget_show(executor->font_color);
+    gtk_table_attach(GTK_TABLE(table), executor->font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4388,9 +4388,9 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_centered = gtk_check_button_new();
-    gtk_widget_show(executor->execp_centered);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_centered, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->centered = gtk_check_button_new();
+    gtk_widget_show(executor->centered);
+    gtk_table_attach(GTK_TABLE(table), executor->centered, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4400,11 +4400,11 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_icon_w = gtk_spin_button_new_with_range(0, 1000000, 1);
-    gtk_widget_show(executor->execp_icon_w);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_icon_w, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->iw = gtk_spin_button_new_with_range(0, 1000000, 1);
+    gtk_widget_show(executor->iw);
+    gtk_table_attach(GTK_TABLE(table), executor->iw, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_icon_w, _("If non-zero, the image is resized to this width."));
+    gtk_widget_set_tooltip_text(executor->iw, _("If non-zero, the image is resized to this width."));
 
     row++, col = 2;
     label = gtk_label_new(_("Icon height"));
@@ -4413,11 +4413,11 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_icon_h = gtk_spin_button_new_with_range(0, 1000000, 1);
-    gtk_widget_show(executor->execp_icon_h);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_icon_h, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->ih = gtk_spin_button_new_with_range(0, 1000000, 1);
+    gtk_widget_show(executor->ih);
+    gtk_table_attach(GTK_TABLE(table), executor->ih, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_icon_h, _("If non-zero, the image is resized to this height."));
+    gtk_widget_set_tooltip_text(executor->ih, _("If non-zero, the image is resized to this height."));
 
     row++, col = 2;
     label = gtk_label_new(_("Tooltip"));
@@ -4426,10 +4426,10 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_show_tooltip = gtk_check_button_new();
-    gtk_widget_show(executor->execp_show_tooltip);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_show_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(executor->execp_show_tooltip), 1);
+    executor->show_tooltip = gtk_check_button_new();
+    gtk_widget_show(executor->show_tooltip);
+    gtk_table_attach(GTK_TABLE(table), executor->show_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(executor->show_tooltip), 1);
     col++;
 
     row++, col = 2;
@@ -4439,12 +4439,12 @@ void create_execp(GtkWidget *stack, int i)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    executor->execp_tooltip = gtk_entry_new();
-    gtk_widget_show(executor->execp_tooltip);
-    gtk_entry_set_width_chars(GTK_ENTRY(executor->execp_tooltip), 50);
-    gtk_table_attach(GTK_TABLE(table), executor->execp_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    executor->tooltip = gtk_entry_new();
+    gtk_widget_show(executor->tooltip);
+    gtk_entry_set_width_chars(GTK_ENTRY(executor->tooltip), 50);
+    gtk_table_attach(GTK_TABLE(table), executor->tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(executor->execp_tooltip,
+    gtk_widget_set_tooltip_text(executor->tooltip,
                                 _("The tooltip text to display. Leave this empty to display an automatically generated "
                                   "tooltip with information about when the command was last executed."));
 
@@ -4459,12 +4459,12 @@ void create_button(GtkWidget *stack, int i) {
     Button *button = &g_array_index(buttons, Button, i);
 
     STRBUF_AUTO_PRINTF (button->name, "%s %d", _("Button"), i + 1);
-    button->page_button = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
-    gtk_container_set_border_width(GTK_CONTAINER(button->page_button), 10);
-    gtk_widget_show(button->page_button);
-    gtk_stack_add_titled(GTK_STACK(stack), button->page_button, NULL, button->name);
+    button->page = gtk_box_new(GTK_ORIENTATION_VERTICAL, DEFAULT_HOR_SPACING);
+    gtk_container_set_border_width(GTK_CONTAINER(button->page), 10);
+    gtk_widget_show(button->page);
+    gtk_stack_add_titled(GTK_STACK(stack), button->page, NULL, button->name);
 
-    GtkWidget *parent = button->page_button;
+    GtkWidget *parent = button->page;
 
     table = gtk_table_new(1, 2, FALSE);
     gtk_widget_show(table);
@@ -4492,10 +4492,10 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_icon = gtk_entry_new();
-    gtk_widget_show(button->button_icon);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_icon), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->icon = gtk_entry_new();
+    gtk_widget_show(button->icon);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->icon), 50);
+    gtk_table_attach(GTK_TABLE(table), button->icon, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4505,10 +4505,10 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_text = gtk_entry_new();
-    gtk_widget_show(button->button_text);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_text), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_text, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->text = gtk_entry_new();
+    gtk_widget_show(button->text);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->text), 50);
+    gtk_table_attach(GTK_TABLE(table), button->text, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4518,10 +4518,10 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_tooltip = gtk_entry_new();
-    gtk_widget_show(button->button_tooltip);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_tooltip), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->tooltip = gtk_entry_new();
+    gtk_widget_show(button->tooltip);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->tooltip), 50);
+    gtk_table_attach(GTK_TABLE(table), button->tooltip, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     change_paragraph(parent);
@@ -4545,12 +4545,12 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_left_command = gtk_entry_new();
-    gtk_widget_show(button->button_left_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_left_command), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_left_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->cmd_lclick = gtk_entry_new();
+    gtk_widget_show(button->cmd_lclick);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->cmd_lclick), 50);
+    gtk_table_attach(GTK_TABLE(table), button->cmd_lclick, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_left_command,
+    gtk_widget_set_tooltip_text(button->cmd_lclick,
                                 _("Specifies a command that will be executed when the button receives a left click."));
 
     row++, col = 2;
@@ -4560,12 +4560,12 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_right_command = gtk_entry_new();
-    gtk_widget_show(button->button_right_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_right_command), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_right_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->cmd_rclick = gtk_entry_new();
+    gtk_widget_show(button->cmd_rclick);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->cmd_rclick), 50);
+    gtk_table_attach(GTK_TABLE(table), button->cmd_rclick, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_right_command,
+    gtk_widget_set_tooltip_text(button->cmd_rclick,
                                 _("Specifies a command that will be executed when the button receives a right click."));
 
     row++, col = 2;
@@ -4575,12 +4575,12 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_mclick_command = gtk_entry_new();
-    gtk_widget_show(button->button_mclick_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_mclick_command), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_mclick_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->cmd_mclick = gtk_entry_new();
+    gtk_widget_show(button->cmd_mclick);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->cmd_mclick), 50);
+    gtk_table_attach(GTK_TABLE(table), button->cmd_mclick, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_mclick_command,
+    gtk_widget_set_tooltip_text(button->cmd_mclick,
                                 _("Specifies a command that will be executed when the button receives a middle click."));
 
     row++, col = 2;
@@ -4590,12 +4590,12 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_uwheel_command = gtk_entry_new();
-    gtk_widget_show(button->button_uwheel_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_uwheel_command), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_uwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->cmd_uwheel = gtk_entry_new();
+    gtk_widget_show(button->cmd_uwheel);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->cmd_uwheel), 50);
+    gtk_table_attach(GTK_TABLE(table), button->cmd_uwheel, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_uwheel_command,
+    gtk_widget_set_tooltip_text(button->cmd_uwheel,
                                 _("Specifies a command that will be executed when the button receives a mouse scroll up."));
 
     row++, col = 2;
@@ -4605,12 +4605,12 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_dwheel_command = gtk_entry_new();
-    gtk_widget_show(button->button_dwheel_command);
-    gtk_entry_set_width_chars(GTK_ENTRY(button->button_dwheel_command), 50);
-    gtk_table_attach(GTK_TABLE(table), button->button_dwheel_command, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->cmd_dwheel = gtk_entry_new();
+    gtk_widget_show(button->cmd_dwheel);
+    gtk_entry_set_width_chars(GTK_ENTRY(button->cmd_dwheel), 50);
+    gtk_table_attach(GTK_TABLE(table), button->cmd_dwheel, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_dwheel_command,
+    gtk_widget_set_tooltip_text(button->cmd_dwheel,
                                 _("Specifies a command that will be executed when the button receives a mouse scroll down."));
 
     change_paragraph(parent);
@@ -4634,11 +4634,11 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_background = create_background_combo(_("Button"));
-    gtk_widget_show(button->button_background);
-    gtk_table_attach(GTK_TABLE(table), button->button_background, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->bg = create_background_combo(_("Button"));
+    gtk_widget_show(button->bg);
+    gtk_table_attach(GTK_TABLE(table), button->bg, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_background,
+    gtk_widget_set_tooltip_text(button->bg,
                                 _("Selects the background used to display the button. "
                                   "Backgrounds can be edited in the Backgrounds tab."));
 
@@ -4649,11 +4649,11 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_padding_x = gtk_spin_button_new_with_range(0, 500, 1);
-    gtk_widget_show(button->button_padding_x);
-    gtk_table_attach(GTK_TABLE(table), button->button_padding_x, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->padx = gtk_spin_button_new_with_range(0, 500, 1);
+    gtk_widget_show(button->padx);
+    gtk_table_attach(GTK_TABLE(table), button->padx, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_padding_x,
+    gtk_widget_set_tooltip_text(button->padx,
                                 _("Specifies the horizontal padding of the button. "
                                   "This is the space between the border and the content inside."));
 
@@ -4664,19 +4664,19 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_padding_y = gtk_spin_button_new_with_range(0, 500, 1);
-    gtk_widget_show(button->button_padding_y);
-    gtk_table_attach(GTK_TABLE(table), button->button_padding_y, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->pady = gtk_spin_button_new_with_range(0, 500, 1);
+    gtk_widget_show(button->pady);
+    gtk_table_attach(GTK_TABLE(table), button->pady, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(button->button_padding_y,
+    gtk_widget_set_tooltip_text(button->pady,
                                 _("Specifies the vertical padding of the button. "
                                   "This is the space between the border and the content inside."));
 
     row++, col = 1;
-    button->button_font_set = gtk_check_button_new();
-    gtk_widget_show(button->button_font_set);
-    gtk_table_attach(GTK_TABLE(table), button->button_font_set, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    gtk_widget_set_tooltip_text(button->button_font_set,
+    button->font_use = gtk_check_button_new();
+    gtk_widget_show(button->font_use);
+    gtk_table_attach(GTK_TABLE(table), button->font_use, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    gtk_widget_set_tooltip_text(button->font_use,
                                 _("If not checked, the desktop theme font is used. If checked, the custom font specified here "
                                   "is used."));
     col++;
@@ -4687,16 +4687,16 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_font = gtk_font_button_new_with_font(get_default_font());
-    gtk_widget_show(button->button_font);
-    gtk_table_attach(GTK_TABLE(table), button->button_font, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->font = gtk_font_button_new_with_font(get_default_font());
+    gtk_widget_show(button->font);
+    gtk_table_attach(GTK_TABLE(table), button->font, col, col + 3, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_font_button_set_show_style(GTK_FONT_BUTTON(button->button_font), TRUE);
-    g_signal_connect(G_OBJECT(button->button_font_set),
+    gtk_font_button_set_show_style(GTK_FONT_BUTTON(button->font), TRUE);
+    g_signal_connect(G_OBJECT(button->font_use),
                        "toggled",
                        G_CALLBACK(font_set_callback),
-                       button->button_font);
-    font_set_callback(button->button_font_set, button->button_font);
+                       button->font);
+    font_set_callback(button->font_use, button->font);
 
     row++, col = 2;
     label = gtk_label_new(_("Font color"));
@@ -4705,10 +4705,10 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_font_color = gtk_color_button_new();
-    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(button->button_font_color), TRUE);
-    gtk_widget_show(button->button_font_color);
-    gtk_table_attach(GTK_TABLE(table), button->button_font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->font_color = gtk_color_button_new();
+    gtk_color_chooser_set_use_alpha(GTK_COLOR_CHOOSER(button->font_color), TRUE);
+    gtk_widget_show(button->font_color);
+    gtk_table_attach(GTK_TABLE(table), button->font_color, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4718,9 +4718,9 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_centered = gtk_check_button_new();
-    gtk_widget_show(button->button_centered);
-    gtk_table_attach(GTK_TABLE(table), button->button_centered, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->centered = gtk_check_button_new();
+    gtk_widget_show(button->centered);
+    gtk_table_attach(GTK_TABLE(table), button->centered, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     row++, col = 2;
@@ -4730,9 +4730,9 @@ void create_button(GtkWidget *stack, int i) {
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    button->button_max_icon_size = gtk_spin_button_new_with_range(0, 500, 1);
-    gtk_widget_show(button->button_max_icon_size);
-    gtk_table_attach(GTK_TABLE(table), button->button_max_icon_size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    button->max_icon_size = gtk_spin_button_new_with_range(0, 500, 1);
+    gtk_widget_show(button->max_icon_size);
+    gtk_table_attach(GTK_TABLE(table), button->max_icon_size, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
     change_paragraph(parent);
@@ -4779,7 +4779,7 @@ Button *button_get_last()
 
 void separator_remove(int i)
 {
-    GtkWidget *page = g_array_index(separators, Separator, i).page_separator;
+    GtkWidget *page = g_array_index(separators, Separator, i).page;
     gtk_widget_hide(page);
     gtk_container_remove(GTK_CONTAINER(stack), page);
     separators = g_array_remove_index(separators, i);
@@ -4787,7 +4787,7 @@ void separator_remove(int i)
 
 void execp_remove(int i)
 {
-    GtkWidget *page = g_array_index(executors, Executor, i).page_execp;
+    GtkWidget *page = g_array_index(executors, Executor, i).page;
     gtk_widget_hide(page);
     gtk_container_remove(GTK_CONTAINER(stack), page);
     executors = g_array_remove_index(executors, i);
@@ -4795,7 +4795,7 @@ void execp_remove(int i)
 
 void button_remove(int i)
 {
-    GtkWidget *page = g_array_index(buttons, Button, i).page_button;
+    GtkWidget *page = g_array_index(buttons, Button, i).page;
     gtk_widget_hide(page);
     gtk_container_remove(GTK_CONTAINER(stack), page);
     buttons = g_array_remove_index(buttons, i);
@@ -4809,7 +4809,7 @@ void separator_update_indices()
         Separator *separator = &g_array_index(separators, Separator, i);
         snprintf(separator->name, sizeof(separator->name)-1, "%s %d", _("Separator"), i + 1);
         g_value_set_static_string(&name_value, separator->name);
-        gtk_container_child_set_property(GTK_CONTAINER(stack), separator->page_separator, "title", &name_value);
+        gtk_container_child_set_property(GTK_CONTAINER(stack), separator->page, "title", &name_value);
     }
 
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
@@ -4842,7 +4842,7 @@ void execp_update_indices()
         Executor *executor = &g_array_index(executors, Executor, i);
         snprintf(executor->name, sizeof(executor->name)-1, "%s %d", _("Executor"), i + 1);
         g_value_set_static_string(&name_value, executor->name);
-        gtk_container_child_set_property(GTK_CONTAINER(stack), executor->page_execp, "title", &name_value);
+        gtk_container_child_set_property(GTK_CONTAINER(stack), executor->page, "title", &name_value);
     }
 
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
@@ -4875,7 +4875,7 @@ void button_update_indices()
         Button *button = &g_array_index(buttons, Button, i);
         snprintf(button->name, sizeof(button->name)-1, "%s %d", _("Button"), i + 1);
         g_value_set_static_string(&name_value, button->name);
-        gtk_container_child_set_property(GTK_CONTAINER(stack), button->page_button, "title", &name_value);
+        gtk_container_child_set_property(GTK_CONTAINER(stack), button->page, "title", &name_value);
     }
 
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);

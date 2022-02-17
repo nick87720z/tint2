@@ -568,7 +568,7 @@ void background_update_image(int index)
     cairo_rectangle(cr, 0, 0, w, h);
     cairo_fill(cr);
 
-    double degrees = 3.1415926 / 180.0;
+    double degrees = G_PI_4 / 45.0;
 
     cairo_new_sub_path(cr);
     cairo_arc(cr, w - r - b, r + b, r, -90 * degrees, 0 * degrees);

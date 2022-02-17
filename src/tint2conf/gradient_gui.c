@@ -308,7 +308,6 @@ void gradient_draw(cairo_t *c, GradientConfig *g, int w, int h, gboolean preserv
                                       g->end_color.color.rgb[2],
                                       g->end_color.color.alpha);
     cairo_set_source(c, gpat);
-    cairo_rectangle(c, 0, 0, w, h);
     if (preserve)
         cairo_fill_preserve(c);
     else
@@ -329,6 +328,7 @@ void gradient_update_image(int index)
     cairo_rectangle(cr, 0, 0, w, h);
     cairo_fill(cr);
 
+    cairo_rectangle(cr, 0, 0, w, h);
     gradient_draw(cr, g, w, h, FALSE);
 
     GdkPixbuf *pixbuf = gdk_pixbuf_get_from_surface(pixmap, 0, 0, w, h);

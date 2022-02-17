@@ -640,6 +640,7 @@ void draw_background(Area *a, cairo_t *c)
 
         // draw border inside (x, y, width, height)
         set_cairo_source_border_color(a, c);
+        cairo_new_sub_path (c);
         draw_rect_on_sides(c,
                            0, 0, a->width, a->height,
                            a->bg->border.radius + a->bg->border.width / 2.0,

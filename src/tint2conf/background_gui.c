@@ -569,25 +569,44 @@ void background_update_image(int index)
     cairo_fill(cr);
 
     double degrees = G_PI_4 / 45.0;
+    double c = r + b,
+           rb = r - b;
 
-    cairo_new_sub_path(cr);
-    cairo_arc(cr, w - r - b, r + b, r, -90 * degrees, 0 * degrees);
-    cairo_arc(cr, w - r - b, h - r - b, r, 0 * degrees, 90 * degrees);
-    cairo_arc(cr, r + b, h - r - b, r, 90 * degrees, 180 * degrees);
-    cairo_arc(cr, r + b, r + b, r, 180 * degrees, 270 * degrees);
-    cairo_close_path(cr);
+    // Trying to reproduce exactly same drawing sequence as in panel.
+    // Original look is very different from panel look.
 
+    // Blending target
+    cairo_push_group (cr);
+    cairo_move_to (cr, b,   b);
+    cairo_line_to (cr, w-b, b);
+    cairo_line_to (cr, w-b, h-b);
+    cairo_line_to (cr, b,   h-b);
+    cairo_close_path (cr);
+    cairo_set_source_rgba(cr, fillColor->red, fillColor->green, fillColor->blue, fillColor->alpha);
+    cairo_fill_preserve(cr);
     if (index >= 1 && gradient_id >= 1) {
         GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)gradient_id)->data;
         gradient_draw(cr, g, w, h, TRUE);
     }
+    // Clip & draw complete mix
+    cairo_pop_group_to_source (cr);
+    cairo_new_path (cr);
+    cairo_arc(cr, w - c, c,     rb, -90 * degrees,   0 * degrees);
+    cairo_arc(cr, w - c, h - c, rb,   0 * degrees,  90 * degrees);
+    cairo_arc(cr, c,     h - c, rb,  90 * degrees, 180 * degrees);
+    cairo_arc(cr, c,     c,     rb, 180 * degrees, 270 * degrees);
+    cairo_fill_preserve (cr);
 
-    cairo_set_source_rgba(cr, fillColor->red, fillColor->green, fillColor->blue, fillColor->alpha);
-    cairo_fill_preserve(cr);
-
+    // Stich border area
+    cairo_new_sub_path (cr);
+    cairo_arc(cr, w - c, c,     r, -90 * degrees,   0 * degrees);
+    cairo_arc(cr, w - c, h - c, r,   0 * degrees,  90 * degrees);
+    cairo_arc(cr, c,     h - c, r,  90 * degrees, 180 * degrees);
+    cairo_arc(cr, c,     c,     r, 180 * degrees, 270 * degrees);
     cairo_set_source_rgba(cr, borderColor->red, borderColor->green, borderColor->blue, borderColor->alpha);
-    cairo_set_line_width(cr, b);
-    cairo_stroke(cr);
+    cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+    cairo_set_operator (cr, CAIRO_OPERATOR_ADD);
+    cairo_fill(cr);
     cairo_destroy(cr);
     cr = NULL;
 

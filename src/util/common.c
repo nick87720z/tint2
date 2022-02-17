@@ -835,13 +835,13 @@ void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, doub
         rbr = corner_mask & CORNER_BR ? r : 0,
         rbl = corner_mask & CORNER_BL ? r : 0;
 
-    cairo_move_to(c, x + rtl, y);
+    cairo_move_to(c, x+rtl, y);
 
     // Top line
     cairo_line_to (c, x+w-rtr, y);
     // Top right corner
     if (rtr > 0)
-        cairo_curve_to (c, x+w-r+c1, y, x+w, y+r-c1, x+w, r);
+        cairo_curve_to (c, x+w-r+c1, y, x+w, y+r-c1, x+w, y+r);
     // Right line
     cairo_line_to (c, x+w, y+h-rbr);
     // Bottom right corner

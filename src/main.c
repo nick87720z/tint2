@@ -589,6 +589,12 @@ void handle_x_events()
 
 void prepare_fd_set(fd_set *set, int *max_fd)
 {
+    #define fd_add_if_set_(fd)                                                           \
+        if (fd > 0) do{                                                                  \
+            FD_SET(fd, set);                                                             \
+            *max_fd = MAX(*max_fd, fd);                                                  \
+        }while(0)
+
     FD_ZERO(set);
     FD_SET(server.x11_fd, set);
     *max_fd = server.x11_fd;
@@ -598,21 +604,12 @@ void prepare_fd_set(fd_set *set, int *max_fd)
     }
     for (GList *l = panel_config.execp_list; l; l = l->next) {
         Execp *execp = (Execp *)l->data;
-        int fd = execp->backend->child_pipe_stdout;
-        if (fd > 0) {
-            FD_SET(fd, set);
-            *max_fd = MAX(*max_fd, fd);
-        }
-        fd = execp->backend->child_pipe_stderr;
-        if (fd > 0) {
-            FD_SET(fd, set);
-            *max_fd = MAX(*max_fd, fd);
-        }
+        fd_add_if_set_ (execp->backend->child_pipe_stdout);
+        fd_add_if_set_ (execp->backend->child_pipe_stderr);
     }
-    if (uevent_fd > 0) {
-        FD_SET(uevent_fd, set);
-        *max_fd = MAX(*max_fd, uevent_fd);
-    }
+    fd_add_if_set_ (uevent_fd);
+
+    #undef fd_add_if_set_
 }
 
 void handle_panel_refresh()
@@ -687,9 +684,9 @@ void handle_panel_refresh()
         double period = ts_flush_finished - ts_event_read;
         double fps = 1.0 / period;
         sample_fps(fps);
-        double proc_ratio = (ts_event_processed - ts_event_read) / period;
+        double proc_ratio   = (ts_event_processed - ts_event_read     ) / period;
         double render_ratio = (ts_render_finished - ts_event_processed) / period;
-        double flush_ratio = (ts_flush_finished - ts_render_finished) / period;
+        double flush_ratio  = (ts_flush_finished  - ts_render_finished) / period;
         double fps_low, fps_median, fps_high, fps_samples;
         fps_compute_stats(&fps_low, &fps_median, &fps_high, &fps_samples);
         fprintf(stderr,
@@ -740,7 +737,7 @@ void run_tint2_event_loop()
 
         // Wait for an event and handle it
         ts_event_read = 0;
-        if (XPending(server.display) > 0 || select(max_fd + 1, &fds, 0, 0, get_duration_to_next_timer_expiration()) >= 0) {
+        if (XPending(server.display) > 0 || select(max_fd + 1, &fds, NULL, NULL, get_duration_to_next_timer_expiration()) >= 0) {
 #ifdef HAVE_TRACING
             start_tracing((void*)run_tint2_event_loop);
 #endif

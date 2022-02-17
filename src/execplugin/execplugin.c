@@ -60,7 +60,8 @@ Execp *create_execp()
 
 gpointer create_execp_frontend(gconstpointer arg, gpointer data)
 {
-    Execp *execp_backend = (Execp *)arg;
+    Execp *execp_frontend,
+          *execp_backend = (Execp *)arg;
     ExecpBackend *backend = execp_backend->backend;
     Panel *panel = data;
     
@@ -70,21 +71,22 @@ gpointer create_execp_frontend(gconstpointer arg, gpointer data)
         printf("Skipping executor '%s' with monitor %d for panel on monitor %d\n",
                backend->command,
                backend->monitor, panel->monitor);
-        
-        Execp *dummy = create_execp();
-        dummy->frontend = (ExecpFrontend *)calloc(1, sizeof(ExecpFrontend));
-        dummy->backend->instances = g_list_append(dummy->backend->instances, dummy);
-        dummy->dummy = true;
-        return dummy;
+        execp_frontend = create_execp();
+        execp_frontend->frontend = (ExecpFrontend *)calloc(1, sizeof(ExecpFrontend));
+        execp_frontend->backend->instances = g_list_append(execp_frontend->backend->instances, execp_frontend);
+        execp_frontend->dummy = true;
     }
-    printf("Creating executor '%s' with monitor %d for panel on monitor %d\n",
-           backend->command,
-           backend->monitor, panel->monitor);
-
-    Execp *execp_frontend = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpFrontend));
-    execp_frontend->frontend = (gpointer)(execp_frontend + 1);
-    execp_frontend->backend = backend;
-    backend->instances = g_list_append(backend->instances, execp_frontend);
+    else
+    {
+        printf("Creating executor '%s' with monitor %d for panel on monitor %d\n",
+               backend->command,
+               backend->monitor, panel->monitor);
+        
+        execp_frontend = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpFrontend));
+        execp_frontend->frontend = (gpointer)(execp_frontend + 1);
+        execp_frontend->backend = backend;
+        backend->instances = g_list_append(backend->instances, execp_frontend);
+    }
     return execp_frontend;
 }
 
@@ -183,7 +185,7 @@ void init_execp_panel(void *p)
         return;
 
     // panel->execp_list is now a copy of the pointer panel_config.execp_list
-    // We make it a deep copy
+    // We make it a deep copy - each new element is frontend, given originals are backends
     panel->execp_list = g_list_copy_deep(panel_config.execp_list, create_execp_frontend, panel);
 
     for (GList *l = panel->execp_list; l; l = l->next) {
@@ -712,7 +714,6 @@ void execp_timer_callback(void *arg)
         fprintf(stderr, "tint2: Execp: Creating pipe failed!\n");
         return;
     }
-
     fcntl(pipe_fd_stdout[0], F_SETFL, O_NONBLOCK | fcntl(pipe_fd_stdout[0], F_GETFL));
 
     int pipe_fd_stderr[2];
@@ -723,36 +724,35 @@ void execp_timer_callback(void *arg)
         fprintf(stderr, "tint2: Execp: Creating pipe failed!\n");
         return;
     }
-
     fcntl(pipe_fd_stderr[0], F_SETFL, O_NONBLOCK | fcntl(pipe_fd_stderr[0], F_GETFL));
 
     // Fork and run command, capturing stdout in pipe
+
     pid_t child = fork();
-    if (child == -1) {
-        // TODO maybe write this in tooltip, but if this happens we're screwed anyways
-        fprintf(stderr, "tint2: Fork failed.\n");
-        close(pipe_fd_stdout[1]);
-        close(pipe_fd_stdout[0]);
-        close(pipe_fd_stderr[1]);
-        close(pipe_fd_stderr[0]);
-        return;
-    } else if (child == 0) {
-        if (debug_executors)
-            fprintf(stderr, "tint2: Executing: %s\n", backend->command);
-        // We are in the child
-        close(pipe_fd_stdout[0]);
-        dup2(pipe_fd_stdout[1], 1); // 1 is stdout
-        close(pipe_fd_stdout[1]);
-        close(pipe_fd_stderr[0]);
-        dup2(pipe_fd_stderr[1], 2); // 2 is stderr
-        close(pipe_fd_stderr[1]);
-        close_all_fds();
-        setpgid(0, 0);
-        execl("/bin/sh", "/bin/sh", "-c", backend->command, NULL);
-        // This should never happen!
-        fprintf(stderr, "execl() failed\nexecl() failed\n");
-        exit(0);
-    }
+    switch (child) {
+        case -1:// TODO maybe write this in tooltip, but if this happens we're screwed anyways
+                fprintf (stderr, "tint2: Fork failed.\n");
+                close (pipe_fd_stdout[1]);
+                close (pipe_fd_stdout[0]);
+                close (pipe_fd_stderr[1]);
+                close (pipe_fd_stderr[0]);
+                return;
+        case  0:// We are in the child
+                if (debug_executors)
+                    fprintf(stderr, "tint2: Executing: %s\n", backend->command);
+                close (pipe_fd_stdout[0]);
+                dup2  (pipe_fd_stdout[1], 1); // 1 is stdout
+                close (pipe_fd_stdout[1]);
+                close (pipe_fd_stderr[0]);
+                dup2  (pipe_fd_stderr[1], 2); // 2 is stderr
+                close (pipe_fd_stderr[1]);
+                close_all_fds ();
+                setpgid (0, 0);
+                execl ("/bin/sh", "/bin/sh", "-c", backend->command, NULL);
+                // This should never happen!
+                fprintf (stderr, "execl() failed\nexecl() failed\n");
+                exit (0);
+    };
     close(pipe_fd_stdout[1]);
     close(pipe_fd_stderr[1]);
     backend->child = child;

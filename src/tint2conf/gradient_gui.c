@@ -30,7 +30,7 @@ GtkWidget *create_gradient_combo()
     return combo;
 }
 
-void create_gradient(GtkWidget *parent)
+void init_gradient_page (GtkWidget *parent)
 {
     gradient_ids = gtk_list_store_new(grNumCols, GDK_TYPE_PIXBUF, G_TYPE_INT, G_TYPE_STRING);
     gradients = NULL;

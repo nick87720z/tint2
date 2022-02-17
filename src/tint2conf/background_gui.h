@@ -3,7 +3,7 @@
 
 #include "gui.h"
 
-void create_background(GtkWidget *parent);
+void init_background_page (GtkWidget *parent);
 void background_duplicate(GtkWidget *widget, gpointer data);
 void background_delete(GtkWidget *widget, gpointer data);
 void background_update_image(int index);

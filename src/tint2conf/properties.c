@@ -134,14 +134,14 @@ GtkWidget *addScrollBarToWidget(GtkWidget *widget);
 gboolean gtk_tree_model_iter_prev_tint2(GtkTreeModel *model, GtkTreeIter *iter);
 
 void create_general(GtkWidget *parent);
-void create_panel(GtkWidget *parent);
-void create_panel_items(GtkWidget *parent);
-void create_launcher(GtkWidget *parent, GtkWindow *window);
+void init_panel_page (GtkWidget *parent);
+void init_panel_items_page (GtkWidget *parent);
+void init_launcher_page (GtkWidget *parent, GtkWindow *window);
 gchar *get_default_theme_name();
 void icon_theme_changed();
 void load_icons(GtkListStore *apps);
-void create_taskbar(GtkWidget *parent);
-void create_task(GtkWidget *parent);
+void init_taskbar_page (GtkWidget *parent);
+void init_task_page (GtkWidget *parent);
 void create_task_status(GtkWidget *notebook,
                         char *name,
                         char *text,
@@ -156,10 +156,10 @@ void create_task_status(GtkWidget *notebook,
 void create_separator(GtkWidget *parent, int i);
 void create_execp(GtkWidget *parent, int i);
 void create_button(GtkWidget *parent, int i);
-void create_clock(GtkWidget *parent);
-void create_systemtray(GtkWidget *parent);
-void create_battery(GtkWidget *parent);
-void create_tooltip(GtkWidget *parent);
+void init_clock_page (GtkWidget *parent);
+void init_systemtray_page (GtkWidget *parent);
+void init_battery_page (GtkWidget *parent);
+void init_tooltip_page (GtkWidget *parent);
 void panel_add_item(GtkWidget *widget, gpointer data);
 void panel_remove_item(GtkWidget *widget, gpointer data);
 void panel_move_item_down(GtkWidget *widget, gpointer data);
@@ -266,18 +266,18 @@ GtkWidget *create_properties()
     create_page(_("Tooltip"),      page_tooltip);
     #undef create_page
 
-    create_gradient(page_gradient);
-    create_background(page_background);
-    create_panel(page_panel);
-    create_panel_items(page_panel_items);
-    create_taskbar(page_taskbar);
-    create_task(page_task);
-    create_launcher(page_launcher, GTK_WINDOW(view));
-    create_clock(page_clock);
-    create_systemtray(page_systemtray);
-    create_battery(page_battery);
-    create_tooltip(page_tooltip);
-    
+    init_gradient_page (page_gradient);
+    init_background_page (page_background);
+    init_panel_page (page_panel);
+    init_panel_items_page (page_panel_items);
+    init_taskbar_page (page_taskbar);
+    init_task_page (page_task);
+    init_launcher_page (page_launcher, GTK_WINDOW(view));
+    init_clock_page (page_clock);
+    init_systemtray_page (page_systemtray);
+    init_battery_page (page_battery);
+    init_tooltip_page (page_tooltip);
+
     sidebar = gtk_stack_sidebar_new();
     gtk_stack_sidebar_set_stack(GTK_STACK_SIDEBAR(sidebar), GTK_STACK(stack));
     gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(gtk_bin_get_child(GTK_BIN(sidebar))), GTK_CORNER_TOP_RIGHT);
@@ -362,7 +362,7 @@ int get_model_length(GtkTreeModel *model)
     }
 }
 
-void create_panel(GtkWidget *parent)
+void init_panel_page (GtkWidget *parent)
 {
     int i;
     GtkWidget *table, *hbox, *position;
@@ -1029,7 +1029,7 @@ void create_panel(GtkWidget *parent)
     change_paragraph(parent);
 }
 
-void create_panel_items(GtkWidget *parent)
+void init_panel_items_page (GtkWidget *parent)
 {
     GtkWidget *table, *label, *button, *image;
 
@@ -2040,7 +2040,7 @@ GtkWidget *addScrollBarToWidget(GtkWidget *widget)
     return scrolled_window;
 }
 
-void create_launcher(GtkWidget *parent, GtkWindow *window)
+void init_launcher_page (GtkWidget *parent, GtkWindow *window)
 {
     GtkWidget *image;
 
@@ -2483,7 +2483,7 @@ void create_launcher(GtkWidget *parent, GtkWindow *window)
     fprintf(stderr, "tint2: Desktop files loaded\n");
 }
 
-void create_taskbar(GtkWidget *parent)
+void init_taskbar_page (GtkWidget *parent)
 {
     GtkWidget *table, *label;
     int row, col;
@@ -2915,7 +2915,7 @@ void create_taskbar(GtkWidget *parent)
     change_paragraph(parent);
 }
 
-void create_task(GtkWidget *parent)
+void init_task_page (GtkWidget *parent)
 {
     GtkWidget *table, *label, *notebook;
     int row, col;
@@ -3559,7 +3559,7 @@ void create_task_status(GtkWidget *notebook,
     task_status_toggle_button_callback(*task_status_background_set, NULL);
 }
 
-void create_clock(GtkWidget *parent)
+void init_clock_page (GtkWidget *parent)
 {
     GtkWidget *table;
     GtkWidget *label;
@@ -4868,7 +4868,7 @@ void separator_update_indices()
     if (!gtk_tree_model_get_iter_first(model, &iter))
         return;
     int separator_index = -1;
-    while (1) {
+    do {
         gchar *name;
         gchar *value;
         gtk_tree_model_get(model, &iter, itemsColName, &name, itemsColValue, &value, -1);
@@ -4879,10 +4879,7 @@ void separator_update_indices()
             STRBUF_AUTO_PRINTF (buffer, "%s %d", _("Separator"), separator_index + 1);
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
-
-        if (!gtk_tree_model_iter_next(model, &iter))
-            break;
-    }
+    } while (gtk_tree_model_iter_next(model, &iter));
 }
 
 void execp_update_indices()
@@ -4901,7 +4898,7 @@ void execp_update_indices()
     if (!gtk_tree_model_get_iter_first(model, &iter))
         return;
     int execp_index = -1;
-    while (1) {
+    do {
         gchar *name;
         gchar *value;
         gtk_tree_model_get(model, &iter, itemsColName, &name, itemsColValue, &value, -1);
@@ -4912,10 +4909,7 @@ void execp_update_indices()
             STRBUF_AUTO_PRINTF (buffer, "%s %d", _("Executor"), execp_index + 1);
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
-
-        if (!gtk_tree_model_iter_next(model, &iter))
-            break;
-    }
+    } while (gtk_tree_model_iter_next(model, &iter));
 }
 
 void button_update_indices()
@@ -4934,7 +4928,7 @@ void button_update_indices()
     if (!gtk_tree_model_get_iter_first(model, &iter))
         return;
     int button_index = -1;
-    while (1) {
+    do {
         gchar *name;
         gchar *value;
         gtk_tree_model_get(model, &iter, itemsColName, &name, itemsColValue, &value, -1);
@@ -4945,13 +4939,10 @@ void button_update_indices()
             STRBUF_AUTO_PRINTF (buffer, "%s %d", _("Button"), button_index + 1);
             gtk_list_store_set(panel_items, &iter, itemsColName, buffer, -1);
         }
-
-        if (!gtk_tree_model_iter_next(model, &iter))
-            break;
-    }
+    } while (gtk_tree_model_iter_next(model, &iter));
 }
 
-void create_systemtray(GtkWidget *parent)
+void init_systemtray_page (GtkWidget *parent)
 {
     GtkWidget *table;
     GtkWidget *label;
@@ -5169,7 +5160,7 @@ void create_systemtray(GtkWidget *parent)
     col++;
 }
 
-void create_battery(GtkWidget *parent)
+void init_battery_page (GtkWidget *parent)
 {
     GtkWidget *table, *label;
     int row, col;
@@ -5586,7 +5577,7 @@ void create_battery(GtkWidget *parent)
     change_paragraph(parent);
 }
 
-void create_tooltip(GtkWidget *parent)
+void init_tooltip_page (GtkWidget *parent)
 {
     GtkWidget *table;
     GtkWidget *label;

@@ -4,7 +4,7 @@
 #include "gui.h"
 
 int gradient_index_safe(int index);
-void create_gradient(GtkWidget *parent);
+void init_gradient_page (GtkWidget *parent);
 void gradient_page_finalize ();
 GtkWidget *create_gradient_combo();
 void gradient_duplicate(GtkWidget *widget, gpointer data);

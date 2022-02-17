@@ -162,32 +162,21 @@ void handle_mouse_release_event(XEvent *e)
 
     MouseAction action = TOGGLE_ICONIFY;
     switch (e->xbutton.button) {
-    case 1:
-        action = mouse_left;
-        break;
-    case 2:
-        action = mouse_middle;
-        break;
-    case 3:
-        action = mouse_right;
-        break;
-    case 4:
-        action = mouse_scroll_up;
-        break;
-    case 5:
-        action = mouse_scroll_down;
-        break;
-    case 6:
-        action = mouse_tilt_left;
-        break;
-    case 7:
-        action = mouse_tilt_right;
-        break;
+    case 1: action = mouse_left;        break;
+    case 2: action = mouse_middle;      break;
+    case 3: action = mouse_right;       break;
+    case 4: action = mouse_scroll_up;   break;
+    case 5: action = mouse_scroll_down; break;
+    case 6: action = mouse_tilt_left;   break;
+    case 7: action = mouse_tilt_right;  break;
     }
 
     Clock *clock = click_clock(panel, e->xbutton.x, e->xbutton.y);
     if (clock) {
-        clock_action(clock, e->xbutton.button, e->xbutton.x - clock->area.posx, e->xbutton.y - clock->area.posy, e->xbutton.time);
+        clock_action(clock, e->xbutton.button,
+                            e->xbutton.x - clock->area.posx,
+                            e->xbutton.y - clock->area.posy,
+                            e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = NULL;
@@ -197,7 +186,10 @@ void handle_mouse_release_event(XEvent *e)
 #ifdef ENABLE_BATTERY
     Battery *battery = click_battery(panel, e->xbutton.x, e->xbutton.y);
     if (battery) {
-        battery_action(battery, e->xbutton.button, e->xbutton.x - battery->area.posx, e->xbutton.y - battery->area.posy, e->xbutton.time);
+        battery_action(battery, e->xbutton.button,
+                                e->xbutton.x - battery->area.posx,
+                                e->xbutton.y - battery->area.posy,
+                                e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = NULL;
@@ -207,7 +199,10 @@ void handle_mouse_release_event(XEvent *e)
 
     Execp *execp = click_execp(panel, e->xbutton.x, e->xbutton.y);
     if (execp) {
-        execp_action(execp, e->xbutton.button, e->xbutton.x - execp->area.posx, e->xbutton.y - execp->area.posy, e->xbutton.time);
+        execp_action(execp, e->xbutton.button,
+                            e->xbutton.x - execp->area.posx,
+                            e->xbutton.y - execp->area.posy,
+                            e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = NULL;
@@ -216,7 +211,10 @@ void handle_mouse_release_event(XEvent *e)
 
     Button *button = click_button(panel, e->xbutton.x, e->xbutton.y);
     if (button) {
-        button_action(button, e->xbutton.button, e->xbutton.x - button->area.posx, e->xbutton.y - button->area.posy, e->xbutton.time);
+        button_action(button,   e->xbutton.button,
+                                e->xbutton.x - button->area.posx,
+                                e->xbutton.y - button->area.posy,
+                                e->xbutton.time);
         if (panel_layer == BOTTOM_LAYER)
             XLowerWindow(server.display, panel->main_win);
         task_drag = NULL;
@@ -226,7 +224,8 @@ void handle_mouse_release_event(XEvent *e)
     if (e->xbutton.button == 1 && click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
         LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
         if (icon) {
-            launcher_action(icon, e, e->xbutton.x - icon->area.posx, e->xbutton.y - icon->area.posy);
+            launcher_action(icon,e, e->xbutton.x - icon->area.posx,
+                                    e->xbutton.y - icon->area.posy);
         }
         task_drag = NULL;
         return;

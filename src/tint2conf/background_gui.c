@@ -97,7 +97,7 @@ void background_combo_changed(GtkWidget *widget, gpointer data)
     }
 }
 
-void create_background(GtkWidget *parent)
+void init_background_page (GtkWidget *parent)
 {
     backgrounds = gtk_list_store_new(bgNumCols,
                                      GDK_TYPE_PIXBUF,
@@ -437,16 +437,8 @@ int background_index_safe(int index)
 
 void background_create_new()
 {
-    int r = 0;
-    int b = 0;
-    gboolean sideTop = TRUE;
-    gboolean sideBottom = TRUE;
-    gboolean sideLeft = TRUE;
-    gboolean sideRight = TRUE;
-    
     GdkRGBA newColor = {0, 0, 0, 0};
 
-    int index = 0;
     GtkTreeIter iter;
 
     gtk_list_store_append(backgrounds, &iter);
@@ -455,8 +447,8 @@ void background_create_new()
                        bgColFillColor,          &newColor,
                        bgColBorderColor,        &newColor,
                        bgColGradientId,         -1,
-                       bgColBorderWidth,        b,
-                       bgColCornerRadius,       r,
+                       bgColBorderWidth,        0,
+                       bgColCornerRadius,       0,
                        bgColText,               "",
                        bgColFillColorOver,      &newColor,
                        bgColBorderColorOver,    &newColor,
@@ -464,17 +456,17 @@ void background_create_new()
                        bgColFillColorPress,     &newColor,
                        bgColBorderColorPress,   &newColor,
                        bgColGradientIdPress,    -1,
-                       bgColBorderSidesTop,     sideTop,
-                       bgColBorderSidesBottom,  sideBottom,
-                       bgColBorderSidesLeft,    sideLeft,
-                       bgColBorderSidesRight,   sideRight,
+                       bgColBorderSidesTop,     TRUE,
+                       bgColBorderSidesBottom,  TRUE,
+                       bgColBorderSidesLeft,    TRUE,
+                       bgColBorderSidesRight,   TRUE,
                        bgColCornerRoundTL,      TRUE,
                        bgColCornerRoundTR,      TRUE,
                        bgColCornerRoundBL,      TRUE,
                        bgColCornerRoundBR,      TRUE,
                        -1);
 
-    background_update_image(index);
+    background_update_image(0);
     gtk_combo_box_set_active(GTK_COMBO_BOX(current_background), get_model_length(GTK_TREE_MODEL(backgrounds)) - 1);
     current_background_changed(0, 0);
 }
@@ -505,20 +497,20 @@ void background_duplicate(GtkWidget *widget, gpointer data)
     gboolean roundBL;
     gboolean roundBR;
     GdkRGBA *fillColor;
-    GdkRGBA *borderColor;
     GdkRGBA *fillColorOver;
-    GdkRGBA *borderColorOver;
     GdkRGBA *fillColorPress;
+    GdkRGBA *borderColor;
+    GdkRGBA *borderColorOver;
     GdkRGBA *borderColorPress;
     int gradient_id, gradient_id_over, gradient_id_press;
 
     gtk_tree_model_get(GTK_TREE_MODEL(backgrounds),
                        &iter,
                        bgColFillColor,          &fillColor,
-                       bgColBorderColor,        &borderColor,
                        bgColFillColorOver,      &fillColorOver,
-                       bgColBorderColorOver,    &borderColorOver,
                        bgColFillColorPress,     &fillColorPress,
+                       bgColBorderColor,        &borderColor,
+                       bgColBorderColorOver,    &borderColorOver,
                        bgColBorderColorPress,   &borderColorPress,
                        bgColBorderWidth,        &b,
                        bgColCornerRadius,       &r,
@@ -560,10 +552,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
                        bgColCornerRoundBR,      roundBR,
                        -1);
     g_boxed_free(GDK_TYPE_RGBA, fillColor);
-    g_boxed_free(GDK_TYPE_RGBA, borderColor);
     g_boxed_free(GDK_TYPE_RGBA, fillColorOver);
-    g_boxed_free(GDK_TYPE_RGBA, borderColorOver);
     g_boxed_free(GDK_TYPE_RGBA, fillColorPress);
+    g_boxed_free(GDK_TYPE_RGBA, borderColor);
+    g_boxed_free(GDK_TYPE_RGBA, borderColorOver);
     g_boxed_free(GDK_TYPE_RGBA, borderColorPress);
     background_update_image(get_model_length(GTK_TREE_MODEL(backgrounds)) - 1);
     gtk_combo_box_set_active(GTK_COMBO_BOX(current_background), get_model_length(GTK_TREE_MODEL(backgrounds)) - 1);

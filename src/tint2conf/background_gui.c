@@ -362,7 +362,7 @@ void create_background(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), background_border_sides_right, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    g_signal_connect(G_OBJECT(current_background), "changed", G_CALLBACK(current_background_changed), NULL);
+    g_signal_connect(G_OBJECT(current_background), "changed", G_CALLBACK(current_background_changed), table);
     g_signal_connect(G_OBJECT(background_fill_color), "color-set", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_color), "color-set", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_gradient), "changed", G_CALLBACK(background_update), NULL);
@@ -703,24 +703,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
     if (index < 0)
         return;
 
-    gtk_widget_set_sensitive(gradient_combo_type, index > 0);
-    gtk_widget_set_sensitive(background_fill_color, index > 0);
-    gtk_widget_set_sensitive(background_border_color, index > 0);
-    gtk_widget_set_sensitive(background_gradient, index > 0);
-    gtk_widget_set_sensitive(background_fill_color_over, index > 0);
-    gtk_widget_set_sensitive(background_border_color_over, index > 0);
-    gtk_widget_set_sensitive(background_gradient_over, index > 0);
-    gtk_widget_set_sensitive(background_fill_color_press, index > 0);
-    gtk_widget_set_sensitive(background_border_color_press, index > 0);
-    gtk_widget_set_sensitive(background_gradient_press, index > 0);
-    gtk_widget_set_sensitive(background_border_width, index > 0);
-    gtk_widget_set_sensitive(background_border_sides_top, index > 0);
-    gtk_widget_set_sensitive(background_border_sides_bottom, index > 0);
-    gtk_widget_set_sensitive(background_border_sides_left, index > 0);
-    gtk_widget_set_sensitive(background_border_sides_right, index > 0);
-    gtk_widget_set_sensitive(background_corner_radius, index > 0);
-    gtk_widget_set_sensitive(background_border_content_tint_weight, index > 0);
-    gtk_widget_set_sensitive(background_fill_content_tint_weight, index > 0);
+    if (data)
+        gtk_widget_set_sensitive(data, index > 0);
 
     background_updates_disabled = TRUE;
 

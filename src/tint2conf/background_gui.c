@@ -2,11 +2,17 @@
 #include "gradient_gui.h"
 
 GtkListStore *backgrounds;
-GtkWidget *current_background, *background_fill_color, *background_border_color, *background_gradient,
-    *background_fill_color_over, *background_border_color_over, *background_gradient_over, *background_fill_color_press,
-    *background_border_color_press, *background_gradient_press, *background_border_width, *background_corner_radius,
-    *background_border_sides_top, *background_border_sides_bottom, *background_border_sides_left,
-    *background_border_sides_right, *background_border_content_tint_weight, *background_fill_content_tint_weight;
+GtkWidget *current_background,
+    *background_fill_color,       *background_border_color,      *background_gradient,
+    *background_fill_color_over,  *background_border_color_over, *background_gradient_over,
+    *background_fill_color_press, *background_border_color_press, *background_gradient_press,
+    *background_border_width,
+    *background_border_sides_top,  *background_border_sides_bottom,
+    *background_border_sides_left, *background_border_sides_right,
+    *background_corner_radius,
+    *background_corner_round_tleft, *background_corner_round_tright,
+    *background_corner_round_bleft, *background_corner_round_bright,
+    *background_border_content_tint_weight, *background_fill_content_tint_weight;
 
 GtkWidget *create_background_combo(const char *label)
 {
@@ -106,10 +112,8 @@ void create_background(GtkWidget *parent)
                                      GDK_TYPE_RGBA,
                                      GDK_TYPE_RGBA,
                                      G_TYPE_INT,
-                                     G_TYPE_BOOLEAN,
-                                     G_TYPE_BOOLEAN,
-                                     G_TYPE_BOOLEAN,
-                                     G_TYPE_BOOLEAN,
+                                     G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
+                                     G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN,
                                      G_TYPE_DOUBLE,
                                      G_TYPE_DOUBLE);
 
@@ -362,6 +366,37 @@ void create_background(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), background_border_sides_right, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
+    row++;
+    col = 2;
+    label = gtk_label_new(_("Rounded corners"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    background_corner_round_tleft = gtk_check_button_new_with_label(_("Top left"));
+    gtk_widget_show(background_corner_round_tleft);
+    gtk_table_attach(GTK_TABLE(table), background_corner_round_tleft, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    background_corner_round_tright = gtk_check_button_new_with_label(_("Top right"));
+    gtk_widget_show(background_corner_round_tright);
+    gtk_table_attach(GTK_TABLE(table), background_corner_round_tright, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    row++;
+    col = 3;
+
+    background_corner_round_bleft = gtk_check_button_new_with_label(_("Bottom left"));
+    gtk_widget_show(background_corner_round_bleft);
+    gtk_table_attach(GTK_TABLE(table), background_corner_round_bleft, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    background_corner_round_bright = gtk_check_button_new_with_label(_("Bottom right"));
+    gtk_widget_show(background_corner_round_bright);
+    gtk_table_attach(GTK_TABLE(table), background_corner_round_bright, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
     g_signal_connect(G_OBJECT(current_background), "changed", G_CALLBACK(current_background_changed), table);
     g_signal_connect(G_OBJECT(background_fill_color), "color-set", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_color), "color-set", G_CALLBACK(background_update), NULL);
@@ -378,6 +413,10 @@ void create_background(GtkWidget *parent)
     g_signal_connect(G_OBJECT(background_border_sides_bottom), "toggled", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_sides_left), "toggled", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_sides_right), "toggled", G_CALLBACK(background_update), NULL);
+    g_signal_connect(G_OBJECT(background_corner_round_tleft), "toggled", G_CALLBACK(background_update), NULL);
+    g_signal_connect(G_OBJECT(background_corner_round_tright), "toggled", G_CALLBACK(background_update), NULL);
+    g_signal_connect(G_OBJECT(background_corner_round_bleft), "toggled", G_CALLBACK(background_update), NULL);
+    g_signal_connect(G_OBJECT(background_corner_round_bright), "toggled", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_content_tint_weight), "value-changed", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_fill_content_tint_weight), "value-changed", G_CALLBACK(background_update), NULL);
 
@@ -426,6 +465,10 @@ void background_create_new()
                        bgColBorderSidesBottom,  sideBottom,
                        bgColBorderSidesLeft,    sideLeft,
                        bgColBorderSidesRight,   sideRight,
+                       bgColCornerRoundTL,      TRUE,
+                       bgColCornerRoundTR,      TRUE,
+                       bgColCornerRoundBL,      TRUE,
+                       bgColCornerRoundBR,      TRUE,
                        -1);
 
     background_update_image(index);
@@ -454,6 +497,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
     gboolean sideBottom;
     gboolean sideLeft;
     gboolean sideRight;
+    gboolean roundTL;
+    gboolean roundTR;
+    gboolean roundBL;
+    gboolean roundBR;
     GdkRGBA *fillColor;
     GdkRGBA *borderColor;
     GdkRGBA *fillColorOver;
@@ -476,6 +523,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
                        bgColBorderSidesBottom,  &sideBottom,
                        bgColBorderSidesLeft,    &sideLeft,
                        bgColBorderSidesRight,   &sideRight,
+                       bgColCornerRoundTL,      &roundTL,
+                       bgColCornerRoundTR,      &roundTR,
+                       bgColCornerRoundBL,      &roundBL,
+                       bgColCornerRoundBR,      &roundBR,
                        bgColGradientId,         &gradient_id,
                        bgColGradientIdOver,     &gradient_id_over,
                        bgColGradientIdPress,    &gradient_id_press,
@@ -500,6 +551,10 @@ void background_duplicate(GtkWidget *widget, gpointer data)
                        bgColBorderSidesBottom,  sideBottom,
                        bgColBorderSidesLeft,    sideLeft,
                        bgColBorderSidesRight,   sideRight,
+                       bgColCornerRoundTL,      roundTL,
+                       bgColCornerRoundTR,      roundTR,
+                       bgColCornerRoundBL,      roundBL,
+                       bgColCornerRoundBR,      roundBR,
                        -1);
     g_boxed_free(GDK_TYPE_RGBA, fillColor);
     g_boxed_free(GDK_TYPE_RGBA, borderColor);
@@ -656,6 +711,11 @@ void background_update(GtkWidget *widget, gpointer data)
     gboolean sideLeft = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_left));
     gboolean sideRight = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_border_sides_right));
 
+    gboolean roundTL = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_corner_round_tleft));
+    gboolean roundTR = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_corner_round_tright));
+    gboolean roundBL = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_corner_round_bleft));
+    gboolean roundBR = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(background_corner_round_bright));
+
     GdkRGBA fillColor;
     GdkRGBA borderColor;
     gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &fillColor);
@@ -691,6 +751,10 @@ void background_update(GtkWidget *widget, gpointer data)
                        bgColBorderSidesBottom,  sideBottom,
                        bgColBorderSidesLeft,    sideLeft,
                        bgColBorderSidesRight,   sideRight,
+                       bgColCornerRoundTL,      roundTL,
+                       bgColCornerRoundTR,      roundTR,
+                       bgColCornerRoundBL,      roundBL,
+                       bgColCornerRoundBR,      roundBR,
                        bgColFillWeight,         fill_weight,
                        bgColBorderWeight,       border_weight,
                        -1);
@@ -726,6 +790,8 @@ void current_background_changed(GtkWidget *widget, gpointer data)
     gboolean sideLeft;
     gboolean sideRight;
 
+    gboolean roundTL, roundTR, roundBL, roundBR;
+
     GdkRGBA *fillColor;
     GdkRGBA *borderColor;
     GdkRGBA *fillColorOver;
@@ -750,6 +816,10 @@ void current_background_changed(GtkWidget *widget, gpointer data)
                        bgColBorderSidesBottom,  &sideBottom,
                        bgColBorderSidesLeft,    &sideLeft,
                        bgColBorderSidesRight,   &sideRight,
+                       bgColCornerRoundTL,      &roundTL,
+                       bgColCornerRoundTR,      &roundTR,
+                       bgColCornerRoundBL,      &roundBL,
+                       bgColCornerRoundBR,      &roundBR,
                        bgColFillWeight,         &fill_weight,
                        bgColBorderWeight,       &border_weight,
                        -1);
@@ -758,6 +828,11 @@ void current_background_changed(GtkWidget *widget, gpointer data)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_bottom), sideBottom);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_left), sideLeft);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right), sideRight);
+
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_tleft), roundTL);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_tright), roundTR);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_bleft), roundBL);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_bright), roundBR);
 
     gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color), fillColor);
     gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color), borderColor);

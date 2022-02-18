@@ -180,6 +180,10 @@ void config_write_backgrounds(FILE *fp)
         gboolean sideBottom;
         gboolean sideLeft;
         gboolean sideRight;
+        gboolean roundTL;
+        gboolean roundTR;
+        gboolean roundBL;
+        gboolean roundBR;
         GdkRGBA *fillColor;
         GdkRGBA *borderColor;
         int gradient_id;
@@ -209,11 +213,24 @@ void config_write_backgrounds(FILE *fp)
                            bgColBorderSidesBottom,  &sideBottom,
                            bgColBorderSidesLeft,    &sideLeft,
                            bgColBorderSidesRight,   &sideRight,
+                           bgColCornerRoundTL,      &roundTL,
+                           bgColCornerRoundTR,      &roundTR,
+                           bgColCornerRoundBL,      &roundBL,
+                           bgColCornerRoundBR,      &roundBR,
                            bgColFillWeight,         &fill_weight,
                            bgColBorderWeight,       &border_weight,
                            -1);
         fprintf(fp, "# Background %d: %s\n", index, text ? text : "");
         fprintf(fp, "rounded = %d\n", r);
+        char corners[13]; {
+            char *p = corners;
+            if (roundTL) memcpy(p, "TL ", 3), p+=3;
+            if (roundTR) memcpy(p, "TR ", 3), p+=3;
+            if (roundBL) memcpy(p, "BL ", 3), p+=3;
+            if (roundBR) memcpy(p, "BR ", 3), p+=3;
+            *(p == corners ? p : p-1) = '\0';
+        }
+        fprintf(fp, "rounded_corners = %s\n", corners);
         fprintf(fp, "border_width = %d\n", b);
         char sides[5]; {
             char *p = sides;
@@ -1062,7 +1079,7 @@ void finalize_gradient()
 
 void add_entry(char *key, char *value)
 {
-    char *values[3] = {NULL, NULL, NULL};
+    char *values[4] = {NULL, NULL, NULL, NULL};
     cfg_key_t key_i = str_index (key, cfg_keys, DICT_KEYS_NUM);
 
     switch (key_i) {
@@ -1127,7 +1144,24 @@ void add_entry(char *key, char *value)
         read_border_color_press = 0;
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_corner_radius), atoi(value));
         break;
-    case key_rounded_corners: break; // TODO tint2conf key_rounded_corners support
+    case key_rounded_corners: {
+        unsigned int rmask = 0;
+        if (extract_values(value, values, 4))
+            for (int i=0; i<4 && values[i]; i++) {
+                if (strcmp(values[i], "tl") == 0 || strcmp(values[i], "TL") == 0)
+                    rmask |= CORNER_TL;
+                if (strcmp(values[i], "tr") == 0 || strcmp(values[i], "TR") == 0)
+                    rmask |= CORNER_TR;
+                if (strcmp(values[i], "br") == 0 || strcmp(values[i], "BR") == 0)
+                    rmask |= CORNER_BR;
+                if (strcmp(values[i], "bl") == 0 || strcmp(values[i], "BL") == 0)
+                    rmask |= CORNER_BL;
+            }
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_tleft),  !!(rmask & CORNER_TL));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_tright), !!(rmask & CORNER_TR));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_bleft),  !!(rmask & CORNER_BL));
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_corner_round_bright), !!(rmask & CORNER_BR));
+        break; }
     case key_border_width:
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_width), atoi(value));
         break;

@@ -193,17 +193,27 @@ enum {
     bgColBorderSidesBottom,
     bgColBorderSidesLeft,
     bgColBorderSidesRight,
+    bgColCornerRoundTL,
+    bgColCornerRoundTR,
+    bgColCornerRoundBL,
+    bgColCornerRoundBR,
     bgColFillWeight,
     bgColBorderWeight,
     bgNumCols
 };
 
 extern GtkListStore *backgrounds;
-extern GtkWidget *current_background, *background_fill_color, *background_border_color, *background_gradient,
-    *background_fill_color_over, *background_border_color_over, *background_gradient_over, *background_fill_color_press,
-    *background_border_color_press, *background_gradient_press, *background_border_width, *background_border_sides_top,
-    *background_border_sides_bottom, *background_border_sides_left, *background_border_sides_right,
-    *background_corner_radius, *background_border_content_tint_weight, *background_fill_content_tint_weight;
+extern GtkWidget *current_background,
+    *background_fill_color,       *background_border_color,       *background_gradient,
+    *background_fill_color_over,  *background_border_color_over,  *background_gradient_over,
+    *background_fill_color_press, *background_border_color_press, *background_gradient_press, 
+    *background_border_width,
+    *background_border_sides_top,  *background_border_sides_bottom,
+    *background_border_sides_left, *background_border_sides_right,
+    *background_corner_radius,
+    *background_corner_round_tleft, *background_corner_round_tright,
+    *background_corner_round_bleft, *background_corner_round_bright,
+    *background_border_content_tint_weight, *background_fill_content_tint_weight;
 
 // gradients
 enum { grColPixbuf = 0, grColId, grColText, grNumCols };

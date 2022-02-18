@@ -134,7 +134,7 @@ typedef struct Executor {
     GtkWidget *cont, *markup, *tooltip, *mon;
     GtkWidget *cmd_lclick, *cmd_rclick, *cmd_mclick;
     GtkWidget *cmd_uwheel, *cmd_dwheel;
-    GtkWidget *font, *font_use, *font_color, *padx, *pady, *centered;
+    GtkWidget *font, *font_use, *font_color, *padx, *pady, *spacing, *centered;
     GtkWidget *bg, *iw, *ih;
 } Executor;
 
@@ -147,7 +147,7 @@ typedef struct Button {
     GtkWidget *icon, *text, *tooltip;
     GtkWidget *cmd_lclick, *cmd_rclick, *cmd_mclick;
     GtkWidget *cmd_uwheel, *cmd_dwheel;
-    GtkWidget *font, *font_use, *font_color, *padx, *pady, *centered;
+    GtkWidget *font, *font_use, *font_color, *padx, *pady, *spacing, *centered;
     GtkWidget *bg, *max_icon_size;
 } Button;
 

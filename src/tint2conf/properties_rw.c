@@ -878,9 +878,10 @@ void config_write_execp(FILE *fp)
         gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(executor->font_color), &color);
         config_write_color(fp, "execp_font_color", &color);
         fprintf(fp,
-                "execp_padding = %d %d\n",
+                "execp_padding = %d %d %d\n",
                 (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->padx)),
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->pady)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->pady)),
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->spacing)));
         fprintf(fp, "execp_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(executor->bg)));
         fprintf(fp,
                 "execp_centered = %d\n",
@@ -920,9 +921,10 @@ void config_write_button(FILE *fp)
         gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(button->font_color), &color);
         config_write_color(fp, "button_font_color", &color);
         fprintf(fp,
-                "button_padding = %d %d\n",
+                "button_padding = %d %d %d\n",
                 (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->padx)),
-                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->pady)));
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->pady)),
+                (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(button->spacing)));
         fprintf(fp, "button_background_id = %d\n", gtk_combo_box_get_active(GTK_COMBO_BOX(button->bg)));
         fprintf(fp,
                 "button_centered = %d\n",
@@ -1994,12 +1996,14 @@ void add_entry(char *key, char *value)
         }
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(execp_get_last()->font_color), &col);
         break; }
-    case key_execp_padding:
+    case key_execp_padding: {
         extract_values(value, values, 3);
+        int padx = atoi(values[0]);
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->padx), atoi(values[0]));
         if (values[1])
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->pady), atoi(values[1]));
-        break;
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->spacing), values[2] ? atoi(values[2]) : padx);
+        break; }
     case key_execp_background_id: {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(execp_get_last()->bg), id);
@@ -2057,9 +2061,11 @@ void add_entry(char *key, char *value)
         break; }
     case key_button_padding:
         extract_values(value, values, 3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->padx), atoi(values[0]));
+        int padx = atoi(values[0]);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->padx), padx);
         if (values[1])
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->pady), atoi(values[1]));
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(button_get_last()->spacing), values[2] ? atoi(values[2]) : padx);
         break;
     case key_button_background_id: {
         int id = background_index_safe(atoi(value));

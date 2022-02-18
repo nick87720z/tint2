@@ -4342,6 +4342,21 @@ void create_execp(GtkWidget *stack, int i)
                                 _("Specifies the vertical padding of the executor. "
                                   "This is the space between the border and the content inside."));
 
+    row++, col = 2;
+    label = gtk_label_new(_("Spacing"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    executor->spacing = gtk_spin_button_new_with_range(-500, 500, 1);
+    gtk_widget_show(executor->spacing);
+    gtk_table_attach(GTK_TABLE(table), executor->spacing, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_widget_set_tooltip_text(executor->spacing,
+                                _("Specifies distance between icon and text."
+                                  "Set to negative for overlap (text above)."));
+
     row++, col = 1;
     executor->font_use = gtk_check_button_new();
     gtk_widget_show(executor->font_use);
@@ -4671,6 +4686,21 @@ void create_button(GtkWidget *stack, int i) {
     gtk_widget_set_tooltip_text(button->pady,
                                 _("Specifies the vertical padding of the button. "
                                   "This is the space between the border and the content inside."));
+
+    row++, col = 2;
+    label = gtk_label_new(_("Spacing"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    button->spacing = gtk_spin_button_new_with_range(-500, 500, 1);
+    gtk_widget_show(button->spacing);
+    gtk_table_attach(GTK_TABLE(table), button->spacing, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_widget_set_tooltip_text(button->spacing,
+                                _("Specifies distance between icon and text."
+                                  "Set to negative for overlap (text above)."));
 
     row++, col = 1;
     button->font_use = gtk_check_button_new();

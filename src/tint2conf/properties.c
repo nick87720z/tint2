@@ -3257,11 +3257,12 @@ void create_task(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
-    task_spacing = gtk_spin_button_new_with_range(0, 9000, 1);
+    task_spacing = gtk_spin_button_new_with_range(-9000, 9000, 1);
     gtk_widget_show(task_spacing);
     gtk_table_attach(GTK_TABLE(table), task_spacing, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(task_spacing, _("Specifies the spacing between the icon and the text."));
+    gtk_widget_set_tooltip_text(task_spacing, _("Specifies the spacing between the icon and the text."
+                                                "Set to negative for overlap (text above)."));
 
     row++, col = 1;
     task_font_set = gtk_check_button_new();

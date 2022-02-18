@@ -87,23 +87,23 @@ void config_read_file(const char *path)
 void config_write_color(FILE *fp, const char *name, GdkRGBA *color)
 {
     double v;
-    int p = (v = color->red   *  15, v=floor(v)) &&
-            (v = color->green *  15, v=floor(v)) &&
-            (v = color->blue  *  15, v=floor(v)) ? 1 :
-            (v = color->red   * 255, v=floor(v)) &&
-            (v = color->green * 255, v=floor(v)) &&
-            (v = color->blue  * 255, v=floor(v)) ? 2 : 4;
+    int p = (v = color->red   * 65535 /256 /16, v==floor(v)) &&
+            (v = color->green * 65535 /256 /16, v==floor(v)) &&
+            (v = color->blue  * 65535 /256 /16, v==floor(v)) ? 1 :
+            (v = color->red   * 65535 /256, v==floor(v)) &&
+            (v = color->green * 65535 /256, v==floor(v)) &&
+            (v = color->blue  * 65535 /256, v==floor(v)) ? 2 : 4;
     switch (p) {
         case 1: fprintf(fp, "%s = #%1x%1x%1x %d\n", name,
-                        (int)(15  * color->red  ),
-                        (int)(15  * color->green),
-                        (int)(15  * color->blue ),
+                        (int)(65535 * color->red   / 256 / 16),
+                        (int)(65535 * color->green / 256 / 16),
+                        (int)(65535 * color->blue  / 256 / 16),
                         (int)(100 * color->alpha));
                 break;
         case 2: fprintf(fp, "%s = #%02x%02x%02x %d\n", name,
-                        (int)(255 * color->red  ),
-                        (int)(255 * color->green),
-                        (int)(255 * color->blue ),
+                        (int)(65535 * color->red   / 256),
+                        (int)(65535 * color->green / 256),
+                        (int)(65535 * color->blue  / 256),
                         (int)(100 * color->alpha));
                 break;
         case 4: fprintf(fp, "%s = #%04x%04x%04x %d\n", name,

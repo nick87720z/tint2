@@ -215,17 +215,14 @@ void config_write_backgrounds(FILE *fp)
         fprintf(fp, "# Background %d: %s\n", index, text ? text : "");
         fprintf(fp, "rounded = %d\n", r);
         fprintf(fp, "border_width = %d\n", b);
-
-        char sides[10];
-        sides[0] = '\0';
-        if (sideTop)
-            strlcat(sides, "T", sizeof(sides));
-        if (sideBottom)
-            strlcat(sides, "B", sizeof(sides));
-        if (sideLeft)
-            strlcat(sides, "L", sizeof(sides));
-        if (sideRight)
-            strlcat(sides, "R", sizeof(sides));
+        char sides[5]; {
+            char *p = sides;
+            if (sideTop)    *p++ = 'T';
+            if (sideBottom) *p++ = 'B';
+            if (sideLeft)   *p++ = 'L';
+            if (sideRight)  *p++ = 'R';
+            *p = '\0';
+        }
         fprintf(fp, "border_sides = %s\n", sides);
 
         fprintf(fp, "border_content_tint_weight = %d\n", (int)(border_weight));

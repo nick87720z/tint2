@@ -1035,31 +1035,25 @@ gboolean config_is_manual(const char *path)
 void finalize_bg()
 {
     if (num_bg > 0) {
+        GdkRGBA color;
         if (!read_bg_color_hover) {
-            GdkRGBA fillColor;
-            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &fillColor);
-            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_over), &fillColor);
-            background_force_update();
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &color);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_over), &color);
         }
         if (!read_border_color_hover) {
-            GdkRGBA fillColor;
-            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color), &fillColor);
-            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &fillColor);
-            background_force_update();
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color), &color);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &color);
         }
         if (!read_bg_color_press) {
-            GdkRGBA fillColor;
-            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &fillColor);
-            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_press), &fillColor);
-            background_force_update();
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_fill_color), &color);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_press), &color);
         }
         if (!read_border_color_press) {
-            GdkRGBA fillColor;
-            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &fillColor);
-            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_press), &fillColor);
-            background_force_update();
+            gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &color);
+            gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_press), &color);
         }
     }
+    background_force_update();
 }
 
 void finalize_gradient()
@@ -1095,7 +1089,6 @@ void add_entry(char *key, char *value)
             t = GRADIENT_CONFIG_RADIAL;
         gradient_create_new(t);
         num_gr++;
-        gradient_force_update();
         break; }
     case key_start_color: {
         extract_values(value, values, 3);
@@ -1103,7 +1096,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_start_color), &col);
-        gradient_force_update();
         break; }
     case key_end_color: {
         extract_values(value, values, 3);
@@ -1111,7 +1103,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_end_color), &col);
-        gradient_force_update();
         break; }
     case key_color_stop: {
         GradientConfig *g = (GradientConfig *)g_list_last(gradients)->data;
@@ -1138,12 +1129,10 @@ void add_entry(char *key, char *value)
         read_bg_color_press = 0;
         read_border_color_press = 0;
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_corner_radius), atoi(value));
-        background_force_update();
         break;
     case key_rounded_corners: break; // TODO tint2conf key_rounded_corners support
     case key_border_width:
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_width), atoi(value));
-        background_force_update();
         break;
     case key_background_color: {
         extract_values(value, values, 3);
@@ -1151,7 +1140,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color), &col);
-        background_force_update();
         break; }
     case key_border_color: {
         extract_values(value, values, 3);
@@ -1159,7 +1147,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color), &col);
-        background_force_update();
         break; }
     case key_background_color_hover: {
         extract_values(value, values, 3);
@@ -1167,7 +1154,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_over), &col);
-        background_force_update();
         read_bg_color_hover = 1;
         break; }
     case key_border_color_hover: {
@@ -1176,7 +1162,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_over), &col);
-        background_force_update();
         read_border_color_hover = 1;
         break; }
     case key_background_color_pressed: {
@@ -1185,7 +1170,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_fill_color_press), &col);
-        background_force_update();
         read_bg_color_press = 1;
         break; }
     case key_border_color_pressed: {
@@ -1194,7 +1178,6 @@ void add_entry(char *key, char *value)
         hex2gdk(values[0], &col);
         col.alpha = (values[1] ? atoi(values[1]) : 50) / 100.0;
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(background_border_color_press), &col);
-        background_force_update();
         read_border_color_press = 1;
         break; }
     case key_border_sides:
@@ -1206,30 +1189,24 @@ void add_entry(char *key, char *value)
                                      strchr(value, 'l') || strchr(value, 'L'));
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(background_border_sides_right),
                                      strchr(value, 'r') || strchr(value, 'R'));
-        background_force_update();
         break;
     case key_gradient_id: {
         int id = gradient_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient), id);
-        background_force_update();
         break; }
     case key_gradient_id_hover: {
         int id = gradient_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_over), id);
-        background_force_update();
         break; }
     case key_gradient_id_pressed: {
         int id = gradient_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(background_gradient_press), id);
-        background_force_update();
         break; }
     case key_border_content_tint_weight:
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_border_content_tint_weight), atoi(value));
-        background_force_update();
         break;
     case key_background_content_tint_weight:
         gtk_spin_button_set_value(GTK_SPIN_BUTTON(background_fill_content_tint_weight), atoi(value));
-        background_force_update();
         break;
 
     /* Panel */

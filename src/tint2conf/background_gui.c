@@ -12,7 +12,8 @@ GtkWidget *current_background,
     *background_corner_radius,
     *background_corner_round_tleft, *background_corner_round_tright,
     *background_corner_round_bleft, *background_corner_round_bright,
-    *background_border_content_tint_weight, *background_fill_content_tint_weight;
+    *background_border_content_tint_weight, *background_fill_content_tint_weight,
+    *table;
 
 GtkWidget *create_background_combo(const char *label)
 {
@@ -117,7 +118,7 @@ void create_background(GtkWidget *parent)
                                      G_TYPE_DOUBLE,
                                      G_TYPE_DOUBLE);
 
-    GtkWidget *table, *label, *button;
+    GtkWidget *label, *button;
     int row, col;
 
     table = gtk_table_new(1, 4, FALSE);
@@ -397,6 +398,10 @@ void create_background(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), background_corner_round_bright, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
+    change_paragraph(parent);
+}
+
+void background_page_finalize () {
     g_signal_connect(G_OBJECT(current_background), "changed", G_CALLBACK(current_background_changed), table);
     g_signal_connect(G_OBJECT(background_fill_color), "color-set", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_color), "color-set", G_CALLBACK(background_update), NULL);
@@ -419,8 +424,6 @@ void create_background(GtkWidget *parent)
     g_signal_connect(G_OBJECT(background_corner_round_bright), "toggled", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_border_content_tint_weight), "value-changed", G_CALLBACK(background_update), NULL);
     g_signal_connect(G_OBJECT(background_fill_content_tint_weight), "value-changed", G_CALLBACK(background_update), NULL);
-
-    change_paragraph(parent);
 }
 
 int background_index_safe(int index)

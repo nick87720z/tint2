@@ -34,6 +34,8 @@ static int read_border_color_press;
 
 static int num_gr;
 
+extern void background_page_finalize ();
+
 void config_read_file(const char *path)
 {
     num_bg = 0;
@@ -64,6 +66,8 @@ void config_read_file(const char *path)
 
     finalize_gradient();
     finalize_bg();
+    background_page_finalize ();
+    gradient_page_finalize ();
 
     if (!config_has_panel_items) {
         char panel_items[256];

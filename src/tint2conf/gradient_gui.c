@@ -184,16 +184,18 @@ void create_gradient(GtkWidget *parent)
     gtk_table_attach(GTK_TABLE(table), gradient_stop_offset, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
 
+    change_paragraph(parent);
+}
+
+void gradient_page_finalize ()
+{
     g_signal_connect(G_OBJECT(current_gradient), "changed", G_CALLBACK(current_gradient_changed), NULL);
     g_signal_connect(G_OBJECT(gradient_combo_type), "changed", G_CALLBACK(gradient_update), NULL);
     g_signal_connect(G_OBJECT(gradient_start_color), "color-set", G_CALLBACK(gradient_update), NULL);
     g_signal_connect(G_OBJECT(gradient_end_color), "color-set", G_CALLBACK(gradient_update), NULL);
-
     g_signal_connect(G_OBJECT(current_gradient_stop), "changed", G_CALLBACK(current_gradient_stop_changed), NULL);
     g_signal_connect(G_OBJECT(gradient_stop_color), "color-set", G_CALLBACK(gradient_stop_update), NULL);
     g_signal_connect(G_OBJECT(gradient_stop_offset), "value-changed", G_CALLBACK(gradient_stop_update), NULL);
-
-    change_paragraph(parent);
 }
 
 void gradient_create_new(GradientConfigType t)

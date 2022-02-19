@@ -727,7 +727,8 @@ void run_tint2_event_loop()
     ts_flush_finished = 0;
     first_render = TRUE;
 
-    while (!get_signal_pending()) {
+    while (!get_signal_pending())
+    {
         if (panel_refresh)
             handle_panel_refresh();
 

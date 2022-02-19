@@ -472,6 +472,7 @@ void draw_task_icon(Task *task, int text_width)
 }
 
 void draw_task(void *obj, cairo_t *c)
+// FIXME: negative spacing works not enough well in horizontal mode
 {
     PangoContext *context;
     PangoLayout *layout;
@@ -488,15 +489,11 @@ void draw_task(void *obj, cairo_t *c)
         pango_layout_set_font_description(layout, panel->g_task.font_desc);
         pango_layout_set_text(layout, task->title, -1);
 
-        pango_layout_set_width(layout, (((Taskbar *)task->area.parent)->text_width + TINT2_PANGO_SLACK) * PANGO_SCALE);
+        pango_layout_set_width(layout, (TINT2_PANGO_SLACK + ((Taskbar *)task->area.parent)->text_width) * PANGO_SCALE);
         pango_layout_set_height(layout, panel->g_task.text_height * PANGO_SCALE);
         pango_layout_set_wrap(layout, PANGO_WRAP_WORD_CHAR);
         pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
-
-        if (panel->g_task.centered)
-            pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
-        else
-            pango_layout_set_alignment(layout, PANGO_ALIGN_LEFT);
+        pango_layout_set_alignment(layout, panel->g_task.centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
 
         pango_layout_get_pixel_size(layout, &task->_text_width, &task->_text_height);
         task->_text_posy = (panel->g_task.area.height - task->_text_height) / 2.0;
@@ -507,7 +504,11 @@ void draw_task(void *obj, cairo_t *c)
         draw_task_icon(task, task->_text_width);
     if (panel->g_task.has_text) {
         // NOTE: possible false warning about potentially uninitialized `config_text`, `layout`, `context`
-        draw_text(layout, c, panel->g_task.text_posx, task->_text_posy, config_text, panel->font_shadow ? layout : NULL);
+        draw_text(  layout, c,
+                    panel->g_task.text_posx,
+                    task->_text_posy,
+                    config_text,
+                    panel->font_shadow ? layout : NULL);
         g_object_unref(layout);
         g_object_unref(context);
     }

@@ -348,20 +348,6 @@ void init_taskbar_panel(void *p)
         }
     }
 
-    // compute vertical position : text and icon
-    int height, width;
-    get_text_size2(panel->g_task.font_desc,
-                   &height,
-                   &width,
-                   panel->area.height,
-                   panel->area.width,
-                   "TAjpg",
-                   5,
-                   PANGO_WRAP_WORD_CHAR,
-                   PANGO_ELLIPSIZE_END,
-                   panel->g_task.centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
-                   FALSE,
-                   panel->scale);
     panel->g_task.text_posx = panel->g_task.area.paddingx * panel->scale
                             + left_bg_border_width(panel->g_task.background[0]);
 

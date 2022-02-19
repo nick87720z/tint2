@@ -257,19 +257,20 @@ void init_taskbar_panel(void *p)
     panel->g_taskbar.area.on_screen             = TRUE;
     if (panel_horizontal)
     {
-        panel->g_taskbar.area.posy = top_border_width(&panel->area) + panel->area.paddingy * panel->scale;
+        panel->g_taskbar.area.posy = panel->area.paddingy * panel->scale + top_border_width(&panel->area);
         panel->g_taskbar.area.height = panel->area.height
-                                     - top_bottom_border_width(&panel->area)
-                                     - 2 * panel->area.paddingy * panel->scale;
+                                     - 2 * panel->area.paddingy * panel->scale
+                                     - top_bottom_border_width(&panel->area);
+
         panel->g_taskbar.area_name.posy   = panel->g_taskbar.area.posy;
         panel->g_taskbar.area_name.height = panel->g_taskbar.area.height;
     }
     else
     {
-        panel->g_taskbar.area.posx = left_border_width(&panel->area) + panel->area.paddingy * panel->scale;
+        panel->g_taskbar.area.posx = panel->area.paddingy * panel->scale + left_border_width(&panel->area);
         panel->g_taskbar.area.width = panel->area.width
-                                    - left_right_border_width(&panel->area)
-                                    - 2 * panel->area.paddingy * panel->scale;
+                                    - 2 * panel->area.paddingy * panel->scale
+                                    - left_right_border_width(&panel->area);
 
         panel->g_taskbar.area_name.posx  = panel->g_taskbar.area.posx;
         panel->g_taskbar.area_name.width = panel->g_taskbar.area.width;
@@ -312,21 +313,21 @@ void init_taskbar_panel(void *p)
 
     if (panel_horizontal) {
         panel->g_task.area.posy = panel->g_taskbar.area.posy
-                                + top_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
-                                + panel->g_taskbar.area.paddingy * panel->scale;
+                                + panel->g_taskbar.area.paddingy * panel->scale
+                                + top_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]);
 
         panel->g_task.area.width = panel->g_task.maximum_width;
         panel->g_task.area.height = panel->g_taskbar.area.height
-                                    - top_bottom_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
-                                    - 2 * panel->g_taskbar.area.paddingy * panel->scale;
+                                    - 2 * panel->g_taskbar.area.paddingy * panel->scale
+                                    - top_bottom_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]);
     } else {
         panel->g_task.area.posx = panel->g_taskbar.area.posx
-                                + left_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
-                                + panel->g_taskbar.area.paddingy * panel->scale;
+                                + panel->g_taskbar.area.paddingy * panel->scale
+                                + left_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]);
 
         panel->g_task.area.width =  panel->g_taskbar.area.width
-                                    - left_right_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL])
-                                    - 2 * panel->g_taskbar.area.paddingy * panel->scale;
+                                    - 2 * panel->g_taskbar.area.paddingy * panel->scale
+                                    - left_right_bg_border_width(panel->g_taskbar.background[TASKBAR_NORMAL]);
 
         panel->g_task.area.height = panel->g_task.maximum_height * panel->scale;
     }
@@ -361,20 +362,20 @@ void init_taskbar_panel(void *p)
                    panel->g_task.centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                    FALSE,
                    panel->scale);
-
-    panel->g_task.text_posx = left_bg_border_width(panel->g_task.background[0])
-                            + panel->g_task.area.paddingx * panel->scale;
+    panel->g_task.text_posx = panel->g_task.area.paddingx * panel->scale
+                            + left_bg_border_width(panel->g_task.background[0]);
 
     panel->g_task.text_height = panel->g_task.area.height
-                                - (2 * panel->g_task.area.paddingy * panel->scale)
-                                - top_bottom_border_width(&panel->g_task.area);
-    if (panel->g_task.has_icon) {
-        panel->g_task.icon_size1 = MIN(panel->scale * MIN(  panel->g_task.maximum_width,
-                                                            panel->g_task.maximum_height),
-                                       MIN(panel->g_task.area.width, panel->g_task.area.height))
-                                   - 2 * panel->g_task.area.paddingy * panel->scale
-                                   - MAX( left_right_border_width(&panel->g_task.area),
-                                          top_bottom_border_width(&panel->g_task.area) );
+                                - 2 * panel->g_task.area.paddingy * panel->scale
+                                - top_bottom_border_width (&panel->g_task.area);
+    if (panel->g_task.has_icon)
+    {
+        panel->g_task.icon_size1 = MIN( MIN(panel->g_task.maximum_width,
+                                            panel->g_task.maximum_height) * panel->scale,
+                                        MIN(panel->g_task.area.width, panel->g_task.area.height) )
+                                   - MAX( left_right_border_width (&panel->g_task.area),
+                                          top_bottom_border_width (&panel->g_task.area) )
+                                   - 2 * panel->g_task.area.paddingy * panel->scale;
 
         panel->g_task.text_posx += panel->g_task.icon_size1 + panel->g_task.area.spacing * panel->scale;
         panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;

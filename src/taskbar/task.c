@@ -107,10 +107,10 @@ Task *add_task(Window win)
     // get application name
     // use res_class property of WM_CLASS as res_name is easily overridable by user
     XClassHint *classhint = XAllocClassHint();
-    task_template.application = strdup(
-        classhint && XGetClassHint(server.display, win, classhint)
-        ? classhint->res_class : "Untitled");
-    if (classhint) {
+    task_template.application = strdup( classhint && XGetClassHint(server.display, win, classhint)
+                                        ? classhint->res_class : "Untitled" );
+    if (classhint)
+    {
         if (classhint->res_name)
             XFree(classhint->res_name);
         if (classhint->res_class)
@@ -119,7 +119,8 @@ Task *add_task(Window win)
     }
 
     GPtrArray *task_buttons = g_ptr_array_new();
-    for (int j = 0; j < panels[monitor].num_desktops; j++) {
+    for (int j = 0; j < panels[monitor].num_desktops; j++)
+    {
         if (task_template.desktop != ALL_DESKTOPS && task_template.desktop != j)
             continue;
 

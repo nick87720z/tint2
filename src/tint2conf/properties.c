@@ -1300,23 +1300,23 @@ void panel_add_item(GtkWidget *widget, gpointer data)
 
         gtk_tree_model_get(model, &iter, itemsColName, &name, itemsColValue, &value, -1);
 
-        if (!panel_contains(value) || g_str_equal(value, ":") || g_str_equal(value, "E") || g_str_equal(value, "F") ||
-            g_str_equal(value, "P")) {
+        if (!panel_contains(value)  || (*value && strchr(":EFP", *value))) {
             GtkTreeIter iter;
             gtk_list_store_append(panel_items, &iter);
             gtk_list_store_set(panel_items, &iter, itemsColName, g_strdup(name), itemsColValue, g_strdup(value), -1);
-            if (g_str_equal(value, ":")) {
-                separator_create_new();
-            } else if (g_str_equal(value, "E")) {
-                execp_create_new();
-            } else if (g_str_equal(value, "P")) {
-                button_create_new();
+            switch (*value) {
+            case ':':   separator_create_new();
+                        separator_update_indices();
+                        break;
+            case 'E':   execp_create_new();
+                        execp_update_indices();
+                        break;
+            case 'P':   button_create_new();
+                        button_update_indices();
+                        break;
             }
         }
     }
-    separator_update_indices();
-    execp_update_indices();
-    button_update_indices();
 }
 
 void panel_remove_item(GtkWidget *widget, gpointer data)
@@ -1330,38 +1330,41 @@ void panel_remove_item(GtkWidget *widget, gpointer data)
 
         gtk_tree_model_get(model, &iter, itemsColName, &name, itemsColValue, &value, -1);
 
-        if (g_str_equal(value, ":")) {
-            for (int i = 0; i < separators->len; i++) {
-                Separator *separator = &g_array_index(separators, Separator, i);
-                if (g_str_equal(name, separator->name)) {
-                    separator_remove(i);
+        switch (*value) {
+        case ':':   for (int i = 0; i < separators->len; i++) {
+                        Separator *separator = &g_array_index(separators, Separator, i);
+                        if (g_str_equal(name, separator->name)) {
+                            separator_remove(i);
+                            gtk_list_store_remove(panel_items, &iter);
+                            separator_update_indices();
+                            break;
+                        }
+                    }
                     break;
-                }
-            }
-        } else if (g_str_equal(value, "E")) {
-            for (int i = 0; i < executors->len; i++) {
-                Executor *executor = &g_array_index(executors, Executor, i);
-                if (g_str_equal(name, executor->name)) {
-                    execp_remove(i);
+        case 'E':   for (int i = 0; i < executors->len; i++) {
+                        Executor *executor = &g_array_index(executors, Executor, i);
+                        if (g_str_equal(name, executor->name)) {
+                            execp_remove(i);
+                            gtk_list_store_remove(panel_items, &iter);
+                            execp_update_indices();
+                            break;
+                        }
+                    }
                     break;
-                }
-            }
-        } else if (g_str_equal(value, "P")) {
-            for (int i = 0; i < buttons->len; i++) {
-                Button *button = &g_array_index(buttons, Button, i);
-                if (g_str_equal(name, button->name)) {
-                    button_remove(i);
+        case 'P':   for (int i = 0; i < buttons->len; i++) {
+                        Button *button = &g_array_index(buttons, Button, i);
+                        if (g_str_equal(name, button->name)) {
+                            button_remove(i);
+                            gtk_list_store_remove(panel_items, &iter);
+                            button_update_indices();
+                            break;
+                        }
+                    }
                     break;
-                }
-            }
+        default:    gtk_list_store_remove(panel_items, &iter);
+                    break;
         }
-
-        gtk_list_store_remove(panel_items, &iter);
     }
-
-    separator_update_indices();
-    execp_update_indices();
-    button_update_indices();
 }
 
 void panel_move_item_down(GtkWidget *widget, gpointer data)
@@ -1369,7 +1372,10 @@ void panel_move_item_down(GtkWidget *widget, gpointer data)
     GtkTreeIter iter;
     GtkTreeModel *model;
 
-    if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(panel_items_view)), &model, &iter)) {
+    if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(panel_items_view)),
+                                        &model,
+                                        &iter))
+    {
         GtkTreeIter next = iter;
         if (gtk_tree_model_iter_next(model, &next)) {
             gchar *name1;
@@ -1379,59 +1385,64 @@ void panel_move_item_down(GtkWidget *widget, gpointer data)
             gchar *value2;
             gtk_tree_model_get(model, &next, itemsColName, &name2, itemsColValue, &value2, -1);
 
-            if (g_str_equal(value1, ":") && g_str_equal(value2, ":")) {
-                Separator *separator1 = NULL;
-                Separator *separator2 = NULL;
-                for (int i = 0; i < separators->len; i++) {
-                    Separator *separator = &g_array_index(separators, Separator, i);
-                    if (g_str_equal(name1, separator->name)) {
-                        separator1 = separator;
-                    }
-                    if (g_str_equal(name2, separator->name)) {
-                        separator2 = separator;
-                    }
-                }
-                Separator tmp = *separator1;
-                *separator1 = *separator2;
-                *separator2 = tmp;
-            } else if (g_str_equal(value1, "E") && g_str_equal(value2, "E")) {
-                Executor *executor1 = NULL;
-                Executor *executor2 = NULL;
-                for (int i = 0; i < executors->len; i++) {
-                    Executor *executor = &g_array_index(executors, Executor, i);
-                    if (g_str_equal(name1, executor->name)) {
-                        executor1 = executor;
-                    }
-                    if (g_str_equal(name2, executor->name)) {
-                        executor2 = executor;
-                    }
-                }
-                Executor tmp = *executor1;
-                *executor1 = *executor2;
-                *executor2 = tmp;
-            } else if (g_str_equal(value1, "P") && g_str_equal(value2, "P")) {
-                Button *button1 = NULL;
-                Button *button2 = NULL;
-                for (int i = 0; i < buttons->len; i++) {
-                    Button *button = &g_array_index(buttons, Button, i);
-                    if (g_str_equal(name1, button->name)) {
-                        button1 = button;
-                    }
-                    if (g_str_equal(name2, button->name)) {
-                        button2 = button;
-                    }
-                }
-                Button tmp = *button1;
-                *button1 = *button2;
-                *button2 = tmp;
+            if (*value1 && *value2 == *value1)
+            switch (*value1) {
+            case ':': { Separator *separator1 = NULL;
+                        Separator *separator2 = NULL;
+                        for (int i = 0; i < separators->len; i++) {
+                            Separator *separator = &g_array_index(separators, Separator, i);
+                            if (g_str_equal(name1, separator->name)) {
+                                separator1 = separator;
+                            }
+                            if (g_str_equal(name2, separator->name)) {
+                                separator2 = separator;
+                            }
+                        }
+                        Separator tmp = *separator1;
+                        *separator1 = *separator2;
+                        *separator2 = tmp;
+                        gtk_list_store_swap(panel_items, &iter, &next);
+                        separator_update_indices();
+                        break; }
+            case 'E': { Executor *executor1 = NULL;
+                        Executor *executor2 = NULL;
+                        for (int i = 0; i < executors->len; i++) {
+                            Executor *executor = &g_array_index(executors, Executor, i);
+                            if (g_str_equal(name1, executor->name)) {
+                                executor1 = executor;
+                            }
+                            if (g_str_equal(name2, executor->name)) {
+                                executor2 = executor;
+                            }
+                        }
+                        Executor tmp = *executor1;
+                        *executor1 = *executor2;
+                        *executor2 = tmp;
+                        gtk_list_store_swap(panel_items, &iter, &next);
+                        execp_update_indices();
+                        break; }
+            case 'P': { Button *button1 = NULL;
+                        Button *button2 = NULL;
+                        for (int i = 0; i < buttons->len; i++) {
+                            Button *button = &g_array_index(buttons, Button, i);
+                            if (g_str_equal(name1, button->name)) {
+                                button1 = button;
+                            }
+                            if (g_str_equal(name2, button->name)) {
+                                button2 = button;
+                            }
+                        }
+                        Button tmp = *button1;
+                        *button1 = *button2;
+                        *button2 = tmp;
+                        gtk_list_store_swap(panel_items, &iter, &next);
+                        button_update_indices();
+                        break; }
             }
-
-            gtk_list_store_swap(panel_items, &iter, &next);
+            else
+                gtk_list_store_swap(panel_items, &iter, &next);
         }
     }
-    separator_update_indices();
-    execp_update_indices();
-    button_update_indices();
 }
 
 void panel_move_item_up(GtkWidget *widget, gpointer data)
@@ -1442,7 +1453,8 @@ void panel_move_item_up(GtkWidget *widget, gpointer data)
 
         if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(panel_items_view)),
                                             &model,
-                                            &iter)) {
+                                            &iter))
+        {
             GtkTreeIter prev = iter;
             if (gtk_tree_model_iter_prev_tint2(model, &prev)) {
                 gchar *name1;
@@ -1452,60 +1464,68 @@ void panel_move_item_up(GtkWidget *widget, gpointer data)
                 gchar *value2;
                 gtk_tree_model_get(model, &prev, itemsColName, &name2, itemsColValue, &value2, -1);
 
-                if (g_str_equal(value1, ":") && g_str_equal(value2, ":")) {
-                    Separator *separator1 = NULL;
-                    Separator *separator2 = NULL;
-                    for (int i = 0; i < separators->len; i++) {
-                        Separator *separator = &g_array_index(separators, Separator, i);
-                        if (g_str_equal(name1, separator->name)) {
-                            separator1 = separator;
-                        }
-                        if (g_str_equal(name2, separator->name)) {
-                            separator2 = separator;
-                        }
-                    }
-                    Separator tmp = *separator1;
-                    *separator1 = *separator2;
-                    *separator2 = tmp;
-                } else if (g_str_equal(value1, "E") && g_str_equal(value2, "E")) {
-                    Executor *executor1 = NULL;
-                    Executor *executor2 = NULL;
-                    for (int i = 0; i < executors->len; i++) {
-                        Executor *executor = &g_array_index(executors, Executor, i);
-                        if (g_str_equal(name1, executor->name)) {
-                            executor1 = executor;
-                        }
-                        if (g_str_equal(name2, executor->name)) {
-                            executor2 = executor;
-                        }
-                    }
-                    Executor tmp = *executor1;
-                    *executor1 = *executor2;
-                    *executor2 = tmp;
-                } else if (g_str_equal(value1, "P") && g_str_equal(value2, "P")) {
-                    Button *button1 = NULL;
-                    Button *button2 = NULL;
-                    for (int i = 0; i < buttons->len; i++) {
-                        Button *button = &g_array_index(buttons, Button, i);
-                        if (g_str_equal(name1, button->name)) {
-                            button1 = button;
-                        }
-                        if (g_str_equal(name2, button->name)) {
-                            button2 = button;
-                        }
-                    }
-                    Button tmp = *button1;
-                    *button1 = *button2;
-                    *button2 = tmp;
+                if (*value1 && *value2 == *value1)
+                switch (*value1) {
+                case ':': { Separator *separator1 = NULL;
+                            Separator *separator2 = NULL;
+                            for (int i = 0; i < separators->len; i++)
+                            {
+                                Separator *separator = &g_array_index(separators, Separator, i);
+                                if (g_str_equal(name1, separator->name)) {
+                                    separator1 = separator;
+                                }
+                                if (g_str_equal(name2, separator->name)) {
+                                    separator2 = separator;
+                                }
+                            }
+                            Separator tmp = *separator1;
+                            *separator1 = *separator2;
+                            *separator2 = tmp;
+                            gtk_list_store_swap (panel_items, &iter, &prev);
+                            separator_update_indices();
+                            break; }
+                case 'E': { Executor *executor1 = NULL;
+                            Executor *executor2 = NULL;
+                            for (int i = 0; i < executors->len; i++)
+                            {
+                                Executor *executor = &g_array_index(executors, Executor, i);
+                                if (g_str_equal(name1, executor->name)) {
+                                    executor1 = executor;
+                                }
+                                if (g_str_equal(name2, executor->name)) {
+                                    executor2 = executor;
+                                }
+                            }
+                            Executor tmp = *executor1;
+                            *executor1 = *executor2;
+                            *executor2 = tmp;
+                            gtk_list_store_swap (panel_items, &iter, &prev);
+                            execp_update_indices();
+                            break; }
+                case 'P': { Button *button1 = NULL;
+                            Button *button2 = NULL;
+                            for (int i = 0; i < buttons->len; i++)
+                            {
+                                Button *button = &g_array_index(buttons, Button, i);
+                                if (g_str_equal(name1, button->name)) {
+                                    button1 = button;
+                                }
+                                if (g_str_equal(name2, button->name)) {
+                                    button2 = button;
+                                }
+                            }
+                            Button tmp = *button1;
+                            *button1 = *button2;
+                            *button2 = tmp;
+                            gtk_list_store_swap (panel_items, &iter, &prev);
+                            button_update_indices();
+                            break; }
                 }
-
-                gtk_list_store_swap(panel_items, &iter, &prev);
+                else
+                    gtk_list_store_swap (panel_items, &iter, &prev);
             }
         }
     }
-    separator_update_indices();
-    execp_update_indices();
-    button_update_indices();
 }
 
 enum { iconsColName = 0, iconsColDescr, iconsNumCols };

@@ -3,12 +3,17 @@
   - Added option "rounded_corners" to disable rounding for separate corners
   - "tput clear" command in executors is possible without "-T" option (TERM is set to better value than "dumb")
   - Enhanced API documentation comment style to look more like documentation right in code (resemble doxygen output)
+  - tint2conf: spacing option for buttons and executors, enable negative spacing for task icon and text
+  - Small optimizations
 - Fixes:
   - Fixed build with the Ninja cmake generator (cmake `-GNinja` option)
   - Found few regressions, possibly introduced between versions 17.0.2 and 17.0.3
   - GTK2 was still listed among current dependencies in few places
   - snprintf sometimes could overwrite terminating null in fixed buffers, resulting to unpredictable possible crashes
   - Last possible artifacts in area / tooltip draw (try thick border lines with rounding)
+  - Task icon placing did not use spacing in centered mode, resulting to half of spacing moved to padding
+  - tint2conf: Colors had channel values decremented when saved to config and used wrong required precision
+  - tint2conf: Background image in the editor looked different than on the panel
 2022-02-10 17.0.3
 - Enhancements:
   - Added command to refresh executors (issue #747) (Arash Rohani)

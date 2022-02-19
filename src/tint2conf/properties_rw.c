@@ -1625,15 +1625,14 @@ void add_entry(char *key, char *value)
         else
             gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_alignment), 0);
         break;
-    case key_taskbar_padding:
+    case key_taskbar_padding: {
         extract_values(value, values, 3);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_padding_x), atoi(values[0]));
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_spacing), atoi(values[0]));
+        int padx = atoi(values[0]);
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_padding_x), padx);
         if (values[1])
             gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_padding_y), atoi(values[1]));
-        if (values[2])
-            gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_spacing), atoi(values[2]));
-        break;
+        gtk_spin_button_set_value(GTK_SPIN_BUTTON(taskbar_spacing), values[2] ? atoi(values[2]) : padx);
+        break; }
     case key_taskbar_background_id: {
         int id = background_index_safe(atoi(value));
         gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_inactive_background), id);

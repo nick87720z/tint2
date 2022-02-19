@@ -428,11 +428,8 @@ void background_page_finalize () {
 
 int background_index_safe(int index)
 {
-    if (index <= 0)
-        index = 0;
-    if (index >= get_model_length(GTK_TREE_MODEL(backgrounds)))
-        index = 0;
-    return index;
+    return  index <= 0 || index >= get_model_length(GTK_TREE_MODEL(backgrounds))
+            ? 0 : index;
 }
 
 void background_create_new()

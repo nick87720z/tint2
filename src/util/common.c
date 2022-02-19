@@ -700,12 +700,17 @@ void render_image(Drawable d, int x, int y)
 
 gboolean is_color_attribute(PangoAttribute *attr, gpointer user_data)
 {
-    return attr->klass->type == PANGO_ATTR_FOREGROUND ||
-            attr->klass->type == PANGO_ATTR_BACKGROUND ||
-            attr->klass->type == PANGO_ATTR_UNDERLINE_COLOR ||
-            attr->klass->type == PANGO_ATTR_STRIKETHROUGH_COLOR ||
-            attr->klass->type == PANGO_ATTR_FOREGROUND_ALPHA ||
-            attr->klass->type == PANGO_ATTR_BACKGROUND_ALPHA;
+    switch (attr->klass->type) {
+        case PANGO_ATTR_FOREGROUND:
+        case PANGO_ATTR_BACKGROUND:
+        case PANGO_ATTR_UNDERLINE_COLOR:
+        case PANGO_ATTR_STRIKETHROUGH_COLOR:
+        case PANGO_ATTR_FOREGROUND_ALPHA:
+        case PANGO_ATTR_BACKGROUND_ALPHA:
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 gboolean layout_set_markup_strip_colors(PangoLayout *layout, const char *markup)

@@ -26,7 +26,7 @@ Separator *create_separator()
     separator->color.alpha = 0.9;
     separator->style = SEPARATOR_DOTS;
     separator->thickness = 3;
-    separator->area.paddingxlr = 1;
+    separator->area.paddingx = 1;
     BUF_0TERM (separator->area.name);
     return separator;
 }
@@ -119,7 +119,7 @@ int separator_compute_desired_size(void *obj)
     if (!separator->area.on_screen)
         return 0;
 
-    return  separator->thickness + 2 * separator->area.paddingxlr * panel->scale
+    return  separator->thickness + 2 * separator->area.paddingx * panel->scale
             + (panel_horizontal ? left_right_border_width : top_bottom_border_width)(&separator->area);
 }
 
@@ -130,7 +130,7 @@ gboolean resize_separator(void *obj)
     if (!separator->area.on_screen)
         return FALSE;
 
-    int sep_width = separator->thickness + 2 * separator->area.paddingxlr * panel->scale + left_right_border_width(&separator->area);
+    int sep_width = separator->thickness + 2 * separator->area.paddingx * panel->scale + left_right_border_width(&separator->area);
     if (panel_horizontal) {
         separator->area.width = sep_width;
         separator->length = separator->area.height - top_bottom_border_width(&separator->area);

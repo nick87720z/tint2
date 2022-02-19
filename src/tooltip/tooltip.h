@@ -30,7 +30,7 @@ typedef struct {
     int show_timeout_msec;
     int hide_timeout_msec;
     Bool mapped;
-    int paddingx;
+    int spacing;
     int paddingy;
     gboolean has_font;
     PangoFontDescription *font_desc;

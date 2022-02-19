@@ -142,9 +142,9 @@ void init_button_panel(void *p)
         Area *area = &button->area;
         
         area->bg = backend->bg;
-        area->paddingx = backend->paddingx;
+        area->spacing = backend->spacing;
         area->paddingy = backend->paddingy;
-        area->paddingxlr = backend->paddingxlr;
+        area->paddingx = backend->paddingx;
         area->parent = panel;
         area->panel = panel;
         area->_dump_geometry = button_dump_geometry;
@@ -302,9 +302,9 @@ int button_compute_desired_size(void *obj)
     Panel *panel = (Panel *)button->area.panel;
     Area *area = &button->area;
     
-    int horiz_padding = (panel_horizontal ? area->paddingxlr : area->paddingy) * panel->scale;
-    int vert_padding = (panel_horizontal ? area->paddingy : area->paddingxlr) * panel->scale;
-    int interior_padding = area->paddingx * panel->scale;
+    int horiz_padding = (panel_horizontal ? area->paddingx : area->paddingy) * panel->scale;
+    int vert_padding = (panel_horizontal ? area->paddingy : area->paddingx) * panel->scale;
+    int interior_padding = area->spacing * panel->scale;
 
     int icon_w, icon_h;
     icon_w = icon_h = button_icon_desired_size(button);
@@ -371,9 +371,9 @@ gboolean resize_button(void *obj)
     Panel *panel = (Panel *)button->area.panel;
     Area *area = &button->area;
     
-    int horiz_padding = (panel_horizontal ? area->paddingxlr : area->paddingy) * panel->scale;
-    int vert_padding = (panel_horizontal ? area->paddingy : area->paddingxlr) * panel->scale;
-    int interior_padding = area->paddingx * panel->scale;
+    int horiz_padding = (panel_horizontal ? area->paddingx : area->paddingy) * panel->scale;
+    int vert_padding = (panel_horizontal ? area->paddingy : area->paddingx) * panel->scale;
+    int interior_padding = area->spacing * panel->scale;
 
     int icon_w, icon_h;
     icon_w = icon_h = button_icon_desired_size(button);

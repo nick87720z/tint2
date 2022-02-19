@@ -146,7 +146,7 @@ int taskbarname_compute_desired_size(void *obj)
 
     return  (panel_horizontal ? name_width  + left_right_border_width(&taskbar_name->area)
                               : name_height + top_bottom_border_width(&taskbar_name->area))
-            + 2 * taskbar_name->area.paddingxlr * panel->scale;
+            + 2 * taskbar_name->area.paddingx * panel->scale;
 }
 
 gboolean resize_taskbarname(void *obj)

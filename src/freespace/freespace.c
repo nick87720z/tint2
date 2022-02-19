@@ -82,11 +82,11 @@ int freespace_get_max_size(Panel *panel)
             spacers++;
             continue;
         }
-        size += panel_horizontal ? a->width  + panel->area.paddingx * panel->scale
+        size += panel_horizontal ? a->width  + panel->area.spacing * panel->scale
                                  : a->height + panel->area.paddingy * panel->scale;
     }
     size = (panel_horizontal ? panel->area.width  - left_right_border_width(&panel->area)
-                             : panel->area.height - top_bottom_border_width(&panel->area)) - size - panel->area.paddingxlr * panel->scale;
+                             : panel->area.height - top_bottom_border_width(&panel->area)) - size - panel->area.paddingx * panel->scale;
 
     return size / spacers;
 }

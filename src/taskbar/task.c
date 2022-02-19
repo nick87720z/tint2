@@ -439,7 +439,7 @@ void draw_task_icon(Task *task, int text_width)
     // Find pos
     Panel *panel = (Panel *)task->area.panel;
     if (!panel->g_task.centered)
-        task->_icon_x = left_border_width(&task->area) + task->area.paddingxlr * panel->scale;
+        task->_icon_x = left_border_width(&task->area) + task->area.paddingx * panel->scale;
     else {
         int x = task->area.width - panel->g_task.icon_size1;
         if (panel->g_task.has_text)

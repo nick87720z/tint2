@@ -193,9 +193,9 @@ void init_execp_panel(void *p)
         ExecpBackend * backend = execp->backend;
         
         execp->area.bg = backend->bg;
-        execp->area.paddingx = backend->paddingx;
+        execp->area.spacing = backend->spacing;
         execp->area.paddingy = backend->paddingy;
-        execp->area.paddingxlr = backend->paddingxlr;
+        execp->area.paddingx = backend->paddingx;
         execp->area.parent = panel;
         execp->area.panel = panel;
         execp->area._dump_geometry = execp_dump_geometry;
@@ -346,11 +346,11 @@ void execp_compute_icon_text_geometry(Execp *execp,
     Panel *panel = (Panel *)execp->area.panel;
     Area *area = &execp->area;
     
-    if (panel_horizontal) _hpad = area->paddingxlr, _vpad = area->paddingy;
-    else                  _hpad = area->paddingy, _vpad = area->paddingxlr;
+    if (panel_horizontal) _hpad = area->paddingx, _vpad = area->paddingy;
+    else                  _hpad = area->paddingy, _vpad = area->paddingx;
     _hpad *= panel->scale;
     _vpad *= panel->scale;
-    _inpad = area->paddingx * panel->scale;
+    _inpad = area->spacing * panel->scale;
 
     if (backend->icon && reload_icon(execp)) {
         imlib_context_set_image(backend->icon);

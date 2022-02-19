@@ -189,10 +189,9 @@ typedef struct Area {
     Alignment alignment;
     gboolean has_mouse_over_effect;
     gboolean has_mouse_press_effect;
-    int paddingxlr, // padding
-        paddingx,   // spacing
-        paddingy;   // vertical padding, sometimes
-                    // TODO: sort out padding/spacing terminology
+    int paddingx, // longitudinal padding
+        spacing,  // spacing
+        paddingy; // transverse padding
     MouseState mouse_state;
     gboolean on_screen;         // Set to non-zero if the Area is visible. An object may exist but stay hidden.
     gboolean resize_needed;     // Set to non-zero if the size of the Area has to be recalculated.

@@ -41,8 +41,8 @@ typedef struct ExecpBackend {
     char *rclick_command;
     char *uwheel_command;
     char *dwheel_command;
-    int paddingxlr, // horizontal padding left/right
-        paddingx,   // horizontal padding between childs
+    int paddingx, // horizontal padding left/right
+        spacing,   // horizontal padding between childs
         paddingy;
     Background *bg;
 

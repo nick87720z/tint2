@@ -367,7 +367,7 @@ void init_taskbar_panel(void *p)
                    panel->scale);
 
     panel->g_task.text_posx = left_bg_border_width(panel->g_task.background[0])
-                            + panel->g_task.area.paddingxlr * panel->scale;
+                            + panel->g_task.area.paddingx * panel->scale;
 
     panel->g_task.text_height = panel->g_task.area.height
                                 - (2 * panel->g_task.area.paddingy * panel->scale)
@@ -380,7 +380,7 @@ void init_taskbar_panel(void *p)
                                    - MAX( left_right_border_width(&panel->g_task.area),
                                           top_bottom_border_width(&panel->g_task.area) );
 
-        panel->g_task.text_posx += panel->g_task.icon_size1 + panel->g_task.area.paddingx * panel->scale;
+        panel->g_task.text_posx += panel->g_task.icon_size1 + panel->g_task.area.spacing * panel->scale;
         panel->g_task.icon_posy = (panel->g_task.area.height - panel->g_task.icon_size1) / 2;
     }
 
@@ -595,7 +595,7 @@ gboolean resize_taskbar(void *obj)
                 break;
             }
         taskbar->text_width = text_width - panel->g_task.text_posx - right_border_width(&panel->g_task.area) -
-                              panel->g_task.area.paddingxlr * panel->scale;
+                              panel->g_task.area.paddingx * panel->scale;
     } else {
         relayout_with_constraint(&taskbar->area, panel->g_task.maximum_height * panel->scale);
 
@@ -603,7 +603,7 @@ gboolean resize_taskbar(void *obj)
                             - 2 * panel->g_taskbar.area.paddingy * panel->scale
                             - panel->g_task.text_posx
                             - right_border_width (&panel->g_task.area)
-                            - panel->g_task.area.paddingxlr * panel->scale;
+                            - panel->g_task.area.paddingx * panel->scale;
     }
     return FALSE;
 }

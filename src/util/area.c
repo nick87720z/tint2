@@ -114,7 +114,7 @@ void relayout_dynamic(Area *a, int level)
     if (a->children) {
         if (a->alignment == ALIGN_LEFT) {
             int pos =
-                (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr;
+                (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx;
 
             for_children(a, l, GList *) {
                 Area *child = ((Area *)l->data);
@@ -137,12 +137,12 @@ void relayout_dynamic(Area *a, int level)
 
                 relayout_dynamic(child, level + 1);
 
-                pos += panel_horizontal ? child->width + a->paddingx : child->height + a->paddingx;
+                pos += panel_horizontal ? child->width + a->spacing : child->height + a->spacing;
             }
         } else if (a->alignment == ALIGN_RIGHT) {
             int pos = (panel_horizontal ? a->posx + a->width - right_border_width(a)
                                         : a->posy + a->height - bottom_border_width(a)) -
-                      a->paddingxlr;
+                      a->paddingx;
 
             for_children_rev(a, l, GList *) {
                 Area *child = ((Area *)l->data);
@@ -167,7 +167,7 @@ void relayout_dynamic(Area *a, int level)
 
                 relayout_dynamic(child, level + 1);
 
-                pos -= a->paddingx;
+                pos -= a->spacing;
             }
         } else if (a->alignment == ALIGN_CENTER) {
 
@@ -179,10 +179,10 @@ void relayout_dynamic(Area *a, int level)
                     continue;
 
                 children_size += panel_horizontal ? child->width : child->height;
-                children_size += (l == a->children) ? 0 : a->paddingx;
+                children_size += (l == a->children) ? 0 : a->spacing;
             }
 
-            int pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingxlr
+            int pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx
                     + ((panel_horizontal ? a->width : a->height) - children_size) / 2;
 
             for_children(a, l, GList *) {
@@ -206,7 +206,7 @@ void relayout_dynamic(Area *a, int level)
 
                 relayout_dynamic(child, level + 1);
 
-                pos += panel_horizontal ? child->width + a->paddingx : child->height + a->paddingx;
+                pos += panel_horizontal ? child->width + a->spacing : child->height + a->spacing;
             }
         }
     }
@@ -234,7 +234,7 @@ int container_compute_desired_size(Area *a)
 {
     if (!a->on_screen)
         return 0;
-    int result = 2 * a->paddingxlr + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
+    int result = 2 * a->paddingx + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
     int children_count = 0;
     for_children(a, l, GList *) {
         Area *child = (Area *)l->data;
@@ -244,7 +244,7 @@ int container_compute_desired_size(Area *a)
         }
     }
     if (children_count > 0)
-        result += (children_count - 1) * a->paddingx;
+        result += (children_count - 1) * a->spacing;
     return result;
 }
 
@@ -261,7 +261,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
 
     if (panel_horizontal) {
         // detect free size for LAYOUT_DYNAMIC Areas
-        int size = a->width - 2 * a->paddingxlr - left_right_border_width(a);
+        int size = a->width - 2 * a->paddingx - left_right_border_width(a);
         for_children(a, l, GList *) {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
@@ -272,7 +272,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
                 dynamic_children_count++;
         }
         if (fixed_children_count + dynamic_children_count > 0)
-            size -= (fixed_children_count + dynamic_children_count - 1) * a->paddingx;
+            size -= (fixed_children_count + dynamic_children_count - 1) * a->spacing;
 
         int width = 0;
         int modulo = 0;
@@ -301,7 +301,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
     } else {
         // detect free size for LAYOUT_DYNAMIC's Area
-        int size = a->height - 2 * a->paddingxlr - top_bottom_border_width(a);
+        int size = a->height - 2 * a->paddingx - top_bottom_border_width(a);
         for_children(a, l, GList *) {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
@@ -312,7 +312,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
                 dynamic_children_count++;
         }
         if (fixed_children_count + dynamic_children_count > 0)
-            size -= (fixed_children_count + dynamic_children_count - 1) * a->paddingx;
+            size -= (fixed_children_count + dynamic_children_count - 1) * a->spacing;
 
         int height = 0;
         int modulo = 0;
@@ -938,9 +938,9 @@ void area_dump_geometry(Area *area, int indent)
             "tint2: %*sPadding: left = right = %d, top = bottom = %d, spacing = %d\n",
             indent,
             "",
-            area->paddingxlr,
+            area->paddingx,
             area->paddingy,
-            area->paddingx);
+            area->spacing);
     if (area->_dump_geometry)
         area->_dump_geometry(area, indent);
     if (area->children) {
@@ -960,7 +960,7 @@ void area_compute_available_size(Area *area,
         *available_w = panel->area.width;
         *available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
     } else {
-        *available_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
+        *available_w = area->width - 2 * area->paddingx - left_right_border_width(area);
         *available_h = panel->area.height;
     }
 }
@@ -970,10 +970,10 @@ void area_compute_inner_size(Area *area,
                              int *inner_h)
 {
     if (panel_horizontal) {
-        *inner_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
+        *inner_w = area->width - 2 * area->paddingx - left_right_border_width(area);
         *inner_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
     } else {
-        *inner_w = area->width - 2 * area->paddingxlr - left_right_border_width(area);
+        *inner_w = area->width - 2 * area->paddingx - left_right_border_width(area);
         *inner_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
     }
 }
@@ -1041,7 +1041,7 @@ int text_area_compute_desired_size(Area *area,
                                &line2_height,
                                &line2_width);
 
-    return panel_horizontal ? MAX(line1_width, line2_width) + 2 * area->paddingxlr + left_right_border_width(area)
+    return panel_horizontal ? MAX(line1_width, line2_width) + 2 * area->paddingx + left_right_border_width(area)
                             : line1_height + line2_height + 2 * area->paddingy + top_bottom_border_width(area);
 }
 

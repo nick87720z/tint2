@@ -190,6 +190,7 @@ int get_window_monitor(Window win)
     int best_match = 0;
     int best_area = -1;
     for (int i = 0; i < server.num_monitors; i++) {
+        // Another false warning: possibly uninitialized w and h
         int commonx = get_interval_overlap(x, x + w, server.monitors[i].x, server.monitors[i].x + server.monitors[i].width);
         int commony = get_interval_overlap(y, y + h, server.monitors[i].y, server.monitors[i].y + server.monitors[i].height);
         int area = commonx * commony;

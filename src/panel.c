@@ -459,9 +459,9 @@ gboolean resize_panel(void *obj)
             if (!taskbar->area.on_screen)
                 continue;
             if (panel_horizontal)
-                taskbar->area.width = 2 * taskbar->area.paddingxlr * panel->scale;
+                taskbar->area.width = 2 * taskbar->area.paddingx * panel->scale;
             else
-                taskbar->area.height = 2 * taskbar->area.paddingxlr * panel->scale;
+                taskbar->area.height = 2 * taskbar->area.paddingx * panel->scale;
             if (taskbarname_enabled && taskbar->area.children) {
                 Area *name = (Area *)taskbar->area.children->data;
                 if (name->on_screen) {
@@ -478,7 +478,7 @@ gboolean resize_panel(void *obj)
                     continue;
                 if (!first_child) {
                     if (panel_horizontal)
-                        taskbar->area.width += taskbar->area.paddingx * panel->scale;
+                        taskbar->area.width += taskbar->area.spacing * panel->scale;
                     else
                         taskbar->area.height += taskbar->area.paddingy * panel->scale;
                 }

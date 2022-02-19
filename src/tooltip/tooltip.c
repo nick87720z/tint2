@@ -164,7 +164,7 @@ void tooltip_update_geometry()
 
     int img_width, img_useful, space;
     img_useful = g_tooltip.image && (img_width = cairo_image_surface_get_width(g_tooltip.image)) > 0;
-    space = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.paddingx * panel->scale;
+    space = left_right_bg_border_width(g_tooltip.bg) + 2 * g_tooltip.spacing * panel->scale;
 
     pango_layout_set_width(
         layout,
@@ -307,7 +307,7 @@ void tooltip_update()
     {PangoRectangle ext;
         pango_layout_get_pixel_extents(layout, &ext, NULL);
         cairo_move_to(c,
-                      -ext.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.paddingx * panel->scale,
+                      -ext.x / 2 + left_bg_border_width(g_tooltip.bg) + g_tooltip.spacing * panel->scale,
                       -ext.y / 2 +  top_bg_border_width(g_tooltip.bg) + g_tooltip.paddingy * panel->scale + 1);
     }
     pango_cairo_show_layout(c, layout);
@@ -316,7 +316,7 @@ void tooltip_update()
 
     if (g_tooltip.image) {
         cairo_translate(c,
-                        left_bg_border_width(g_tooltip.bg)            + g_tooltip.paddingx * panel->scale,
+                        left_bg_border_width(g_tooltip.bg)            + g_tooltip.spacing * panel->scale,
                         height - bottom_bg_border_width(g_tooltip.bg) - g_tooltip.paddingy * panel->scale 
                                - cairo_image_surface_get_height(g_tooltip.image)
         );

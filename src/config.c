@@ -270,10 +270,10 @@ void add_entry(char *key, char *value)
 
     #define VALUES_TO_AREA_PADDING(obj, first) do {                       \
         extract_values(value, values, 3);                                 \
-        (obj).paddingxlr = (obj).paddingx = atoi(values[(first)+0]);      \
+        (obj).paddingx = (obj).spacing = atoi(values[(first)+0]);      \
         (obj).paddingy = values[(first)+1] ? atoi(values[(first)+1]) : 0; \
         if (values[(first)+2])                                            \
-            (obj).paddingx = atoi(values[(first)+2]);                     \
+            (obj).spacing = atoi(values[(first)+2]);                     \
     } while(0)
 
     #define VALUES_TO_ASB(type, first) (                \
@@ -1177,7 +1177,7 @@ void add_entry(char *key, char *value)
     case key_tooltip_padding:
         extract_values(value, values, 3);
         if (values[0])
-            g_tooltip.paddingx = atoi(values[0]);
+            g_tooltip.spacing = atoi(values[0]);
         if (values[1])
             g_tooltip.paddingy = atoi(values[1]);
         break;

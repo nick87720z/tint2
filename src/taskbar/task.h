@@ -41,7 +41,7 @@ typedef struct GlobalTask {
     int config_background_mask;
 
     double text_posx, text_height;
-    // starting position for text ~ task_padding + task_border + icon_size
+    // starting position for text ~ task_padding + task_border + icon_size + spacing
 
     gboolean has_font;
     gboolean has_content_tint;

@@ -200,6 +200,21 @@ void init_taskbar()
     task_drag = NULL;
 }
 
+#define TaskConfig_AsbMask_Copy_if_unset(d, s)                                           \
+if ((panel->g_task.config_asb_mask & ( 1 << (d) )) == 0) do{                             \
+    panel->g_task.alpha     [(d)] = panel->g_task.alpha     [(s)];                       \
+    panel->g_task.saturation[(d)] = panel->g_task.saturation[(s)];                       \
+    panel->g_task.brightness[(d)] = panel->g_task.brightness[(s)];                       \
+}while(0)
+
+#define TaskConfig_FontMask_Copy_if_unset(d, s)                                          \
+if ((panel->g_task.config_font_mask & ( 1 << (d) )) == 0)                                \
+    panel->g_task.font [(d)] = panel->g_task.font [(s)];
+
+#define TaskConfig_BgMask_Copy_if_unset(d, s)                                            \
+if ((panel->g_task.config_background_mask & ( 1 << (d) )) == 0)                          \
+    panel->g_task.background[(d)] = panel->g_task.background[(s)];
+
 void init_taskbar_panel(void *p)
 {
     Panel *panel = (Panel *)p;
@@ -274,40 +289,21 @@ void init_taskbar_panel(void *p)
         panel->g_task.saturation[TASK_NORMAL] = 0;
         panel->g_task.brightness[TASK_NORMAL] = 0;
     }
-    if ((panel->g_task.config_asb_mask & (1 << TASK_ACTIVE)) == 0)
-    {
-        panel->g_task.alpha[TASK_ACTIVE]      = panel->g_task.alpha[TASK_NORMAL];
-        panel->g_task.saturation[TASK_ACTIVE] = panel->g_task.saturation[TASK_NORMAL];
-        panel->g_task.brightness[TASK_ACTIVE] = panel->g_task.brightness[TASK_NORMAL];
-    }
-    if ((panel->g_task.config_asb_mask & (1 << TASK_ICONIFIED)) == 0)
-    {
-        panel->g_task.alpha[TASK_ICONIFIED]      = panel->g_task.alpha[TASK_NORMAL];
-        panel->g_task.saturation[TASK_ICONIFIED] = panel->g_task.saturation[TASK_NORMAL];
-        panel->g_task.brightness[TASK_ICONIFIED] = panel->g_task.brightness[TASK_NORMAL];
-    }
-    if ((panel->g_task.config_asb_mask & (1 << TASK_URGENT)) == 0)
-    {
-        panel->g_task.alpha[TASK_URGENT]      = panel->g_task.alpha[TASK_ACTIVE];
-        panel->g_task.saturation[TASK_URGENT] = panel->g_task.saturation[TASK_ACTIVE];
-        panel->g_task.brightness[TASK_URGENT] = panel->g_task.brightness[TASK_ACTIVE];
-    }
+    TaskConfig_AsbMask_Copy_if_unset (TASK_ACTIVE,    TASK_NORMAL);
+    TaskConfig_AsbMask_Copy_if_unset (TASK_ICONIFIED, TASK_NORMAL);
+    TaskConfig_AsbMask_Copy_if_unset (TASK_URGENT,    TASK_NORMAL);
+
     if ((panel->g_task.config_font_mask & (1 << TASK_NORMAL)) == 0)
         panel->g_task.font[TASK_NORMAL] = (Color){{1, 1, 1}, 1};
-    if ((panel->g_task.config_font_mask & (1 << TASK_ACTIVE)) == 0)
-        panel->g_task.font[TASK_ACTIVE] = panel->g_task.font[TASK_NORMAL];
-    if ((panel->g_task.config_font_mask & (1 << TASK_ICONIFIED)) == 0)
-        panel->g_task.font[TASK_ICONIFIED] = panel->g_task.font[TASK_NORMAL];
-    if ((panel->g_task.config_font_mask & (1 << TASK_URGENT)) == 0)
-        panel->g_task.font[TASK_URGENT] = panel->g_task.font[TASK_ACTIVE];
+    TaskConfig_FontMask_Copy_if_unset (TASK_ACTIVE,     TASK_NORMAL);
+    TaskConfig_FontMask_Copy_if_unset (TASK_ICONIFIED,  TASK_NORMAL);
+    TaskConfig_FontMask_Copy_if_unset (TASK_URGENT,     TASK_ACTIVE);
+
     if ((panel->g_task.config_background_mask & (1 << TASK_NORMAL)) == 0)
         panel->g_task.background[TASK_NORMAL] = &g_array_index(backgrounds, Background, 0);
-    if ((panel->g_task.config_background_mask & (1 << TASK_ACTIVE)) == 0)
-        panel->g_task.background[TASK_ACTIVE] = panel->g_task.background[TASK_NORMAL];
-    if ((panel->g_task.config_background_mask & (1 << TASK_ICONIFIED)) == 0)
-        panel->g_task.background[TASK_ICONIFIED] = panel->g_task.background[TASK_NORMAL];
-    if ((panel->g_task.config_background_mask & (1 << TASK_URGENT)) == 0)
-        panel->g_task.background[TASK_URGENT] = panel->g_task.background[TASK_ACTIVE];
+    TaskConfig_BgMask_Copy_if_unset (TASK_ACTIVE,     TASK_NORMAL);
+    TaskConfig_BgMask_Copy_if_unset (TASK_ICONIFIED,  TASK_NORMAL);
+    TaskConfig_BgMask_Copy_if_unset (TASK_URGENT,     TASK_ACTIVE);
 
     if (!panel->g_task.maximum_width || !panel_horizontal)
         panel->g_task.maximum_width = server.monitors[panel->monitor].width;
@@ -399,6 +395,9 @@ void init_taskbar_panel(void *p)
     init_taskbarname_panel(panel);
     taskbar_start_thumbnail_timer(THUMB_MODE_ALL);
 }
+#undef task_config_asb_mask_copy_if_unset
+#undef TaskConfig_FontMask_Copy_if_unset
+#undef TaskConfig_BgMask_Copy_if_unset
 
 void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode)
 {

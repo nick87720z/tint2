@@ -739,10 +739,11 @@ void draw_shadow(cairo_t *c, int posx, int posy, PangoLayout *shadow_layout)
     int i, j;
     for (i = -shadow_size; i <= shadow_size; i++) {
         for (j = -shadow_size; j <= shadow_size; j++) {
+            double r = sqrt(i*i + j*j);
+            if (r <= 0) continue;
             cairo_set_source_rgba(c,
                                   0.0, 0.0, 0.0,
-                                  1.0 - (1.0 - shadow_edge_alpha) *
-                                        sqrt((i * i + j * j) / (double)(shadow_size * shadow_size)));
+                                  1.0 - (1.0 - shadow_edge_alpha) * r / shadow_size);
             pango_cairo_update_layout(c, shadow_layout);
             cairo_move_to(c, posx + i, posy + j);
             pango_cairo_show_layout(c, shadow_layout);

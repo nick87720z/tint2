@@ -870,8 +870,7 @@ void clear_pixmap(Pixmap p, int x, int y, int w, int h)
     Picture pict =
         XRenderCreatePicture(server.display, p, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
     XRenderColor col;
-    col.red = col.green = col.blue = col.alpha = 0;
-    XRenderFillRectangle(server.display, PictOpSrc, pict, &col, x, y, w, h);
+    XRenderFillRectangle(server.display, PictOpClear, pict, &col, x, y, w, h);
     XRenderFreePicture(server.display, pict);
 }
 

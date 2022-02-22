@@ -812,5 +812,3 @@ and the wiki page at https://gitlab.com/o9000/tint2/wikis/home.
 
 This documentation is also provided in HTML and Markdown format in the system's default location
 for documentation files, usually `/usr/share/doc/tint2` or `/usr/local/share/doc/tint2`.
-.
-.

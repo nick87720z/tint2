@@ -119,6 +119,7 @@ def replace_in_file(path, before, after):
     new = old.replace(before, after)
     f.seek(0)
     f.write(new)
+    f.truncate(len(new))
 
 def update_man(path, version, date):
   with open(path, "r+") as f:
@@ -129,7 +130,9 @@ def update_man(path, version, date):
     parts[-1] = version
     lines[0] = " ".join(parts)
     f.seek(0)
-    f.write("\n".join(lines))
+    new = "\n".join(lines)
+    f.write(new)
+    f.truncate(len(new))
   run("cd doc ; ./generate-doc.sh")
 
 def update_log(path, version, date):
@@ -138,7 +141,9 @@ def update_log(path, version, date):
     f.seek(0)
     assert lines[0].endswith("master")
     lines[0] = date + " " + version
-    f.write("\n".join(lines))
+    new = "\n".join(lines)
+    f.write(new)
+    f.truncate(len(new));
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()

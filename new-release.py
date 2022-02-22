@@ -142,9 +142,16 @@ def update_log(path, version, date):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
+  parser.add_argument("--fix", action="store_true")
   parser.add_argument("--feature", action="store_true")
   parser.add_argument("--breakage", action="store_true")
   args = parser.parse_args()
+
+  if args.fix == False and args.feature == False and args.breakage == False:
+    print( "Type of version change is required, but not specified." )
+    print( "Wild version bumps are discouraged." )
+    print( "Options: --fix, --feature, --breakage" )
+    sys.exit(1)
 
   logging.basicConfig(format=ansi_lblue + "%(asctime)s %(pathname)s %(levelname)s" + ansi_reset + " %(message)s", level=logging.DEBUG)
   test_inc_version()

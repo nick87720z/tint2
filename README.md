@@ -1,3 +1,15 @@
+## TINT2 needs help
+
+I had to adopt tint2 from [o9000](https://gitlab.com/o9000/tint2) account (in reality ruled by different man) rather automatically after it was suddenly sentenced to end-of-life by previous maintainer without warning. My free time is too limited, so I may not be able to keep pace with all bugs and feature requests, some of whom need to be recovered yet (Chris Lee disabled sections for MR and issues).
+
+There already was number of fixes, optimizations and just enhancements since 2021, just now I just merging whatever I already have. There are still few more ideas to implement, until I can consider tint2's development is exhausted without breaking some of its own core rules, starting with lightweightness and versatility.
+
+Testing for BSD specifically will not be possible as I don't use it anywhere, so at most I'm able to check POSIX compatibility.
+
+So, for short - any help is welcome, not a problem if someone maintains own fork for a while when I'm unable to respond about own fork.
+
+Code does not die. Not as long as there's compiler, able to build it, and system, able to run it, in the world. Moreover while it's FLOSS project.
+
 # Latest stable release: 17.0.3
 
 Changes: https://gitlab.com/nick87720z/tint2/blob/17.0.3/ChangeLog
@@ -29,14 +41,6 @@ And then you can run the panel `tint2` and the configuration program `tint2conf`
 Please report any problems to https://gitlab.com/nick87720z/tint2/issues. Your feedback is much appreciated.
 
 P.S. GitLab is now the official location of the tint2 project, migrated from Google Code, which is shutting down. In case you are wondering why not GitHub, BitBucket etc., we chose GitLab because it is open source, it is mature and works well, looks cool and has a very nice team.
-
-## Need help
-
-I had to adopt tint2 from [o9000](https://gitlab.com/o9000/tint2) rather automatically after it was suddenly sentenced to end-of-life by previous maintainer without warning. My free time is too limited, so I may not be able to keep pace with all bugs and feature requests, some of whom need to be recovered yet (Chris Lee disabled sections for MR and issues).
-
-There already was number of fixes, optimizations and just enhancements since 2021, just now I just merging whatever I already have. There are still few more ideas to implement, until I can consider tint2's development is exhausted without breaking some of its own core rules, starting with lightweightness and versatility.
-
-Testing for BSD specifically will not be possible as I don't use it anywhere, so at least POSIX specifications have to be preferred, avoiding GNU extensions as well.
 
 # What is tint2?
 

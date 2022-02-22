@@ -199,7 +199,7 @@ pre {
 </style>
 </head>
 <body>
-<h1>TINT2 1 &ldquo;2022-02-10&rdquo; 17.0.3</h1>
+<h1>TINT2 1 &ldquo;2022-02-23&rdquo; 17.1</h1>
 
 <h2>NAME</h2>
 
@@ -289,8 +289,9 @@ Try to respect as much as possible the order of the options as given below.</p>
 
 <ul>
 <li><p><code>rounded = number_of_pixels</code> : the corner radius</p></li>
+<li><p><code>rounded_corners = TL TR BR BL</code>: corners to be rounded (top left, top right, bottom right, bottom left). If not specified - all corners are rounded. <em>(since 17.1)</em></p></li>
 <li><p><code>border_width = integer</code> : the border width in pixels</p></li>
-<li><p><code>border_sides = LRTB</code> : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used. <em>(since 0.12.12)</em></p></li>
+<li><p><code>border_sides = LRTB</code> : sides to draw the border on (left, right, top, bottom). If not specified - all sides are used. <em>(since 0.12.12)</em></p></li>
 <li><p><code>background_color = color opacity</code></p>
 
 <ul>
@@ -835,7 +836,12 @@ An ANSI clear screen sequence can reset the contents:</p>
 <li><code>execp_mclick_command = text</code> : Command to execute on right click. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></li>
 <li><code>execp_rclick_command = text</code> : Command to execute on middle click. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></li>
 <li><code>execp_uwheel_command = text</code> : Command to execute on wheel scroll up. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></li>
-<li><code>execp_dwheel_command = text</code> : Command to execute on wheel scroll down. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></li>
+<li><p><code>execp_dwheel_command = text</code> : Command to execute on wheel scroll down. If not defined, <code>execp_command</code> is  executed immediately, unless it is currently running. <em>(since 0.12.4)</em></p></li>
+<li><p><code>execp_lclick_command_sink = integer (-1, 0 or positive)</code> : Command sink for execp_lclick_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). <em>(since 17.1)</em></p></li>
+<li><code>execp_mclick_command_sink = integer (-1, 0 or positive)</code> : Command sink for execp_mclick_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). <em>(since 17.1)</em></li>
+<li><code>execp_rclick_command_sink = integer (-1, 0 or positive)</code> : Command sink for execp_rclick_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). <em>(since 17.1)</em></li>
+<li><code>execp_uwheel_command_sink = integer (-1, 0 or positive)</code> : Command sink for execp_uwheel_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). <em>(since 17.1)</em></li>
+<li><code>execp_dwheel_command_sink = integer (-1, 0 or positive)</code> : Command sink for execp_dwheel_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). <em>(since 17.1)</em></li>
 </ul>
 
 
@@ -933,6 +939,24 @@ execp_continuous = 1
 execp_interval = 1
 </code></p>
 
+<h5>Dumb executor sink example</h5>
+
+<p><code>
+execp = new
+execp_command = echo waiting; stdbuf -oL sed 's/^/Event:/'
+execp_continuous = 1
+execp_lclick_command = Left Button
+execp_rclick_command = Right Button
+execp_mclick_command = Middle Button
+execp_uwheel_command = Scroll Up
+execp_dwheel_command = Scroll Down
+execp_lclick_command_sink = 0
+execp_rclick_command_sink = 0
+execp_mclick_command_sink = 0
+execp_uwheel_command_sink = 0
+execp_dwheel_command_sink = 0
+</code></p>
+
 <h3>Button</h3>
 
 <ul>
@@ -984,8 +1008,6 @@ It was adopted from the tint2 docs.</p>
 and the wiki page at https://gitlab.com/o9000/tint2/wikis/home.</p>
 
 <p>This documentation is also provided in HTML and Markdown format in the system&rsquo;s default location
-for documentation files, usually <code>/usr/share/doc/tint2</code> or <code>/usr/local/share/doc/tint2</code>.
-.
-.</p>
+for documentation files, usually <code>/usr/share/doc/tint2</code> or <code>/usr/local/share/doc/tint2</code>.</p>
 </body>
 </html>

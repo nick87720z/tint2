@@ -1,5 +1,5 @@
 .nh
-.TH TINT2 1 "2022\-02\-10" 17.0.3
+.TH TINT2 1 "2022\-02\-23" 17.1
 .SH NAME
 .PP
 tint2 \- lightweight panel/taskbar
@@ -136,9 +136,11 @@ The tint2 config file starts with the options defining background elements with 
 .IP \(bu 2
 \fB\fCrounded = number\_of\_pixels\fR : the corner radius
 .IP \(bu 2
+\fB\fCrounded\_corners = TL TR BR BL\fR: corners to be rounded (top left, top right, bottom right, bottom left). If not specified \- all corners are rounded. \fI(since 17.1)\fP
+.IP \(bu 2
 \fB\fCborder\_width = integer\fR : the border width in pixels
 .IP \(bu 2
-\fB\fCborder\_sides = LRTB\fR : the sides to draw the border on (left, right, top, bottom). If not specified, all sides are used. \fI(since 0.12.12)\fP
+\fB\fCborder\_sides = LRTB\fR : sides to draw the border on (left, right, top, bottom). If not specified \- all sides are used. \fI(since 0.12.12)\fP
 .IP \(bu 2
 \fB\fCbackground\_color = color opacity\fR
 .RS
@@ -927,6 +929,16 @@ shell using tput from ncurses: \fB\fCtput clear\fR)
 \fB\fCexecp\_uwheel\_command = text\fR : Command to execute on wheel scroll up. If not defined, \fB\fCexecp\_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
 .IP \(bu 2
 \fB\fCexecp\_dwheel\_command = text\fR : Command to execute on wheel scroll down. If not defined, \fB\fCexecp\_command\fR is  executed immediately, unless it is currently running. \fI(since 0.12.4)\fP
+.IP \(bu 2
+\fB\fCexecp\_lclick\_command\_sink = integer (\-1, 0 or positive)\fR : Command sink for execp\_lclick\_command. If not defined or \-1 \- command is executed in new shell. 0 \- use sink for local executor (executors only). \fI(since 17.1)\fP
+.IP \(bu 2
+\fB\fCexecp\_mclick\_command\_sink = integer (\-1, 0 or positive)\fR : Command sink for execp\_mclick\_command. If not defined or \-1 \- command is executed in new shell. 0 \- use sink for local executor (executors only). \fI(since 17.1)\fP
+.IP \(bu 2
+\fB\fCexecp\_rclick\_command\_sink = integer (\-1, 0 or positive)\fR : Command sink for execp\_rclick\_command. If not defined or \-1 \- command is executed in new shell. 0 \- use sink for local executor (executors only). \fI(since 17.1)\fP
+.IP \(bu 2
+\fB\fCexecp\_uwheel\_command\_sink = integer (\-1, 0 or positive)\fR : Command sink for execp\_uwheel\_command. If not defined or \-1 \- command is executed in new shell. 0 \- use sink for local executor (executors only). \fI(since 17.1)\fP
+.IP \(bu 2
+\fB\fCexecp\_dwheel\_command\_sink = integer (\-1, 0 or positive)\fR : Command sink for execp\_dwheel\_command. If not defined or \-1 \- command is executed in new shell. 0 \- use sink for local executor (executors only). \fI(since 17.1)\fP
 
 .RE
 
@@ -1057,6 +1069,28 @@ execp\_interval = 1
 .fi
 .RE
 
+.SS Dumb executor sink example
+.PP
+.RS
+
+.nf
+execp = new
+execp\_command = echo waiting; stdbuf \-oL sed 's/^/Event:/'
+execp\_continuous = 1
+execp\_lclick\_command = Left Button
+execp\_rclick\_command = Right Button
+execp\_mclick\_command = Middle Button
+execp\_uwheel\_command = Scroll Up
+execp\_dwheel\_command = Scroll Down
+execp\_lclick\_command\_sink = 0
+execp\_rclick\_command\_sink = 0
+execp\_mclick\_command\_sink = 0
+execp\_uwheel\_command\_sink = 0
+execp\_dwheel\_command\_sink = 0
+
+.fi
+.RE
+
 .SS Button
 .RS
 .IP \(bu 2
@@ -1133,5 +1167,3 @@ and the wiki page at https://gitlab.com/o9000/tint2/wikis/home.
 .PP
 This documentation is also provided in HTML and Markdown format in the system's default location
 for documentation files, usually \fB\fC/usr/share/doc/tint2\fR or \fB\fC/usr/local/share/doc/tint2\fR\&.
-.
-.

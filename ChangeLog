@@ -1,4 +1,4 @@
-2020-02-10 master
+2022-02-23 17.1
 - Enhancements:
   - Added option "rounded_corners" to disable rounding for separate corners
   - Added option to use continuous executor process as command sink for its own action commands

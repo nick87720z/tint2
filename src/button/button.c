@@ -31,8 +31,13 @@ Button *create_button()
 {
     Button *button = calloc(1, sizeof(Button) + sizeof(ButtonBackend));
     ButtonBackend *backend = button->backend = (gpointer)(button + 1);
-    
+
     backend->centered = TRUE;
+    backend->lclick_command_sink = -1;
+    backend->mclick_command_sink = -1;
+    backend->rclick_command_sink = -1;
+    backend->uwheel_command_sink = -1;
+    backend->dwheel_command_sink = -1;
     backend->font_color.alpha = 0.5;
     BUF_0TERM (button->area.name);
     return button;
@@ -562,6 +567,7 @@ void button_action(void *obj, int mouse_button, int x, int y, Time time)
     Button *button = (Button *)obj;
     ButtonBackend *backend = button->backend;
     char *command = NULL;
+    int cmd_sink = -1;
     switch (mouse_button) {
         BUTTON_CASE(1, backend->lclick_command);
         BUTTON_CASE(2, backend->mclick_command);

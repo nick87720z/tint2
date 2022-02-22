@@ -61,6 +61,11 @@ char *battery_mclick_command;
 char *battery_rclick_command;
 char *battery_uwheel_command;
 char *battery_dwheel_command;
+int battery_lclick_command_sink;
+int battery_mclick_command_sink;
+int battery_rclick_command_sink;
+int battery_uwheel_command_sink;
+int battery_dwheel_command_sink;
 gboolean battery_found;
 gboolean battery_warn;
 gboolean battery_warn_red;
@@ -500,6 +505,7 @@ char *battery_get_tooltip(void *obj)
 void battery_action(void *obj, int button, int x, int y, Time time)
 {
     char *command = NULL;
+    int cmd_sink = -1;
     switch (button) {
         BUTTON_CASE (1, battery_lclick_command);
         BUTTON_CASE (2, battery_mclick_command);

@@ -91,7 +91,7 @@ The tint2 config file starts with the options defining background elements with 
 
   * `rounded = number_of_pixels` : the corner radius
 
-  * `rounded_corners = TL TR BR BL`: corners to be rounded (top left, top right, bottom right, bottom left). If not specified - all corners are rounded.
+  * `rounded_corners = TL TR BR BL`: corners to be rounded (top left, top right, bottom right, bottom left). If not specified - all corners are rounded. *(since 17.1)*
 
   * `border_width = integer` : the border width in pixels
 
@@ -638,6 +638,12 @@ The action semantics:
   * `execp_uwheel_command = text` : Command to execute on wheel scroll up. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.12.4)*
   * `execp_dwheel_command = text` : Command to execute on wheel scroll down. If not defined, `execp_command` is  executed immediately, unless it is currently running. *(since 0.12.4)*
 
+  * `execp_lclick_command_sink = integer (-1, 0 or positive)` : Command sink for execp_lclick_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). *(since 17.1)*
+  * `execp_mclick_command_sink = integer (-1, 0 or positive)` : Command sink for execp_mclick_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). *(since 17.1)*
+  * `execp_rclick_command_sink = integer (-1, 0 or positive)` : Command sink for execp_rclick_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). *(since 17.1)*
+  * `execp_uwheel_command_sink = integer (-1, 0 or positive)` : Command sink for execp_uwheel_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). *(since 17.1)*
+  * `execp_dwheel_command_sink = integer (-1, 0 or positive)` : Command sink for execp_dwheel_command. If not defined or -1 - command is executed in new shell. 0 - use sink for local executor (executors only). *(since 17.1)*
+
 #### Executor samples
 
 ##### Print the hostname
@@ -728,6 +734,24 @@ execp = new
 execp_command = stdbuf -oL bwm-ng -o csv -t 1000 | stdbuf -oL awk -F ';' '/total/ { printf "Net: %.0f Mb/s\n", ($5*8/1.0e6) }'
 execp_continuous = 1
 execp_interval = 1
+```
+
+##### Dumb executor sink example
+
+```
+execp = new
+execp_command = echo waiting; stdbuf -oL sed 's/^/Event:/'
+execp_continuous = 1
+execp_lclick_command = Left Button
+execp_rclick_command = Right Button
+execp_mclick_command = Middle Button
+execp_uwheel_command = Scroll Up
+execp_dwheel_command = Scroll Down
+execp_lclick_command_sink = 0
+execp_rclick_command_sink = 0
+execp_mclick_command_sink = 0
+execp_uwheel_command_sink = 0
+execp_dwheel_command_sink = 0
 ```
 
 ### Button

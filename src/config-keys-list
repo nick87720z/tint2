@@ -67,6 +67,7 @@ execp_centered
 execp_command
 execp_continuous
 execp_dwheel_command
+execp_dwheel_command_sink
 execp_font
 execp_font_color
 execp_has_icon
@@ -74,14 +75,18 @@ execp_icon_h
 execp_icon_w
 execp_interval
 execp_lclick_command
+execp_lclick_command_sink
 execp_markup
 execp_mclick_command
+execp_mclick_command_sink
 execp_monitor
 execp_name
 execp_padding
 execp_rclick_command
+execp_rclick_command_sink
 execp_tooltip
 execp_uwheel_command
+execp_uwheel_command_sink
 font_shadow
 gradient
 gradient_id

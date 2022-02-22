@@ -36,8 +36,14 @@ Execp *create_execp()
     Execp *execp = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpBackend));
     ExecpBackend *backend = execp->backend = (gpointer)(execp + 1);
 
+    backend->child_pipe_stdin = -1;
     backend->child_pipe_stdout = -1;
     backend->child_pipe_stderr = -1;
+    backend->lclick_command_sink = -1;
+    backend->mclick_command_sink = -1;
+    backend->rclick_command_sink = -1;
+    backend->uwheel_command_sink = -1;
+    backend->dwheel_command_sink = -1;
     backend->cmd_pids = g_tree_new(cmp_ptr);
     backend->interval = 30;
     backend->icon_path = NULL;
@@ -109,6 +115,9 @@ void destroy_execp(void *obj)
     destroy_timer(&backend->timer);
     if (backend->child) {
         kill(-backend->child, SIGHUP);
+    }
+    if (backend->child_pipe_stdin >= 0) {
+        close(backend->child_pipe_stdin);
     }
     if (backend->child_pipe_stdout >= 0) {
         close(backend->child_pipe_stdout);
@@ -666,6 +675,7 @@ void execp_action(void *obj, int button, int x, int y, Time time)
     ExecpBackend * backend = execp->backend;
     
     char *command = NULL;
+    int cmd_sink = -1;
     switch (button) {
         BUTTON_CASE(1, backend->lclick_command);
         BUTTON_CASE(2, backend->mclick_command);
@@ -674,17 +684,33 @@ void execp_action(void *obj, int button, int x, int y, Time time)
         BUTTON_CASE(5, backend->dwheel_command);
     }
     if (command) {
-        setenvd("EXECP_X", x);
-        setenvd("EXECP_Y", y);
-        setenvd("EXECP_W", execp->area.width);
-        setenvd("EXECP_H", execp->area.height);
-        pid_t pid = tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
-        unsetenv("EXECP_X");
-        unsetenv("EXECP_Y");
-        unsetenv("EXECP_W");
-        unsetenv("EXECP_H");
-        if (pid > 0)
-            g_tree_insert(backend->cmd_pids, GINT_TO_POINTER(pid), GINT_TO_POINTER(1));
+        switch (cmd_sink) {
+        case -1:setenvd("EXECP_X", x);
+                setenvd("EXECP_Y", y);
+                setenvd("EXECP_W", execp->area.width);
+                setenvd("EXECP_H", execp->area.height);
+                pid_t pid = tint_exec(command, NULL, NULL, time, obj, x, y, FALSE, TRUE);
+                unsetenv("EXECP_X");
+                unsetenv("EXECP_Y");
+                unsetenv("EXECP_W");
+                unsetenv("EXECP_H");
+                if (pid > 0)
+                    g_tree_insert(backend->cmd_pids, GINT_TO_POINTER(pid), GINT_TO_POINTER(1));
+                break;
+        case 0: if (!backend->continuous) {
+                    fprintf (stderr, "Command sinks from non-continuous executors are not supported\n");
+                    break;
+                }
+                if (backend->child_pipe_stdin == -1) {
+                    fprintf (stderr, "ERROR: Can not send command to executor, because its standard input is not opened\n");
+                    break;
+                }
+                write_string (backend->child_pipe_stdin, command);
+                while (write (backend->child_pipe_stdin, "\n", 1) == -1);
+                break;
+        default:
+            fprintf (stderr, "Global command sinks not implemented yet\n");
+        }
     } else {
         execp_force_update(execp);
     }
@@ -708,8 +734,27 @@ void execp_timer_callback(void *arg)
     if (backend->child_pipe_stdout > 0)
         return;
 
+    int have_stdin =    (backend->lclick_command_sink == 0) ||
+                        (backend->mclick_command_sink == 0) ||
+                        (backend->rclick_command_sink == 0) ||
+                        (backend->uwheel_command_sink == 0) ||
+                        (backend->dwheel_command_sink == 0);
+
+    int pipe_fd_stdin[2];
+    if (have_stdin) {
+        if (pipe(pipe_fd_stdin)) {
+            // TODO maybe write this in tooltip, but if this happens we're screwed anyways
+            fprintf(stderr, "tint2: Execp: Creating pipe failed!\n");
+            return;
+        }
+        fcntl(pipe_fd_stdin[1], F_SETFL, O_NONBLOCK | fcntl(pipe_fd_stdin[1], F_GETFL));
+    }
+
     int pipe_fd_stdout[2];
     if (pipe(pipe_fd_stdout)) {
+        if (have_stdin)
+            close(pipe_fd_stdin[1]),
+            close(pipe_fd_stdin[0]);
         // TODO maybe write this in tooltip, but if this happens we're screwed anyways
         fprintf(stderr, "tint2: Execp: Creating pipe failed!\n");
         return;
@@ -718,6 +763,9 @@ void execp_timer_callback(void *arg)
 
     int pipe_fd_stderr[2];
     if (pipe(pipe_fd_stderr)) {
+        if (have_stdin)
+            close(pipe_fd_stdin[1]),
+            close(pipe_fd_stdin[0]);
         close(pipe_fd_stdout[1]);
         close(pipe_fd_stdout[0]);
         // TODO maybe write this in tooltip, but if this happens we're screwed anyways
@@ -732,6 +780,9 @@ void execp_timer_callback(void *arg)
     switch (child) {
         case -1:// TODO maybe write this in tooltip, but if this happens we're screwed anyways
                 fprintf (stderr, "tint2: Fork failed.\n");
+                if (have_stdin)
+                    close(pipe_fd_stdin[1]),
+                    close(pipe_fd_stdin[0]);
                 close (pipe_fd_stdout[1]);
                 close (pipe_fd_stdout[0]);
                 close (pipe_fd_stderr[1]);
@@ -740,22 +791,36 @@ void execp_timer_callback(void *arg)
         case  0:// We are in the child
                 if (debug_executors)
                     fprintf(stderr, "tint2: Executing: %s\n", backend->command);
+
+                if (have_stdin) {
+                    close (pipe_fd_stdin[1]);
+                    dup2  (pipe_fd_stdin[0], 0); // 0 is stdin
+                    close (pipe_fd_stdin[0]);
+                }
+
                 close (pipe_fd_stdout[0]);
                 dup2  (pipe_fd_stdout[1], 1); // 1 is stdout
                 close (pipe_fd_stdout[1]);
+
                 close (pipe_fd_stderr[0]);
                 dup2  (pipe_fd_stderr[1], 2); // 2 is stderr
                 close (pipe_fd_stderr[1]);
+
                 close_all_fds ();
+
                 setpgid (0, 0);
                 execl ("/bin/sh", "/bin/sh", "-c", backend->command, NULL);
                 // This should never happen!
                 fprintf (stderr, "execl() failed\nexecl() failed\n");
                 exit (0);
     };
+    if (have_stdin)
+        close(pipe_fd_stdin[0]);
     close(pipe_fd_stdout[1]);
     close(pipe_fd_stderr[1]);
     backend->child = child;
+    if (have_stdin)
+        backend->child_pipe_stdin = pipe_fd_stdin[1];
     backend->child_pipe_stdout = pipe_fd_stdout[0];
     backend->child_pipe_stderr = pipe_fd_stderr[0];
     backend->buf_stdout[backend->buf_stdout_length = 0] = '\0';

@@ -43,6 +43,11 @@ char *clock_mclick_command;
 char *clock_rclick_command;
 char *clock_uwheel_command;
 char *clock_dwheel_command;
+int clock_lclick_command_sink;
+int clock_mclick_command_sink;
+int clock_rclick_command_sink;
+int clock_uwheel_command_sink;
+int clock_dwheel_command_sink;
 struct timeval time_clock;
 gboolean time1_has_font;
 PangoFontDescription *time1_font_desc;
@@ -322,6 +327,7 @@ char *clock_get_tooltip(void *obj)
 void clock_action(void *obj, int button, int x, int y, Time time)
 {
     char *command = NULL;
+    int cmd_sink = -1;
     switch (button) {
         BUTTON_CASE (1, clock_lclick_command);
         BUTTON_CASE (2, clock_mclick_command);

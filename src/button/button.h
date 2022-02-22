@@ -31,6 +31,11 @@ typedef struct ButtonBackend {
     char *rclick_command;
     char *uwheel_command;
     char *dwheel_command;
+    int lclick_command_sink;
+    int mclick_command_sink;
+    int rclick_command_sink;
+    int uwheel_command_sink;
+    int dwheel_command_sink;
 
     int paddingx, // horizontal padding left/right
         spacing,   // horizontal padding between childs

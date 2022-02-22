@@ -829,6 +829,26 @@ void add_entry(char *key, char *value)
         VALUE_TO_COMMAND (execp->backend->dwheel_command);
         break;
     }
+    case key_execp_lclick_command_sink:
+        if (value && *value)
+            get_or_create_last_execp()->backend->lclick_command_sink = atoi (value);
+        break;
+    case key_execp_mclick_command_sink:
+        if (value && *value)
+            get_or_create_last_execp()->backend->mclick_command_sink = atoi (value);
+        break;
+    case key_execp_rclick_command_sink:
+        if (value && *value)
+            get_or_create_last_execp()->backend->rclick_command_sink = atoi (value);
+        break;
+    case key_execp_uwheel_command_sink:
+        if (value && *value)
+            get_or_create_last_execp()->backend->uwheel_command_sink = atoi (value);
+        break;
+    case key_execp_dwheel_command_sink:
+        if (value && *value)
+            get_or_create_last_execp()->backend->dwheel_command_sink = atoi (value);
+        break;
 
     /* Button */
     case key_button:

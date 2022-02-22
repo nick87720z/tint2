@@ -41,6 +41,11 @@ typedef struct ExecpBackend {
     char *rclick_command;
     char *uwheel_command;
     char *dwheel_command;
+    int lclick_command_sink,    // Custom command sink ID
+        mclick_command_sink,    // -1 - no sink (fork and exec as usually)
+        rclick_command_sink,    //  0 - executor stdin (exclusive sink)
+        uwheel_command_sink,    //>=1 - TODO: externally configured sink (shared)
+        dwheel_command_sink;
     int paddingx, // horizontal padding left/right
         spacing,   // horizontal padding between childs
         paddingy;
@@ -48,6 +53,7 @@ typedef struct ExecpBackend {
 
     // Backend state:
     Timer timer;
+    int child_pipe_stdin;
     int child_pipe_stdout;
     int child_pipe_stderr;
     pid_t child;

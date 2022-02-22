@@ -235,6 +235,7 @@ void save_panel_screenshot(const Panel *panel, const char *path);
 /// Helper shortcut macroses
 
 #define BUTTON_CASE(i,c) case i:    command = c;                                         \
+                                    cmd_sink = c ## _sink;                               \
                                     break
 
 #endif

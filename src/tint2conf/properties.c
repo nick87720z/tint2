@@ -4244,6 +4244,22 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_set_tooltip_text(executor->cmd_lclick,
                                 _("Specifies a command that will be executed when the executor receives a left click."));
 
+    label = gtk_label_new(_("Sink"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    executor->cmd_lclick_sink = gtk_spin_button_new_with_range(-1, 65535, 1);
+    gtk_widget_show(executor->cmd_lclick_sink);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_lclick_sink, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_widget_set_tooltip_text(executor->cmd_lclick_sink,
+                                _("Specifies receiver of this command.\n"
+                                  "If -1, command is executed in the default shell.\n"
+                                  "If 0, command is sent to executor process (only continuous executors).\n"
+                                  "Positive values are used for global command sinks (not implemented)."));
+
     row++, col = 2;
     label = gtk_label_new(_("Right click command"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -4258,6 +4274,22 @@ void create_execp(GtkWidget *stack, int i)
     col++;
     gtk_widget_set_tooltip_text(executor->cmd_rclick,
                                 _("Specifies a command that will be executed when the executor receives a right click."));
+
+    label = gtk_label_new(_("Sink"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    executor->cmd_rclick_sink = gtk_spin_button_new_with_range(-1, 65535, 1);
+    gtk_widget_show(executor->cmd_rclick_sink);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_rclick_sink, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_widget_set_tooltip_text(executor->cmd_rclick_sink,
+                                _("Specifies receiver of this command.\n"
+                                  "If -1, command is executed in the default shell.\n"
+                                  "If 0, command is sent to executor process (only continuous executors).\n"
+                                  "Positive values are used for global command sinks (not implemented)."));
 
     row++, col = 2;
     label = gtk_label_new(_("Middle click command"));
@@ -4274,6 +4306,22 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_set_tooltip_text(executor->cmd_mclick,
                                 _("Specifies a command that will be executed when the executor receives a middle click."));
 
+    label = gtk_label_new(_("Sink"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    executor->cmd_mclick_sink = gtk_spin_button_new_with_range(-1, 65535, 1);
+    gtk_widget_show(executor->cmd_mclick_sink);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_mclick_sink, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_widget_set_tooltip_text(executor->cmd_mclick_sink,
+                                _("Specifies receiver of this command.\n"
+                                  "If -1, command is executed in the default shell.\n"
+                                  "If 0, command is sent to executor process (only continuous executors).\n"
+                                  "Positive values are used for global command sinks (not implemented)."));
+
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll up command"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -4289,6 +4337,22 @@ void create_execp(GtkWidget *stack, int i)
     gtk_widget_set_tooltip_text(executor->cmd_uwheel,
                                 _("Specifies a command that will be executed when the executor receives a mouse scroll up."));
 
+    label = gtk_label_new(_("Sink"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    executor->cmd_uwheel_sink = gtk_spin_button_new_with_range(-1, 65535, 1);
+    gtk_widget_show(executor->cmd_uwheel_sink);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_uwheel_sink, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_widget_set_tooltip_text(executor->cmd_uwheel_sink,
+                                _("Specifies receiver of this command.\n"
+                                  "If -1, command is executed in the default shell.\n"
+                                  "If 0, command is sent to executor process (only continuous executors).\n"
+                                  "Positive values are used for global command sinks (not implemented)."));
+
     row++, col = 2;
     label = gtk_label_new(_("Wheel scroll down command"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
@@ -4303,6 +4367,22 @@ void create_execp(GtkWidget *stack, int i)
     col++;
     gtk_widget_set_tooltip_text(executor->cmd_dwheel,
                                 _("Specifies a command that will be executed when the executor receives a mouse scroll down."));
+
+    label = gtk_label_new(_("Sink"));
+    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_show(label);
+    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+
+    executor->cmd_dwheel_sink = gtk_spin_button_new_with_range(-1, 65535, 1);
+    gtk_widget_show(executor->cmd_dwheel_sink);
+    gtk_table_attach(GTK_TABLE(table), executor->cmd_dwheel_sink, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    col++;
+    gtk_widget_set_tooltip_text(executor->cmd_dwheel_sink,
+                                _("Specifies receiver of this command.\n"
+                                  "If -1, command is executed in the default shell.\n"
+                                  "If 0, command is sent to executor process (only continuous executors).\n"
+                                  "Positive values are used for global command sinks (not implemented)."));
 
     change_paragraph(parent);
 

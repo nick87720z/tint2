@@ -875,6 +875,16 @@ void config_write_execp(FILE *fp)
         fprintf(fp, "execp_mclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_mclick)));
         fprintf(fp, "execp_uwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_uwheel)));
         fprintf(fp, "execp_dwheel_command = %s\n", gtk_entry_get_text(GTK_ENTRY(executor->cmd_dwheel)));
+        fprintf(fp, "execp_lclick_command_sink = %d\n",
+                    (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->cmd_lclick_sink)));
+        fprintf(fp, "execp_mclick_command_sink = %d\n",
+                    (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->cmd_mclick_sink)));
+        fprintf(fp, "execp_rclick_command_sink = %d\n",
+                    (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->cmd_rclick_sink)));
+        fprintf(fp, "execp_uwheel_command_sink = %d\n",
+                    (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->cmd_uwheel_sink)));
+        fprintf(fp, "execp_dwheel_command_sink = %d\n",
+                    (int)gtk_spin_button_get_value(GTK_SPIN_BUTTON(executor->cmd_dwheel_sink)));
 
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(executor->font_use)))
             fprintf(fp, "execp_font = %s\n", gtk_font_button_get_font_name(GTK_FONT_BUTTON(executor->font)));
@@ -1985,6 +1995,26 @@ void add_entry(char *key, char *value)
         break;
     case key_execp_dwheel_command:
         gtk_entry_set_text(GTK_ENTRY(execp_get_last()->cmd_dwheel), value);
+        break;
+    case key_execp_lclick_command_sink:
+        if (value && *value)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->cmd_lclick_sink), atoi(value));
+        break;
+    case key_execp_mclick_command_sink:
+        if (value && *value)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->cmd_mclick_sink), atoi(value));
+        break;
+    case key_execp_rclick_command_sink:
+        if (value && *value)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->cmd_rclick_sink), atoi(value));
+        break;
+    case key_execp_uwheel_command_sink:
+        if (value && *value)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->cmd_uwheel_sink), atoi(value));
+        break;
+    case key_execp_dwheel_command_sink:
+        if (value && *value)
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(execp_get_last()->cmd_dwheel_sink), atoi(value));
         break;
     case key_execp_font:
         gtk_font_button_set_font_name(GTK_FONT_BUTTON(execp_get_last()->font), value);

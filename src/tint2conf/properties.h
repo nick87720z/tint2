@@ -134,6 +134,8 @@ typedef struct Executor {
     GtkWidget *cont, *markup, *tooltip, *mon;
     GtkWidget *cmd_lclick, *cmd_rclick, *cmd_mclick;
     GtkWidget *cmd_uwheel, *cmd_dwheel;
+    GtkWidget *cmd_lclick_sink, *cmd_rclick_sink, *cmd_mclick_sink;
+    GtkWidget *cmd_uwheel_sink, *cmd_dwheel_sink;
     GtkWidget *font, *font_use, *font_color, *padx, *pady, *spacing, *centered;
     GtkWidget *bg, *iw, *ih;
 } Executor;

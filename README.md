@@ -1,6 +1,6 @@
 ## TINT2 needs help
 
-I had to adopt tint2 from [o9000](https://gitlab.com/o9000/tint2) account (in reality ruled by different man) rather automatically after it was suddenly sentenced to end-of-life by previous maintainer without warning. My free time is too limited, so I may not be able to keep pace with all bugs and feature requests, some of whom need to be recovered yet (Chris Lee disabled sections for MR and issues).
+I had to adopt tint2 from [o9000](https://gitlab.com/o9000/tint2) account rather automatically after it was suddenly sentenced to end-of-life by previous maintainer without warning. My free time is too limited, so I may not be able to keep pace with all bugs and feature requests, some of whom need to be recovered yet (Chris Lee disabled sections for MR and issues).
 
 There already was number of fixes, optimizations and just enhancements since 2021, just now I just merging whatever I already have. There are still few more ideas to implement, until I can consider tint2's development is exhausted without breaking some of its own core rules, starting with lightweightness and versatility.
 
@@ -90,6 +90,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 # Links
   * Home page: https://gitlab.com/nick87720z/tint2
+  * Download latest release: https://gitlab.com/nick87720z/tint2/-/archive/17.0.3/tint2-17.0.3.tar.bz2
   * Git repository: https://gitlab.com/nick87720z/tint2.git
   * Documentation: https://gitlab.com/o9000/tint2/wikis/home
   * Downloads: https://gitlab.com/o9000/tint2-archive/tree/master or https://code.google.com/p/tint2/downloads/list

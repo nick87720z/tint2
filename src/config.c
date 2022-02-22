@@ -294,8 +294,8 @@ void add_entry(char *key, char *value)
         if (id >= 0)                                                 \
             gradient = &g_array_index(gradients, GradientClass, id); \
     } while(0)
-    
-    #define VALUE_DUP_IF_SET(dst) if (strlen(value) > 0) dst = strdup(value)
+
+    #define VALUE_DUP_IF_SET(dst) if (*value) dst = strdup(value)
 
     #define VALUE_TO_COMMAND(cmd) do { \
         free_and_null(cmd);            \
@@ -436,6 +436,8 @@ void add_entry(char *key, char *value)
         break;
     }
 
+    /* TODO: External command sinks */
+
     /* Panel */
     case key_panel_monitor:
         panel_config.monitor = config_get_monitor(value);
@@ -479,12 +481,10 @@ void add_entry(char *key, char *value)
         taskbar_enabled = FALSE;
         for (int j = strlen(panel_items_order); j; j--)
             switch (panel_items_order[j]) {
-            case 'L':
-                launcher_enabled = TRUE;
-                break;
-            case 'T':
-                taskbar_enabled = TRUE;
-                break;
+            case 'L':   launcher_enabled = TRUE;
+                        break;
+            case 'T':   taskbar_enabled = TRUE;
+                        break;
             case 'B':
 #ifdef ENABLE_BATTERY
                 battery_enabled = TRUE;
@@ -492,14 +492,12 @@ void add_entry(char *key, char *value)
                 fprintf(stderr, "tint2: tint2 has been compiled without battery support\n");
 #endif
                 break;
-            case 'S':
-                // systray disabled in snapshot mode
-                if (snapshot_path == NULL)
-                    systray_enabled = TRUE;
-                break;
-            case 'C':
-                clock_enabled = TRUE;
-                break;
+            case 'S':   // systray disabled in snapshot mode
+                        if (snapshot_path == NULL)
+                            systray_enabled = TRUE;
+                        break;
+            case 'C':   clock_enabled = TRUE;
+                        break;
             }
         break;
     case key_panel_margin:
@@ -553,7 +551,7 @@ void add_entry(char *key, char *value)
         server.disable_transparency = ATOB(value);
         break;
     case key_panel_window_name:
-        if (strlen(value) > 0) {
+        if (value && *value) {
             free(panel_window_name);
             panel_window_name = strdup(value);
         }
@@ -627,7 +625,7 @@ void add_entry(char *key, char *value)
         break;
     case key_bat1_format:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0) {
+        if (value && *value) {
             free(bat1_format);
             bat1_format = strdup(value);
         }
@@ -635,7 +633,7 @@ void add_entry(char *key, char *value)
         break;
     case key_bat2_format:
 #ifdef ENABLE_BATTERY
-        if (strlen(value) > 0) {
+        if (value && *value) {
             free(bat2_format);
             bat2_format = strdup(value);
         }
@@ -706,11 +704,14 @@ void add_entry(char *key, char *value)
     case key_execp_name: {
         Execp *execp = get_or_create_last_execp();
         execp->backend->name[0] = 0;
-        if (strlen(value) > sizeof(execp->backend->name) - 1)
-            fprintf(stderr, RED "tint2: execp_name cannot be longer than %ld bytes: '%s'" RESET "\n",
-                    sizeof(execp->backend->name) - 1, value);
-        else if (strlen(value) > 0)
-            snprintf (execp->backend->name, sizeof(execp->backend->name)-1, value);
+        if (value && *value) {
+            size_t len = strlen(value);
+            if (len > sizeof(execp->backend->name) - 1)
+                fprintf(stderr, RED "tint2: execp_name cannot be longer than %ld bytes: '%s'" RESET "\n",
+                        sizeof(execp->backend->name) - 1, value);
+            else
+                memcpy (execp->backend->name, value, len+1);
+        }
         break;
     }
     case key_execp_command: {
@@ -729,31 +730,21 @@ void add_entry(char *key, char *value)
         }
         break;
     }
-    case key_execp_monitor: {
-        Execp *execp = get_or_create_last_execp();
-        execp->backend->monitor = config_get_monitor(value);
+    case key_execp_monitor:
+        get_or_create_last_execp()->backend->monitor = config_get_monitor(value);
         break;
-    }
-    case key_execp_has_icon: {
-        Execp *execp = get_or_create_last_execp();
-        execp->backend->has_icon = ATOB(value);
+    case key_execp_has_icon:
+        get_or_create_last_execp()->backend->has_icon = ATOB(value);
         break;
-    }
-    case key_execp_continuous: {
-        Execp *execp = get_or_create_last_execp();
-        execp->backend->continuous = MAX(atoi(value), 0);
+    case key_execp_continuous:
+        get_or_create_last_execp()->backend->continuous = MAX(atoi(value), 0);
         break;
-    }
-    case key_execp_markup: {
-        Execp *execp = get_or_create_last_execp();
-        execp->backend->has_markup = ATOB(value);
+    case key_execp_markup:
+        get_or_create_last_execp()->backend->has_markup = ATOB(value);
         break;
-    }
-    case key_execp_cache_icon: {
-        Execp *execp = get_or_create_last_execp();
-        execp->backend->cache_icon = ATOB(value);
+    case key_execp_cache_icon:
+        get_or_create_last_execp()->backend->cache_icon = ATOB(value);
         break;
-    }
     case key_execp_tooltip: {
         Execp *execp = get_or_create_last_execp();
         free_and_null(execp->backend->tooltip);
@@ -779,11 +770,9 @@ void add_entry(char *key, char *value)
     case key_execp_background_id:
         VALUE_TO_BACKGROUND (get_or_create_last_execp()->backend->bg);
         break;
-    case key_execp_centered: {
-        Execp *execp = get_or_create_last_execp();
-        execp->backend->centered = ATOB(value);
+    case key_execp_centered:
+        get_or_create_last_execp()->backend->centered = ATOB(value);
         break;
-    }
     case key_execp_icon_w: {
         Execp *execp = get_or_create_last_execp();
         int v = atoi(value);
@@ -855,20 +844,20 @@ void add_entry(char *key, char *value)
         panel_config.button_list = g_list_append(panel_config.button_list, create_button());
         break;
     case key_button_icon:
-        if (strlen(value)) {
+        if (value && *value) {
             Button *button = get_or_create_last_button();
             button->backend->icon_name = expand_tilde(value);
         }
         break;
     case key_button_text:
-        if (strlen(value)) {
+        if (value && *value) {
             Button *button = get_or_create_last_button();
             free_and_null(button->backend->text);
             button->backend->text = strdup(value);
         }
         break;
     case key_button_tooltip:
-        if (strlen(value)) {
+        if (value && *value) {
             Button *button = get_or_create_last_button();
             free_and_null(button->backend->tooltip);
             button->backend->tooltip = strdup(value);
@@ -889,20 +878,16 @@ void add_entry(char *key, char *value)
         VALUES_TO_AREA_PADDING (*button->backend, 0);
         break;
     }
-    case key_button_max_icon_size: {
-        Button *button = get_or_create_last_button();
+    case key_button_max_icon_size:
         extract_values(value, values, 3);
-        button->backend->max_icon_size = MAX(0, atoi(value));
+        get_or_create_last_button()->backend->max_icon_size = MAX(0, atoi(value));
         break;
-    }
     case key_button_background_id:
         VALUE_TO_BACKGROUND (get_or_create_last_button()->backend->bg);
         break;
-    case key_button_centered: {
-        Button *button = get_or_create_last_button();
-        button->backend->centered = ATOB(value);
+    case key_button_centered:
+        get_or_create_last_button()->backend->centered = ATOB(value);
         break;
-    }
     case key_button_lclick_command: {
         Button *button = get_or_create_last_button();
         VALUE_TO_COMMAND (button->backend->lclick_command);
@@ -935,7 +920,7 @@ void add_entry(char *key, char *value)
             clock_enabled = TRUE;
             STR_APPEND_CH(panel_items_order, "C");
         }
-        if (strlen(value) > 0) {
+        if (value && *value) {
             time1_format = strdup(value);
             clock_enabled = TRUE;
         }
@@ -1080,10 +1065,7 @@ void add_entry(char *key, char *value)
     case key_task_maximum_size:
         extract_values(value, values, 3);
         panel_config.g_task.maximum_width = atoi(values[0]);
-        if (values[1])
-            panel_config.g_task.maximum_height = atoi(values[1]);
-        else
-            panel_config.g_task.maximum_height = panel_config.g_task.maximum_width;
+        panel_config.g_task.maximum_height = values[1] ? atoi(values[1]) : panel_config.g_task.maximum_width;
         break;
     case key_task_padding:
         VALUES_TO_AREA_PADDING(panel_config.g_task.area, 0);

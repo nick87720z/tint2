@@ -5,6 +5,7 @@ Sections
 ========
 - [Global](#global)
 - [Executors](#executors)
+- [Launcher](#launcher)
 - [Taksbar](#taskbar)
 - [Tooltip](#tooltip)
 - [Configurator](#configurator)
@@ -14,18 +15,21 @@ Sections
 # Global
 
 - Glib..Gtk stuff cleanup;
-- Per-corner rounding support;
 - Check fluxbox issues;
 - External modules support;
 
 ## Executors
 
-- Persistant command interpreters - command text could be fed into continuous process from configurable command.  
+- Global command sinks - action commands could use global command sinks pull, thus makign it available not only for executors;
 Compatible default - non-continuous shell;
 - Support for RAW video streaming (ffmpeg is good candidate for streamer);
 - Focus / pointer hover events;
 - Ability to hold a window like taskbar task entry (feature group 1 - 2/1)
 - Support sgr sequences for color, font, alignment etc - converting them into pango markup
+
+## Launcher
+
+- Singleton applications support (hide if presents in taskbar). Requires window-launcher association support.
 
 ## Taskbar
 
@@ -49,5 +53,5 @@ Compatible default - non-continuous shell;
 
 ## Documentation
 
-- Library for executors, too big to inline in the Manual;
+- Library for executors, which are too big to inline in the Manual;
 - Adopt tint2.wiki;

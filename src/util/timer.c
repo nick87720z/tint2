@@ -30,7 +30,7 @@ bool debug_timers = false;
 #define MOCK_ORIGIN 1000000
 
 // All active timers
-static GList *timers = NULL;
+static GSList *timers = NULL;
 
 long long get_time_ms();
 
@@ -43,7 +43,7 @@ void cleanup_timers()
 {
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s\n", __FUNCTION__);
-    g_list_free(timers);
+    g_slist_free(timers);
     timers = NULL;
 }
 
@@ -53,25 +53,24 @@ void init_timer(Timer *timer, const char *name)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, name, (void *)timer);
     memset(timer, 0, sizeof(*timer));
     strncpy(timer->name_, name, sizeof(timer->name_) - 1);
-    if (!g_list_find(timers, timer)) {
-        timers = g_list_append(timers, timer);
-    }
+    if (!g_slist_find (timers, timer))
+        timers = g_slist_prepend(timers, timer);
 }
 
 void destroy_timer(Timer *timer)
 {
-    if (warnings_for_timers && !g_list_find(timers, timer)) {
+    if (warnings_for_timers && !g_slist_find(timers, timer)) {
         fprintf(stderr, RED "tint2: Attempt to destroy nonexisting timer: %s" RESET "\n", timer->name_);
         return;
     }
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, timer->name_, (void *)timer);
-    timers = g_list_remove(timers, timer);
+    timers = g_slist_remove(timers, timer);
 }
 
 void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, TimerCallback *callback, void *arg)
 {
-    if (!g_list_find(timers, timer)) {
+    if (!g_slist_find(timers, timer)) {
         fprintf(stderr, RED "tint2: Attempt to change unknown timer" RESET "\n");
         init_timer(timer, "unknown");
     }
@@ -101,13 +100,28 @@ struct timeval *get_duration_to_next_timer_expiration()
     static struct timeval result = {0, 0};
     long long min_expiration_time = -1;
     Timer *next_timer = NULL;
-    for (GList *it = timers; it; it = it->next) {
-        Timer *timer = (Timer *)it->data;
-        if (!timer->enabled_)
-            continue;
-        if (min_expiration_time < 0 || timer->expiration_time_ms_ < min_expiration_time) {
-            min_expiration_time = timer->expiration_time_ms_;
-            next_timer = timer;
+    {
+        GSList *it;
+        for (it = timers; it; it = it->next)
+            {
+            Timer *timer = (Timer *)it->data;
+            if (timer->enabled_)
+            {
+                min_expiration_time = timer->expiration_time_ms_;
+                next_timer = timer;
+                it = it->next;
+                break;
+            }
+        }
+        for (it = it->next; it; it = it->next)
+        {
+            Timer *timer = (Timer *)it->data;
+            if (timer->enabled_ &&
+                timer->expiration_time_ms_ < min_expiration_time)
+            {
+                min_expiration_time = timer->expiration_time_ms_;
+                next_timer = timer;
+            }
         }
     }
     if (min_expiration_time < 0) {
@@ -138,25 +152,25 @@ struct timeval *get_duration_to_next_timer_expiration()
 
 void handle_expired_timers()
 {
-    long long now = get_time_ms();
-    bool expired_timers = false;
-    for (GList *it = timers; it; it = it->next) {
-        Timer *timer = (Timer *)it->data;
-        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
-            expired_timers = true;
-    }
-    if (!expired_timers)
+    if (!timers)
         return;
 
-    // We make a copy of the timer list, as the callbacks may create new timers,
-    // which we don't want to trigger in this event loop iteration,
-    // to prevent infinite loops.
-    GList *current_timers = g_list_copy(timers);
+    long long now = get_time_ms();
+
+    // Iterate until first expired timer
+    for (GSList *it = timers; ; it = it->next)
+    {
+        if (!it) return;
+        Timer *timer = (Timer *)it->data;
+        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
+            break;
+    }
 
     // Mark all timers as not handled.
     // This is to ensure not triggering a timer more than once per event loop iteration,
     // in case it is modified from a callback.
-    for (GList *it = current_timers; it; it = it->next) {
+    for (GSList *it = timers; it; it = it->next)
+    {
         Timer *timer = (Timer *)it->data;
         timer->handled_ = false;
     }
@@ -164,10 +178,11 @@ void handle_expired_timers()
     bool triggered;
     do {
         triggered = false;
-        for (GList *it = current_timers; it; it = it->next) {
+        for (GSList *it = timers; it; it = it->next)
+        {
             Timer *timer = (Timer *)it->data;
             // Check that it is still registered.
-            if (!g_list_find(timers, timer))
+            if (!g_slist_find(timers, timer))
                 continue;
             if (!timer->enabled_ || timer->handled_ || !timer->callback_ || timer->expiration_time_ms_ > now)
                 continue;
@@ -195,8 +210,6 @@ void handle_expired_timers()
             break;
         }
     } while (triggered);
-
-    g_list_free(current_timers);
 }
 
 // Time helper functions
@@ -234,23 +247,14 @@ int gettime(struct timespec *tp)
 #endif
 }
 
-gint compare_timespecs(const struct timespec *t1, const struct timespec *t2)
-{
-    if (t1->tv_sec < t2->tv_sec)
-        return -1;
-    else if (t1->tv_sec == t2->tv_sec) {
-        if (t1->tv_nsec < t2->tv_nsec)
-            return -1;
-        else if (t1->tv_nsec == t2->tv_nsec)
-            return 0;
-        else
-            return 1;
-    } else
-        return 1;
+gint compare_timespecs(const struct timespec *t1, const struct timespec *t2) {
+    return  t1->tv_sec  < t2->tv_sec  ? -1
+        :   t1->tv_sec  > t2->tv_sec  ?  1
+        :   t1->tv_nsec < t2->tv_nsec ? -1
+        :   t1->tv_nsec > t2->tv_nsec;
 }
 
-struct timespec add_msec_to_timespec(struct timespec ts, int msec)
-{
+struct timespec add_msec_to_timespec(struct timespec ts, int msec) {
     ts.tv_sec += msec / 1000;
     ts.tv_nsec += (msec % 1000) * 1000000;
     if (ts.tv_nsec >= 1000000000) { // 10^9

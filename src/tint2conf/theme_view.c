@@ -153,7 +153,7 @@ void theme_list_append(const gchar *path)
         strrchr(dir, '/')[0] = '\0';
     } else {
         name = (gchar*)path;
-        dir = g_strdup(".");
+        strdup_static(dir, ".");
     }
     char *suffix = contract_tilde(dir);
     g_free(dir);

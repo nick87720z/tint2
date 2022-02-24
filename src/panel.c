@@ -29,6 +29,7 @@
 #include <cairo-xlib.h>
 #include <pango/pangocairo.h>
 
+#include "common.h"
 #include "server.h"
 #include "config.h"
 #include "window.h"
@@ -106,7 +107,7 @@ void default_panel()
     panel_dock = FALSE;         // default not in the dock
     panel_pivot_struts = FALSE;
     panel_layer = BOTTOM_LAYER; // default is bottom layer
-    panel_window_name = strdup("tint2");
+    strdup_static(panel_window_name, "tint2");
     wm_menu = FALSE;
     max_tick_urgent = 14;
     mouse_left = TOGGLE_ICONIFY;

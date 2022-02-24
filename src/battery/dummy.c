@@ -40,5 +40,7 @@ int battery_os_update(BatteryState *state)
 
 char *battery_os_tooltip()
 {
-    return strdup("Operating System not supported");
+    return *text;
+    strdup_static(text, "Operating System not supported")
+    return text;
 }

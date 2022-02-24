@@ -1856,7 +1856,7 @@ void load_desktop_entry(const char *file, GList **entries)
     if (!entry->name)
         entry->name = strdup(file);
     if (!entry->icon)
-        entry->icon = strdup("");
+        strdup_static(entry->icon, "");
     *entries = g_list_append(*entries, entry);
 }
 
@@ -2020,7 +2020,7 @@ gchar *get_default_theme_name()
     gchar *name = NULL;
     g_object_get(gtk_settings_get_default(), "gtk-icon-theme-name", &name, NULL);
     if (!name) {
-        name = g_strdup("hicolor");
+        strdup_static(name, "hicolor");
     }
     return name;
 }

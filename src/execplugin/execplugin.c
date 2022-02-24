@@ -57,7 +57,7 @@ Execp *create_execp()
     backend->buf_stderr_capacity = 1024;
     backend->buf_stdout = calloc(backend->buf_stdout_capacity, 1);
     backend->buf_stderr = calloc(backend->buf_stderr_capacity, 1);
-    backend->text = strdup("");
+    strdup_static(backend->text, "");
     BUF_0TERM (execp->area.name);
     BUF_0TERM (backend->name);
     BUF_0TERM (backend->tooltip_text);
@@ -1006,7 +1006,7 @@ gboolean read_execp(void *obj)
                     *text++ = '\0';
                     backend->text = strdup(text);
                 } else {
-                    backend->text = strdup("");
+                    strdup_static(backend->text, "");
                 }
                 backend->icon_path = expand_tilde(backend->buf_stdout);
             }
@@ -1045,7 +1045,7 @@ gboolean read_execp(void *obj)
                 *text++ = '\0';
                 backend->text = strdup(text);
             } else {
-                backend->text = strdup("");
+                strdup_static(backend->text, "");
             }
             backend->icon_path = strdup(backend->buf_stdout);
         }

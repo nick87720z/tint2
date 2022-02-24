@@ -288,8 +288,8 @@ void init_battery_panel(void *p)
     area_gradients_create(&battery->area);
 
     if (!bat1_format && !bat2_format) {
-        bat1_format = strdup("%p");
-        bat2_format = strdup("%t");
+        strdup_static(bat1_format, "%p");
+        strdup_static(bat2_format, "%t");
     }
     update_battery_tick(NULL);
 }

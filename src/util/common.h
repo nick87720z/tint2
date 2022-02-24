@@ -197,11 +197,15 @@ void get_image_mean_color(const Imlib_Image image, Color *mean_color);
 
 void dump_image_data(const char *file_name, const char *name);
 
-#define free_and_null(p) \
-    {                    \
-        free(p);         \
-        p = NULL;        \
-    }
+#define strdup_static(dst, src) do {                                                     \
+    dst = malloc(sizeof(src));                                                           \
+    memcpy(dst, src, sizeof(src));                                                       \
+} while (0)
+
+#define free_and_null(p) do {                                                            \
+    free(p);                                                                             \
+    p = NULL;                                                                            \
+} while (0)
 
 #if !GLIB_CHECK_VERSION(2, 33, 4)
 GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);

@@ -35,7 +35,7 @@ int uevent_fd = -1;
 #include "common.h"
 
 static struct sockaddr_nl nls;
-static GList *notifiers = NULL;
+static GSList *notifiers = NULL;
 
 static const char *has_prefix(const char *str, const char *end, const char *prefix, size_t prefixlen)
 {
@@ -57,7 +57,7 @@ static void uevent_free(struct uevent *ev)
 {
     free(ev->path);
     free(ev->subsystem);
-    g_list_free_full(ev->params, uevent_param_free);
+    g_slist_free_full(ev->params, uevent_param_free);
     free(ev);
 }
 
@@ -107,7 +107,7 @@ static struct uevent *uevent_new(char *buffer, int size)
                     if (param) {
                         param->key = strndup(s, val - s);
                         param->val = strdup(val + 1);
-                        ev->params = g_list_append(ev->params, param);
+                        ev->params = g_slist_append(ev->params, param);
                     }
                 }
             }
@@ -119,19 +119,19 @@ static struct uevent *uevent_new(char *buffer, int size)
 
 void uevent_register_notifier(struct uevent_notify *nb)
 {
-    notifiers = g_list_append(notifiers, nb);
+    notifiers = g_slist_append(notifiers, nb);
 }
 
 void uevent_unregister_notifier(struct uevent_notify *nb)
 {
-    GList *l = notifiers;
+    GSList *l = notifiers;
 
     while (l != NULL) {
-        GList *next = l->next;
+        GSList *next = l->next;
         struct uevent_notify *lnb = l->data;
 
         if (memcmp(nb, lnb, sizeof(struct uevent_notify)) == 0)
-            notifiers = g_list_delete_link(notifiers, l);
+            notifiers = g_slist_delete_link(notifiers, l);
 
         l = next;
     }
@@ -149,7 +149,7 @@ void uevent_handler()
 
     struct uevent *ev = uevent_new(buf, len);
     if (ev) {
-        for (GList *l = notifiers; l; l = l->next) {
+        for (GSList *l = notifiers; l; l = l->next) {
             struct uevent_notify *nb = l->data;
 
             if (!(ev->action & nb->action))

@@ -39,7 +39,7 @@ struct uevent {
     enum uevent_action action;
     int sequence;
     char *subsystem;
-    GList *params;
+    GSList *params;
 };
 
 struct uevent_notify {

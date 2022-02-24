@@ -44,25 +44,21 @@ static GSList *notifiers = NULL;
 
 #define HAS_CONST_PREFIX(str, end, prefix) has_prefix((str), end, prefix, sizeof(prefix) - 1)
 
-static void uevent_free(struct uevent *ev)
+static void uevent_destroy(struct uevent *ev)
 {
-    free(ev->path);
-    free(ev->subsystem);
     g_slist_free_full(ev->params, free);
-    free(ev);
 }
 
 static int uevent_new(struct uevent *ev, char *buffer, int size)
-// Fills event structure at ev address.
-// Returns 1 on success , 0 on error.
+// Fills event structure, pointed by ev.
+// Returns 1 on success, 0 on error.
 {
     gboolean first = TRUE;
 
     if (!size || !ev)
         return 0;
 
-    /* must be null-terminated */
-    buffer[size - 1] = '\0';
+    memset (ev, 0, sizeof(*ev));
 
     const char *s   = buffer;
     const char *end = buffer + size;
@@ -74,17 +70,13 @@ static int uevent_new(struct uevent *ev, char *buffer, int size)
                 /* error: kernel events contain @, triggered by udev events, though */
                 return 0;
             }
-            // remaining part is device path - duplicate it
-            p = strchr ((s=p+1), '\0') + 1;
-            int l = p - s;
-            ev->path = malloc (l);
-            memcpy (ev->path, s, l);
+            ev->path = ++p;
+            s = strchr(p, '\0') + 1;
             first = FALSE;
-            s = p;
         }
         else
         {
-            const char *val;
+            char *val;
             if ((val = HAS_CONST_PREFIX(s, end, "ACTION=")) != NULL) {
                 ev->action =
                     !strcmp(val, "add"   ) ? (s = val + sizeof("add"   ), UEVENT_ADD)
@@ -95,28 +87,20 @@ static int uevent_new(struct uevent *ev, char *buffer, int size)
                 ev->sequence = atoi(val);
                 s = strchr (s, '\0') + 1;
             } else if ((val = HAS_CONST_PREFIX(s, end, "SUBSYSTEM=")) != NULL) {
-                char *p = strchr (val, '\0') + 1;
-                int l = p - val;
-                ev->subsystem = malloc (l);
-                memcpy (ev->subsystem, val, l);
-                s = p;
+                ev->subsystem = val;
+                s = strchr (val, '\0') + 1;
             } else {
                 val = strchr(s, '=');
                 if (val) {
-                    // total allocation for both structure and its strings
-                    // 3x less allocation headache
-                    char *p = strchr (val, '\0');
-                    int appendum = p - s + 1;
-                    struct uevent_parameter *param = malloc(sizeof(*param) + appendum);
+                    *val++ = '\0';
+                    struct uevent_parameter *param = malloc(sizeof(*param));
                     if (param)
                     {
-                        param->key = (char *)(param + 1);
-                        memcpy (param->key, s, appendum);
-                        param->val = param->key + (val - s);
-                        param->val[-1] = '\0';
+                        param->key = s;
+                        param->val = val;
                         ev->params = g_slist_prepend(ev->params, param);
                     }
-                    s = p + 1;
+                    s = strchr(val, '\0') + 1;
                 } else
                     s = strchr(s, '\0') + 1;
             }
@@ -156,6 +140,9 @@ void uevent_handler()
     if (len < 0)
         return;
 
+    /* buf must be null-terminated */
+    buf[ MAX(len, sizeof(buf)-1) ] = '\0';
+
     struct uevent ev;
 
     if (uevent_new(&ev, buf, len)) {
@@ -170,6 +157,7 @@ void uevent_handler()
 
             nb->cb(&ev, nb->userdata);
         }
+        uevent_destroy (&ev);
     }
 }
 

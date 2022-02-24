@@ -373,6 +373,7 @@ char *get_window_name(Window win)
 }
 
 void smooth_thumbnail(cairo_surface_t *image_surface)
+// On-place 2x2 square blur with center at top-left
 {
     u_int32_t *data = (u_int32_t *)cairo_image_surface_get_data(image_surface);
     const size_t tw = cairo_image_surface_get_width(image_surface);
@@ -380,14 +381,17 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
     const size_t rmask = 0xff0000;
     const size_t gmask = 0xff00;
     const size_t bmask = 0xff;
-    for (size_t i = 0; i < tw * (th - 1) - 1 && i < tw * th; i++) {
+    for (size_t i = 0;
+         i < tw * (th - 1) - 1 && i < tw * th;
+         i++)
+    {
         u_int32_t c1 = data[i];
         u_int32_t c2 = data[i + 1];
         u_int32_t c3 = data[i + tw];
         u_int32_t c4 = data[i + tw + 1];
-        u_int32_t b = (5 * (c1 & bmask) + 1 * (c2 & bmask) + 1 * (c3 & bmask) + 1 * (c4 & bmask)) / 8;
-        u_int32_t g = (5 * (c1 & gmask) + 1 * (c2 & gmask) + 1 * (c3 & gmask) + 1 * (c4 & gmask)) / 8;
-        u_int32_t r = (5 * (c1 & rmask) + 1 * (c2 & rmask) + 1 * (c3 & rmask) + 1 * (c4 & rmask)) / 8;
+        u_int32_t b = ((c1 & bmask) * 5 + (c2 & bmask) + (c3 & bmask) + (c4 & bmask)) / 8;
+        u_int32_t g = ((c1 & gmask) * 5 + (c2 & gmask) + (c3 & gmask) + (c4 & gmask)) / 8;
+        u_int32_t r = ((c1 & rmask) * 5 + (c2 & rmask) + (c3 & rmask) + (c4 & rmask)) / 8;
         data[i] = (r & rmask) | (g & gmask) | (b & bmask);
     }
 }
@@ -399,12 +403,20 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
 cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean use_shm)
 {
     cairo_surface_t *result = NULL;
-    XWindowAttributes wa = {};
-    if (!XGetWindowAttributes(server.display, win, &wa) || wa.width <= 0 || wa.height <= 0 ||
-            wa.map_state != IsViewable) {
+    XWindowAttributes wa;
+    if (!XGetWindowAttributes(server.display, win, &wa) ||
+        wa.width <= 0 || wa.height <= 0)
+    {
         if (debug_thumbnails) {
             fprintf(stderr, "tint2: could not get thumbnail, invalid geometry %d x %d\n",
                     wa.width, wa.height);
+        }
+        goto err0;
+    }
+
+    if (wa.map_state != IsViewable) {
+        if (debug_thumbnails) {
+            fprintf(stderr, "tint2: could not get thumbnail, window not viewable\n");
         }
         goto err0;
     }
@@ -421,21 +433,18 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
                 wa.width, wa.height);
     }
 
-    size_t w, h;
-    w = (size_t)wa.width;
-    h = (size_t)wa.height;
-    size_t tw, th, fw;
-    size_t ox, oy;
-    tw = size;
-    th = h * tw / w;
+    size_t  w = (size_t)wa.width,
+            h = (size_t)wa.height,
+            tw = size,
+            th = size * h / w,
+            fw, ox, oy = 0;
     if (th > tw * 0.618) {
         th = (size_t)(tw * 0.618);
-        fw = w * th / h;
+        fw = th * w / h;
         ox = (tw - fw) / 2;
-        oy = 0;
     } else {
         fw = tw;
-        ox = oy = 0;
+        ox = 0;
     }
     if (debug_thumbnails) {
         fprintf(stderr,
@@ -497,14 +506,6 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
         }
     }
 
-    XGetWindowAttributes(server.display, win, &wa);
-    if (wa.map_state != IsViewable) {
-        if (debug_thumbnails) {
-            fprintf(stderr, "tint2: could not get thumbnail, window not viewable\n");
-        }
-        goto err4;
-    }
-
     if (debug_thumbnails) {
         fprintf(stderr,
                 "tint2: creating cairo surface with size %zu x %zu = %zu px\n",
@@ -516,54 +517,42 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
     memset(data, 0, tw * th);
 
     // Fixed-point precision
+    // Kernel:
+    // 0 0 0 1 0 0 0 0
+    // 0 0 0 0 0 0 1 0
+    // 0 0 0 0 0 0 0 0
+    // 0 0 0 0 0 0 0 0
+    // 0 0 1 0 1 0 0 1
+    // 0 0 0 0 0 0 0 0
+    // 0 1 0 0 0 0 0 0
+    // 0 0 0 0 0 1 0 0
     const size_t prec = 1 << 16;
     const size_t xstep = w * prec / fw;
     const size_t ystep = h * prec / th;
-
-    const size_t offset_y1 = 0 * ystep / 8;
-    const size_t offset_x1 = 3 * xstep / 8;
-
-    const size_t offset_y2 = 1 * ystep / 8;
-    const size_t offset_x2 = 6 * xstep / 8;
-
-    const size_t offset_y3 = 4 * ystep / 8;
-    const size_t offset_x3 = 2 * xstep / 8;
-
-    const size_t offset_y4 = 4 * ystep / 8;
-    const size_t offset_x4 = 4 * xstep / 8;
-
-    const size_t offset_y5 = 4 * ystep / 8;
-    const size_t offset_x5 = 7 * xstep / 8;
-
-    const size_t offset_y6 = 6 * ystep / 8;
-    const size_t offset_x6 = 1 * xstep / 8;
-
-    const size_t offset_y7 = 7 * ystep / 8;
-    const size_t offset_x7 = 6 * xstep / 8;
-
-    const u_int32_t rmask = (u_int32_t)ximg->red_mask;
-    const u_int32_t gmask = (u_int32_t)ximg->green_mask;
-    const u_int32_t bmask = (u_int32_t)ximg->blue_mask;
+    size_t offset_y[] = {0, 0, 1, 4, 4, 4, 6, 7};
+    size_t offset_x[] = {0, 3, 6, 2, 4, 7, 1, 6};
+    for (int i=1; i<=7; i++) {
+        offset_y [i] *= (w * prec / fw) / 8;
+        offset_x [i] *= (h * prec / th) / 8;
+    }
+    u_int32_t rmask = (u_int32_t)ximg->red_mask;
+    u_int32_t gmask = (u_int32_t)ximg->green_mask;
+    u_int32_t bmask = (u_int32_t)ximg->blue_mask;
     for (size_t yt = 0, y = 0; yt < th; yt++, y += ystep) {
         for (size_t xt = 0, x = 0; xt < fw; xt++, x += xstep) {
             size_t j = yt * tw + ox + xt;
-            if (j < tw * th) {
-                u_int32_t c1 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x1) / prec), (int)((y + offset_y1) / prec));
-                u_int32_t c2 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x2) / prec), (int)((y + offset_y2) / prec));
-                u_int32_t c3 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x3) / prec), (int)((y + offset_y3) / prec));
-                u_int32_t c4 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x4) / prec), (int)((y + offset_y4) / prec));
-                u_int32_t c5 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x5) / prec), (int)((y + offset_y5) / prec));
-                u_int32_t c6 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x6) / prec), (int)((y + offset_y6) / prec));
-                u_int32_t c7 = (u_int32_t)GetPixel(ximg, (int)((x + offset_x7) / prec), (int)((y + offset_y7) / prec));
-                u_int32_t b = ((c1 & bmask) + (c2 & bmask) + (c3 & bmask) + (c4 & bmask) + (c5 & bmask) * 2 + (c6 & bmask) +
-                               (c7 & bmask)) /
-                              8;
-                u_int32_t g = ((c1 & gmask) + (c2 & gmask) + (c3 & gmask) + (c4 & gmask) + (c5 & gmask) * 2 + (c6 & gmask) +
-                               (c7 & gmask)) /
-                              8;
-                u_int32_t r = ((c1 & rmask) + (c2 & rmask) + (c3 & rmask) + (c4 & rmask) + (c5 & rmask) * 2 + (c6 & rmask) +
-                               (c7 & rmask)) /
-                              8;
+            if (j < tw * th)
+            {
+                u_int32_t c[8];
+                for (int i=1; i<=7; i++)
+                    c[i] = (u_int32_t)GetPixel(ximg, (int)((x + offset_x[i]) / prec), (int)((y + offset_y[i]) / prec));
+
+                u_int32_t b = ((c[1] & bmask) + (c[2] & bmask) + (c[3] & bmask) + (c[4] & bmask) + (c[5] & bmask) * 2
+                            +  (c[6] & bmask) + (c[7] & bmask)) / 8;
+                u_int32_t g = ((c[1] & gmask) + (c[2] & gmask) + (c[3] & gmask) + (c[4] & gmask) + (c[5] & gmask) * 2
+                            +  (c[6] & gmask) + (c[7] & gmask)) / 8;
+                u_int32_t r = ((c[1] & rmask) + (c[2] & rmask) + (c[3] & rmask) + (c[4] & rmask) + (c[5] & rmask) * 2
+                            +  (c[6] & rmask) + (c[7] & rmask)) / 8;
                 data[j] = (r & rmask) | (g & gmask) | (b & bmask);
             }
         }

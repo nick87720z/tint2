@@ -581,6 +581,7 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
 
     // 2nd pass
     smooth_thumbnail(result);
+
     cairo_surface_mark_dirty(result);
 
     if (ximg) {
@@ -618,6 +619,7 @@ gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
 gboolean thumb_use_shm = FALSE;
 
 cairo_surface_t *get_window_thumbnail(Window win, int size)
+// Recent method - dirty, with questionable 2x2 blur post-proc
 {
     cairo_surface_t *image_surface = NULL;
     for (int use_shm = thumb_use_shm && server.has_shm && server.composite_manager; ; use_shm = FALSE)
@@ -642,4 +644,145 @@ cairo_surface_t *get_window_thumbnail(Window win, int size)
     }
 
     return image_surface;
+}
+
+//~ cairo_surface_t *get_window_thumbnail(Window win, int size)
+//~ // First method - cairo based, high quality, but slow
+//~ {
+    //~ XWindowAttributes wa;
+    //~ if (!XGetWindowAttributes(server.display, win, &wa))
+        //~ return NULL;
+    //~ int w, h;
+    //~ w = wa.width;
+    //~ h = wa.height;
+
+    //~ int tw, th;
+    //~ double sx, sy;
+    //~ double ox, oy;
+    //~ tw = size;
+    //~ th = h * tw / w;
+    //~ if (th > tw * 0.618) {
+        //~ th = (int)(tw * 0.618);
+        //~ sy = th/(double)h;
+        //~ double fw = w * th / h;
+        //~ sx = fw / w;
+        //~ ox = (tw - fw) / 2;
+        //~ oy = 0;
+    //~ } else {
+        //~ sx = tw/(double)w;
+        //~ sy = th/(double)h;
+        //~ ox = oy = 0;
+    //~ }
+
+    //~ cairo_surface_t *x11_surface =
+        //~ cairo_xlib_surface_create(server.display, win, wa.visual, w, h);
+    //~ cairo_surface_t *image_surface = cairo_surface_create_similar_image(x11_surface, CAIRO_FORMAT_ARGB32, tw, th);
+
+    //~ cairo_t *cr = cairo_create(image_surface);
+    //~ cairo_translate(cr, ox, oy);
+    //~ cairo_scale(cr, sx, sy);
+    //~ cairo_set_source_surface(cr, x11_surface, 0, 0);
+    //~ cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_GOOD);
+    //~ cairo_paint(cr);
+    //~ cairo_destroy(cr);
+    //~ cairo_surface_destroy(x11_surface);
+
+    //~ if (cairo_surface_is_blank(image_surface)) {
+        //~ cairo_surface_destroy(image_surface);
+        //~ return NULL;
+    //~ }
+
+    //~ return image_surface;
+//~ }
+
+cairo_surface_t *get_window_thumbnail(Window win, int size)
+// Enhanced first method - LCD "bayerising" downscale
+{
+    XWindowAttributes wa;
+    if (!XGetWindowAttributes(server.display, win, &wa))
+        return NULL;
+    int w, h;
+    w = wa.width;
+    h = wa.height;
+
+    int tw, th;
+    double sx, sy;
+    double ox, oy;
+    tw = size;
+    th = h * tw / w;
+    if (th > tw * 0.618) {
+        th = (int)(tw * 0.618);
+        sy = th/(double)h;
+        double fw = w * th / h;
+        sx = fw / w;
+        ox = (tw - fw) / 2;
+        oy = 0;
+    } else {
+        sx = tw/(double)w;
+        sy = th/(double)h;
+        ox = oy = 0;
+    }
+    sx *= 3;
+
+    cairo_surface_t *x11_surface =
+        cairo_xlib_surface_create(server.display, win, wa.visual, w, h);
+    cairo_surface_t *image_surface = cairo_surface_create_similar_image(x11_surface, CAIRO_FORMAT_ARGB32, tw * 3, th);
+
+    cairo_t *cr = cairo_create(image_surface);
+    cairo_translate(cr, ox, oy);
+    cairo_scale(cr, sx, sy);
+    cairo_set_source_surface(cr, x11_surface, 0, 0);
+    cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_GOOD);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+    cairo_surface_destroy(x11_surface);
+
+    if (cairo_surface_is_blank(image_surface)) {
+        cairo_surface_destroy(image_surface);
+        return NULL;
+    }
+
+    #define _GET_PIXEL(i) ((u_int32_t *) data)[i]
+    const u_int32_t rmask = 0xFF0000,
+                    gmask = 0xFF00,
+                    bmask = 0xFF;
+    unsigned char *data = cairo_image_surface_get_data (image_surface);
+    for (int y=0; y < th; y++) {
+        for (int x=0; x < tw * 3 - 1; x++) // Blue shift
+        {
+            int i = y * tw*3 + x;
+            ((u_int32_t *) data)[i] = ( _GET_PIXEL(i) & (rmask|gmask)) | (_GET_PIXEL(i+1) & bmask);
+        }
+        for (int x = tw * 3 - 2; x > 1; x--) // Red shift
+        {
+            int i = y * tw*3 + x;
+            ((u_int32_t *) data)[i] = ( _GET_PIXEL(i) & (gmask|bmask)) | (_GET_PIXEL(i-1) & rmask);
+        }
+    }
+
+    //~ cairo_surface_mark_dirty (image_surface);
+    //~ cr = cairo_create(bayer_surface);
+    //~ cairo_scale(cr, 1.0/3, 1);
+    //~ cairo_set_source_surface(cr, image_surface, 0, 0);
+    //~ cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_GOOD);
+    //~ cairo_paint(cr);
+    //~ cairo_destroy(cr);
+
+    cairo_surface_t *bayer_surface = cairo_surface_create_similar_image(image_surface, CAIRO_FORMAT_ARGB32, tw, th);
+    unsigned char * data2 = cairo_image_surface_get_data (bayer_surface);
+    for (int y=0; y < th; y++) {
+        for (int x=0; x < tw; x++) // Area downscale
+        {
+            int i = (y * tw + x) * 3,
+                j =  y * tw + x;
+            u_int32_t pix[3] = { _GET_PIXEL (i), _GET_PIXEL (i+1), _GET_PIXEL (i+2) };
+            ((u_int32_t *)data2)[j] =   ((( (pix[0] & rmask)+(pix[1] & rmask)+(pix[2] & rmask) )/3) & rmask) |
+                                        ((( (pix[0] & gmask)+(pix[1] & gmask)+(pix[2] & gmask) )/3) & gmask) |
+                                        ((( (pix[0] & bmask)+(pix[1] & bmask)+(pix[2] & bmask) )/3) & bmask) | 0xFF000000;
+        }
+    }
+    cairo_surface_mark_dirty (bayer_surface);
+
+    cairo_surface_destroy(image_surface);
+    return bayer_surface;
 }

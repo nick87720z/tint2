@@ -391,7 +391,8 @@ void smooth_thumbnail(cairo_surface_t *image_surface)
         u_int32_t c4 = data[i + tw + 1];
         u_int32_t b = ((c1 & bmask) * 5 + (c2 & bmask) + (c3 & bmask) + (c4 & bmask)) / 8;
         u_int32_t g = ((c1 & gmask) * 5 + (c2 & gmask) + (c3 & gmask) + (c4 & gmask)) / 8;
-        u_int32_t r = ((c1 & rmask) * 5 + (c2 & rmask) + (c3 & rmask) + (c4 & rmask)) / 8;
+        // Pollution in ascending bit direction is impossible for this operation, good case to save some cycles
+        u_int32_t r = (c1 * 5 + c2 + c3 + c4) / 8;
         data[i] = (r & rmask) | (g & gmask) | (b & bmask);
     }
 }
@@ -619,32 +620,25 @@ gboolean thumb_use_shm = FALSE;
 cairo_surface_t *get_window_thumbnail(Window win, int size)
 {
     cairo_surface_t *image_surface = NULL;
-    if (thumb_use_shm && server.has_shm && server.composite_manager) {
-        image_surface = get_window_thumbnail_ximage(win, (size_t)size, TRUE);
-        if (image_surface && cairo_surface_is_blank(image_surface)) {
+    for (int use_shm = thumb_use_shm && server.has_shm && server.composite_manager; ; use_shm = FALSE)
+    {
+        image_surface = get_window_thumbnail_ximage(win, (size_t)size, use_shm);
+        if (image_surface && cairo_surface_is_blank(image_surface))
+        {
             cairo_surface_destroy(image_surface);
             image_surface = NULL;
         }
-        if (debug_thumbnails) {
+        if (debug_thumbnails)
+        {
+            const char *method = use_shm ? "XShmGetImage" : "XGetImage";
             if (!image_surface)
-                fprintf(stderr, YELLOW "tint2: XShmGetImage failed, trying slower method" RESET "\n");
-            else
-                fprintf(stderr, "tint2: captured window using XShmGetImage\n");
+                fprintf(stderr, YELLOW "tint2: %s failed, trying slower method" RESET "\n", method);
+            else {
+                fprintf(stderr, "tint2: captured window using %s\n", method);
+                break;
+            }
         }
-    }
-
-    if (!image_surface) {
-        image_surface = get_window_thumbnail_ximage(win, (size_t)size, FALSE);
-        if (image_surface && cairo_surface_is_blank(image_surface)) {
-            cairo_surface_destroy(image_surface);
-            image_surface = NULL;
-        }
-        if (debug_thumbnails) {
-            if (!image_surface)
-                fprintf(stderr, YELLOW "tint2: XGetImage failed, trying slower method" RESET "\n");
-            else
-                fprintf(stderr, "tint2: captured window using XGetImage\n");
-        }
+        if (!use_shm) break;
     }
 
     return image_surface;

@@ -45,6 +45,21 @@ typedef struct IconThemeDir {
 
 static GSList *icon_locations = NULL;
 // Do not free the result.
+
+gboolean str_list_contains(const GSList *list, const char *value)
+{
+    // return g_slist_find_custom (list, value, g_str_equal) ? TRUE : FALSE;
+    // FIXME: above variant gives different result than below
+
+    for (const GSList *item = list; item; item = item->next)
+    {
+        if (g_str_equal(item->data, value))
+            return TRUE;
+    }
+    return FALSE;
+}
+//~ #define str_list_contains(list, value) (g_slist_find_custom (list, value, g_str_equal) != NULL)
+
 const GSList *get_icon_locations()
 {
     if (icon_locations)
@@ -95,6 +110,8 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
     }
 
     theme = make_theme(name);
+    GSList  *inh_tail = g_slist_last (theme->list_inherits),
+            *dir_tail = g_slist_last (theme->list_directories);
 
     IconThemeDir *current_dir = NULL;
     int inside_header = 1;
@@ -116,24 +133,24 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
             if (parse_theme_line(line, &key, &value)) {
                 if (strcmp(key, "Inherits") == 0) {
                     // value is like oxygen,wood,default
-                    char *token;
-                    token = strtok(value, ",\n");
-                    while (token != NULL) {
-                        theme->list_inherits = g_slist_append(theme->list_inherits, strdup(token));
-                        token = strtok(NULL, ",\n");
+                    for (char *token = strtok(value, ",\n");
+                         token;
+                         token = strtok(NULL, ",\n"))
+                    {
+                        g_slist_append_tail (theme->list_inherits, inh_tail, strdup(token));
                     }
                 } else if (strcmp(key, "Directories") == 0) {
                     // value is like 48x48/apps,48x48/mimetypes,32x32/apps,scalable/apps,scalable/mimetypes
-                    char *token;
-                    token = strtok(value, ",\n");
-                    while (token != NULL) {
-                        IconThemeDir *dir = calloc(1, sizeof(IconThemeDir));
+                    for (char *token = strtok(value, ",\n");
+                         token;
+                         token = strtok(NULL, ",\n") )
+                    {
+                        IconThemeDir *dir = calloc (1, sizeof(IconThemeDir));
                         dir->name = strdup(token);
                         dir->max_size = dir->min_size = dir->size = -1;
                         dir->type = ICON_DIR_TYPE_THRESHOLD;
                         dir->threshold = 2;
-                        theme->list_directories = g_slist_append(theme->list_directories, dir);
-                        token = strtok(NULL, ",\n");
+                        g_slist_append_tail (theme->list_directories, dir_tail, dir);
                     }
                 }
             }
@@ -173,14 +190,14 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
             current_dir = NULL;
             line[line_len - 1] = '\0';
             char *dir_name = line + 1;
-            GSList *dir_item = theme->list_directories;
-            while (dir_item != NULL) {
+            for (GSList *dir_item = theme->list_directories;
+                 dir_item; dir_item = dir_item->next)
+            {
                 IconThemeDir *dir = dir_item->data;
                 if (strcmp(dir->name, dir_name) == 0) {
                     current_dir = dir;
                     break;
                 }
-                dir_item = dir_item->next;
             }
         }
     }
@@ -198,10 +215,13 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
         return;
     }
 
+    GSList *d_tail = g_slist_last (theme->list_directories);
+
     GDir *d = g_dir_open(dir_name, 0, NULL);
     if (d) {
         const gchar *size_name;
-        while ((size_name = g_dir_read_name(d))) {
+        while ((size_name = g_dir_read_name(d)))
+        {
             gchar *full_size_name = g_build_filename(dir_name, size_name, NULL);
             if (g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
                 int size, size2;
@@ -210,7 +230,8 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
                     GDir *dSize = g_dir_open(full_size_name, 0, NULL);
                     if (dSize) {
                         const gchar *subdir_name;
-                        while ((subdir_name = g_dir_read_name(dSize))) {
+                        while ((subdir_name = g_dir_read_name(dSize)))
+                        {
                             IconThemeDir *dir = calloc(1, sizeof(IconThemeDir));
                             // value is like 48x48/apps
                             gchar *value = g_build_filename(size_name, subdir_name, NULL);
@@ -218,7 +239,7 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
                             g_free(value);
                             dir->max_size = dir->min_size = dir->size = size;
                             dir->type = ICON_DIR_TYPE_FIXED;
-                            theme->list_directories = g_slist_append(theme->list_directories, dir);
+                            g_slist_append_tail (theme->list_directories, d_tail, dir);
                         }
                         g_dir_close(dSize);
                     }
@@ -355,24 +376,18 @@ void test_launcher_read_theme_file()
     fprintf(stdout, RESET);
 }
 
-gboolean str_list_contains(const GSList *list, const char *value)
-{
-    const GSList *item = list;
-    while (item != NULL) {
-        if (g_str_equal(item->data, value)) {
-            return TRUE;
-        }
-        item = item->next;
-    }
-    return FALSE;
-}
-
 void load_themes_helper(const char *name, GSList **themes, GSList **queued)
 {
     if (str_list_contains(*queued, name))
         return;
-    GSList *queue = g_slist_append(NULL, strdup(name));
-    *queued = g_slist_append(*queued, strdup(name));
+
+    GSList  *queue,
+            *Q_tail, *t_tail;
+
+    t_tail = g_slist_last (*themes);
+    Q_tail = g_slist_last (*queued);
+    g_slist_append_tail (*queued, Q_tail, strdup(name));
+    queue = g_slist_append (NULL, strdup(name));
 
     // Load wrapper->themes
     while (queue) {
@@ -382,30 +397,28 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
         fprintf(stderr, "tint2:  '%s',", queued_name);
         IconTheme *theme = load_theme(queued_name);
         if (theme != NULL) {
-            *themes = g_slist_append(*themes, theme);
+            g_slist_append_tail (*themes, t_tail, theme);
 
-            GSList *item = theme->list_inherits;
-            int pos = 0;
-            while (item != NULL) {
+            // Add inherited themes to queue
+            GSList *inh_tail = NULL;
+
+            for (   GSList *item = theme->list_inherits;
+                    item; item = item->next )
+            {
                 char *parent = item->data;
-                if (!str_list_contains(*queued, parent)) {
-                    queue = g_slist_insert(queue, strdup(parent), pos);
-                    pos++;
-                    *queued = g_slist_append(*queued, strdup(parent));
+                if (!str_list_contains(*queued, parent))
+                {
+                    g_slist_insert_after (queue, inh_tail, strdup(parent));
+                    g_slist_append_tail (*queued, Q_tail, strdup(parent));
                 }
-                item = item->next;
             }
         }
 
-        free(queued_name);
+        free (queued_name);
     }
     fprintf(stderr, "tint2: \n");
 
-    // Free the queue
-    GSList *l;
-    for (l = queue; l; l = l->next)
-        free(l->data);
-    g_slist_free(queue);
+    g_slist_free_full (queue, free);
 }
 
 void load_default_theme(IconThemeWrapper *wrapper)

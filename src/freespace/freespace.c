@@ -40,10 +40,12 @@ void init_freespace_panel(void *p)
     if (panel->freespace_list)
         return;
 
-    for (size_t k = 0; k < strlen(panel_items_order); k++) {
+    GList *fs_tail = NULL;
+    for (size_t k = 0; k < strlen(panel_items_order); k++)
+    {
         if (panel_items_order[k] == 'F') {
             FreeSpace *freespace = (FreeSpace *)calloc(1, sizeof(FreeSpace));
-            panel->freespace_list = g_list_append(panel->freespace_list, freespace);
+            g_list_append_tail (panel->freespace_list, fs_tail, freespace);
             if (!freespace->area.bg)
                 freespace->area.bg = &g_array_index(backgrounds, Background, 0);
             freespace->area.parent = p;

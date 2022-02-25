@@ -204,9 +204,9 @@ void load_launcher_app_dir(const char *path)
         while ((name = g_dir_read_name(d))) {
             gchar *file = g_build_filename(path, name, NULL);
             if (!g_file_test(file, G_FILE_TEST_IS_DIR) && g_str_has_suffix(file, ".desktop")) {
-                files = g_list_append(files, file);
+                files = g_list_prepend(files, file);
             } else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
-                subdirs = g_list_append(subdirs, file);
+                subdirs = g_list_prepend(subdirs, file);
             } else {
                 g_free(file);
             }

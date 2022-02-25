@@ -663,6 +663,9 @@ void set_panel_items_order(Panel *p)
         g_list_free(p->area.children);
         p->area.children = 0;
     }
+    GList *ch_tail = NULL;
+
+    #define ADD_CHILD(c) g_list_append_tail (p->area.children, ch_tail, (c))
 
     int i_execp = 0;
     int i_separator = 0;
@@ -672,44 +675,46 @@ void set_panel_items_order(Panel *p)
     {
         int i = p - panels;
         switch (panel_items_order[k]) {
-        case 'L':   p->area.children = g_list_append(p->area.children, &p->launcher);
+        case 'L':   ADD_CHILD (&p->launcher);
                     p->launcher.area.resize_needed = TRUE;
                     break;
         case 'T':   for (int j = 0; j < p->num_desktops; j++)
-                        p->area.children = g_list_append(p->area.children, &p->taskbar[j]);
+                        ADD_CHILD (&p->taskbar[j]);
                     break;
 #ifdef ENABLE_BATTERY
-        case 'B':   p->area.children = g_list_append(p->area.children, &p->battery);
+        case 'B':   ADD_CHILD (&p->battery);
                     break;
 #endif
         case 'S':   if (systray_on_monitor(i, num_panels))
-                        p->area.children = g_list_append(p->area.children, &systray);
+                        ADD_CHILD (&systray);
                     break;
-        case 'C':   p->area.children = g_list_append(p->area.children, &p->clock);
+                    ADD_CHILD (&p->clock);
                     break;
         case 'F': { GList *item = g_list_nth(p->freespace_list, i_freespace);
                     i_freespace++;
                     if (item)
-                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                        ADD_CHILD ((Area *)item->data);
                     break;
         }case ':': {GList *item = g_list_nth(p->separator_list, i_separator);
                     i_separator++;
                     if (item)
-                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                        ADD_CHILD ((Area *)item->data);
                     break;
         }case 'E': {GList *item = g_list_nth(p->execp_list, i_execp);
                     i_execp++;
                     if (item)
-                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                        ADD_CHILD ((Area *)item->data);
                     break;
         }case 'P': {GList *item = g_list_nth(p->button_list, i_button);
                     i_button++;
                     if (item)
-                        p->area.children = g_list_append(p->area.children, (Area *)item->data);
+                        ADD_CHILD ((Area *)item->data);
                     break;
         }}
     }
     initialize_positions(&p->area, 0);
+
+    #undef ADD_CHILD
 }
 
 void place_panel_all_desktops(Panel *p)

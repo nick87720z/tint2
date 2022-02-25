@@ -464,9 +464,10 @@ void launcher_action(LauncherIcon *icon, XEvent *evt, int x, int y)
 void launcher_load_icons(Launcher *launcher)
 {
     // Load apps (.desktop style launcher items)
-    GSList *app = launcher->list_apps;
+    GSList *tail = launcher->list_icons;
     int index = 0;
-    while (app != NULL) {
+    for (GSList *app = launcher->list_apps; app; app = app->next)
+    {
         index++;
         LauncherIcon *launcherIcon = (LauncherIcon *)calloc(1, sizeof(LauncherIcon));
         launcherIcon->area.panel = launcher->area.panel;
@@ -486,11 +487,11 @@ void launcher_load_icons(Launcher *launcher)
         launcherIcon->area._get_tooltip_text = launcher_tooltip_enabled ? launcher_icon_get_tooltip_text : NULL;
         launcherIcon->config_path = strdup(app->data);
         add_area(&launcherIcon->area, (Area *)launcher);
-        launcher->list_icons = g_slist_append(launcher->list_icons, launcherIcon);
         launcherIcon->icon_size = launcher->icon_size;
+
+        g_slist_append_tail (launcher->list_icons, tail, launcherIcon);
         launcher_reload_icon(launcher, launcherIcon);
         area_gradients_create(&launcherIcon->area);
-        app = app->next;
     }
 }
 

@@ -240,7 +240,7 @@ gboolean read_desktop_file_from_dir(const char *path, const char *file_name, Des
         while ((name = g_dir_read_name(d))) {
             gchar *child = g_build_filename(path, name, NULL);
             if (g_file_test(child, G_FILE_TEST_IS_DIR)) {
-                subdirs = g_list_append(subdirs, child);
+                subdirs = g_list_prepend(subdirs, child);
             } else {
                 g_free(child);
             }

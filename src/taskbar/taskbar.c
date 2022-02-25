@@ -108,12 +108,13 @@ void taskbar_clear_orderings()
 void taskbar_save_orderings()
 {
     taskbar_clear_orderings();
-    taskbar_task_orderings = NULL;
+    GList   *tbto_tail = NULL;
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
         for (int j = 0; j < panel->num_desktops; j++) {
             Taskbar *taskbar = &panel->taskbar[j];
-            GList *task_order = NULL;
+            GList   *task_order = NULL,
+                    *to_tail = NULL;
             for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
                                                                             : taskbar->area.children;
                  c;
@@ -122,9 +123,9 @@ void taskbar_save_orderings()
                 Task *t = (Task *)c->data;
                 Window *window = calloc(1, sizeof(Window));
                 *window = t->win;
-                task_order = g_list_append(task_order, window);
+                g_list_append_tail (task_order, to_tail, window);
             }
-            taskbar_task_orderings = g_list_append(taskbar_task_orderings, task_order);
+            g_list_append_tail (taskbar_task_orderings, tbto_tail, task_order);
         }
     }
 }
@@ -812,6 +813,8 @@ void taskbar_update_thumbnails(void *arg)
     if (debug_thumbnails)
         fprintf(stderr, BLUE "tint2: taskbar_update_thumbnails %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" :
                                                                                mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
+    GList * jdone_tail = g_list_last (taskbar_thumbnail_jobs_done);
+
     double start_time = get_time();
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
@@ -829,7 +832,7 @@ void taskbar_update_thumbnails(void *arg)
                 {
                     task_refresh_thumbnail(t);
                     if (mode == THUMB_MODE_ALL)
-                        taskbar_thumbnail_jobs_done = g_list_append(taskbar_thumbnail_jobs_done, t);
+                        g_list_append_tail (taskbar_thumbnail_jobs_done, jdone_tail, t);
                     if (t->thumbnail && mode == THUMB_MODE_TOOLTIP_WINDOW) {
                         taskbar_start_thumbnail_timer(THUMB_MODE_TOOLTIP_WINDOW);
                     }

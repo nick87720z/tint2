@@ -20,6 +20,10 @@
 #define MIN3(a, b, c) MIN(MIN(a, b), c)
 #define ATOB(x)       (atoi((x)) > 0)
 
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
 #define BUF_0TERM(s)                                                                     \
 /** Write null byte to the end of static buffer */                                       \
 ( s[ sizeof(s) / sizeof(*s) - 1 ]='\0' )
@@ -34,6 +38,52 @@ char n[s]={ [(s)-1]='\0' }
 do{ BUF_0TERM (n);                                                                       \
     snprintf(n, sizeof(n)-1, ##__VA_ARGS__);                                             \
 } while (0)
+
+#define g_slist_append_tail(list, tail, data)                                            \
+/* Enhanced list grow, keeping track of tail */                                          \
+{                                                                                        \
+    void *d = (data);                                                                    \
+    tail = g_slist_append (tail, d);                                                     \
+    if (list)   tail = tail->next;                                                       \
+    else        list = tail;                                                             \
+}
+
+#define g_list_append_tail(list, tail, data)                                             \
+/* Same for doubly-linked lists */                                                       \
+{                                                                                        \
+    void *d = (data);                                                                    \
+    tail = g_list_append (tail, d);                                                      \
+    if (list)   tail = tail->next;                                                       \
+    else        list = tail;                                                             \
+}
+
+#define g_slist_insert_after(list, tail, d)                                              \
+/* Grow list from start, keeping track of position */                                    \
+{                                                                                        \
+    void *_d = (d);                                                                      \
+    GSList *new_node;                                                                    \
+    if (! tail)                                                                          \
+        tail = list = g_slist_prepend (list, _d);                                        \
+    else {                                                                               \
+        new_node = g_slist_alloc ();                                                     \
+        new_node->next = tail->next;                                                     \
+        tail->next = new_node;                                                           \
+        new_node->data = _d;                                                             \
+    }                                                                                    \
+}
+
+#define DEBUG_PRINT_LIST_CONTENT(l, pre, ...) {                                          \
+    if (!(l))                                                                            \
+        fprintf (stderr, "DEBUG: %s: " #l " empty\n", __FUNCTION__);                     \
+    else {                                                                               \
+        fprintf (stderr, "DEBUG: %s: " #pre " in " #l ":", __FUNCTION__);                \
+        for (GSList *i = (l); i; i = i->next)                                            \
+            fprintf (stderr, __VA_ARGS__);                                               \
+        fprintf (stderr, "\n");                                                          \
+    }                                                                                    \
+}
+#define DEBUG_PRINT_LIST_STRINGS(l) DEBUG_PRINT_LIST_CONTENT(l, strings, " '%s'", (char *)i->data)
+#define DEBUG_PRINT_LIST_THEMES(l)  DEBUG_PRINT_LIST_CONTENT(l, themes,  " '%s'", ((IconTheme *)i->data)->name)
 
 typedef enum MouseAction
 // mouse actions

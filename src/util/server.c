@@ -248,7 +248,7 @@ void get_root_pixmap()
     Pixmap ret = None;
 
     Atom pixmap_atoms[] = {server.atom._XROOTPMAP_ID, server.atom._XROOTMAP_ID};
-    for (int i = 0; i < sizeof(pixmap_atoms) / sizeof(Atom); ++i) {
+    for (int i = 0; i < ARRAY_SIZE (pixmap_atoms); ++i) {
         Pixmap *res = (unsigned long *)server_get_property(server.root_win, pixmap_atoms[i], XA_PIXMAP, NULL);
         if (res) {
             ret = *res;
@@ -474,26 +474,26 @@ void server_get_number_of_desktops()
 
 GSList *get_desktop_names()
 {
+    GSList  *tail = NULL,
+            *list = NULL;
+
     if (server.viewports) {
-        GSList *list = NULL;
-        for (int j = 0; j < server.num_desktops; j++) {
-            list = g_slist_append(list, g_strdup_printf("%d", j + 1));
-        }
+        for (int j = 0; j < server.num_desktops; j++)
+            g_slist_append_tail (list, tail, g_strdup_printf("%d", j + 1));
         return list;
     }
 
     int count;
-    GSList *list = NULL;
     gchar *data_ptr =
         server_get_property(server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
-    if (data_ptr) {
-        list = g_slist_append(list, g_strdup(data_ptr));
-        for (int j = 0; j < count - 1; j++) {
-            if (*(data_ptr + j) == '\0') {
-                gchar *ptr = (gchar *)data_ptr + j + 1;
-                list = g_slist_append(list, g_strdup(ptr));
-            }
-        }
+    if (data_ptr)
+    {
+        gchar   *ptr  = data_ptr,
+                *eptr = data_ptr + count - 1;
+
+        tail = list = g_slist_append (NULL, g_strdup(data_ptr));
+        while (( ptr = memchr (ptr, '\0', eptr - ptr) ))
+            g_slist_append_tail (list, tail, g_strdup(++ptr));
         XFree(data_ptr);
     }
     return list;

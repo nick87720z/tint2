@@ -1857,7 +1857,9 @@ void load_desktop_entry(const char *file, GList **entries)
         entry->name = strdup(file);
     if (!entry->icon)
         strdup_static(entry->icon, "");
-    *entries = g_list_append(*entries, entry);
+
+    // Don't worry about order, it has to be sorter later anyway
+    *entries = g_list_prepend(*entries, entry);
 }
 
 void load_desktop_entries(const char *path, GList **entries)
@@ -1873,9 +1875,9 @@ void load_desktop_entries(const char *path, GList **entries)
         while ((name = g_dir_read_name(d))) {
             gchar *file = g_build_filename(path, name, NULL);
             if (!g_file_test(file, G_FILE_TEST_IS_DIR) && g_str_has_suffix(file, ".desktop")) {
-                files = g_list_append(files, file);
+                files = g_list_prepend(files, file);
             } else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
-                subdirs = g_list_append(subdirs, file);
+                subdirs = g_list_prepend(subdirs, file);
             } else {
                 g_free(file);
             }
@@ -2437,8 +2439,7 @@ void init_launcher_page (GtkWidget *parent, GtkWindow *window)
                 p = n;
                 continue;
             }
-            themes = g_list_remove_link(themes, n);
-            g_list_free_1(n);
+            themes = g_list_delete_link(themes, n);
             free_icon_theme(tn);
             free(tn);
         }

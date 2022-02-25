@@ -719,9 +719,7 @@ gboolean add_icon(Window win)
 
     show(&systray.area);
 
-    systray.list_icons = g_slist_sort(
-        (systray.sort == SYSTRAY_SORT_RIGHT2LEFT ? g_slist_prepend : g_slist_append) (systray.list_icons, traywin),
-        compare_traywindows);
+    systray.list_icons = g_slist_insert_sorted (systray.list_icons, traywin, compare_traywindows);
     // print_icons();
 
     if (!panel->is_hidden) {

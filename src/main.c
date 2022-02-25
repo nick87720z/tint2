@@ -174,24 +174,25 @@ void handle_event_property_notify(XEvent *e)
                     }
 
                     if (server.viewports) {
-                        GList *need_update = NULL;
+                        GSList *need_update = NULL;
 
                         GHashTableIter iter;
                         gpointer key, value;
 
                         g_hash_table_iter_init(&iter, win_to_task);
-                        while (g_hash_table_iter_next(&iter, &key, &value)) {
+                        while (g_hash_table_iter_next(&iter, &key, &value))
+                        {
                             Window task_win = *(Window *)key;
                             Task *task = get_task(task_win);
                             if (task) {
                                 int desktop = get_window_desktop(task_win);
-                                if (desktop != task->desktop) {
-                                    need_update = g_list_append(need_update, task);
-                                }
+                                if (desktop != task->desktop)
+                                    need_update = g_slist_prepend (need_update, task);
                             }
                         }
-                        for (l = need_update; l; l = l->next) {
-                            Task *task = l->data;
+                        for (GSList *i = need_update; i; i = i->next)
+                        {
+                            Task *task = i->data;
                             task_update_desktop(task);
                         }
                     }

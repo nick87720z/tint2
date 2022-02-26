@@ -694,23 +694,23 @@ void set_panel_items_order(Panel *p)
                     i_freespace++;
                     if (item)
                         ADD_CHILD ((Area *)item->data);
-                    break;
-        }case ':': {GList *item = g_list_nth(p->separator_list, i_separator);
+                    break; }
+        case ':': { GList *item = g_list_nth(p->separator_list, i_separator);
                     i_separator++;
                     if (item)
                         ADD_CHILD ((Area *)item->data);
-                    break;
-        }case 'E': {GList *item = g_list_nth(p->execp_list, i_execp);
+                    break; }
+        case 'E': { GList *item = g_list_nth(p->execp_list, i_execp);
                     i_execp++;
                     if (item)
                         ADD_CHILD ((Area *)item->data);
-                    break;
-        }case 'P': {GList *item = g_list_nth(p->button_list, i_button);
+                    break; }
+        case 'P': { GList *item = g_list_nth(p->button_list, i_button);
                     i_button++;
                     if (item)
                         ADD_CHILD ((Area *)item->data);
-                    break;
-        }}
+                    break; }
+        }
     }
     initialize_positions(&p->area, 0);
 

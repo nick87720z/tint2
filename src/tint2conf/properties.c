@@ -1212,6 +1212,7 @@ char *get_panel_items()
 {
     size_t buf_size = 256;
     char *result = calloc(buf_size, 1);
+    char *p = result;
     GtkTreeModel *model = GTK_TREE_MODEL(panel_items);
 
     GtkTreeIter i;
@@ -1222,12 +1223,13 @@ char *get_panel_items()
     while (1) {
         gchar *v;
         gtk_tree_model_get(model, &i, itemsColValue, &v, -1);
-        strlcat(result, v, buf_size);
+        *p++ = *v;
 
         if (!gtk_tree_model_iter_next(model, &i)) {
             break;
         }
     }
+    *p = '\0';
 
     return result;
 }
@@ -1236,51 +1238,53 @@ void set_panel_items(const char *items)
 {
     gtk_list_store_clear(panel_items);
 
-    int separator_index = -1;
-    int execp_index = -1;
-    int button_index = -1;
+    if (!items)
+        return;
+
+    int separator_index = 0;
+    int execp_index = 0;
+    int button_index = 0;
 
     STRBUF_AUTO (buffer, 256);
-    for (; items && *items; items++) {
-        const char *value = NULL;
-        const char *name = NULL;
+    for (; *items; items++) {
+        const char *value;
+        const char *name;
 
         char v = *items;
-        if (v == 'B') {
-            value = "B";
-            name = _("Battery");
-        } else if (v == 'C') {
-            value = "C";
-            name = _("Clock");
-        } else if (v == 'S') {
-            value = "S";
-            name = _("System tray");
-        } else if (v == 'T') {
-            value = "T";
-            name = _("Taskbar");
-        } else if (v == 'L') {
-            value = "L";
-            name = _("Launcher");
-        } else if (v == 'F') {
-            value = "F";
-            name = _("Free space");
-        } else if (v == ':') {
-            separator_index++;
-            snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Separator"), separator_index + 1);
-            name = buffer;
-            value = ":";
-        } else if (v == 'E') {
-            execp_index++;
-            snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Executor"), execp_index + 1);
-            name = buffer;
-            value = "E";
-        } else if (v == 'P') {
-            button_index++;
-            snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Button"), button_index + 1);
-            name = buffer;
-            value = "P";
-        } else {
-            continue;
+        switch (v) {
+            case 'B':   value = "B";
+                        name = _("Battery");
+                        break;
+            case 'C':   value = "C";
+                        name = _("Clock");
+                        break;
+            case 'S':   value = "S";
+                        name = _("System tray");
+                        break;
+            case 'T':   value = "T";
+                        name = _("Taskbar");
+                        break;
+            case 'L':   value = "L";
+                        name = _("Launcher");
+                        break;
+            case 'F':   value = "F";
+                        name = _("Free space");
+                        break;
+            case ':':   snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Separator"), ++separator_index);
+                        name = buffer;
+                        value = ":";
+                        break;
+            case 'E':   snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Executor"), ++execp_index);
+                        name = buffer;
+                        value = "E";
+                        break;
+            case 'P':   snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Button"), ++button_index);
+                        name = buffer;
+                        value = "P";
+                        break;
+            default:    value = NULL;
+                        name = NULL;
+                        continue;
         }
 
         GtkTreeIter iter;

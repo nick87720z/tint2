@@ -70,19 +70,21 @@ void config_read_file(const char *path)
     gradient_page_finalize ();
 
     if (!config_has_panel_items) {
-        char panel_items[256];
-        panel_items[0] = '\0';
+        char panel_items[8];
+        char *p = panel_items;
 
-        strlcat(panel_items, "T", sizeof(panel_items));
-        
+        *p++ = 'T';
+
         if (config_has_battery ? config_battery_enabled : no_items_battery_enabled)
-            strlcat(panel_items, "B", sizeof(panel_items));
-        
+            *p++ = 'B';
+
         if (config_has_systray ? config_systray_enabled : no_items_systray_enabled)
-            strlcat(panel_items, "S", sizeof(panel_items));
-        
+            *p++ = 'S';
+
         if (no_items_clock_enabled)
-            strlcat(panel_items, "C", sizeof(panel_items));
+            *p++ = 'C';
+
+        *p = '\0';
 
         set_panel_items(panel_items);
     }

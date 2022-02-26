@@ -22,6 +22,7 @@
 #include "strnatcmp.h"
 #include "theme_view.h"
 #include "common.h"
+#include "strlcat.h"
 #include "md4.h"
 
 // The data columns that we export via the tree model interface

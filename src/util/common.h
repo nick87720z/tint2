@@ -14,7 +14,6 @@
 #include <pango/pangocairo.h>
 #include "area.h"
 #include "colors.h"
-#include "strlcat.h"
 
 #define MAX3(a, b, c) MAX(MAX(a, b), c)
 #define MIN3(a, b, c) MIN(MIN(a, b), c)
@@ -105,6 +104,7 @@ typedef enum MouseAction
 
 #define ALL_DESKTOPS 0xFFFFFFFF
 
+void fetch_home_dir (void);
 void write_string(int fd, const char *s);
 void log_string(int fd, const char *s);
 
@@ -268,5 +268,8 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
 #if !GLIB_CHECK_VERSION(2, 40, 0)
 #define g_assert_nonnull(expr) g_assert((expr) != NULL)
 #endif
+
+extern char *home_dir;
+extern size_t home_dir_len;
 
 #endif

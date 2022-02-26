@@ -55,6 +55,16 @@
 #include "strnatcmp.h"
 #include "common.h"
 
+char *home_dir = NULL;
+size_t home_dir_len = 0;
+
+void fetch_home_dir (void) {
+    if (! home_dir) {
+        home_dir = g_get_home_dir();
+        home_dir_len = strlen (home_dir);
+    }
+}
+
 void write_string(int fd, const char *s)
 {
     int len = strlen(s);
@@ -423,12 +433,11 @@ void tint_exec_no_sn(const char *command)
 
 char *expand_tilde(const char *s)
 {
-    const gchar *home = g_get_home_dir();
-    if (home && (s[0] == '~') && (s[1] == '\0' || s[1] == '/')) {
-        size_t buf_size = strlen(home) + strlen(s);
-        char *result = calloc(buf_size, 1);
-        strlcat(result, home, buf_size);
-        strlcat(result, s + 1, buf_size);
+    if (s[0] == '~' && (s[1] == '\0' || s[1] == '/') && (fetch_home_dir(), home_dir)) {
+        size_t buf_size = home_dir_len + strlen(s);
+        char *result = calloc (buf_size, 1);
+        memcpy (result,                home_dir, home_dir_len);
+        memcpy (result + home_dir_len, s + 1,    buf_size - home_dir_len);
         return result;
     } else
         return strdup(s);
@@ -436,26 +445,20 @@ char *expand_tilde(const char *s)
 
 char *contract_tilde(const char *s)
 {
-    const gchar *home = g_get_home_dir();
-    if (!home)
+    fetch_home_dir ();
+    if (!home_dir)
         return strdup(s);
 
-    size_t buf_size = strlen(home) + 2;
-    char *home_slash = calloc(buf_size, 1);
-    strlcat(home_slash, home, buf_size);
-    strlcat(home_slash, "/", buf_size);
-
-    if ((strcmp(s, home) == 0 || strstr(s, home_slash) == s)) {
-        size_t buf_size2 = strlen(s) - strlen(home) + 2;
-        char *result = calloc(buf_size2, 1);
-        strlcat(result, "~", buf_size2);
-        strlcat(result, s + strlen(home), buf_size2);
-        free(home_slash);
+    if (( memcmp (s, home_dir, home_dir_len) == 0           ) &&
+        ( s [home_dir_len] == '\0' || s [home_dir_len] == '/' ))
+    {
+        size_t buf_size = strlen (s + home_dir_len) + 2;
+        char *result = calloc (buf_size, 1);
+        result[0] = '~';
+        memcpy (result + 1, s + home_dir_len, buf_size - 1);
         return result;
-    } else {
-        free(home_slash);
+    } else
         return strdup(s);
-    }
 }
 
 int hex_char_to_int(char c)

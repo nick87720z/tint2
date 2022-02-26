@@ -688,7 +688,7 @@ void set_panel_items_order(Panel *p)
         case 'S':   if (systray_on_monitor(i, num_panels))
                         ADD_CHILD (&systray);
                     break;
-                    ADD_CHILD (&p->clock);
+        case 'C':   ADD_CHILD (&p->clock);
                     break;
         case 'F': { GList *item = g_list_nth(p->freespace_list, i_freespace);
                     i_freespace++;

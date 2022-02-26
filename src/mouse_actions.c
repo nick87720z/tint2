@@ -123,8 +123,9 @@ void handle_mouse_move_event(XEvent *e)
 
         event_taskbar->area.children =  (event_taskbar->area.posx > drag_taskbar->area.posx ||
                                          event_taskbar->area.posy > drag_taskbar->area.posy) ?
-                                        g_list_insert(event_taskbar->area.children, task_drag, taskbarname_enabled ? 1 : 0) :
-                                        g_list_append(event_taskbar->area.children, task_drag);
+                                        g_list_insert ( event_taskbar->area.children, task_drag,
+                                                        taskbarname_enabled ? 1 : 0 ) :
+                                        g_list_append ( event_taskbar->area.children, task_drag );
 
         // Move task to other desktop (but avoid the 'Window desktop changed' code in 'event_property_notify')
         task_drag->area.parent = &event_taskbar->area;

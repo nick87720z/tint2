@@ -36,12 +36,12 @@
 
 #include "strnatcmp.h"
 
+static int compare_right(char const *a, char const *b)
 // Compare two right-aligned numbers:
 // The longest run of digits wins.  That aside, the greatest
 // value wins, but we can't know that it will until we've scanned
 // both numbers to know that they have the same magnitude, so we
 // remember it in BIAS.
-static int compare_right(char const *a, char const *b)
 {
     int bias = 0;
 
@@ -65,9 +65,9 @@ static int compare_right(char const *a, char const *b)
     return 0;
 }
 
+static int compare_left(char const *a, char const *b)
 // Compare two left-aligned numbers:
 // The first to have a different value wins.
-static int compare_left(char const *a, char const *b)
 {
     for (;; a++, b++) {
         if (!isdigit(*a) && !isdigit(*b))

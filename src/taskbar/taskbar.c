@@ -393,13 +393,15 @@ void taskbar_start_thumbnail_timer(ThumbnailUpdateMode mode)
         return;
     if (debug_thumbnails)
         fprintf(stderr, BLUE "tint2: taskbar_start_thumbnail_timer %s" RESET "\n", mode == THUMB_MODE_ACTIVE_WINDOW ? "active" : mode == THUMB_MODE_TOOLTIP_WINDOW ? "tooltip" : "all");
-    change_timer(mode == THUMB_MODE_ALL ? &thumbnail_update_timer_all :
-                                            mode == THUMB_MODE_ACTIVE_WINDOW ? &thumbnail_update_timer_active : &thumbnail_update_timer_tooltip,
-                 true,
-                 mode == THUMB_MODE_TOOLTIP_WINDOW ? 1000 : 500,
-                 mode == THUMB_MODE_ALL ? 10 * 1000 : 0,
-                 taskbar_update_thumbnails,
-                 (void *)(long)mode);
+    change_timer (  mode == THUMB_MODE_ALL           ? &thumbnail_update_timer_all    :
+                    mode == THUMB_MODE_ACTIVE_WINDOW ? &thumbnail_update_timer_active :
+                    &thumbnail_update_timer_tooltip,
+
+                    true,
+                    mode == THUMB_MODE_TOOLTIP_WINDOW ? 1000     : 500,
+                    mode == THUMB_MODE_ALL            ? 1000 * 10 : 0,
+                    taskbar_update_thumbnails,
+                    (void *)(long)mode );
 }
 
 void taskbar_init_fonts()

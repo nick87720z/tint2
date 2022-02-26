@@ -24,9 +24,9 @@
 
 enum uevent_action {
     UEVENT_UNKNOWN = 0x01,
-    UEVENT_ADD = 0x02,
-    UEVENT_REMOVE = 0x04,
-    UEVENT_CHANGE = 0x08,
+    UEVENT_ADD     = 0x02,
+    UEVENT_REMOVE  = 0x04,
+    UEVENT_CHANGE  = 0x08,
 };
 
 struct uevent_parameter {

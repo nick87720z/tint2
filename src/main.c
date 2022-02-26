@@ -390,12 +390,10 @@ gboolean handle_x_event_autohide(XEvent *e)
     if (panel && panel_autohide)
     {
         switch (e->type) {
-        case EnterNotify:
-            autohide_trigger_show(panel, e->xany.send_event);
-            break;
-        case LeaveNotify:
-            autohide_trigger_hide(panel, e->xany.send_event);
-            break;
+        case EnterNotify:   autohide_trigger_show(panel, e->xany.send_event);
+                            break;
+        case LeaveNotify:   autohide_trigger_hide(panel, e->xany.send_event);
+                            break;
         }
         if (panel->is_hidden) {
             if (e->type == ClientMessage && e->xclient.message_type == server.atom.XdndPosition) {
@@ -406,7 +404,8 @@ gboolean handle_x_event_autohide(XEvent *e)
                 return TRUE;
             }
         } else if (hidden_panel_shown_for_dnd && e->type == ClientMessage &&
-                   e->xclient.message_type == server.atom.XdndLeave) {
+                   e->xclient.message_type == server.atom.XdndLeave)
+        {
             hidden_panel_shown_for_dnd = FALSE;
             autohide_hide(panel);
         }

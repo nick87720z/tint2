@@ -10,10 +10,10 @@
 #include "cache.h"
 
 typedef struct IconThemeWrapper {
-    char *icon_theme_name;      // The icon theme name for which this wrapper was created
-    GSList *themes;             // List of IconThemes
+    char     *icon_theme_name;  // The icon theme name for which this wrapper was created
+    GSList   *themes;           // List of IconThemes
     gboolean _themes_loaded;    // Themes are loaded lazily when needed.
-    GSList *themes_fallback;    // List of IconTheme*
+    GSList   *themes_fallback;  // List of IconTheme*
     gboolean _fallback_loaded;  // Fallback themes are loaded lazily when needed.
     Cache _cache;
 

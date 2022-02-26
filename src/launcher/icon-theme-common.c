@@ -46,6 +46,14 @@ typedef struct IconThemeDir {
 static GSList *icon_locations = NULL;
 // Do not free the result.
 
+static char *icon_extensions[] = {
+    ".png", ".xpm",
+    #ifdef HAVE_RSVG
+    ".svg",
+    #endif
+    "", NULL
+};
+
 gboolean str_list_contains(const GSList *list, const char *value)
 {
     // return g_slist_find_custom (list, value, g_str_equal) ? TRUE : FALSE;
@@ -78,14 +86,6 @@ const GSList *get_icon_locations()
 
     return icon_locations;
 }
-
-static char *icon_extensions[] = {
-    ".png", ".xpm",
-    #ifdef HAVE_RSVG
-    ".svg",
-    #endif
-    "", NULL
-};
 
 IconTheme *make_theme(const char *name)
 {
@@ -367,10 +367,10 @@ void test_launcher_read_theme_file()
                dir->min_size,
                dir->max_size,
                dir->threshold,
-               dir->type == ICON_DIR_TYPE_FIXED ? "Fixed" : dir->type == ICON_DIR_TYPE_SCALABLE
-                                                                ? "Scalable"
-                                                                : dir->type == ICON_DIR_TYPE_THRESHOLD ? "Threshold"
-                                                                                                       : "?????");
+               dir->type    == ICON_DIR_TYPE_FIXED      ? "Fixed"
+                : dir->type == ICON_DIR_TYPE_SCALABLE   ? "Scalable"
+                : dir->type == ICON_DIR_TYPE_THRESHOLD  ? "Threshold"
+                : "?????");
         item = item->next;
     }
     fprintf(stdout, RESET);
@@ -429,7 +429,7 @@ void load_default_theme(IconThemeWrapper *wrapper)
     fprintf(stderr, GREEN "tint2: Loading icon theme %s:" RESET "\n", wrapper->icon_theme_name);
 
     load_themes_helper(wrapper->icon_theme_name, &wrapper->themes, &wrapper->_queued);
-    load_themes_helper("hicolor", &wrapper->themes, &wrapper->_queued);
+    load_themes_helper("hicolor",                &wrapper->themes, &wrapper->_queued);
 
     wrapper->_themes_loaded = TRUE;
 }

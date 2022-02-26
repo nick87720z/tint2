@@ -24,6 +24,8 @@
 
 #include "strlcat.h"
 
+size_t
+strlcat(char *dst, const char *src, size_t siz)
 /*
  * Appends src to string dst of size siz (unlike strncat, siz is the
  * full size of dst, not space left).  At most siz-1 characters
@@ -31,8 +33,6 @@
  * Returns strlen(src) + MIN(siz, strlen(initial dst)).
  * If retval >= siz, truncation occurred.
  */
-size_t
-strlcat(char *dst, const char *src, size_t siz)
 {
     char *d = dst;
     const char *s = src;

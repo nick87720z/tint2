@@ -30,6 +30,7 @@
 #include "cache.h"
 
 gboolean debug_icons = FALSE;
+char *icon_cache_path = NULL;
 
 #define ICON_DIR_TYPE_SCALABLE 0
 #define ICON_DIR_TYPE_FIXED 1
@@ -463,8 +464,11 @@ void load_fallbacks(IconThemeWrapper *wrapper)
 }
 
 gchar *get_icon_cache_path()
+// Result is owned by function provider, don't free
 {
-    return g_build_filename(g_get_user_cache_dir(), "tint2", "icon.cache", NULL);
+    if (! icon_cache_path)
+        icon_cache_path = g_build_filename(g_get_user_cache_dir(), "tint2", "icon.cache", NULL);
+    return icon_cache_path;
 }
 
 void load_icon_cache(IconThemeWrapper *wrapper)
@@ -473,10 +477,7 @@ void load_icon_cache(IconThemeWrapper *wrapper)
         return;
 
     fprintf(stderr, GREEN "tint2: Loading icon theme cache..." RESET "\n");
-
-    gchar *cache_path = get_icon_cache_path();
-    load_cache(&wrapper->_cache, cache_path);
-    g_free(cache_path);
+    load_cache(&wrapper->_cache, get_icon_cache_path());
 }
 
 void save_icon_cache(IconThemeWrapper *wrapper)
@@ -485,9 +486,7 @@ void save_icon_cache(IconThemeWrapper *wrapper)
         return;
 
     fprintf(stderr, GREEN "tint2: Saving icon theme cache..." RESET "\n");
-    gchar *cache_path = get_icon_cache_path();
-    save_cache(&wrapper->_cache, cache_path);
-    g_free(cache_path);
+    save_cache(&wrapper->_cache, get_icon_cache_path());
 }
 
 IconThemeWrapper *load_themes(const char *icon_theme_name)

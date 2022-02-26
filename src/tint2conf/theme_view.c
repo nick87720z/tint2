@@ -95,16 +95,15 @@ gint theme_name_compare(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpo
         return 1;
 
     gchar *name_a = path_a;
-    gchar *p;
-    for (p = name_a; *p; p++) {
-        if (*p == '/')
-            name_a = p + 1;
-    }
     gchar *name_b = path_b;
-    for (p = name_b; *p; p++) {
-        if (*p == '/')
-            name_b = p + 1;
-    }
+    gchar *p;
+
+    while ( (p = strchr (name_a, '/')) )
+        name_a = p + 1;
+
+    while ( (p = strchr (name_b, '/')) )
+        name_b = p + 1;
+
     if (g_str_equal(name_a, name_b))
         return 0;
     if (g_str_equal(name_a, "tint2rc"))

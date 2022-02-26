@@ -59,7 +59,7 @@ void load_cache(Cache *cache, const gchar *cache_path)
         return;
     flock(fd, LOCK_SH);
 
-    FILE *f = fopen(cache_path, "rt");
+    FILE *f = fdopen(fd, "rt");
     if (!f)
         goto unlock;
 
@@ -71,15 +71,14 @@ void load_cache(Cache *cache, const gchar *cache_path)
 
         size_t line_len = strlen(line);
         gboolean has_newline = FALSE;
-        if (line_len >= 1 && line[line_len - 1] == '\n')
+        if (line_len && line[line_len - 1] == '\n')
         {
             line[--line_len] = '\0';
             has_newline = TRUE;
         }
-        // FIXME: two following conditions are incompatible
         if (!has_newline)
             break;
-        if (line_len == 0)
+        if (!line_len)
             continue;
 
         if (parse_line(line, &key, &value))
@@ -104,12 +103,14 @@ void write_cache_line(gpointer key, gpointer value, gpointer user_data)
 
 void save_cache(Cache *cache, const gchar *cache_path)
 {
-    int fd = open(cache_path, O_RDONLY | O_CREAT, 0600);
+    int fd = open (cache_path, O_RDONLY | O_CREAT, 0600);
     if (fd == -1) {
-        gchar *dir_path = g_path_get_dirname(cache_path);
-        g_mkdir_with_parents(dir_path, 0700);
-        g_free(dir_path);
-        fd = open(cache_path, O_RDONLY | O_CREAT, 0600);
+        // Temporary delimit for existing path without new allocation
+        gchar *file_sep = strrchr (cache_path, G_DIR_SEPARATOR_S[0]);
+        *file_sep = '\0';
+        g_mkdir_with_parents (cache_path, 0700);
+        *file_sep = G_DIR_SEPARATOR_S[0];
+        fd = open (cache_path, O_RDONLY | O_CREAT, 0600);
     }
     if (fd == -1) {
         fprintf(stderr, RED "tint2: Could not save icon theme cache!" RESET "\n");
@@ -117,7 +118,7 @@ void save_cache(Cache *cache, const gchar *cache_path)
     }
     flock(fd, LOCK_EX);
 
-    FILE *f = fopen(cache_path, "w");
+    FILE *f = fdopen(fd, "w");
     if (!f) {
         fprintf(stderr, RED "tint2: Could not save icon theme cache!" RESET "\n");
         goto unlock;

@@ -54,4 +54,6 @@ const GSList *get_icon_locations();
 
 extern gboolean debug_icons;
 
+extern char *icon_cache_path;
+
 #endif

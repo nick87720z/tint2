@@ -974,8 +974,8 @@ void config_write_tooltip(FILE *fp)
     fprintf(fp, "\n");
 }
 
-// Similar to BSD checksum, except we skip the first line (metadata)
 unsigned short checksum_txt(FILE *f)
+// Similar to BSD checksum, except we skip the first line (metadata)
 {
     unsigned int checksum = 0;
     fseek(f, 0, SEEK_SET);

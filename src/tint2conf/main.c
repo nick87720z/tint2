@@ -38,16 +38,16 @@ static void load_specific_themes(char **paths, int count);
 
 // ====== Utilities ======
 
+gchar *get_home_config_path()
 // Returns ~/.config/tint2/tint2rc (or equivalent).
 // Needs gfree.
-gchar *get_home_config_path()
 {
     return g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
 }
 
+gchar *get_etc_config_path()
 // Returns /etc/xdg/tint2/tint2rc (or equivalent).
 // Needs gfree.
-gchar *get_etc_config_path()
 {
     gchar *path = NULL;
     const gchar *const *system_dirs = g_get_system_config_dirs();
@@ -72,14 +72,14 @@ gboolean endswith(const char *str, const char *suffix)
     return strlen(str) >= strlen(suffix) && g_str_equal(str + strlen(str) - strlen(suffix), suffix);
 }
 
-// Returns TRUE if the theme file is in ~/.config.
 gboolean theme_is_editable(const char *filepath)
+// Returns TRUE if the theme file is in ~/.config.
 {
     return access(filepath, W_OK) == 0;
 }
 
-// Returns TRUE if the theme file is ~/.config/tint2/tint2rc.
 gboolean theme_is_default(const char *filepath)
+// Returns TRUE if the theme file is ~/.config/tint2/tint2rc.
 {
     gchar *default_path = get_home_config_path();
     gboolean result = g_str_equal(default_path, filepath);
@@ -87,8 +87,8 @@ gboolean theme_is_default(const char *filepath)
     return result;
 }
 
-// Extracts the file name from the path. Do not free!
 char *file_name_from_path(const char *filepath)
+// Extracts the file name from the path. Do not free!
 {
     char *name = strrchr(filepath, '/');
     if (!name)
@@ -106,11 +106,11 @@ void make_backup(const char *filepath)
     g_free(backup_path);
 }
 
+gchar *import_no_overwrite(const char *filepath)
 // Imports a file to ~/.config/tint2/.
 // If a file with the same name exists, it does not overwrite it.
 // Takes care of updating the theme list in the GUI.
 // Returns the new location. Needs gfree.
-gchar *import_no_overwrite(const char *filepath)
 {
     gchar *filename = file_name_from_path(filepath);
     if (!filename)
@@ -126,9 +126,9 @@ gchar *import_no_overwrite(const char *filepath)
     return newpath;
 }
 
+void import_with_overwrite(const char *filepath, const char *newpath)
 // Copies a theme file from filepath to newpath.
 // Takes care of updating the theme list in the GUI.
-void import_with_overwrite(const char *filepath, const char *newpath)
 {
     gboolean theme_existed = g_file_test(newpath, G_FILE_TEST_EXISTS);
     if (theme_existed)
@@ -391,8 +391,8 @@ static void free_data(gpointer data, gpointer userdata)
     g_free(data);
 }
 
-// Shows open dialog and copies the selected files to ~ without overwrite.
 static void menuImportFile()
+// Shows open dialog and copies the selected files to ~ without overwrite.
 {
     GtkWidget *dialog = gtk_file_chooser_dialog_new(_("Import theme(s)"),
                                                     GTK_WINDOW(g_window),
@@ -420,8 +420,8 @@ static void menuImportFile()
     gtk_widget_destroy(dialog);
 }
 
-// Returns the path to the currently selected theme, or NULL if no theme is selected. Needs gfree.
 gchar *get_current_theme_path()
+// Returns the path to the currently selected theme, or NULL if no theme is selected. Needs gfree.
 {
     GtkTreeSelection *sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(g_theme_view));
     GtkTreeIter iter;
@@ -434,9 +434,9 @@ gchar *get_current_theme_path()
     return NULL;
 }
 
+gchar *get_selected_theme_or_warn()
 // Returns the path to the currently selected theme, or NULL if no theme is selected. Needs gfree.
 // Shows an error box if not theme is selected.
-gchar *get_selected_theme_or_warn()
 {
     gchar *filepath = get_current_theme_path();
     if (!filepath) {
@@ -451,10 +451,10 @@ gchar *get_selected_theme_or_warn()
     return filepath;
 }
 
+static void menuSaveAs()
 // For the selected theme, shows save dialog (with overwrite confirmation) and copies to the selected file with
 // overwrite.
 // Shows error box if no theme is selected.
-static void menuSaveAs()
 {
     gchar *filepath = get_selected_theme_or_warn();
     if (!filepath)
@@ -509,8 +509,8 @@ static void menuSaveAs()
     g_free(filepath);
 }
 
-// Deletes the selected theme with confirmation.
 static void menuDelete()
+// Deletes the selected theme with confirmation.
 {
     gchar *filepath = get_selected_theme_or_warn();
     if (!filepath)
@@ -684,8 +684,8 @@ void select_theme(const char *given_path)
     theme_selection_changed(NULL, NULL);
 }
 
-// Edits the selected theme. If it is read-only, it copies first to ~.
 static gboolean edit_theme(gpointer ignored)
+// Edits the selected theme. If it is read-only, it copies first to ~.
 {
     gchar *filepath = get_selected_theme_or_warn();
     if (!filepath)

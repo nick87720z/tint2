@@ -1302,63 +1302,51 @@ void add_entry(char *key, char *value)
         extract_values(value, values, 3);
 
         char vpos, hpos, orientation;
+        
+        vpos =  values[0] ? (   strcmp(values[0], "top"   ) == 0 ? 'T'
+                            :   strcmp(values[0], "center") == 0 ? 'C'
+                            :   'B') : 'B';
 
-        vpos = 'B';
-        hpos = 'C';
-        orientation = 'H';
+        hpos = values[1] ?  (   strcmp(values[1], "left" ) == 0 ? 'L'
+                            :   strcmp(values[1], "right") == 0 ? 'R'
+                            :   'C') : 'C';
 
-        if (values[0]) {
-            if (strcmp(values[0], "top") == 0)
-                vpos = 'T';
-            if (strcmp(values[0], "bottom") == 0)
-                vpos = 'B';
-            if (strcmp(values[0], "center") == 0)
-                vpos = 'C';
+        orientation = (values[2] && strcmp(values[2], "vertical") == 0) ? 'V' : 'H';
+        
+        if (orientation == 'V') {
+            switch (vpos) {
+            case 'T':   switch (hpos) {
+                        case 'L': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TLV]), 1); break;
+                        case 'R': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TRV]), 1); break;
+                        }
+                        break;
+            case 'B':   switch (hpos) {
+                        case 'L': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BLV]), 1); break;
+                        case 'R': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BRV]), 1); break;
+                        }
+                        break;
+            case 'C':   switch (hpos) {
+                        case 'L': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_CLV]), 1); break;
+                        case 'R': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_CRV]), 1); break;
+                        }
+                        break;
+            }
+        } else {
+            switch (vpos) {
+            case 'T':   switch (hpos) {
+                        case 'L': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TLH]), 1); break;
+                        case 'C': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TCH]), 1); break;
+                        case 'R': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TRH]), 1); break;
+                        }
+                        break;
+            case 'B':   switch (hpos) {
+                        case 'L': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BLH]), 1); break;
+                        case 'C': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BCH]), 1); break;
+                        case 'R': gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BRH]), 1); break;
+                        }
+                        break;
+            }
         }
-
-        if (values[1]) {
-            if (strcmp(values[1], "left") == 0)
-                hpos = 'L';
-            if (strcmp(values[1], "right") == 0)
-                hpos = 'R';
-            if (strcmp(values[1], "center") == 0)
-                hpos = 'C';
-        }
-
-        if (values[2]) {
-            if (strcmp(values[2], "horizontal") == 0)
-                orientation = 'H';
-            if (strcmp(values[2], "vertical") == 0)
-                orientation = 'V';
-        }
-
-        if (vpos == 'T' && hpos == 'L' && orientation == 'H')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TLH]), 1);
-        if (vpos == 'T' && hpos == 'C' && orientation == 'H')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TCH]), 1);
-        if (vpos == 'T' && hpos == 'R' && orientation == 'H')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TRH]), 1);
-
-        if (vpos == 'B' && hpos == 'L' && orientation == 'H')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BLH]), 1);
-        if (vpos == 'B' && hpos == 'C' && orientation == 'H')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BCH]), 1);
-        if (vpos == 'B' && hpos == 'R' && orientation == 'H')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BRH]), 1);
-
-        if (vpos == 'T' && hpos == 'L' && orientation == 'V')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TLV]), 1);
-        if (vpos == 'C' && hpos == 'L' && orientation == 'V')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_CLV]), 1);
-        if (vpos == 'B' && hpos == 'L' && orientation == 'V')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BLV]), 1);
-
-        if (vpos == 'T' && hpos == 'R' && orientation == 'V')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_TRV]), 1);
-        if (vpos == 'C' && hpos == 'R' && orientation == 'V')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_CRV]), 1);
-        if (vpos == 'B' && hpos == 'R' && orientation == 'V')
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(screen_position[POS_BRV]), 1);
         break; }
     case key_panel_background_id: {
         int id = background_index_safe(atoi(value));
@@ -1406,22 +1394,12 @@ void add_entry(char *key, char *value)
             gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_layer), 1);
         break;
     case key_panel_monitor:
-        if (strcmp(value, "all") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 0);
-        else if (strcmp(value, "primary") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 1);
-        else if (strcmp(value, "1") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 2);
-        else if (strcmp(value, "2") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 3);
-        else if (strcmp(value, "3") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 4);
-        else if (strcmp(value, "4") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 5);
-        else if (strcmp(value, "5") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 6);
-        else if (strcmp(value, "6") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(panel_combo_monitor), 7);
+        {
+            int i = str_index (value, (char *[]){"1", "2", "3", "4", "5", "6", "all", "primary"}, 8);
+            if (i != -1)
+                gtk_combo_box_set_active (  GTK_COMBO_BOX(panel_combo_monitor),
+                                            (int[]){2,3,4,5,6,7,0,1}[i] );
+        }
         break;
     case key_panel_shrink:
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(panel_shrink), atoi(value));
@@ -1612,20 +1590,16 @@ void add_entry(char *key, char *value)
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(taskbar_distribute_size), atoi(value));
         break;
     case key_taskbar_sort_order:
-        if (strcmp(value, "none") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
-        else if (strcmp(value, "title") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 1);
-        else if (strcmp(value, "application") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 2);
-        else if (strcmp(value, "center") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 3);
-        else if (strcmp(value, "mru") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 4);
-        else if (strcmp(value, "lru") == 0)
-            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 5);
-        else
-            gtk_combo_box_set_active(GTK_COMBO_BOX(taskbar_sort_order), 0);
+        gtk_combo_box_set_active (  GTK_COMBO_BOX(taskbar_sort_order),
+                                    (int[]){0, 2, 3, 5, 4, 0, 1}[
+                                        str_index (value, (char *[]){   "application",
+                                                                        "center",
+                                                                        "lru",
+                                                                        "mru",
+                                                                        "none",
+                                                                        "title"}, 6
+                                        ) + 1
+                                    ] );
         break;
     case key_task_align:
         if (strcmp(value, "left") == 0)
@@ -2116,21 +2090,23 @@ void add_entry(char *key, char *value)
         if (g_regex_match_simple("task.*_font_color", key, 0, 0)) {
             gchar **split = g_regex_split_simple("_", key, 0, 0);
             GtkWidget *widget = NULL;
-            if (strcmp(split[1], "normal") == 0) {
-                widget = task_normal_color;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_normal_color_set), 1);
-            } else if (strcmp(split[1], "active") == 0) {
-                widget = task_active_color;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_active_color_set), 1);
-            } else if (strcmp(split[1], "urgent") == 0) {
-                widget = task_urgent_color;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_urgent_color_set), 1);
-            } else if (strcmp(split[1], "iconified") == 0) {
-                widget = task_iconified_color;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_iconified_color_set), 1);
-            } else if (strcmp(split[1], "font") == 0) {
-                widget = task_default_color;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_default_color_set), 1);
+            switch (str_index (split[1], (char *[]){"active", "font", "iconified", "normal", "urgent"}, 5))
+            {
+            case 0: widget = task_active_color;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_active_color_set), 1);
+                    break;
+            case 1: widget = task_default_color;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_default_color_set), 1);
+                    break;
+            case 2: widget = task_iconified_color;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_iconified_color_set), 1);
+                    break;
+            case 3: widget = task_normal_color;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_normal_color_set), 1);
+                    break;
+            case 4: widget = task_urgent_color;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_urgent_color_set), 1);
+                    break;
             }
             g_strfreev(split);
             if (widget) {
@@ -2147,31 +2123,33 @@ void add_entry(char *key, char *value)
             GtkWidget *widget_opacity = NULL;
             GtkWidget *widget_saturation = NULL;
             GtkWidget *widget_brightness = NULL;
-            if (strcmp(split[1], "normal") == 0) {
-                widget_opacity = task_normal_icon_opacity;
-                widget_saturation = task_normal_icon_saturation;
-                widget_brightness = task_normal_icon_brightness;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_normal_icon_osb_set), 1);
-            } else if (strcmp(split[1], "active") == 0) {
-                widget_opacity = task_active_icon_opacity;
-                widget_saturation = task_active_icon_saturation;
-                widget_brightness = task_active_icon_brightness;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_active_icon_osb_set), 1);
-            } else if (strcmp(split[1], "urgent") == 0) {
-                widget_opacity = task_urgent_icon_opacity;
-                widget_saturation = task_urgent_icon_saturation;
-                widget_brightness = task_urgent_icon_brightness;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_urgent_icon_osb_set), 1);
-            } else if (strcmp(split[1], "iconified") == 0) {
-                widget_opacity = task_iconified_icon_opacity;
-                widget_saturation = task_iconified_icon_saturation;
-                widget_brightness = task_iconified_icon_brightness;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_iconified_icon_osb_set), 1);
-            } else if (strcmp(split[1], "icon") == 0) {
-                widget_opacity = task_default_icon_opacity;
-                widget_saturation = task_default_icon_saturation;
-                widget_brightness = task_default_icon_brightness;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_default_icon_osb_set), 1);
+            switch (str_index (split[1], (char *[]){"active", "icon", "iconified", "normal", "urgent"}, 5))
+            {
+            case 0: widget_opacity = task_active_icon_opacity;
+                    widget_saturation = task_active_icon_saturation;
+                    widget_brightness = task_active_icon_brightness;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_active_icon_osb_set), 1);
+                    break;
+            case 1: widget_opacity = task_default_icon_opacity;
+                    widget_saturation = task_default_icon_saturation;
+                    widget_brightness = task_default_icon_brightness;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_default_icon_osb_set), 1);
+                    break;
+            case 2: widget_opacity = task_iconified_icon_opacity;
+                    widget_saturation = task_iconified_icon_saturation;
+                    widget_brightness = task_iconified_icon_brightness;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_iconified_icon_osb_set), 1);
+                    break;
+            case 3: widget_opacity = task_normal_icon_opacity;
+                    widget_saturation = task_normal_icon_saturation;
+                    widget_brightness = task_normal_icon_brightness;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_normal_icon_osb_set), 1);
+                    break;
+            case 4: widget_opacity = task_urgent_icon_opacity;
+                    widget_saturation = task_urgent_icon_saturation;
+                    widget_brightness = task_urgent_icon_brightness;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_urgent_icon_osb_set), 1);
+                    break;
             }
             g_strfreev(split);
             if (widget_opacity && widget_saturation && widget_brightness) {
@@ -2183,21 +2161,23 @@ void add_entry(char *key, char *value)
         } else if (g_regex_match_simple("task.*_background_id", key, 0, 0)) {
             gchar **split = g_regex_split_simple("_", key, 0, 0);
             GtkWidget *widget = NULL;
-            if (strcmp(split[1], "normal") == 0) {
-                widget = task_normal_background;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_normal_background_set), 1);
-            } else if (strcmp(split[1], "active") == 0) {
-                widget = task_active_background;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_active_background_set), 1);
-            } else if (strcmp(split[1], "urgent") == 0) {
-                widget = task_urgent_background;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_urgent_background_set), 1);
-            } else if (strcmp(split[1], "iconified") == 0) {
-                widget = task_iconified_background;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_iconified_background_set), 1);
-            } else if (strcmp(split[1], "background") == 0) {
-                widget = task_default_background;
-                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_default_background_set), 1);
+            switch (str_index (split[1], (char *[]){"active", "background", "iconified", "normal", "urgent"}, 5))
+            {
+            case 0: widget = task_active_background;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_active_background_set), 1);
+                    break;
+            case 1: widget = task_default_background;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_default_background_set), 1);
+                    break;
+            case 2: widget = task_iconified_background;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_iconified_background_set), 1);
+                    break;
+            case 3: widget = task_normal_background;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_normal_background_set), 1);
+                    break;
+            case 4: widget = task_urgent_background;
+                    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(task_urgent_background_set), 1);
+                    break;
             }
             g_strfreev(split);
             if (widget) {
@@ -2222,53 +2202,47 @@ void hex2gdk(char *hex, GdkRGBA *color)
 
 void set_action(char *event, GtkWidget *combo)
 {
-    if (strcmp(event, "none") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
-    else if (strcmp(event, "close") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1);
-    else if (strcmp(event, "toggle") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 2);
-    else if (strcmp(event, "iconify") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 3);
-    else if (strcmp(event, "shade") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 4);
-    else if (strcmp(event, "toggle_iconify") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 5);
-    else if (strcmp(event, "maximize_restore") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 6);
-    else if (strcmp(event, "desktop_left") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 7);
-    else if (strcmp(event, "desktop_right") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 8);
-    else if (strcmp(event, "next_task") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 9);
-    else if (strcmp(event, "prev_task") == 0)
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 10);
+    switch (str_index ( event,
+                        (char *[]){ "close",
+                                    "desktop_left",
+                                    "desktop_right",
+                                    "iconify",
+                                    "maximize_restore",
+                                    "next_task",
+                                    "none",
+                                    "prev_task",
+                                    "shade",
+                                    "toggle",
+                                    "toggle_iconify"},
+                        11))
+    {
+    case  0: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1); break;
+    case  1: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 7); break;
+    case  2: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 8); break;
+    case  3: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 3); break;
+    case  4: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 6); break;
+    case  5: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 9); break;
+    case  6: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0); break;
+    case  7: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 10); break;
+    case  8: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 4); break;
+    case  9: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 2); break;
+    case 10: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 5); break;
+    }
 }
 
 char *get_action(GtkWidget *combo)
 {
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 0)
-        return "none";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 1)
-        return "close";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 2)
-        return "toggle";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 3)
-        return "iconify";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 4)
-        return "shade";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 5)
-        return "toggle_iconify";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 6)
-        return "maximize_restore";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 7)
-        return "desktop_left";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 8)
-        return "desktop_right";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 9)
-        return "next_task";
-    if (gtk_combo_box_get_active(GTK_COMBO_BOX(combo)) == 10)
-        return "prev_task";
-    return "none";
+    return (char *[]){
+        "none",
+        "none",
+        "close",
+        "toggle",
+        "iconify",
+        "shade",
+        "toggle_iconify",
+        "maximize_restore",
+        "desktop_left",
+        "desktop_right",
+        "next_task",
+        "prev_task"}[ gtk_combo_box_get_active (GTK_COMBO_BOX (combo)) + 1 ];
 }

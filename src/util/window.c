@@ -442,7 +442,7 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
             h = (size_t)wa.height,
             tw = size,
             th = size * h / w,
-            fw, ox, oy = 0;
+            fw, ox;
     if (th > tw * 0.618) {
         th = (size_t)(tw * 0.618);
         fw = th * w / h;

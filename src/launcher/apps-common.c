@@ -156,13 +156,12 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
             line[ len ] = '\0';
         else len++;
         if (line[0] == '[') {
-            inside_desktop_entry = (len == sizeof("[Desktop Entry]")-1 &&
-                                    memcmp(line, "[Desktop Entry]", len) == 0);
+            inside_desktop_entry = str_lequal_static (line, "[Desktop Entry]", len);
         }
         char *key, *value;
         if (inside_desktop_entry && parse_dektop_line(line, &key, &value))
         {
-            if (strstr(key, "Name") == key) {
+            if (startswith_static (key, "Name")) {
                 if (lang_index_name > lang_index_default && !key[sizeof("Name")-1]) {
                     lang_index_name = lang_index_default;
                     entry->name = strdup(value);
@@ -178,7 +177,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                         g_free(localized_key);
                     }
                 }
-            } else if (strstr(key, "GenericName") == key) {
+            } else if (startswith_static (key, "GenericName")) {
                 if (lang_index_generic_name > lang_index_default && !key[sizeof("GenericName")-1]) {
                     lang_index_generic_name = lang_index_default;
                     entry->generic_name = strdup(value);
@@ -194,18 +193,25 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                         g_free(localized_key);
                     }
                 }
-            } else if (!entry->exec && strcmp(key, "Exec") == 0) {
-                entry->exec = strdup(value);
-            } else if (!entry->cwd && strcmp(key, "Path") == 0) {
-                entry->cwd = strdup(value);
-            } else if (!entry->icon && strcmp(key, "Icon") == 0) {
-                entry->icon = strdup(value);
-            } else if (strcmp(key, "NoDisplay") == 0) {
-                entry->hidden_from_menus = strcasecmp(value, "true") == 0;
-            } else if (strcmp(key, "Terminal") == 0) {
-                entry->start_in_terminal = strcasecmp(value, "true") == 0;
-            } else if (strcmp(key, "StartupNotify") == 0) {
-                entry->startup_notification = strcasecmp(value, "true") == 0;
+            } else {
+                switch (str_index (key, (char *[]){"Exec", "Icon", "NoDisplay", "Path", "StartupNotify", "Terminal"}, 6))
+                {
+                    case 0: if (!entry->exec)
+                                entry->exec = strdup(value);
+                            break;
+                    case 1: if (!entry->icon)
+                                entry->icon = strdup(value);
+                            break;
+                    case 2: entry->hidden_from_menus = strcasecmp(value, "true") == 0;
+                            break;
+                    case 3: if (!entry->cwd)
+                                entry->cwd = strdup(value);
+                            break;
+                    case 4: entry->startup_notification = strcasecmp(value, "true") == 0;
+                            break;
+                    case 5: entry->start_in_terminal = strcasecmp(value, "true") == 0;
+                            break;
+                }
             }
         }
     }

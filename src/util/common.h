@@ -104,7 +104,11 @@ typedef enum MouseAction
 
 #define ALL_DESKTOPS 0xFFFFFFFF
 
+extern char *user_config_dir;
+extern size_t user_config_dir_len;
+
 void fetch_home_dir (void);
+void fetch_user_config_dir (void);
 void write_string(int fd, const char *s);
 void log_string(int fd, const char *s);
 
@@ -264,10 +268,18 @@ void get_image_mean_color(const Imlib_Image image, Color *mean_color);
 
 void dump_image_data(const char *file_name, const char *name);
 
+#define str_lequal_static(s1, s2, len)                                                   \
+(                                                                                        \
+    len == sizeof(s2) - 1 && memcmp (s1, s2, sizeof(s2)) == 0                            \
+)
+
 #define strdup_static(dst, src) do {                                                     \
     dst = malloc(sizeof(src));                                                           \
     memcpy(dst, src, sizeof(src));                                                       \
 } while (0)
+
+#define startswith_static(s1, s2)                                                        \
+(strncmp ((s1), (s2), sizeof(s2) - 1) == 0)
 
 #define free_and_null(p) do {                                                            \
     free(p);                                                                             \

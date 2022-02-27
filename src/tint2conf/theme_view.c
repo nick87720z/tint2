@@ -87,8 +87,9 @@ gint theme_name_compare(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpo
     gtk_tree_model_get(model, a, COL_THEME_FILE, &path_a, -1);
     gtk_tree_model_get(model, b, COL_THEME_FILE, &path_b, -1);
 
-    gboolean home_a = strstr(path_a, g_get_user_config_dir()) == path_a;
-    gboolean home_b = strstr(path_b, g_get_user_config_dir()) == path_b;
+    fetch_user_config_dir ();
+    gboolean home_a = strncmp (path_a, user_config_dir, user_config_dir_len) == 0;
+    gboolean home_b = strncmp (path_b, user_config_dir, user_config_dir_len) == 0;
 
     if (home_a && !home_b)
         return -1;

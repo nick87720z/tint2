@@ -66,20 +66,17 @@ void load_cache(Cache *cache, const gchar *cache_path)
     char *line = NULL;
     size_t line_size;
 
-    while (getline(&line, &line_size, f) >= 0) {
+    ssize_t line_len;
+    while ((line_len = getline(&line, &line_size, f)) >= 0) {
         char *key, *value;
 
-        size_t line_len = strlen(line);
-        gboolean has_newline = FALSE;
-        if (line_len && line[line_len - 1] == '\n')
-        {
-            line[--line_len] = '\0';
-            has_newline = TRUE;
-        }
-        if (!has_newline)
+        if (!line_len || line[--line_len] != '\n')
             break;
+
         if (!line_len)
             continue;
+
+        line [line_len] = '\0';
 
         if (parse_line(line, &key, &value))
             g_hash_table_insert(cache->_table, g_strdup(key), g_strdup(value));

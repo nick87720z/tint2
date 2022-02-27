@@ -116,10 +116,10 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
 
     IconThemeDir *current_dir = NULL;
     int inside_header = 1;
-    while (getline(&line, &line_size, f) >= 0) {
+    ssize_t line_len;
+    while ((line_len = getline(&line, &line_size, f)) >= 0) {
         char *key, *value;
 
-        int line_len = strlen(line);
         if (line_len >= 1) {
             if (line[line_len - 1] == '\n') {
                 line[line_len - 1] = '\0';
@@ -156,37 +156,42 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
                 }
             }
         } else if (current_dir != NULL) {
-            if (parse_theme_line(line, &key, &value)) {
-                if (strcmp(key, "Size") == 0) {
-                    // value is like 24
-                    sscanf(value, "%d", &current_dir->size);
-                    if (current_dir->max_size == -1)
-                        current_dir->max_size = current_dir->size;
-                    if (current_dir->min_size == -1)
-                        current_dir->min_size = current_dir->size;
-                } else if (strcmp(key, "MaxSize") == 0) {
-                    // value is like 24
-                    sscanf(value, "%d", &current_dir->max_size);
-                } else if (strcmp(key, "MinSize") == 0) {
-                    // value is like 24
-                    sscanf(value, "%d", &current_dir->min_size);
-                } else if (strcmp(key, "Threshold") == 0) {
-                    // value is like 2
-                    sscanf(value, "%d", &current_dir->threshold);
-                } else if (strcmp(key, "Type") == 0) {
-                    // value is Fixed, Scalable or Threshold : default to scalable for unknown Type.
-                    if (strcmp(value, "Fixed") == 0) {
-                        current_dir->type = ICON_DIR_TYPE_FIXED;
-                    } else if (strcmp(value, "Threshold") == 0) {
-                        current_dir->type = ICON_DIR_TYPE_THRESHOLD;
-                    } else {
-                        current_dir->type = ICON_DIR_TYPE_SCALABLE;
-                    }
+            if (parse_theme_line(line, &key, &value))
+            {
+                switch ( str_index (key, (char *[]){"MaxSize", "MinSize", "Size", "Threshold", "Type"}, 5) )
+                {
+                    case 2: // Size: value is like 24
+                            sscanf(value, "%d", &current_dir->size);
+                            if (current_dir->max_size == -1)
+                                current_dir->max_size = current_dir->size;
+                            if (current_dir->min_size == -1)
+                                current_dir->min_size = current_dir->size;
+                            break;
+                    case 0: // MaxSize: value is like 24
+                            sscanf(value, "%d", &current_dir->max_size);
+                            break;
+                    case 1: // MinSize: value is like 24
+                            sscanf(value, "%d", &current_dir->min_size);
+                            break;
+                    case 3: // Threshold: value is like 2
+                            sscanf(value, "%d", &current_dir->threshold);
+                            break;
+                    case 4: // Type: value is Fixed, Scalable or Threshold : default to scalable for unknown Type.
+                            if (strcmp(value, "Fixed") == 0) {
+                                current_dir->type = ICON_DIR_TYPE_FIXED;
+                            } else if (strcmp(value, "Threshold") == 0) {
+                                current_dir->type = ICON_DIR_TYPE_THRESHOLD;
+                            } else {
+                                current_dir->type = ICON_DIR_TYPE_SCALABLE;
+                            }
+                            break;
                 }
             }
         }
 
-        if (line[0] == '[' && line[line_len - 1] == ']' && strcmp(line, "[Icon Theme]") != 0) {
+        if (line[0] == '[' && line[line_len - 1] == ']' &&
+            !str_lequal_static (line, "[Icon Theme]", line_len))
+        {
             inside_header = 0;
             current_dir = NULL;
             line[line_len - 1] = '\0';
@@ -281,22 +286,23 @@ IconTheme *load_theme(const char *name)
         return NULL;
 
     gchar *file_name = NULL;
-    for (const GSList *location = get_icon_locations(); location; location = location->next) {
+    for (const GSList *location = get_icon_locations(); location; location = location->next)
+    {
         gchar *path = (gchar *)location->data;
         file_name = g_build_filename(path, name, "index.theme", NULL);
-        if (!g_file_test(file_name, G_FILE_TEST_EXISTS)) {
-            g_free(file_name);
-            file_name = NULL;
-        }
-        if (file_name)
+        if (g_file_test(file_name, G_FILE_TEST_EXISTS))
             break;
+        g_free (file_name);
+        file_name = NULL;
     }
 
-    IconTheme *theme = NULL;
+    IconTheme *theme;
+
     if (file_name) {
         theme = load_theme_from_index(file_name, name);
-        g_free(file_name);
-    }
+        g_free (file_name);
+    } else
+        theme = NULL;
 
     return load_theme_from_fs(name, theme);
 }

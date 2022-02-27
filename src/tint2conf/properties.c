@@ -1931,17 +1931,15 @@ void load_theme_file(const char *file_name, const char *theme_name, GList **them
     char *line = NULL;
     size_t line_size;
 
-    while (getline(&line, &line_size, f) >= 0) {
+    ssize_t line_len;
+    while ((line_len = getline(&line, &line_size, f)) >= 0) {
         if (line[0] == '\n' || line[0] == '\0')
             continue;
 
         char *key, *value;
 
-        int line_len = strlen(line) - 1;
         if (line[line_len] == '\n')
-            line[line_len] = '\0';
-        else
-            line_len++;
+            line[--line_len] = '\0';
 
         if (parse_theme_line(line, &key, &value) &&
             value - key == sizeof("Name") &&
@@ -1955,8 +1953,8 @@ void load_theme_file(const char *file_name, const char *theme_name, GList **them
         }
 
         if (line[0] == '[' && line[line_len - 1] == ']' &&
-            memcmp(line + 1, "Icon Theme", sizeof("Icon Theme") - 1) != 0)
-            break;
+            !str_lequal_static (line, "[Icon Theme]", line_len)
+        ) break;
     }
     fclose(f);
     free(line);

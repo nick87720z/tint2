@@ -58,10 +58,20 @@
 char *home_dir = NULL;
 size_t home_dir_len = 0;
 
+char *user_config_dir = NULL;
+size_t user_config_dir_len = 0;
+
 void fetch_home_dir (void) {
     if (! home_dir) {
         home_dir = g_get_home_dir();
         home_dir_len = strlen (home_dir);
+    }
+}
+
+void fetch_user_config_dir (void) {
+    if (! user_config_dir) {
+        user_config_dir = g_get_user_config_dir();
+        user_config_dir_len = strlen (user_config_dir);
     }
 }
 
@@ -998,58 +1008,27 @@ GSList *load_locations_from_env(GSList *locations, const char *var, ...)
     return locations;
 }
 
-GSList *slist_append_uniq_dup(GSList *list, gconstpointer ref, GCompareFunc eq)
+GSList *slist_append_uniq(GSList *list, gconstpointer ref, GCompareFunc eq, void* (*assign)(const void *))
+// Append to list if not found, via assign function. Use value directly with NULL assign.
 {
     if (!list) {
         list = g_slist_alloc();
         list->next = NULL;
         list->data = g_strdup(ref);
     }
-    else for (GSList *e = list; e; e = e->next) {
+    else for (GSList *e = list; e; e = e->next)
+    {
         if (eq(e->data, ref))
             break;
         if (e->next == NULL) {
             e = e->next = g_slist_alloc();
             e->next = NULL;
-            e->data = g_strdup(ref);
+            e->data = assign ? assign(ref) : ref;
             break;
         }
     }
     return list;
 }
-
-// Got some optimization, but became unused after bigger optimization
-//~ void slist_remove_duplicates(GSList *list, GCompareFunc eq, GDestroyNotify fr)
-//~ {
-    //~ GSList *l1, *prev, *rm;
-    
-    //~ if (!list->next)
-        //~ return;
-    
-    //~ l1 = (prev = list)->next;
-    //~ while (l1) {
-        //~ for (GSList *l0 = list; l0 != l1; l0 = l0->next)
-        //~ {
-            //~ if (l1->data == l0->data)
-            //~ {
-                //~ fprintf (stderr, " same: %s\n", (char *)l1->data);
-                //~ prev->next = l1 = (rm = l1)->next;
-                //~ goto l1_continue;
-            //~ }
-            //~ if (eq(l1->data, l0->data))
-            //~ {
-                //~ fprintf (stderr, " dup: %s\n", (char *)l1->data);
-                //~ prev->next = l1 = (rm = l1)->next;
-                //~ fr(rm->data);
-                //~ goto l1_continue;
-            //~ }
-        //~ }
-        //~ l1 = (prev = l1)->next;
-        //~ continue;
-    //~ l1_continue:
-        //~ g_slist_free_1(rm);
-    //~ }
-//~ }
 
 gint cmp_ptr(gconstpointer a, gconstpointer b)
 {

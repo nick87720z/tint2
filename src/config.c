@@ -124,38 +124,39 @@ void cleanup_config()
 
 void get_action(char *event, MouseAction *action)
 {
-    if (strcmp(event, "none") == 0)
-        *action = NONE;
-    else if (strcmp(event, "close") == 0)
-        *action = CLOSE;
-    else if (strcmp(event, "toggle") == 0)
-        *action = TOGGLE;
-    else if (strcmp(event, "iconify") == 0)
-        *action = ICONIFY;
-    else if (strcmp(event, "shade") == 0)
-        *action = SHADE;
-    else if (strcmp(event, "toggle_iconify") == 0)
-        *action = TOGGLE_ICONIFY;
-    else if (strcmp(event, "maximize_restore") == 0)
-        *action = MAXIMIZE_RESTORE;
-    else if (strcmp(event, "desktop_left") == 0)
-        *action = DESKTOP_LEFT;
-    else if (strcmp(event, "desktop_right") == 0)
-        *action = DESKTOP_RIGHT;
-    else if (strcmp(event, "next_task") == 0)
-        *action = NEXT_TASK;
-    else if (strcmp(event, "prev_task") == 0)
-        *action = PREV_TASK;
-    else
+    switch (str_index ( event,
+                        (char *[]){ "close",
+                                    "desktop_left",
+                                    "desktop_right",
+                                    "iconify",
+                                    "maximize_restore",
+                                    "next_task",
+                                    "none",
+                                    "prev_task",
+                                    "shade",
+                                    "toggle",
+                                    "toggle_iconify"},
+                        11)) {
+    case  0: *action = CLOSE;           break;
+    case  1: *action = DESKTOP_LEFT;    break;
+    case  2: *action = DESKTOP_RIGHT;   break;
+    case  3: *action = ICONIFY;         break;
+    case  4: *action = MAXIMIZE_RESTORE; break;
+    case  5: *action = NEXT_TASK;       break;
+    case  6: *action = NONE;            break;
+    case  7: *action = PREV_TASK;       break;
+    case  8: *action = SHADE;           break;
+    case  9: *action = TOGGLE;          break;
+    case 10: *action = TOGGLE_ICONIFY;  break;
+    default:
         fprintf(stderr, "tint2: Error: unrecognized action '%s'. Please fix your config file.\n", event);
+    }
 }
 
 int get_task_status(char *status)
 {
-    return  !strcmp(status, "active"   ) ? TASK_ACTIVE
-        :   !strcmp(status, "iconified") ? TASK_ICONIFIED
-        :   !strcmp(status, "urgent"   ) ? TASK_URGENT
-        : -1;
+    return  (int []){-1, TASK_ACTIVE, TASK_ICONIFIED, TASK_URGENT}
+            [ str_index (status, (char *[]){"active", "iconified", "urgent"}, 3) + 1 ];
 }
 
 int config_get_monitor(char *monitor)
@@ -1033,12 +1034,13 @@ void add_entry(char *key, char *value)
         break;
     case key_taskbar_sort_order:
         taskbar_sort_method =
-            !strcmp(value, "center"     ) ? TASKBAR_SORT_CENTER
-        :   !strcmp(value, "title"      ) ? TASKBAR_SORT_TITLE
-        :   !strcmp(value, "application") ? TASKBAR_SORT_APPLICATION
-        :   !strcmp(value, "lru"        ) ? TASKBAR_SORT_LRU
-        :   !strcmp(value, "mru"        ) ? TASKBAR_SORT_MRU
-        : TASKBAR_NOSORT;
+            (int []){   TASKBAR_NOSORT,
+                        TASKBAR_SORT_APPLICATION,
+                        TASKBAR_SORT_CENTER,
+                        TASKBAR_SORT_LRU,
+                        TASKBAR_SORT_MRU,
+                        TASKBAR_SORT_TITLE
+            }[ str_index (value, (char *[]){"application", "center", "lru", "mru", "title"}, 5) + 1 ];
         break;
     case key_task_align:
         taskbar_alignment = 
@@ -1362,7 +1364,7 @@ gboolean config_read_default_path()
                                         g_mkdir_with_parents((path), 0700); } while(0)
     const gchar *const *sysdir;
     gchar *userpath, *syspath;
-    gchar *userdir = (gchar *)g_get_user_config_dir();
+    gchar *userdir = (gchar *)(fetch_user_config_dir(), user_config_dir);
 
     // Check tint2rc in user directory as mandated by XDG specification.
     // Use shared path for both user config file and its dir

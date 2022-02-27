@@ -33,21 +33,12 @@ extern GtkWidget *screen_position[12];
 extern GSList *screen_position_group;
 extern GtkWidget *panel_background;
 
-#define POS_TLH 0
-#define POS_TCH 1
-#define POS_TRH 2
-
-#define POS_TLV 3
-#define POS_CLV 4
-#define POS_BLV 5
-
-#define POS_TRV 6
-#define POS_CRV 7
-#define POS_BRV 8
-
-#define POS_BLH 9
-#define POS_BCH 10
-#define POS_BRH 11
+enum {
+    POS_TLH, POS_TCH, POS_TRH, // top
+    POS_TLV, POS_CLV, POS_BLV, // left
+    POS_TRV, POS_CRV, POS_BRV, // right
+    POS_BLH, POS_BCH, POS_BRH, // bottom
+};
 
 // taskbar
 extern GtkWidget *taskbar_show_desktop, *taskbar_show_name, *taskbar_padding_x, *taskbar_padding_y, *taskbar_spacing;

@@ -42,7 +42,7 @@ gchar *get_home_config_path()
 // Returns ~/.config/tint2/tint2rc (or equivalent).
 // Needs gfree.
 {
-    return g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
+    return g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", "tint2rc", NULL);
 }
 
 gchar *get_etc_config_path()
@@ -69,7 +69,9 @@ gboolean startswith(const char *str, const char *prefix)
 
 gboolean endswith(const char *str, const char *suffix)
 {
-    return strlen(str) >= strlen(suffix) && g_str_equal(str + strlen(str) - strlen(suffix), suffix);
+    size_t  slen = strlen(str),
+            suf_len = strlen(suffix);
+    return slen >= suf_len && g_str_equal(str + slen - suf_len, suffix);
 }
 
 gboolean theme_is_editable(const char *filepath)
@@ -116,7 +118,7 @@ gchar *import_no_overwrite(const char *filepath)
     if (!filename)
         return NULL;
 
-    gchar *newpath = g_build_filename(g_get_user_config_dir(), "tint2", filename, NULL);
+    gchar *newpath = g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", filename, NULL);
     if (!g_file_test(newpath, G_FILE_TEST_EXISTS)) {
         copy_file(filepath, newpath);
         theme_list_append(newpath);
@@ -226,7 +228,7 @@ int main(int argc, char **argv)
 #endif
 
     {
-        gchar *tint2_config_dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
+        gchar *tint2_config_dir = g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", NULL);
         if (!g_file_test(tint2_config_dir, G_FILE_TEST_IS_DIR))
             g_mkdir_with_parents(tint2_config_dir, 0700);
         g_free(tint2_config_dir);
@@ -757,7 +759,7 @@ static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeV
 static void ensure_default_theme_exists()
 {
     // Without a user tint2rc file, copy the default
-    gchar *path_home = g_build_filename(g_get_user_config_dir(), "tint2", "tint2rc", NULL);
+    gchar *path_home = g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", "tint2rc", NULL);
     if (!g_file_test(path_home, G_FILE_TEST_EXISTS)) {
         const gchar *const *system_dirs = g_get_system_config_dirs();
         for (int i = 0; system_dirs[i]; i++) {
@@ -772,10 +774,19 @@ static void ensure_default_theme_exists()
     g_free(path_home);
 }
 
+static int theme_file_valid (const char *file_name)
+{
+    return  !g_file_test(file_name, G_FILE_TEST_IS_DIR) &&
+            !strstr(file_name, "backup") &&
+            !strstr(file_name, "copy") &&
+            !strchr(file_name, '~') &&
+            (endswith(file_name, "tint2rc") || endswith(file_name, ".conf"));
+}
+
 static gboolean load_user_themes()
 {
     // Load configs from home directory
-    gchar *tint2_config_dir = g_build_filename(g_get_user_config_dir(), "tint2", NULL);
+    gchar *tint2_config_dir = g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", NULL);
     GDir *dir = g_dir_open(tint2_config_dir, 0, NULL);
     if (dir == NULL) {
         g_free(tint2_config_dir);
@@ -785,8 +796,8 @@ static gboolean load_user_themes()
 
     const gchar *file_name;
     while ((file_name = g_dir_read_name(dir))) {
-        if (!g_file_test(file_name, G_FILE_TEST_IS_DIR) && !strstr(file_name, "backup") && !strstr(file_name, "copy") &&
-            !strstr(file_name, "~") && (endswith(file_name, "tint2rc") || endswith(file_name, ".conf"))) {
+        if (theme_file_valid (file_name))
+        {
             found_theme = TRUE;
             gchar *path = g_build_filename(tint2_config_dir, file_name, NULL);
             theme_list_append(path);
@@ -808,9 +819,8 @@ static gboolean load_themes_from_dirs(const gchar *const *dirs)
         if (dir) {
             const gchar *file_name;
             while ((file_name = g_dir_read_name(dir))) {
-                if (!g_file_test(file_name, G_FILE_TEST_IS_DIR) && !strstr(file_name, "backup") &&
-                    !strstr(file_name, "copy") && !strstr(file_name, "~") &&
-                    (endswith(file_name, "tint2rc") || endswith(file_name, ".conf"))) {
+                if (theme_file_valid (file_name))
+                {
                     found_theme = TRUE;
                     gchar *path = g_build_filename(path_tint2, file_name, NULL);
                     theme_list_append(path);

@@ -121,8 +121,9 @@ void copy_file(const char *path_src, const char *path_dest);
 // Copies a file to another path
 
 int str_index(const char *s, char *array[], int size);
-// Finds string in sorted strings array.
+// Finds string 's' in sorted strings array.
 // Array must be sorted with strcmp-compatible comparison method.
+// Returns string index if found, -1 otherwise
 
 int compare_strings(const void *a, const void *b);
 
@@ -233,10 +234,26 @@ void close_all_fds();
 GSList *load_locations_from_dir(GSList *locations, const char *dir, ...);
 GSList *load_locations_from_env(GSList *locations, const char *var, ...);
 
-GSList *slist_append_uniq_dup(GSList *list, gconstpointer ref, GCompareFunc eq);
-// Appends to the list locations all the directories contained in the environment variable var (split by ":").
-// Optional suffixes are added to each directory. The suffix arguments MUST end with NULL.
-// Returns the new value of the list.
+GSList *slist_append_uniq(
+// Search ref in list. If not found - append to list using assign function.
+    GSList          *list,          // Destination list
+    gconstpointer   ref,            // Data to be appended
+    GCompareFunc    eq,             // Comparison callback for uniqueness check
+    void* (*assign)(const void *)   // Callback to process data before append (e.g. strdup)
+                                    // Set to NULL to make ref used directly
+);
+
+#define slist_append_uniq_direct(list, ref, eq)                                          \
+/* Convenience wrapper for slist_append_uniq_func(), appending ref value directly */     \
+(                                                                                        \
+    slist_append_uniq(list, ref, eq, NULL)                                               \
+)
+
+#define slist_append_uniq_dup(list, ref, eq)                                             \
+/* Convenience wrapper for slist_append_uniq_func(), appending string duplicate */       \
+(                                                                                        \
+    slist_append_uniq(list, ref, eq, (void* (*)(const void *))strdup)                    \
+)
 
 gint cmp_ptr(gconstpointer a, gconstpointer b);
 // A trivial pointer comparator.

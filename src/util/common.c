@@ -530,14 +530,12 @@ void get_color(char *hex, double *rgb)
 int extract_values(char *str, char **tvec, unsigned tnum)
 {
     int ti = 0;
-    while (1) {
-        *tvec++ = str;
-        if (++ti == tnum)
-            break;
-
-        if ( *(str += strcspn(str, " ")) == '\0' )
-            break;
-        *str++ = '\0';
+    char *saveptr, *tok;
+    for (tok = strtok_r (str, " ", &saveptr);
+         ti < tnum && tok;
+         tok = strtok_r (NULL, " ", &saveptr), ti++)
+    {
+        *tvec++ = tok;
     }
     return ti;
 }

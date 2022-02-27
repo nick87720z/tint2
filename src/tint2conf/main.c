@@ -352,8 +352,7 @@ int main(int argc, char **argv)
     gtk_widget_show_all(g_window);
     gtk_main();
 
-    if (icon_cache_path)
-        free (icon_cache_path);
+    icon_theme_common_cleanup ();
 
     return 0;
 }

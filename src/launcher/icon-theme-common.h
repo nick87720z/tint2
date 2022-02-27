@@ -51,6 +51,9 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size, 
 const GSList *get_icon_locations();
 // Returns a list of the directories used to store icons.
 // Do not free the result, it is cached.
+// Use free_icon_locations() when need expires
+
+void icon_theme_common_cleanup();
 
 extern gboolean debug_icons;
 

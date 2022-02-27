@@ -294,6 +294,7 @@ void cleanup()
 
     cleanup_server();
     cleanup_timers();
+    icon_theme_common_cleanup ();
 
     if (server.display)
         XCloseDisplay(server.display);

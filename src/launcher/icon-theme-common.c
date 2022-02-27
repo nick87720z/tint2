@@ -465,10 +465,22 @@ void load_fallbacks(IconThemeWrapper *wrapper)
 
 gchar *get_icon_cache_path()
 // Result is owned by function provider, don't free
+// Use free_icon_cache_path() when need is expired
 {
     if (! icon_cache_path)
         icon_cache_path = g_build_filename(g_get_user_cache_dir(), "tint2", "icon.cache", NULL);
     return icon_cache_path;
+}
+
+void icon_theme_common_cleanup()
+{
+    if (icon_locations)
+        g_slist_free_full (icon_locations, free);;
+    icon_locations = NULL;
+
+    if (icon_cache_path)
+        free (icon_cache_path);
+    icon_cache_path = NULL;
 }
 
 void load_icon_cache(IconThemeWrapper *wrapper)

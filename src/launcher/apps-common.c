@@ -129,19 +129,21 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     }
 
     const gchar **languages = (const gchar **)g_get_language_names();
-    // lang_index is the index of the language for the best Name key in the language vector
+    // lang_index_name is the index of the language for the best Name key in the language vector
     // lang_index_default is a constant that encodes the Name key without a language
     int lang_index_default = 1;
 #define LANG_DBG 0
     if (LANG_DBG)
         fprintf(stderr, "tint2: Languages:");
-    for (int i = 0; languages[i]; i++) {
-        lang_index_default = i + 1;
-        if (LANG_DBG)
-            fprintf(stderr, "tint2:  %s", languages[i]);
+    {   int i;
+        for (i = 0; languages[i]; i++) {
+            if (LANG_DBG)
+                fprintf(stderr, " %s", languages[i]);
+        }
+        lang_index_default = i;
     }
     if (LANG_DBG)
-        fprintf(stderr, "tint2: \n");
+        fputc('\n', stderr);
     // we currently do not know about any Name key at all, so use an invalid index
     int lang_index_name = lang_index_default + 1;
     int lang_index_generic_name = lang_index_default + 1;
@@ -160,37 +162,39 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
         char *key, *value;
         if (inside_desktop_entry && parse_dektop_line(line, &key, &value))
         {
+            #define _lang_to_prop(lang, prop)                                            \
+            /* WARNING: only for this context, enveloping all localized keys */          \
+            {                                                                            \
+                if (key++[0] != '[' || value[-2] != ']')                                 \
+                    continue;                                                            \
+                value[-2] = '\0';                                                        \
+                for (int i = 0; languages[i] && i < lang_index_name; i++)                \
+                {                                                                        \
+                    if (strcmp (key, languages[i]) == 0) {                               \
+                        if (prop)                                                        \
+                            free(prop);                                                  \
+                        prop = strdup(value);                                            \
+                        lang_index_name = i;                                             \
+                    }                                                                    \
+                }                                                                        \
+            }
+            /*****************************************************************/
+
             if (startswith_static (key, "Name")) {
                 if (lang_index_name > lang_index_default && !key[strlen_const("Name")]) {
                     lang_index_name = lang_index_default;
                     entry->name = strdup(value);
                 } else {
-                    for (int i = 0; languages[i] && i < lang_index_name; i++) {
-                        gchar *localized_key = g_strdup_printf("Name[%s]", languages[i]);
-                        if (strcmp(key, localized_key) == 0) {
-                            if (entry->name)
-                                free(entry->name);
-                            entry->name = strdup(value);
-                            lang_index_name = i;
-                        }
-                        g_free(localized_key);
-                    }
+                    key += strlen_const("Name");
+                    _lang_to_prop (key, entry->name);
                 }
             } else if (startswith_static (key, "GenericName")) {
                 if (lang_index_generic_name > lang_index_default && !key[strlen_const("GenericName")]) {
                     lang_index_generic_name = lang_index_default;
                     entry->generic_name = strdup(value);
                 } else {
-                    for (int i = 0; languages[i] && i < lang_index_generic_name; i++) {
-                        gchar *localized_key = g_strdup_printf("GenericName[%s]", languages[i]);
-                        if (strcmp(key, localized_key) == 0) {
-                            if (entry->generic_name)
-                                free(entry->generic_name);
-                            entry->generic_name = strdup(value);
-                            lang_index_generic_name = i;
-                        }
-                        g_free(localized_key);
-                    }
+                    key += strlen_const("GenericName");
+                    _lang_to_prop (key, entry->generic_name);
                 }
             } else {
                 switch (str_index (key, (char *[]){"Exec", "Icon", "NoDisplay", "Path", "StartupNotify", "Terminal"}, 6))
@@ -212,6 +216,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                             break;
                 }
             }
+            #undef _lang_to_prop
         }
     }
     fclose(fp);
@@ -227,6 +232,10 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 {
     gboolean success = FALSE;
+
+    gchar *full_path = NULL;
+    int full_path_avail = 0;
+
     entry->path = strdup(path);
     entry->name = entry->generic_name = entry->icon = entry->exec = entry->cwd = NULL;
 
@@ -236,6 +245,7 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
     // Expect valid ID - according to freedesktop spec, it's unique inside location.
     // dashes in filename - undefined case
 
+    size_t id_len = strlen (path);
     int dashes_n = 0;
     uint8_t dash_pos[64];
 
@@ -247,14 +257,17 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
     if (dashes_n > sizeof(long) * 8 - 1)
         dashes_n = sizeof(long) * 8 - 1;
 
-    //~ fprintf (stderr, "DEBUG: %s: dashes num %i\n", __FUNCTION__, dashes_n);
-
     for (const GSList *location = get_apps_locations(); location; location = location->next)
     {
-        //~ fprintf (stderr, "DEBUG: %s: location '%s'\n", __FUNCTION__, (char *)location->data);
+        char *location_path = location->data;
+        size_t dir_len = strlen (location_path);
+        size_t full_path_len = dir_len + id_len + 2;
 
-        gchar *full_path = g_build_filename (location->data, path, NULL);
-        gchar *name_p = full_path + strlen (location->data) + 1;
+        if (full_path_len > full_path_avail)
+            full_path = realloc (full_path, (full_path_avail = full_path_len));
+
+        sprintf (full_path, "%s/%s", location_path, path);
+        gchar *name_p = full_path + strlen (location_path) + 1;
 
         // Check different possible path variants for same ID
         // subdirs variant is preferred
@@ -266,15 +279,13 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
             //~ fprintf (stderr, "DEBUG: %s: ID to path variant: '%s'\n", __FUNCTION__, full_path);
 
             if ((g_file_test (full_path, G_FILE_TEST_IS_REGULAR)) &&
-                (success = read_desktop_file_full_path (full_path, entry)) )
-            {
-                free (full_path);
-                goto end0;
-            }
+                (success = read_desktop_file_full_path (full_path, entry))
+            ) goto end0;
         }
-        free (full_path);
     }
 end0:
+    if (full_path)
+        free (full_path);
     return success;
 }
 

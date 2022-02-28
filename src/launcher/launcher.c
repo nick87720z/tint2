@@ -502,25 +502,23 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
         schedule_redraw(&launcherIcon->area);
         if (launcherIcon->cmd)
             free(launcherIcon->cmd);
-        launcherIcon->cmd = strdup(entry.exec);
         if (launcherIcon->cwd)
             free(launcherIcon->cwd);
+        if (launcherIcon->icon_name)
+            free(launcherIcon->icon_name);
+        launcherIcon->cmd = strdup(entry.exec);
         launcherIcon->cwd = entry.cwd ? strdup(entry.cwd) : NULL;
         launcherIcon->start_in_terminal = entry.start_in_terminal;
         launcherIcon->startup_notification = entry.startup_notification;
-        if (launcherIcon->icon_name)
-            free(launcherIcon->icon_name);
         launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);
         if (entry.name)
             launcherIcon->icon_tooltip = entry.generic_name ? g_strdup_printf("%s (%s)", entry.name, entry.generic_name)
                                                             : g_strdup_printf("%s", entry.name);
-        else {
-            if (entry.generic_name) {
-                launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.generic_name);
-            } else if (entry.exec) {
-                launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.exec);
-            }
-        }
+        else if (entry.generic_name)
+            launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.generic_name);
+        else if (entry.exec)
+            launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.exec);
+
         launcher_reload_icon_image(launcher, launcherIcon);
         show(&launcherIcon->area);
     } else {

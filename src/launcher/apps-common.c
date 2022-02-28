@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <stdint.h>
 
 int parse_dektop_line(char *line, char **key, char **value)
 {
@@ -223,65 +224,58 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     return entry->exec != NULL;
 }
 
-gboolean read_desktop_file_from_dir(const char *path, const char *file_name, DesktopEntry *entry)
-{
-    gchar *full_path = g_build_filename(path, file_name, NULL);
-    if (read_desktop_file_full_path(full_path, entry)) {
-        g_free(full_path);
-        return TRUE;
-    }
-    free_and_null(entry->name);
-    free_and_null(entry->generic_name);
-    free_and_null(entry->icon);
-    free_and_null(entry->exec);
-    free_and_null(entry->cwd);
-
-    GList *subdirs = NULL;
-
-    GDir *d = g_dir_open(path, 0, NULL);
-    if (d) {
-        const gchar *name;
-        while ((name = g_dir_read_name(d))) {
-            gchar *child = g_build_filename(path, name, NULL);
-            if (g_file_test(child, G_FILE_TEST_IS_DIR)) {
-                subdirs = g_list_prepend(subdirs, child);
-            } else {
-                g_free(child);
-            }
-        }
-        g_dir_close(d);
-    }
-
-    subdirs = g_list_sort(subdirs, compare_strings);
-    gboolean found = FALSE;
-    for (GList *l = subdirs; l; l = l->next) {
-        if (read_desktop_file_from_dir(l->data, file_name, entry)) {
-            found = TRUE;
-            break;
-        }
-    }
-
-    for (GList *l = subdirs; l; l = l->next) {
-        g_free(l->data);
-    }
-    g_list_free(subdirs);
-    g_free(full_path);
-
-    return found;
-}
-
 gboolean read_desktop_file(const char *path, DesktopEntry *entry)
 {
+    gboolean success = FALSE;
     entry->path = strdup(path);
     entry->name = entry->generic_name = entry->icon = entry->exec = entry->cwd = NULL;
 
-    if (strchr(path, '/'))
+    if (path[0] == '/')
         return read_desktop_file_full_path(path, entry);
-    for (const GSList *location = get_apps_locations(); location; location = location->next) {
-        if (read_desktop_file_from_dir(location->data, path, entry))
-            return TRUE;
+
+    // Expect valid ID - according to freedesktop spec, it's unique inside location.
+    // dashes in filename - undefined case
+
+    int dashes_n = 0;
+    uint8_t dash_pos[64];
+
+    for (char *p = strchr (path, '-'); p; p = strchr (p+1, '-'))
+        dash_pos [dashes_n++] = p - path;
+
+    // Dash to slash replacement variants are iterated with bitfield.
+    // Although that's not likely - need avoid negative range to not break iteration
+    if (dashes_n > sizeof(long) * 8 - 1)
+        dashes_n = sizeof(long) * 8 - 1;
+
+    //~ fprintf (stderr, "DEBUG: %s: dashes num %i\n", __FUNCTION__, dashes_n);
+
+    for (const GSList *location = get_apps_locations(); location; location = location->next)
+    {
+        //~ fprintf (stderr, "DEBUG: %s: location '%s'\n", __FUNCTION__, (char *)location->data);
+
+        gchar *full_path = g_build_filename (location->data, path, NULL);
+        gchar *name_p = full_path + strlen (location->data) + 1;
+
+        // Check different possible path variants for same ID
+        // subdirs variant is preferred
+        for (long dash_switch = (1 << dashes_n) - 1; dash_switch >= 0; dash_switch--)
+        {
+            for (int i = 0; i < dashes_n; i++)
+                name_p [dash_pos [i]] = (1 << i) & dash_switch ? '/' : '-';
+
+            //~ fprintf (stderr, "DEBUG: %s: ID to path variant: '%s'\n", __FUNCTION__, full_path);
+
+            if ((g_file_test (full_path, G_FILE_TEST_IS_REGULAR)) &&
+                (success = read_desktop_file_full_path (full_path, entry)) )
+            {
+                free (full_path);
+                goto end0;
+            }
+        }
+        free (full_path);
     }
-    return FALSE;
+end0:
+    return success;
 }
 
 void free_desktop_entry(DesktopEntry *entry)

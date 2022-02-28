@@ -172,6 +172,13 @@ pid_t tint_exec(
 void tint_exec_no_sn(const char *command);
 int setenvd(const char *name, const int value);
 
+#define str_strip_newline(s, len) do {                                                   \
+    if (s[--len] == '\n')                                                                \
+        s[len] = '\0';                                                                   \
+    else                                                                                 \
+        len++;                                                                           \
+} while(0)
+
 char *expand_tilde(const char *s);
 // Returns a copy of s in which "~" is expanded to the path to the user's home directory.
 // The caller takes ownership of the string.

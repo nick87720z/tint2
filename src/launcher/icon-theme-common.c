@@ -120,12 +120,8 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
     while ((line_len = getline(&line, &line_size, f)) >= 0) {
         char *key, *value;
 
-        if (line_len >= 1) {
-            if (line[line_len - 1] == '\n') {
-                line[line_len - 1] = '\0';
-                line_len--;
-            }
-        }
+        if (line_len >= 1)
+            str_strip_newline (line, line_len);
 
         if (line_len == 0)
             continue;

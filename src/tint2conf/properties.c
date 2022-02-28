@@ -1938,11 +1938,7 @@ void load_theme_file(const char *file_name, const char *theme_name, GList **them
 
         char *key, *value;
 
-        int line_len = strlen(line) - 1;
-        if (line[line_len] == '\n')
-            line[line_len] = '\0';
-        else
-            line_len++;
+        str_strip_newline (line, line_len);
 
         if (parse_theme_line(line, &key, &value) &&
             value - key == sizeof("Name") &&

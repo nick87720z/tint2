@@ -1941,8 +1941,7 @@ void load_theme_file(const char *file_name, const char *theme_name, GList **them
         str_strip_newline (line, line_len);
 
         if (parse_theme_line(line, &key, &value) &&
-            value - key == sizeof("Name") &&
-            memcmp(key, "Name", sizeof("Name") - 1) == 0)
+            str_lequal_static (key, "Name", value - key - 1))
         {
             IconTheme *theme = calloc(1, sizeof(IconTheme));
             theme->name = strdup(theme_name);

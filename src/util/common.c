@@ -444,7 +444,7 @@ char *contract_tilde(const char *s)
     if (!home_dir)
         return strdup(s);
 
-    if (( memcmp (s, home_dir, home_dir_len) == 0           ) &&
+    if (( strncmp (s, home_dir, home_dir_len) == 0            ) &&
         ( s [home_dir_len] == '\0' || s [home_dir_len] == '/' ))
     {
         size_t buf_size = strlen (s + home_dir_len) + 2;

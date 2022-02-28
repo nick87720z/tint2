@@ -173,7 +173,7 @@ void tint_exec_no_sn(const char *command);
 int setenvd(const char *name, const int value);
 
 #define str_strip_newline(s, len) do {                                                   \
-/* Strip newline charactor. Decrements len if newline was detected. */                   \
+/* Strip newline character. Decrements len if newline was detected. */                   \
     if (s[--len] == '\n')                                                                \
         s[len] = '\0';                                                                   \
     else                                                                                 \

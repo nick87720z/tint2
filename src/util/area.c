@@ -515,8 +515,7 @@ void set_cairo_source_tinted(cairo_t *c, Color *color1, Color *color2, double ti
             C, L1, L2;
 
     // skip for grayscale content color, invisible or black target color
-    if (alpha == 0.0 || memcmp(rgb1, (double [3]){0.0, 0.0, 0.0}, sizeof(double) * 3) == 0 ||
-        (rgb2[0] == rgb2[1] && rgb2[0] == rgb2[2]) )
+    if ( alpha == 0.0 || (rgb2[0] == rgb2[1] && rgb2[0] == rgb2[2]) )
     {
         cairo_set_source_rgba(c, rgb1[0], rgb1[1], rgb1[2], alpha);
         return;

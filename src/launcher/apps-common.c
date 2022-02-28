@@ -76,7 +76,7 @@ void expand_exec(DesktopEntry *entry, const char *path)
                 case 'i':   if (entry->icon) {
                                 snprintf(q, buf_size-1, "--icon '%s'", entry->icon);
                                 char *old = q;
-                                q += sizeof("--icon ''") - 1;
+                                q += strlen_const("--icon ''");
                                 q += strlen(entry->icon);
                                 buf_size -= (size_t)(q - old);
                             }
@@ -84,13 +84,13 @@ void expand_exec(DesktopEntry *entry, const char *path)
                 case 'c':   if (entry->name) {
                                 snprintf(q, buf_size-1, "'%s'", entry->name);
                                 char *old = q;
-                                q += sizeof("''") - 1;
+                                q += strlen_const("''");
                                 q += strlen(entry->name);
                                 buf_size -= (size_t)(q - old);
                             } else {
                                 snprintf(q, buf_size-1, "'%s'", path);
                                 char *old = q;
-                                q += sizeof("''") - 1;
+                                q += strlen_const("''");
                                 q += strlen(path);
                                 buf_size -= (size_t)(q - old);
                             }
@@ -148,13 +148,11 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     gboolean inside_desktop_entry = FALSE;
     char *line = NULL;
     size_t line_size;
-    while (getline(&line, &line_size, fp) >= 0) {
-        int len = strlen(line);
+    ssize_t len;
+    while ((len = getline(&line, &line_size, fp)) >= 0) {
         if (len == 0)
             continue;
-        if (line[--len] == '\n')
-            line[ len ] = '\0';
-        else len++;
+        str_strip_newline (line, len);
         if (line[0] == '[') {
             inside_desktop_entry = str_lequal_static (line, "[Desktop Entry]", len);
         }
@@ -162,7 +160,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
         if (inside_desktop_entry && parse_dektop_line(line, &key, &value))
         {
             if (startswith_static (key, "Name")) {
-                if (lang_index_name > lang_index_default && !key[sizeof("Name")-1]) {
+                if (lang_index_name > lang_index_default && !key[strlen_const("Name")]) {
                     lang_index_name = lang_index_default;
                     entry->name = strdup(value);
                 } else {
@@ -178,7 +176,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                     }
                 }
             } else if (startswith_static (key, "GenericName")) {
-                if (lang_index_generic_name > lang_index_default && !key[sizeof("GenericName")-1]) {
+                if (lang_index_generic_name > lang_index_default && !key[strlen_const("GenericName")]) {
                     lang_index_generic_name = lang_index_default;
                     entry->generic_name = strdup(value);
                 } else {

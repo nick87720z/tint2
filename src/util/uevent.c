@@ -42,7 +42,7 @@ static GSList *notifiers = NULL;
     ? NULL : str + prefixlen                                                             \
 )
 
-#define HAS_CONST_PREFIX(str, end, prefix) has_prefix((str), end, prefix, sizeof(prefix) - 1)
+#define HAS_CONST_PREFIX(str, end, prefix) has_prefix((str), end, prefix, strlen_const(prefix))
 
 static void uevent_destroy(struct uevent *ev)
 {
@@ -141,7 +141,7 @@ void uevent_handler()
         return;
 
     /* buf must be null-terminated */
-    buf[ MAX(len, sizeof(buf)-1) ] = '\0';
+    buf[ MAX(len, strlen_const(buf)) ] = '\0';
 
     struct uevent ev;
 

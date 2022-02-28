@@ -99,7 +99,7 @@ Task *add_task(Window win)
     task_update_title(&task_template);
     task_update_icon(&task_template);
     snprintf(task_template.area.name,
-             sizeof(task_template.area.name)-1,
+             strlen_const(task_template.area.name),
              "Task %d %s",
              (int)win,
              task_template.title ? task_template.title : "null");

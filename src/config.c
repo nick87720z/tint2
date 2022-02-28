@@ -707,9 +707,9 @@ void add_entry(char *key, char *value)
         execp->backend->name[0] = 0;
         if (value && *value) {
             size_t len = strlen(value);
-            if (len > sizeof(execp->backend->name) - 1)
+            if (len > strlen_const(execp->backend->name))
                 fprintf(stderr, RED "tint2: execp_name cannot be longer than %ld bytes: '%s'" RESET "\n",
-                        sizeof(execp->backend->name) - 1, value);
+                        strlen_const(execp->backend->name), value);
             else
                 memcpy (execp->backend->name, value, len+1);
         }
@@ -1374,7 +1374,7 @@ gboolean config_read_default_path()
         _path_build((userpath = malloc(size)), userdir);
         if (g_file_test(userpath, G_FILE_TEST_EXISTS))
             goto done;
-        dir_end = userpath + size - sizeof("tint2rc") - 1;
+        dir_end = userpath + size - strlen_const("tint2rc");
     }
     // copy tint2rc from system directory to user directory
 

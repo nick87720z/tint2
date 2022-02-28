@@ -23,9 +23,11 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
+#define strlen_const(s) (ARRAY_SIZE(s) - 1)
+
 #define BUF_0TERM(s)                                                                     \
 /** Write null byte to the end of static buffer */                                       \
-( s[ sizeof(s) / sizeof(*s) - 1 ]='\0' )
+( s[ strlen_const (s) ]='\0' )
 
 #define STRBUF_AUTO(n,s)                                                                 \
 /** Create static (auto) string buffer n with size                                       \
@@ -35,7 +37,7 @@ char n[s]={ [(s)-1]='\0' }
 #define STRBUF_AUTO_PRINTF(n, ...)                                                       \
 /** Print text to static string buffer, ensuring terminating null */                     \
 do{ BUF_0TERM (n);                                                                       \
-    snprintf(n, sizeof(n)-1, ##__VA_ARGS__);                                             \
+    snprintf(n, strlen_const(n), ##__VA_ARGS__);                                         \
 } while (0)
 
 #define g_slist_append_tail(list, tail, data)                                            \
@@ -278,7 +280,7 @@ void dump_image_data(const char *file_name, const char *name);
 
 #define str_lequal_static(s1, s2, len)                                                   \
 (                                                                                        \
-    len == sizeof(s2) - 1 && memcmp (s1, s2, sizeof(s2)) == 0                            \
+    len == strlen_const(s2) && memcmp (s1, s2, sizeof(s2)) == 0                          \
 )
 
 #define strdup_static(dst, src) do {                                                     \
@@ -287,7 +289,7 @@ void dump_image_data(const char *file_name, const char *name);
 } while (0)
 
 #define startswith_static(s1, s2)                                                        \
-(strncmp ((s1), (s2), sizeof(s2) - 1) == 0)
+(strncmp ((s1), (s2), strlen_const(s2)) == 0)
 
 #define free_and_null(p) do {                                                            \
     free(p);                                                                             \

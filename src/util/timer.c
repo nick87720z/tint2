@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "common.h"
 #include "colors.h"
 #include "timer.h"
 #include "test.h"
@@ -52,7 +53,7 @@ void init_timer(Timer *timer, const char *name)
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, name, (void *)timer);
     memset(timer, 0, sizeof(*timer));
-    strncpy(timer->name_, name, sizeof(timer->name_) - 1);
+    strncpy(timer->name_, name, strlen_const(timer->name_));
     if (!g_slist_find (timers, timer))
         timers = g_slist_prepend(timers, timer);
 }

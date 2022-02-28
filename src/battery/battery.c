@@ -195,27 +195,27 @@ void battery_update_text(char *dest, char *format)
                         BATTERY_BUF_SIZE-1);
                 break;
             case 'm':
-                snprintf(buf, sizeof(buf)-1, "%02d", battery_state.time.minutes);
+                snprintf(buf, strlen_const(buf), "%02d", battery_state.time.minutes);
                 strnappend(dest, buf, BATTERY_BUF_SIZE-1);
                 break;
             case 'h':
-                snprintf(buf, sizeof(buf)-1, "%02d", battery_state.time.hours);
+                snprintf(buf, strlen_const(buf), "%02d", battery_state.time.hours);
                 strnappend(dest, buf, BATTERY_BUF_SIZE-1);
                 break;
             case 'p':
-                snprintf(buf, sizeof(buf)-1, "%d%%", battery_state.percentage);
+                snprintf(buf, strlen_const(buf), "%d%%", battery_state.percentage);
                 strnappend(dest, buf, BATTERY_BUF_SIZE-1);
                 break;
             case 'P':
-                snprintf(buf, sizeof(buf)-1, "%d", battery_state.percentage);
+                snprintf(buf, strlen_const(buf), "%d", battery_state.percentage);
                 strnappend(dest, buf, BATTERY_BUF_SIZE-1);
                 break;
             case 't':
                 if (battery_state.state == BATTERY_FULL) {
-                    snprintf(buf, sizeof(buf)-1, "Full");
+                    snprintf(buf, strlen_const(buf), "Full");
                     strnappend(dest, buf, BATTERY_BUF_SIZE-1);
                 } else if (battery_state.time.hours > 0 && battery_state.time.minutes > 0) {
-                    snprintf(buf, sizeof(buf)-1, "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
+                    snprintf(buf, strlen_const(buf), "%02d:%02d", battery_state.time.hours, battery_state.time.minutes);
                     strnappend(dest, buf, BATTERY_BUF_SIZE-1);
                 }
                 break;
@@ -271,7 +271,7 @@ void init_battery_panel(void *p)
 
     battery->area.parent = p;
     battery->area.panel = p;
-    snprintf(battery->area.name, sizeof(battery->area.name)-1, "Battery");
+    snprintf(battery->area.name, strlen_const(battery->area.name), "Battery");
     battery->area._draw_foreground = draw_battery;
     battery->area.size_mode = LAYOUT_FIXED;
     battery->area._resize = resize_battery;

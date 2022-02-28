@@ -51,10 +51,10 @@ static const char *get_exe()
 {
     static char buf[256] = {0};
     BUF_0TERM (buf);
-    ssize_t ret = readlink("/proc/self/exe", buf, sizeof(buf)-1);
+    ssize_t ret = readlink("/proc/self/exe", buf, strlen_const(buf));
     if (ret > 0)
         return buf;
-    ret = readlink("/proc/curproc/file", buf, sizeof(buf)-1);
+    ret = readlink("/proc/curproc/file", buf, strlen_const(buf));
     return buf;
 }
 

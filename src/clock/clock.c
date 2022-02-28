@@ -142,7 +142,7 @@ void update_clock_text(char *dst, size_t size, const char *format,
         return;
     }
     char tmp[256] = "";
-    strncpy(tmp, dst, sizeof(tmp) - 1);
+    strncpy(tmp, dst, strlen_const(tmp));
     strftime(dst, size, format, clock_gettime_for_tz(timezone));
     *changed = *changed || strcmp(dst, tmp) != 0;
 }
@@ -190,7 +190,7 @@ void init_clock_panel(void *p)
     clock_init_fonts();
     clock->area.parent = p;
     clock->area.panel = p;
-    snprintf(clock->area.name, sizeof(clock->area.name)-1, "Clock");
+    snprintf(clock->area.name, strlen_const(clock->area.name), "Clock");
     clock->area._is_under_mouse = full_width_area_is_under_mouse;
     clock->area.has_mouse_press_effect = clock->area.has_mouse_over_effect =
         panel_config.mouse_effects && (clock_lclick_command || clock_mclick_command || clock_rclick_command ||

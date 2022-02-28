@@ -154,7 +154,7 @@ void init_button_panel(void *p)
         area->panel = panel;
         area->_dump_geometry = button_dump_geometry;
         area->_compute_desired_size = button_compute_desired_size;
-        snprintf(area->name, sizeof(area->name)-1, "Button");
+        snprintf(area->name, strlen_const(area->name), "Button");
         area->_draw_foreground = draw_button;
         area->size_mode = LAYOUT_FIXED;
         area->_resize = resize_button;

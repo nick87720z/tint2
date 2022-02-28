@@ -236,7 +236,7 @@ void init_taskbar_panel(void *p)
 
     // taskbar name
     panel->g_taskbar.area_name.panel = panel;
-    snprintf (panel->g_taskbar.area_name.name, sizeof(panel->g_taskbar.area_name.name)-1, "Taskbarname");
+    snprintf (panel->g_taskbar.area_name.name, strlen_const(panel->g_taskbar.area_name.name), "Taskbarname");
     panel->g_taskbar.area_name.size_mode            = LAYOUT_FIXED;
     panel->g_taskbar.area_name._resize              = resize_taskbarname;
     panel->g_taskbar.area_name._is_under_mouse      = full_width_area_is_under_mouse;
@@ -248,7 +248,7 @@ void init_taskbar_panel(void *p)
     // taskbar
     panel->g_taskbar.area.parent = panel;
     panel->g_taskbar.area.panel = panel;
-    snprintf (panel->g_taskbar.area.name, sizeof(panel->g_taskbar.area.name)-1, "Taskbar");
+    snprintf (panel->g_taskbar.area.name, strlen_const(panel->g_taskbar.area.name), "Taskbar");
     panel->g_taskbar.area.size_mode             = LAYOUT_DYNAMIC;
     panel->g_taskbar.area.alignment             = taskbar_alignment;
     panel->g_taskbar.area._resize               = resize_taskbar;
@@ -279,7 +279,7 @@ void init_taskbar_panel(void *p)
 
     // task
     panel->g_task.area.panel = panel;
-    snprintf (panel->g_task.area.name, sizeof(panel->g_task.area.name)-1, "Task");
+    snprintf (panel->g_task.area.name, strlen_const(panel->g_task.area.name), "Task");
     panel->g_task.area.size_mode            = LAYOUT_DYNAMIC;
     panel->g_task.area._draw_foreground     = draw_task;
     panel->g_task.area._on_change_layout    = on_change_task;

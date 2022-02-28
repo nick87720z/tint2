@@ -88,7 +88,7 @@ void init_separator_panel(void *p)
             separator->area.bg = &g_array_index(backgrounds, Background, 0);
         separator->area.parent = p;
         separator->area.panel = p;
-        snprintf (separator->area.name, sizeof(separator->area.name)-1, "separator");
+        snprintf (separator->area.name, strlen_const(separator->area.name), "separator");
         separator->area.size_mode = LAYOUT_FIXED;
         separator->area.resize_needed = TRUE;
         separator->area.on_screen = TRUE;

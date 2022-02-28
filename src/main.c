@@ -548,11 +548,11 @@ void handle_x_event(XEvent *e)
         else if (e->xclient.message_type == server.atom.TINT2_REFRESH_EXECP &&
                  e->xclient.format == 8)
         {
-            char name[sizeof(e->xclient.data.b) + 1] = {};
+            char name[strlen_const(e->xclient.data.b)] = {};
             memcpy(name, e->xclient.data.b, sizeof(e->xclient.data.b));
             for (GList *l = panel_config.execp_list; l; l = l->next) {
                 Execp *execp = (Execp *)l->data;
-                if (strncmp(name, execp->backend->name, sizeof(execp->backend->name) - 1) == 0) {
+                if (strncmp(name, execp->backend->name, strlen_const(execp->backend->name)) == 0) {
                     fprintf(stderr, "tint2: Refreshing executor: %s\n", name);
                     execp_force_update(execp);
                 }

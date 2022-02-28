@@ -1270,15 +1270,15 @@ void set_panel_items(const char *items)
             case 'F':   value = "F";
                         name = _("Free space");
                         break;
-            case ':':   snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Separator"), ++separator_index);
+            case ':':   snprintf(buffer, strlen_const(buffer), "%s %d", _("Separator"), ++separator_index);
                         name = buffer;
                         value = ":";
                         break;
-            case 'E':   snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Executor"), ++execp_index);
+            case 'E':   snprintf(buffer, strlen_const(buffer), "%s %d", _("Executor"), ++execp_index);
                         name = buffer;
                         value = "E";
                         break;
-            case 'P':   snprintf(buffer, sizeof(buffer)-1, "%s %d", _("Button"), ++button_index);
+            case 'P':   snprintf(buffer, strlen_const(buffer), "%s %d", _("Button"), ++button_index);
                         name = buffer;
                         value = "P";
                         break;
@@ -4939,7 +4939,7 @@ void separator_update_indices()
     g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < separators->len; i++) {
         Separator *separator = &g_array_index(separators, Separator, i);
-        snprintf(separator->name, sizeof(separator->name)-1, "%s %d", _("Separator"), i + 1);
+        snprintf(separator->name, strlen_const(separator->name), "%s %d", _("Separator"), i + 1);
         g_value_set_static_string(&name_value, separator->name);
         gtk_container_child_set_property(GTK_CONTAINER(stack), separator->page, "title", &name_value);
     }
@@ -4969,7 +4969,7 @@ void execp_update_indices()
     g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < executors->len; i++) {
         Executor *executor = &g_array_index(executors, Executor, i);
-        snprintf(executor->name, sizeof(executor->name)-1, "%s %d", _("Executor"), i + 1);
+        snprintf(executor->name, strlen_const(executor->name), "%s %d", _("Executor"), i + 1);
         g_value_set_static_string(&name_value, executor->name);
         gtk_container_child_set_property(GTK_CONTAINER(stack), executor->page, "title", &name_value);
     }
@@ -4999,7 +4999,7 @@ void button_update_indices()
     g_value_init(&name_value, G_TYPE_STRING);
     for (int i = 0; i < buttons->len; i++) {
         Button *button = &g_array_index(buttons, Button, i);
-        snprintf(button->name, sizeof(button->name)-1, "%s %d", _("Button"), i + 1);
+        snprintf(button->name, strlen_const(button->name), "%s %d", _("Button"), i + 1);
         g_value_set_static_string(&name_value, button->name);
         gtk_container_child_set_property(GTK_CONTAINER(stack), button->page, "title", &name_value);
     }

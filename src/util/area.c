@@ -54,13 +54,13 @@ void initialize_positions(void *obj)
         Area *child = ((Area *)l->data);
         if (panel_horizontal) {
             child->posy = a->posy + top_border_width(a) + a->paddingy;
-            child->height = a->height - 2 * a->paddingy - top_bottom_border_width(a);
+            child->height = a->height - top_bottom_border_width(a) - 2 * a->paddingy;
             if (child->_on_change_layout)
                 child->_on_change_layout(child);
             initialize_positions (child);
         } else {
             child->posx = a->posx + left_border_width(a) + a->paddingy;
-            child->width = a->width - 2 * a->paddingy - left_right_border_width(a);
+            child->width = a->width - left_right_border_width(a) - 2 * a->paddingy;
             if (child->_on_change_layout)
                 child->_on_change_layout(child);
             initialize_positions (child);

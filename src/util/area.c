@@ -45,23 +45,25 @@ void init_background(Background *bg)
     bg->border.rmask = CORNER_ALL;
 }
 
-void initialize_positions(void *obj, int offset)
+void initialize_positions(void *obj)
+/* Set traversal coordinates, which usually don't change since start */
 {
     Area *a = (Area *)obj;
-    for_children(a, l, GList *) {
+    for_children(a, l, GList *)
+    {
         Area *child = ((Area *)l->data);
         if (panel_horizontal) {
-            child->posy = offset + top_border_width(a) + a->paddingy;
+            child->posy = a->posy + top_border_width(a) + a->paddingy;
             child->height = a->height - 2 * a->paddingy - top_bottom_border_width(a);
             if (child->_on_change_layout)
                 child->_on_change_layout(child);
-            initialize_positions(child, child->posy);
+            initialize_positions (child);
         } else {
-            child->posx = offset + left_border_width(a) + a->paddingy;
+            child->posx = a->posx + left_border_width(a) + a->paddingy;
             child->width = a->width - 2 * a->paddingy - left_right_border_width(a);
             if (child->_on_change_layout)
                 child->_on_change_layout(child);
-            initialize_positions(child, child->posx);
+            initialize_positions (child);
         }
     }
 }

@@ -712,7 +712,7 @@ void set_panel_items_order(Panel *p)
                     break; }
         }
     }
-    initialize_positions(&p->area, 0);
+    initialize_positions (&p->area);
 
     #undef ADD_CHILD
 }

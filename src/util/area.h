@@ -245,8 +245,7 @@ void init_background(Background *bg);
 void initialize_positions(
 // Called on startup to initialize the positions of all Areas in the Area tree.
 // Arguments:
-    void *obj,  // pointer to Area
-    int offset  // offset in pixels from left/top, relative to the window
+    void *obj  // pointer to Area
 );
 
 void relayout(Area *a);

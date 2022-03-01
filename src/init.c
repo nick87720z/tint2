@@ -98,18 +98,19 @@ void handle_cli_arguments(int argc, char **argv)
 
 void handle_env_vars()
 {
-    debug_geometry = getenv("DEBUG_GEOMETRY") != NULL;
+    debug_geometry  = getenv("DEBUG_GEOMETRY") != NULL;
     debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
-    debug_icons = getenv("DEBUG_ICONS") != NULL;
-    debug_fps = getenv("DEBUG_FPS") != NULL;
-    debug_frames = getenv("DEBUG_FRAMES") != NULL;
-    debug_dnd = getenv("DEBUG_DND") != NULL;
+    debug_icons     = getenv("DEBUG_ICONS") != NULL;
+    debug_fps       = getenv("DEBUG_FPS") != NULL;
+    debug_frames    = getenv("DEBUG_FRAMES") != NULL;
+    debug_dnd       = getenv("DEBUG_DND") != NULL;
     debug_thumbnails = getenv("DEBUG_THUMBNAILS") != NULL;
-    debug_timers = getenv("DEBUG_TIMERS") != NULL;
+    debug_timers    = getenv("DEBUG_TIMERS") != NULL;
     debug_executors = getenv("DEBUG_EXECUTORS") != NULL;
-    debug_blink = getenv("DEBUG_BLINK") != NULL;
-    thumb_use_shm = getenv("TINT2_THUMBNAIL_SHM") != NULL;
-    if (debug_fps) {
+    debug_blink     = getenv("DEBUG_BLINK") != NULL;
+    thumb_use_shm   = getenv("TINT2_THUMBNAIL_SHM") != NULL;
+    if (debug_fps)
+    {
         init_fps_distribution();
         char *s = getenv("TRACING_FPS_THRESHOLD");
         if (!s || sscanf(s, "%lf", &tracing_fps_threshold) != 1) {

@@ -308,29 +308,35 @@ static void trigger_callback(void *arg)
 }
 
 typedef struct {
-    Timer *timer;
     int triggered;
+
     bool stop;
     bool change;
-    int change_value_ms;
-    int change_interval_ms;
+    int  change_value_ms;
+    int  change_interval_ms;
+    Timer *timer;
+
     bool add;
-    int add_value_ms;
-    int add_interval_ms;
+    int  add_value_ms;
+    int  add_interval_ms;
+
     bool stop_other;
     bool change_other;
-    int change_other_value_ms;
-    int change_other_interval_ms;
+    int  change_other_value_ms;
+    int  change_other_interval_ms;
     Timer *other;
-} TimeoutContainer;
+}
+TimeoutContainer;
 
 static void container_callback(void *arg)
 {
     TimeoutContainer *container = (TimeoutContainer *)arg;
     container->triggered += 1;
+
     if (container->stop)
-        stop_timer(container->timer);
-    else if (container->change) {
+        stop_timer (container->timer);
+    else if (container->change)
+    {
         change_timer(container->timer,
                      true,
                      container->change_value_ms,
@@ -340,15 +346,24 @@ static void container_callback(void *arg)
         if (container->change_interval_ms)
             container->change = false;
     }
-    if (container->add) {
+
+    if (container->add)
+    {
         Timer *timer = calloc(1, sizeof(Timer));
         init_timer(timer, "container_callback");
-        change_timer(timer, true, container->add_value_ms, container->add_interval_ms, container_callback, arg);
+        change_timer(timer,
+                     true,
+                     container->add_value_ms,
+                     container->add_interval_ms,
+                     container_callback,
+                     arg);
         container->add = false;
     }
+
     if (container->stop_other)
-        stop_timer(container->other);
-    else if (container->change_other) {
+        stop_timer (container->other);
+    else if (container->change_other)
+    {
         change_timer(container->other,
                      true,
                      container->change_other_value_ms,
@@ -365,6 +380,7 @@ TEST(mock_time)
     struct timespec t2 = {0, 0};
     struct timespec t3 = {2000, 3};
     int ret;
+
     set_mock_time(&t1);
     ret = gettime(&t2);
     ASSERT_EQUAL(ret, 0);
@@ -384,6 +400,7 @@ TEST(mock_time_ms)
     struct timespec t2 = {0, 0};
     struct timespec t3 = {2000, 3 * 1000 * 1000};
     int ret;
+
     set_mock_time_ms(1000 * 1000 + 2);
     ret = gettime(&t2);
     ASSERT_EQUAL(ret, 0);

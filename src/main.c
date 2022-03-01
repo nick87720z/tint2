@@ -111,8 +111,10 @@ void handle_event_property_notify(XEvent *e)
             update_desktop_names();
         }
         // Change desktops
-        else if (at == server.atom._NET_NUMBER_OF_DESKTOPS || at == server.atom._NET_DESKTOP_GEOMETRY ||
-                 at == server.atom._NET_DESKTOP_VIEWPORT || at == server.atom._NET_WORKAREA ||
+        else if (at == server.atom._NET_NUMBER_OF_DESKTOPS  ||
+                 at == server.atom._NET_DESKTOP_GEOMETRY    ||
+                 at == server.atom._NET_DESKTOP_VIEWPORT    ||
+                 at == server.atom._NET_WORKAREA            ||
                  at == server.atom._NET_CURRENT_DESKTOP)
         {
             if (debug)
@@ -277,7 +279,9 @@ void handle_event_property_notify(XEvent *e)
         // fprintf(stderr, "tint2: atom root_win = %s, %s\n", XGetAtomName(server.display, at), task->title);
 
         // Window title changed
-        if (at == server.atom._NET_WM_VISIBLE_NAME || at == server.atom._NET_WM_NAME || at == server.atom.WM_NAME)
+        if (at == server.atom._NET_WM_VISIBLE_NAME  ||
+            at == server.atom._NET_WM_NAME          ||
+            at == server.atom.WM_NAME)
         {
             if (task_update_title(task)) {
                 if (g_tooltip.mapped && (g_tooltip.area == (Area *)task))

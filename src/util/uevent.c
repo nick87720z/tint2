@@ -70,23 +70,23 @@ static int uevent_new(struct uevent *ev, char *buffer, int size)
                 /* error: kernel events contain @, triggered by udev events, though */
                 return 0;
             }
-            ev->path = ++p;
+            ev->path = (char *) ++p;
             s = strchr(p, '\0') + 1;
             first = FALSE;
         }
         else
         {
             char *val;
-            if ((val = HAS_CONST_PREFIX(s, end, "ACTION=")) != NULL) {
+            if ((val = (char*)HAS_CONST_PREFIX(s, end, "ACTION=")) != NULL) {
                 ev->action =
                     !strcmp(val, "add"   ) ? (s = val + sizeof("add"   ), UEVENT_ADD)
                 :   !strcmp(val, "remove") ? (s = val + sizeof("remove"), UEVENT_REMOVE)
                 :   !strcmp(val, "change") ? (s = val + sizeof("change"), UEVENT_CHANGE)
                 :   /* default ? */          (s = strchr (val, '\0') + 1, UEVENT_UNKNOWN);
-            } else if ((val = HAS_CONST_PREFIX(s, end, "SEQNUM=")) != NULL) {
+            } else if ((val = (char*)HAS_CONST_PREFIX(s, end, "SEQNUM=")) != NULL) {
                 ev->sequence = atoi(val);
                 s = strchr (s, '\0') + 1;
-            } else if ((val = HAS_CONST_PREFIX(s, end, "SUBSYSTEM=")) != NULL) {
+            } else if ((val = (char*)HAS_CONST_PREFIX(s, end, "SUBSYSTEM=")) != NULL) {
                 ev->subsystem = val;
                 s = strchr (val, '\0') + 1;
             } else {
@@ -96,7 +96,7 @@ static int uevent_new(struct uevent *ev, char *buffer, int size)
                     struct uevent_parameter *param = malloc(sizeof(*param));
                     if (param)
                     {
-                        param->key = s;
+                        param->key = (char *)s;
                         param->val = val;
                         ev->params = g_slist_prepend(ev->params, param);
                     }
@@ -151,7 +151,7 @@ void uevent_handler()
             struct uevent_notify *nb = l->data;
 
             if (!(ev.action & nb->action) ||
-                nb->subsystem && strcmp(ev.subsystem, nb->subsystem) != 0)
+                (nb->subsystem && strcmp(ev.subsystem, nb->subsystem) != 0))
 
                 continue;
 

@@ -55,10 +55,10 @@
 #include "strnatcmp.h"
 #include "common.h"
 
-char *home_dir = NULL;
+const char *home_dir = NULL;
 size_t home_dir_len = 0;
 
-char *user_config_dir = NULL;
+const char *user_config_dir = NULL;
 size_t user_config_dir_len = 0;
 
 void fetch_home_dir (void) {
@@ -1026,7 +1026,7 @@ GSList *slist_append_uniq(GSList *list, gconstpointer ref, GCompareFunc eq, void
         if (e->next == NULL) {
             e = e->next = g_slist_alloc();
             e->next = NULL;
-            e->data = assign ? assign(ref) : ref;
+            e->data = assign ? assign(ref) : (gpointer)ref;
             break;
         }
     }

@@ -106,7 +106,9 @@ typedef enum MouseAction
 
 #define ALL_DESKTOPS 0xFFFFFFFF
 
-extern char *user_config_dir;
+extern const char *home_dir;
+extern const char *user_config_dir;
+extern size_t home_dir_len;
 extern size_t user_config_dir_len;
 
 void fetch_home_dir (void);
@@ -307,8 +309,5 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
 #if !GLIB_CHECK_VERSION(2, 40, 0)
 #define g_assert_nonnull(expr) g_assert((expr) != NULL)
 #endif
-
-extern char *home_dir;
-extern size_t home_dir_len;
 
 #endif

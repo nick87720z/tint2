@@ -480,7 +480,7 @@ void add_entry(char *key, char *value)
 #endif
         clock_enabled = FALSE;
         taskbar_enabled = FALSE;
-        for (int j = strlen(panel_items_order); j; j--)
+        for (int items_n = strlen(panel_items_order), j = 0; j < items_n; j++)
             switch (panel_items_order[j]) {
             case 'L':   launcher_enabled = TRUE;
                         break;
@@ -1142,10 +1142,9 @@ void add_entry(char *key, char *value)
     case key_launcher_icon_size:
         launcher_max_icon_size = atoi(value);
         break;
-    case key_launcher_item_app: {
+    case key_launcher_item_app:
         panel_config.launcher.list_apps = g_slist_append(panel_config.launcher.list_apps, expand_tilde(value));
         break;
-    }
     case key_launcher_apps_dir: {
         char *path = expand_tilde(value);
         load_launcher_app_dir(path);

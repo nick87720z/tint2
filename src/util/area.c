@@ -104,7 +104,8 @@ void relayout_dynamic(Area *a, int level)
             if (a->_resize(a))
                 a->_changed |= CHANGED_SIZE;
             // resize children with LAYOUT_DYNAMIC
-            for_children(a, l, GList *) {
+            for_children(a, l, GList *)
+            {
                 Area *child = ((Area *)l->data);
                 if (child->size_mode == LAYOUT_DYNAMIC && child->children)
                     child->resize_needed = TRUE;
@@ -118,7 +119,8 @@ void relayout_dynamic(Area *a, int level)
             int pos =
                 (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx;
 
-            for_children(a, l, GList *) {
+            for_children(a, l, GList *)
+            {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -146,7 +148,8 @@ void relayout_dynamic(Area *a, int level)
                                         : a->posy + a->height - bottom_border_width(a)) -
                       a->paddingx;
 
-            for_children_rev(a, l, GList *) {
+            for_children_rev(a, l, GList *)
+            {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -175,7 +178,8 @@ void relayout_dynamic(Area *a, int level)
 
             int children_size = 0;
 
-            for_children(a, l, GList *) {
+            for_children(a, l, GList *)
+            {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -187,7 +191,8 @@ void relayout_dynamic(Area *a, int level)
             int pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx
                     + ((panel_horizontal ? a->width : a->height) - children_size) / 2;
 
-            for_children(a, l, GList *) {
+            for_children(a, l, GList *)
+            {
                 Area *child = ((Area *)l->data);
                 if (!child->on_screen)
                     continue;
@@ -238,7 +243,8 @@ int container_compute_desired_size(Area *a)
         return 0;
     int result = 2 * a->paddingx + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
     int children_count = 0;
-    for_children(a, l, GList *) {
+    for_children(a, l, GList *)
+    {
         Area *child = (Area *)l->data;
         if (child->on_screen) {
             result += compute_desired_size(child);
@@ -264,7 +270,8 @@ int relayout_with_constraint(Area *a, int maximum_size)
     if (panel_horizontal) {
         // detect free size for LAYOUT_DYNAMIC Areas
         int size = a->width - 2 * a->paddingx - left_right_border_width(a);
-        for_children(a, l, GList *) {
+        for_children(a, l, GList *)
+        {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
                 size -= child->width;
@@ -288,7 +295,8 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
 
         // Resize LAYOUT_DYNAMIC objects
-        for_children(a, l, GList *) {
+        for_children(a, l, GList *)
+        {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
                 int old_width = child->width;
@@ -304,7 +312,8 @@ int relayout_with_constraint(Area *a, int maximum_size)
     } else {
         // detect free size for LAYOUT_DYNAMIC's Area
         int size = a->height - 2 * a->paddingx - top_bottom_border_width(a);
-        for_children(a, l, GList *) {
+        for_children(a, l, GList *)
+        {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
                 size -= child->height;
@@ -328,7 +337,8 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
 
         // Resize LAYOUT_DYNAMIC objects
-        for_children(a, l, GList *) {
+        for_children(a, l, GList *)
+        {
             Area *child = (Area *)l->data;
             if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
                 int old_height = child->height;

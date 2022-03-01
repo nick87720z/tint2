@@ -49,12 +49,10 @@ gpointer copy_separator(gconstpointer arg, gpointer data)
 void init_separator()
 {
     GList *to_remove = panel_config.separator_list;
-    for (int k = 0; k < strlen(panel_items_order) && to_remove; k++) {
+    for_panel_items_order (&& to_remove)
         if (panel_items_order[k] == ':') {
             to_remove = to_remove->next;
         }
-    }
-
     if (to_remove) {
         if (to_remove == panel_config.separator_list) {
             g_list_free_full(to_remove, destroy_separator);

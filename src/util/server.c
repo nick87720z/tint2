@@ -459,8 +459,8 @@ void server_get_number_of_desktops()
 
     server.viewports = calloc(num_viewports, sizeof(Viewport));
     int k = 0;
-    for (int i = 0; i < MAX(x_screen_height / work_area_height, 1); i++) {
-        for (int j = 0; j < MAX(x_screen_width / work_area_width, 1); j++) {
+    for (int _max = MAX(x_screen_height / work_area_height, 1), i = 0; i < _max; i++) {
+        for (int j = 0; j < _max; j++) {
             server.viewports[k].x = j * work_area_width;
             server.viewports[k].y = i * work_area_height;
             server.viewports[k].width = work_area_width;

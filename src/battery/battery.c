@@ -167,7 +167,7 @@ void battery_update_text(char *dest, char *format)
     // This ensures the string will always be null-terminated.
     memset(dest, 0, BATTERY_BUF_SIZE);
 
-    for (size_t o = 0; o < strlen(format); o++) {
+    for (size_t len = strlen(format), o = 0; o < len; o++) {
         char buf[BATTERY_BUF_SIZE];
         memset(buf, 0, BATTERY_BUF_SIZE);
         char *c = &format[o];

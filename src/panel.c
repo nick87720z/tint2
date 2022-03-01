@@ -246,7 +246,7 @@ void init_panel()
         init_panel_size_and_position(p);
         area_gradients_create(&p->area);
         // add children according to panel_items
-        for (int k = 0; k < strlen(panel_items_order); k++) {
+        for_panel_items_order() {
             switch (panel_items_order[k]) {
             case 'L':   init_launcher_panel(p);
                         break;
@@ -671,7 +671,7 @@ void set_panel_items_order(Panel *p)
     int i_separator = 0;
     int i_freespace = 0;
     int i_button = 0;
-    for (int k = 0; k < strlen(panel_items_order); k++)
+    for_panel_items_order()
     {
         int i = p - panels;
         switch (panel_items_order[k]) {

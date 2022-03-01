@@ -950,7 +950,10 @@ GSList *load_locations_from_dir(GSList *locations, const char *dir, ...) {
     va_list ap;
     va_start(ap, dir);
     dir_len++;
-    for (const char *suffix = va_arg(ap, const char *); suffix; suffix = va_arg(ap, const char *)) {
+    for (const char *suffix = va_arg(ap, const char *);
+         suffix;
+         suffix = va_arg(ap, const char *))
+    {
         int suf_len, buf_size_req;
         suf_len = strlen(suffix);
         buf_size_req = dir_len + suf_len;

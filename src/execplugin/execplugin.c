@@ -155,12 +155,10 @@ final_free:
 void init_execp()
 {
     GList *to_remove = panel_config.execp_list;
-    for (int k = 0, len = strlen(panel_items_order); k < len && to_remove; k++) {
+    for_panel_items_order (&& to_remove)
         if (panel_items_order[k] == 'E') {
             to_remove = to_remove->next;
         }
-    }
-
     if (to_remove) {
         if (to_remove == panel_config.execp_list) {
             g_list_free_full(to_remove, destroy_execp);

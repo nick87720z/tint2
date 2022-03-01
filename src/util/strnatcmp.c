@@ -46,10 +46,8 @@ static int compare_right(char const *a, char const *b)
     int bias = 0;
 
     for (;; a++, b++) {
-        if (!isdigit(*a) && !isdigit(*b))
-            return bias;
-        else if (!isdigit(*a))
-            return -1;
+        if (!isdigit(*a))
+            return !isdigit(*b) ? bias : -1;
         else if (!isdigit(*b))
             return +1;
         else if (*a < *b) {
@@ -70,10 +68,8 @@ static int compare_left(char const *a, char const *b)
 // The first to have a different value wins.
 {
     for (;; a++, b++) {
-        if (!isdigit(*a) && !isdigit(*b))
-            return 0;
-        else if (!isdigit(*a))
-            return -1;
+        if (!isdigit(*a))
+            return !isdigit(*b) ? 0 : -1;
         else if (!isdigit(*b))
             return +1;
         else if (*a < *b)

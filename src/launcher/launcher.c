@@ -510,7 +510,7 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
         launcherIcon->cwd = entry.cwd ? strdup(entry.cwd) : NULL;
         launcherIcon->start_in_terminal = entry.start_in_terminal;
         launcherIcon->startup_notification = entry.startup_notification;
-        launcherIcon->icon_name = entry.icon ? strdup(entry.icon) : strdup(DEFAULT_ICON);
+        launcherIcon->icon_name = strdup (entry.icon ? entry.icon : DEFAULT_ICON);
         if (entry.name)
             launcherIcon->icon_tooltip = entry.generic_name ? g_strdup_printf("%s (%s)", entry.name, entry.generic_name)
                                                             : g_strdup_printf("%s", entry.name);

@@ -96,11 +96,11 @@ void destroy_button(void *obj)
 void init_button()
 {
     GList *to_remove = panel_config.button_list;
-    for (int k = 0; k < strlen(panel_items_order) && to_remove; k++) {
+
+    for_panel_items_order (&& to_remove)
         if (panel_items_order[k] == 'P') {
             to_remove = to_remove->next;
         }
-    }
 
     if (to_remove) {
         if (to_remove == panel_config.button_list) {

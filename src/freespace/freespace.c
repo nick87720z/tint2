@@ -41,7 +41,7 @@ void init_freespace_panel(void *p)
         return;
 
     GList *fs_tail = NULL;
-    for (size_t k = 0; k < strlen(panel_items_order); k++)
+    for_panel_items_order ()
     {
         if (panel_items_order[k] == 'F') {
             FreeSpace *freespace = (FreeSpace *)calloc(1, sizeof(FreeSpace));

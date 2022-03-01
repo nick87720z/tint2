@@ -360,4 +360,7 @@ void update_dependent_gradients(Area *a);
 gboolean area_is_first(void *obj);
 gboolean area_is_last(void *obj);
 
+#define for_panel_items_order(...)                                                       \
+for (int items_n = strlen(panel_items_order), k = 0; k < items_n __VA_ARGS__; k++)
+
 #endif

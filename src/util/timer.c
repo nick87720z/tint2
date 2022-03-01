@@ -102,10 +102,10 @@ struct timeval *get_duration_to_next_timer_expiration()
     long long min_expiration_time = -1;
     Timer *next_timer = NULL;
     {
-        GSList *it;
-        for (it = timers; it; it = it->next)
-            {
+        GSList *it = timers;
+        for (; it; it = it->next) {
             Timer *timer = (Timer *)it->data;
+
             if (timer->enabled_)
             {
                 min_expiration_time = timer->expiration_time_ms_;
@@ -114,9 +114,9 @@ struct timeval *get_duration_to_next_timer_expiration()
                 break;
             }
         }
-        for (it = it->next; it; it = it->next)
-        {
+        for (; it; it = it->next) {
             Timer *timer = (Timer *)it->data;
+
             if (timer->enabled_ &&
                 timer->expiration_time_ms_ < min_expiration_time)
             {

@@ -76,16 +76,19 @@ void init_timer(Timer *timer, const char *name)
     else
     if (! timers)
         timers = g_list_append (timers, timer);
-    else
-    for (GList *it = timers, *next; ; it = next)
-    {
-        if (it->data == timer)
-            return;
-        if (! (next = it->next))
+    else {
+        for (GList *it = current_tail ? current_tail->next : timers, *next;
+             it; it = next)
         {
-            it = g_list_append (it, timer);
-            return;
+            if (it->data == timer)
+                return;
+            if (! (next = it->next))
+            {
+                it = g_list_append (it, timer);
+                return;
+            }
         }
+        timers = g_list_append (timers, timer);
     }
 }
 
@@ -101,7 +104,12 @@ void destroy_timer(Timer *timer)
     if (timer_in_bound(timer))
         timer->destroy_ = true;
     else
-        timers = g_list_remove (timers, timer);
+        timers = g_list_delete_link (
+                    timers,
+                    g_list_find (
+                        current_tail ? current_tail->next : timers,
+                        timer
+        ));
 }
 
 void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, TimerCallback *callback, void *arg)

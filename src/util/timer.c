@@ -202,9 +202,8 @@ void handle_expired_timers()
     }
 
     current_tail = g_list_last (it);
-    bool loop_end = false;
 
-    for (; it && !loop_end; it = it->next)
+    for (; it; it = it->next)
     {
         Timer *timer = (Timer *)it->data;
         if (!timer->destroy_ && timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)

@@ -59,7 +59,7 @@ void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, Timer
 
 void stop_timer(Timer *timer);
 
-struct timeval *get_duration_to_next_timer_expiration();
+struct timespec *get_duration_to_next_timer_expiration();
 // Get the time duration to the next expiration time, or NULL if there is no active timer.
 // Do not free the pointer; it is harmless to change its contents.
 

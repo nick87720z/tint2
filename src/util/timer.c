@@ -101,9 +101,9 @@ void stop_timer(Timer *timer)
     change_timer(timer, false, 0, 0, NULL, NULL);
 }
 
-struct timeval *get_duration_to_next_timer_expiration()
+struct timespec *get_duration_to_next_timer_expiration()
 {
-    static struct timeval result = {0, 0};
+    static struct timespec result = {0, 0};
     long long min_expiration_time = -1;
     Timer *next_timer = NULL;
     {
@@ -151,7 +151,7 @@ struct timeval *get_duration_to_next_timer_expiration()
                 next_timer->expiration_time_ms_,
                 next_timer->period_ms_);
     result.tv_sec = duration / 1000;
-    result.tv_usec = 1000 * (duration - result.tv_sec * 1000);
+    result.tv_nsec = 1000000 * (duration - result.tv_sec * 1000);
     return &result;
 }
 
@@ -303,11 +303,11 @@ double profiling_get_time()
 ///////////////////////////////////////////////////////////////////////////////
 // Tests start here
 
-static int64_t timeval_to_ms(struct timeval *v)
+static int64_t timeval_to_ms(struct timespec *v)
 {
     if (!v)
         return -1;
-    return (int64_t)(v->tv_sec * 1000 + v->tv_usec / 1000);
+    return (int64_t)(v->tv_sec * 1000 + v->tv_nsec / 1000000);
 }
 
 static void trigger_callback(void *arg)

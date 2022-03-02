@@ -33,6 +33,8 @@ bool debug_timers = false;
 // All active timers
 static GList *timers = NULL;
 static GList *current_tail = NULL;
+static GList *current_iter = NULL;
+static bool current_rm_flag = false;
 
 long long get_time_ms();
 
@@ -71,7 +73,11 @@ void destroy_timer(Timer *timer)
 
     if (current_tail && timer == current_tail->data)
         current_tail = current_tail->prev;
-    timers = g_list_remove(timers, timer);
+
+    if (current_iter && timer == current_iter->data)
+        current_rm_flag = true;
+    else
+        timers = g_list_remove(timers, timer);
 }
 
 void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, TimerCallback *callback, void *arg)
@@ -171,10 +177,11 @@ void handle_expired_timers()
             break;
     }
     current_tail = g_list_last (it);
+    bool loop_end = false;
 
-    for (; it; it = it->next)
+    for (current_iter = it; current_iter && !loop_end; )
     {
-        Timer *timer = (Timer *)it->data;
+        Timer *timer = (Timer *)current_iter->data;
         if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
         {
             if (timer->period_ms_ == 0) {
@@ -196,11 +203,20 @@ void handle_expired_timers()
                         timer->period_ms_);
             timer->callback_(timer->arg_);
         }
-        if (it == current_tail)
-            break;
+        if (current_iter == current_tail)
+            loop_end = true;
+
+        GList *it_next = current_iter->next;
+        if (current_rm_flag)
+        {
+            timers = g_list_delete_link (timers, current_iter);
+            current_rm_flag = false;
+        }
+        current_iter = it_next;
     }
 
     current_tail = NULL;
+    current_iter = NULL;
 }
 
 // Time helper functions

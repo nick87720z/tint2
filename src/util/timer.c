@@ -69,7 +69,7 @@ void destroy_timer(Timer *timer)
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, timer->name_, (void *)timer);
 
-    if (timer == current_head->data)
+    if (current_head && timer == current_head->data)
         current_head = current_head->next;
     timers = g_slist_remove(timers, timer);
 }

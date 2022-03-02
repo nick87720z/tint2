@@ -54,8 +54,16 @@ void init_timer(Timer *timer, const char *name)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, name, (void *)timer);
     memset(timer, 0, sizeof(*timer));
     strncpy(timer->name_, name, strlen_const(timer->name_));
-    if (!g_slist_find (timers, timer))
-        timers = g_slist_prepend(timers, timer);
+
+    if (!timers)
+        timers = g_slist_append(timers, timer);
+    else
+    for (GSList *it = timers, *it_next; ( it->data != timer ); it = it_next)
+        if (! (it_next = it->next))
+        {
+            it = g_slist_append(it, timer);
+            break;
+        }
 }
 
 void destroy_timer(Timer *timer)
@@ -146,8 +154,7 @@ struct timeval *get_duration_to_next_timer_expiration()
                 next_timer->expiration_time_ms_,
                 next_timer->period_ms_);
     result.tv_sec = duration / 1000;
-    duration -= result.tv_sec * 1000;
-    result.tv_usec = 1000 * duration;
+    result.tv_usec = 1000 * (duration - result.tv_sec * 1000);
     return &result;
 }
 

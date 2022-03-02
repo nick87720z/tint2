@@ -32,6 +32,7 @@ bool debug_timers = false;
 
 // All active timers
 static GSList *timers = NULL;
+static GSList *current_head = NULL;
 
 long long get_time_ms();
 
@@ -67,6 +68,9 @@ void destroy_timer(Timer *timer)
     }
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, timer->name_, (void *)timer);
+
+    if (timer == current_head->data)
+        current_head = current_head->next;
     timers = g_slist_remove(timers, timer);
 }
 
@@ -157,10 +161,9 @@ void handle_expired_timers()
         return;
 
     long long now = get_time_ms();
-    GSList  *_timers        = timers,
-            *current_timers = NULL;
+    GSList *current_dup = NULL;
 
-    for (GSList *it = _timers; it; it = it->next) {
+    for (GSList *it = timers; it; it = it->next) {
         Timer *timer = (Timer *)it->data;
 
         if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now) {
@@ -171,20 +174,22 @@ void handle_expired_timers()
             // Copy timers for execution, as the callbacks may create new timers,
             // which we don't want to trigger in this event loop iteration,
             // to prevent infinite loops.
-            current_timers = g_slist_prepend (current_timers, timer);
+            current_dup = g_slist_prepend (current_dup, timer);
         }
     }
-    if (! current_timers)
+    if (! current_dup)
         return;
+
+    current_head = timers;
 
     bool triggered;
     do {
         triggered = false;
-        for (GSList *it = current_timers; it; it = it->next)
+        for (GSList *it = current_dup; it; it = it->next)
         {
             Timer *timer = (Timer *)it->data;
             // Check that it is still registered.
-            if (!g_slist_find(_timers, timer))
+            if (!g_slist_find(current_head, timer))
                 continue;
             if (!timer->enabled_ || timer->handled_ || !timer->callback_ || timer->expiration_time_ms_ > now)
                 continue;
@@ -213,7 +218,8 @@ void handle_expired_timers()
         }
     } while (triggered);
 
-    g_slist_free (current_timers);
+    current_head = NULL;
+    g_slist_free (current_dup);
 }
 
 // Time helper functions

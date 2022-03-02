@@ -31,8 +31,8 @@ bool debug_timers = false;
 #define MOCK_ORIGIN 1000000
 
 // All active timers
-static GSList *timers = NULL;
-static GSList *current_head = NULL;
+static GList *timers = NULL;
+static GList *current_tail = NULL;
 
 long long get_time_ms();
 
@@ -45,7 +45,7 @@ void cleanup_timers()
 {
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s\n", __FUNCTION__);
-    g_slist_free(timers);
+    g_list_free (timers);
     timers = NULL;
 }
 
@@ -56,27 +56,27 @@ void init_timer(Timer *timer, const char *name)
     memset(timer, 0, sizeof(*timer));
     strncpy(timer->name_, name, strlen_const(timer->name_));
 
-    if (! g_slist_find (timers, timer))
-        timers = g_slist_prepend(timers, timer);
+    if (! g_list_find (timers, timer))
+        timers = g_list_append(timers, timer);
 }
 
 void destroy_timer(Timer *timer)
 {
-    if (warnings_for_timers && !g_slist_find(timers, timer)) {
+    if (warnings_for_timers && !g_list_find(timers, timer)) {
         fprintf(stderr, RED "tint2: Attempt to destroy nonexisting timer: %s" RESET "\n", timer->name_);
         return;
     }
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, timer->name_, (void *)timer);
 
-    if (current_head && timer == current_head->data)
-        current_head = current_head->next;
-    timers = g_slist_remove(timers, timer);
+    if (current_tail && timer == current_tail->data)
+        current_tail = current_tail->prev;
+    timers = g_list_remove(timers, timer);
 }
 
 void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, TimerCallback *callback, void *arg)
 {
-    if (!g_slist_find(timers, timer)) {
+    if (!g_list_find(timers, timer)) {
         fprintf(stderr, RED "tint2: Attempt to change unknown timer" RESET "\n");
         init_timer(timer, "unknown");
     }
@@ -107,7 +107,7 @@ struct timespec *get_duration_to_next_timer_expiration()
     long long min_expiration_time = -1;
     Timer *next_timer = NULL;
     {
-        GSList *it = timers;
+        GList *it = timers;
         for (; it; it = it->next) {
             Timer *timer = (Timer *)it->data;
 
@@ -161,39 +161,22 @@ void handle_expired_timers()
         return;
 
     long long now = get_time_ms();
-    GSList *current_dup = NULL;
+    GList *it;
 
-    for (GSList *it = timers; it; it = it->next) {
+    for (it = timers; it; it = it->next) {
+        if (!it) return;
+
         Timer *timer = (Timer *)it->data;
-
-        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now) {
-            // Mark all timers as not handled.
-            // This is to ensure not triggering a timer more than once per event loop iteration,
-            // in case it is modified from a callback.
-            timer->handled_ = false;
-            // Copy timers for execution, as the callbacks may create new timers,
-            // which we don't want to trigger in this event loop iteration,
-            // to prevent infinite loops.
-            current_dup = g_slist_prepend (current_dup, timer);
-        }
+        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
+            break;
     }
-    if (! current_dup)
-        return;
+    current_tail = g_list_last (it);
 
-    current_head = timers;
-
-    bool triggered;
-    do {
-        triggered = false;
-        for (GSList *it = current_dup; it; it = it->next)
+    for (; it; it = it->next)
+    {
+        Timer *timer = (Timer *)it->data;
+        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
         {
-            Timer *timer = (Timer *)it->data;
-            // Check that it is still registered.
-            if (!g_slist_find(current_head, timer))
-                continue;
-            if (!timer->enabled_ || timer->handled_ || !timer->callback_ || timer->expiration_time_ms_ > now)
-                continue;
-            timer->handled_ = true;
             if (timer->period_ms_ == 0) {
                 // One shot timer, turn it off.
                 timer->enabled_ = false;
@@ -212,14 +195,12 @@ void handle_expired_timers()
                         timer->expiration_time_ms_,
                         timer->period_ms_);
             timer->callback_(timer->arg_);
-            // The callback may have modified timers, so start from scratch
-            triggered = true;
-            break;
         }
-    } while (triggered);
+        if (it == current_tail)
+            break;
+    }
 
-    current_head = NULL;
-    g_slist_free (current_dup);
+    current_tail = NULL;
 }
 
 // Time helper functions

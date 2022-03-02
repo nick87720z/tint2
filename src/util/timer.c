@@ -55,15 +55,8 @@ void init_timer(Timer *timer, const char *name)
     memset(timer, 0, sizeof(*timer));
     strncpy(timer->name_, name, strlen_const(timer->name_));
 
-    if (!timers)
-        timers = g_slist_append(timers, timer);
-    else
-    for (GSList *it = timers, *it_next; ( it->data != timer ); it = it_next)
-        if (! (it_next = it->next))
-        {
-            it = g_slist_append(it, timer);
-            break;
-        }
+    if (! g_slist_find (timers, timer))
+        timers = g_slist_prepend(timers, timer);
 }
 
 void destroy_timer(Timer *timer)
@@ -164,33 +157,34 @@ void handle_expired_timers()
         return;
 
     long long now = get_time_ms();
+    GSList  *_timers        = timers,
+            *current_timers = NULL;
 
-    // Iterate until first expired timer
-    for (GSList *it = timers; ; it = it->next)
-    {
-        if (!it) return;
+    for (GSList *it = _timers; it; it = it->next) {
         Timer *timer = (Timer *)it->data;
-        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
-            break;
-    }
 
-    // Mark all timers as not handled.
-    // This is to ensure not triggering a timer more than once per event loop iteration,
-    // in case it is modified from a callback.
-    for (GSList *it = timers; it; it = it->next)
-    {
-        Timer *timer = (Timer *)it->data;
-        timer->handled_ = false;
+        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now) {
+            // Mark all timers as not handled.
+            // This is to ensure not triggering a timer more than once per event loop iteration,
+            // in case it is modified from a callback.
+            timer->handled_ = false;
+            // Copy timers for execution, as the callbacks may create new timers,
+            // which we don't want to trigger in this event loop iteration,
+            // to prevent infinite loops.
+            current_timers = g_slist_prepend (current_timers, timer);
+        }
     }
+    if (! current_timers)
+        return;
 
     bool triggered;
     do {
         triggered = false;
-        for (GSList *it = timers; it; it = it->next)
+        for (GSList *it = current_timers; it; it = it->next)
         {
             Timer *timer = (Timer *)it->data;
             // Check that it is still registered.
-            if (!g_slist_find(timers, timer))
+            if (!g_slist_find(_timers, timer))
                 continue;
             if (!timer->enabled_ || timer->handled_ || !timer->callback_ || timer->expiration_time_ms_ > now)
                 continue;
@@ -218,6 +212,8 @@ void handle_expired_timers()
             break;
         }
     } while (triggered);
+
+    g_slist_free (current_timers);
 }
 
 // Time helper functions

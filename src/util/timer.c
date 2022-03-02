@@ -32,9 +32,9 @@ bool debug_timers = false;
 
 // All active timers
 static GList *timers = NULL;
+
+// Delimiter for currently iterated timers
 static GList *current_tail = NULL;
-static GList *current_iter = NULL;
-static bool current_rm_flag = false;
 
 long long get_time_ms();
 
@@ -51,6 +51,19 @@ void cleanup_timers()
     timers = NULL;
 }
 
+bool timer_in_bound (Timer *timer)
+{
+    if (current_tail)
+        for (GList *it = timers; it; it = it->next)
+        {
+            if (it->data == timer)
+                return true;
+            if (it == current_tail)
+                break;
+        }
+    return false;
+}
+
 void init_timer(Timer *timer, const char *name)
 {
     if (debug_timers)
@@ -58,26 +71,37 @@ void init_timer(Timer *timer, const char *name)
     memset(timer, 0, sizeof(*timer));
     strncpy(timer->name_, name, strlen_const(timer->name_));
 
-    if (! g_list_find (timers, timer))
-        timers = g_list_append(timers, timer);
+    if (timer_in_bound(timer))
+        timer->destroy_ = false;
+    else
+    if (! timers)
+        timers = g_list_append (timers, timer);
+    else
+    for (GList *it = timers, *next; ; it = next)
+    {
+        if (it->data == timer)
+            return;
+        if (! (next = it->next))
+        {
+            it = g_list_append (it, timer);
+            return;
+        }
+    }
 }
 
 void destroy_timer(Timer *timer)
 {
-    if (warnings_for_timers && !g_list_find(timers, timer)) {
+    if (warnings_for_timers && !g_list_find (timers, timer)) {
         fprintf(stderr, RED "tint2: Attempt to destroy nonexisting timer: %s" RESET "\n", timer->name_);
         return;
     }
     if (debug_timers)
         fprintf(stderr, "tint2: timers: %s: %s, %p\n", __FUNCTION__, timer->name_, (void *)timer);
 
-    if (current_tail && timer == current_tail->data)
-        current_tail = current_tail->prev;
-
-    if (current_iter && timer == current_iter->data)
-        current_rm_flag = true;
+    if (timer_in_bound(timer))
+        timer->destroy_ = true;
     else
-        timers = g_list_remove(timers, timer);
+        timers = g_list_remove (timers, timer);
 }
 
 void change_timer(Timer *timer, bool enabled, int delay_ms, int period_ms, TimerCallback *callback, void *arg)
@@ -176,13 +200,14 @@ void handle_expired_timers()
         if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
             break;
     }
+
     current_tail = g_list_last (it);
     bool loop_end = false;
 
-    for (current_iter = it; current_iter && !loop_end; )
+    for (; it && !loop_end; it = it->next)
     {
-        Timer *timer = (Timer *)current_iter->data;
-        if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
+        Timer *timer = (Timer *)it->data;
+        if (!timer->destroy_ && timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
         {
             if (timer->period_ms_ == 0) {
                 // One shot timer, turn it off.
@@ -203,20 +228,25 @@ void handle_expired_timers()
                         timer->period_ms_);
             timer->callback_(timer->arg_);
         }
-        if (current_iter == current_tail)
-            loop_end = true;
-
-        GList *it_next = current_iter->next;
-        if (current_rm_flag)
-        {
-            timers = g_list_delete_link (timers, current_iter);
-            current_rm_flag = false;
-        }
-        current_iter = it_next;
+        if (it == current_tail)
+            break;
     }
+    for (it = timers; it; )
+    {
+        Timer *timer = (Timer *)it->data;
+        GList *it_next = it->next;
 
+        if (timer->destroy_) {
+            timer->destroy_ = false;
+            timers = g_list_delete_link (timers, it);
+        }
+
+        if (it == current_tail)
+            break;
+
+        it = it_next;
+    }
     current_tail = NULL;
-    current_iter = NULL;
 }
 
 // Time helper functions

@@ -35,10 +35,9 @@ typedef struct {
     int period_ms_;
     TimerCallback *callback_;
     void *arg_;
-    bool handled_;
 } Timer;
 
-#define DEFAULT_TIMER {"", 0, 0, 0, 0, 0, 0}
+#define DEFAULT_TIMER {"", 0, 0, 0, 0, 0}
 
 #define INIT_TIMER(t) init_timer(&t, #t)
 

@@ -269,6 +269,9 @@ void init_X11_pre_config()
     server.desktop = get_current_desktop();
     server.has_shm = XShmQueryExtension(server.display);
 
+    // This line adds dependency on env variables to be handled first
+    fprintf (stderr, "tint2: xShm: %s\n", !server.has_shm ? "Unavailable" : thumb_use_shm ? "Enabled" : "Disabled");
+
     // Needed since the config file uses '.' as decimal separator
     setlocale(LC_ALL, "");
     setlocale(LC_NUMERIC, "POSIX");

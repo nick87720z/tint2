@@ -27,13 +27,21 @@
 void print_usage()
 {
     fprintf(stdout,
-            "Usage: tint2 [OPTION...]\n"
+            "Usage: tint2 [OPTION...] [path_to_config_file]\n"
             "\n"
             "Options:\n"
-            "  -c path_to_config_file   Loads the configuration file from a\n"
-            "                           custom location.\n"
-            "  -v, --version            Prints version information and exits.\n"
-            "  -h, --help               Display this help and exits.\n"
+            "      --battery-sys-prefix          Battery system prefix.\n"
+            "                                    Linux default is \"/sys/class/power_supply\".\n"
+            "  -c, --config path_to_config_file  Loads the configuration file from a\n"
+            "                                    custom location.\n"
+            "  -s, --snapshot path_to_snapshot   Save panel snapshot to file and quit\n"
+            "  -v, --version                     Prints version information and exits.\n"
+            "  -h, --help                        Display this help and exits.\n"
+            "\n"
+            "Developer options:\n"
+            "      --test                        Run built-in self-tests.\n"
+            "      --test-verbose                Same as --tests, but with verbose errors report.\n"
+            "      --dump-image-data             Wraps image file into resource in the simplest possible form.\n"
             "\n"
             "For more information, run `man tint2` or visit the project page\n"
             "<https://gitlab.com/nick87720z/tint2>.\n");

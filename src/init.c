@@ -39,9 +39,9 @@ void print_usage()
             "  -h, --help                        Display this help and exits.\n"
             "\n"
             "Developer options:\n"
-            "      --test                        Run built-in self-tests.\n"
-            "      --test-verbose                Same as --tests, but with verbose errors report.\n"
-            "      --dump-image-data             Wraps image file into resource in the simplest possible form.\n"
+            "      --test                                 Run built-in self-tests.\n"
+            "      --test-verbose                         Same as --tests, but with verbose errors report.\n"
+            "      --dump-image-data image output_prefix  Wraps image file into resource in the simplest possible form.\n"
             "\n"
             "For more information, run `man tint2` or visit the project page\n"
             "<https://gitlab.com/nick87720z/tint2>.\n");

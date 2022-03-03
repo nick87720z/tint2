@@ -49,8 +49,10 @@ void handle_cli_arguments(int argc, char **argv)
         switch (str_index ( argv[i],
                             (char *[]){
                                 "--battery-sys-prefix",
+                                "--config",
                                 "--dump-image-data",
                                 "--help",
+                                "--snapshot",
                                 "--test",
                                 "--test-verbose",
                                 "--version",
@@ -58,33 +60,38 @@ void handle_cli_arguments(int argc, char **argv)
                                 "-h",
                                 "-s",
                                 "-v", },
-                            10 ))
+                            12 ))
         {
-            case 2: case 7:
+            case 3: case 9: // -h, --help
                     print_usage();
                     exit(0);
                     break;
-            case 5: case 9:
+            case 7: case 11: // -v, --version
                     fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
                     exit(0);
                     break;
-            case 3: run_all_tests(false);
+            case 5: // --test
+                    run_all_tests(false);
                     exit(0);
                     break;
-            case 4: run_all_tests(true);
+            case 6: // --test-verbose
+                    run_all_tests(true);
                     exit(0);
                     break;
-            case 1: dump_image_data(argv[i+1], argv[i+2]);
+            case 2: // --dump-image-data
+                    dump_image_data(argv[i+1], argv[i+2]);
                     exit(0);
                     break;
-            case 6: if (i + 1 < argc) {
+            case 1: case 8: // -c, --config
+                    if (i + 1 < argc) {
                         i++;
                         config_path = strdup(argv[i]);
                     } else {
                         error = TRUE;
                     }
                     break;
-            case 8: if (i + 1 < argc) {
+            case 4: case 10: // -s, --snapshot
+                    if (i + 1 < argc) {
                         i++;
                         snapshot_path = strdup(argv[i]);
                     } else {
@@ -92,7 +99,8 @@ void handle_cli_arguments(int argc, char **argv)
                     }
                     break;
         #ifdef ENABLE_BATTERY
-            case 0: if (i + 1 < argc) {
+            case 0: // --battery-sys-prefix
+                    if (i + 1 < argc) {
                         i++;
                         battery_sys_prefix = strdup(argv[i]);
                     } else {

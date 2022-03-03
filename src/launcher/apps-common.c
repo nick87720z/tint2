@@ -115,6 +115,9 @@ void expand_exec(DesktopEntry *entry, const char *path)
     }
 }
 
+static char *df_opts_sv[] = {"Exec", "Icon", "NoDisplay", "Path", "StartupNotify", "Terminal"};
+enum                        {i_Exec, i_Icon, i_NoDisplay, i_Path, i_StartupNotify, i_Terminal, DF_OPTIONS};
+
 gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
 {
     entry->name = entry->generic_name = entry->icon = entry->exec = entry->cwd = NULL;
@@ -197,23 +200,23 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                     _lang_to_prop (key, entry->generic_name);
                 }
             } else {
-                switch (str_index (key, (char *[]){"Exec", "Icon", "NoDisplay", "Path", "StartupNotify", "Terminal"}, 6))
+                switch (str_index (key, df_opts_sv, DF_OPTIONS))
                 {
-                    case 0: if (!entry->exec)
-                                entry->exec = strdup(value);
-                            break;
-                    case 1: if (!entry->icon)
-                                entry->icon = strdup(value);
-                            break;
-                    case 2: entry->hidden_from_menus = strcasecmp(value, "true") == 0;
-                            break;
-                    case 3: if (!entry->cwd)
-                                entry->cwd = strdup(value);
-                            break;
-                    case 4: entry->startup_notification = strcasecmp(value, "true") == 0;
-                            break;
-                    case 5: entry->start_in_terminal = strcasecmp(value, "true") == 0;
-                            break;
+                    case i_Exec:            if (!entry->exec)
+                                                entry->exec = strdup(value);
+                                            break;
+                    case i_Icon:            if (!entry->icon)
+                                                entry->icon = strdup(value);
+                                            break;
+                    case i_NoDisplay:       entry->hidden_from_menus = strcasecmp(value, "true") == 0;
+                                            break;
+                    case i_Path:            if (!entry->cwd)
+                                                entry->cwd = strdup(value);
+                                            break;
+                    case i_StartupNotify:   entry->startup_notification = strcasecmp(value, "true") == 0;
+                                            break;
+                    case i_Terminal:        entry->start_in_terminal = strcasecmp(value, "true") == 0;
+                                            break;
                 }
             }
             #undef _lang_to_prop

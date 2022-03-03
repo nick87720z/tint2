@@ -2200,33 +2200,46 @@ void hex2gdk(char *hex, GdkRGBA *color)
     color->alpha = 1.0;
 }
 
+char *win_act_sv[] = {  "close",
+                        "desktop_left",
+                        "desktop_right",
+                        "iconify",
+                        "maximize_restore",
+                        "next_task",
+                        "none",
+                        "prev_task",
+                        "shade",
+                        "toggle",
+                        "toggle_iconify" };
+enum {  wa_close,
+        wa_desktop_left,
+        wa_desktop_right,
+        wa_iconify,
+        wa_maximize_restore,
+        wa_next_task,
+        wa_none,
+        wa_prev_task,
+        wa_shade,
+        wa_toggle,
+        wa_toggle_iconify,
+        WIN_ACTIONS
+};
+
 void set_action(char *event, GtkWidget *combo)
 {
-    switch (str_index ( event,
-                        (char *[]){ "close",
-                                    "desktop_left",
-                                    "desktop_right",
-                                    "iconify",
-                                    "maximize_restore",
-                                    "next_task",
-                                    "none",
-                                    "prev_task",
-                                    "shade",
-                                    "toggle",
-                                    "toggle_iconify"},
-                        11))
+    switch (str_index ( event, win_act_sv, WIN_ACTIONS ))
     {
-    case  0: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1); break;
-    case  1: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 7); break;
-    case  2: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 8); break;
-    case  3: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 3); break;
-    case  4: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 6); break;
-    case  5: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 9); break;
-    case  6: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0); break;
-    case  7: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 10); break;
-    case  8: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 4); break;
-    case  9: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 2); break;
-    case 10: gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 5); break;
+        case wa_none:               gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0); break;
+        case wa_close:              gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 1); break;
+        case wa_toggle:             gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 2); break;
+        case wa_iconify:            gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 3); break;
+        case wa_shade:              gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 4); break;
+        case wa_toggle_iconify:     gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 5); break;
+        case wa_maximize_restore:   gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 6); break;
+        case wa_desktop_left:       gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 7); break;
+        case wa_desktop_right:      gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 8); break;
+        case wa_next_task:          gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 9); break;
+        case wa_prev_task:          gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 10); break;
     }
 }
 

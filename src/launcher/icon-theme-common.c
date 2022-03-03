@@ -97,6 +97,9 @@ IconTheme *make_theme(const char *name)
     return theme;
 }
 
+enum                   {k_MaxSize, k_MinSize, k_Size, k_Threshold, k_Type, THEME_INDEX_KEYS};
+char *index_opt_sv[] = {"MaxSize", "MinSize", "Size", "Threshold", "Type"};
+
 // TODO Use UTF8 when parsing the file
 IconTheme *load_theme_from_index(const char *file_name, const char *name)
 {
@@ -154,25 +157,25 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
         } else if (current_dir != NULL) {
             if (parse_theme_line(line, &key, &value))
             {
-                switch ( str_index (key, (char *[]){"MaxSize", "MinSize", "Size", "Threshold", "Type"}, 5) )
+                switch ( str_index (key, index_opt_sv, THEME_INDEX_KEYS) )
                 {
-                    case 2: // Size: value is like 24
+                    case k_Size: // Size: value is like 24
                             sscanf(value, "%d", &current_dir->size);
                             if (current_dir->max_size == -1)
                                 current_dir->max_size = current_dir->size;
                             if (current_dir->min_size == -1)
                                 current_dir->min_size = current_dir->size;
                             break;
-                    case 0: // MaxSize: value is like 24
+                    case k_MaxSize: // MaxSize: value is like 24
                             sscanf(value, "%d", &current_dir->max_size);
                             break;
-                    case 1: // MinSize: value is like 24
+                    case k_MinSize: // MinSize: value is like 24
                             sscanf(value, "%d", &current_dir->min_size);
                             break;
-                    case 3: // Threshold: value is like 2
+                    case k_Threshold: // Threshold: value is like 2
                             sscanf(value, "%d", &current_dir->threshold);
                             break;
-                    case 4: // Type: value is Fixed, Scalable or Threshold : default to scalable for unknown Type.
+                    case k_Type: // Type: value is Fixed, Scalable or Threshold : default to scalable for unknown Type.
                             if (strcmp(value, "Fixed") == 0) {
                                 current_dir->type = ICON_DIR_TYPE_FIXED;
                             } else if (strcmp(value, "Threshold") == 0) {

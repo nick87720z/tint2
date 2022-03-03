@@ -47,16 +47,24 @@ void print_usage()
             "<https://gitlab.com/nick87720z/tint2>.\n");
 }
 
-void handle_cli_arguments(int argc, char **argv)
-{
-    // Read command line arguments
-    for (int i = 1; i < argc; ++i) {
-        gboolean error = FALSE;
+// Data with their keys for str_index().
+// Must be sorted with "LANG=C sort" command.
 
-        // Arrays for str_index() must be sorted with "LANG=C sort" command
-        switch (str_index ( argv[i],
-                            (char *[]){
-                                "--battery-sys-prefix",
+enum {  help_key_battery_sys_prefix,
+        help_key_config,
+        help_key_dump_image_data,
+        help_key_help,
+        help_key_snapshot,
+        help_key_test,
+        help_key_test_verbose,
+        help_key_version,
+        help_key_c,
+        help_key_h,
+        help_key_s,
+        help_key_v,
+        HELP_KEYS
+};
+static char *help_opt_sv[] = {  "--battery-sys-prefix",
                                 "--config",
                                 "--dump-image-data",
                                 "--help",
@@ -67,54 +75,61 @@ void handle_cli_arguments(int argc, char **argv)
                                 "-c",
                                 "-h",
                                 "-s",
-                                "-v", },
-                            12 ))
+                                "-v", };
+
+void handle_cli_arguments(int argc, char **argv)
+{
+    // Read command line arguments
+    for (int i = 1; i < argc; ++i) {
+        gboolean error = FALSE;
+
+        switch (str_index ( argv[i], help_opt_sv, HELP_KEYS ))
         {
-            case 3: case 9: // -h, --help
-                    print_usage();
-                    exit(0);
-                    break;
-            case 7: case 11: // -v, --version
-                    fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
-                    exit(0);
-                    break;
-            case 5: // --test
-                    run_all_tests(false);
-                    exit(0);
-                    break;
-            case 6: // --test-verbose
-                    run_all_tests(true);
-                    exit(0);
-                    break;
-            case 2: // --dump-image-data
-                    dump_image_data(argv[i+1], argv[i+2]);
-                    exit(0);
-                    break;
-            case 1: case 8: // -c, --config
-                    if (i + 1 < argc) {
-                        i++;
-                        config_path = strdup(argv[i]);
-                    } else {
-                        error = TRUE;
-                    }
-                    break;
-            case 4: case 10: // -s, --snapshot
-                    if (i + 1 < argc) {
-                        i++;
-                        snapshot_path = strdup(argv[i]);
-                    } else {
-                        error = TRUE;
-                    }
-                    break;
+            case help_key_h: case help_key_help:
+                print_usage();
+                exit(0);
+                break;
+            case help_key_v: case help_key_version:
+                fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
+                exit(0);
+                break;
+            case help_key_test:
+                run_all_tests(false);
+                exit(0);
+                break;
+            case help_key_test_verbose:
+                run_all_tests(true);
+                exit(0);
+                break;
+            case help_key_dump_image_data:
+                dump_image_data(argv[i+1], argv[i+2]);
+                exit(0);
+                break;
+            case help_key_c: case help_key_config:
+                if (i + 1 < argc) {
+                    i++;
+                    config_path = strdup(argv[i]);
+                } else {
+                    error = TRUE;
+                }
+                break;
+            case help_key_s: case help_key_snapshot:
+                if (i + 1 < argc) {
+                    i++;
+                    snapshot_path = strdup(argv[i]);
+                } else {
+                    error = TRUE;
+                }
+                break;
         #ifdef ENABLE_BATTERY
-            case 0: // --battery-sys-prefix
-                    if (i + 1 < argc) {
-                        i++;
-                        battery_sys_prefix = strdup(argv[i]);
-                    } else {
-                        error = TRUE;
-                    }
-                    break;
+            case help_key_battery_sys_prefix:
+                if (i + 1 < argc) {
+                    i++;
+                    battery_sys_prefix = strdup(argv[i]);
+                } else {
+                    error = TRUE;
+                }
+                break;
         #endif
             default:
                 if (i + 1 == argc)

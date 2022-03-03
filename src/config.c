@@ -136,7 +136,7 @@ void get_action(char *event, MouseAction *action)
                                     "shade",
                                     "toggle",
                                     "toggle_iconify"},
-                        11)) {
+                        MOUSE_ACTIONS)) {
     case  0: *action = CLOSE;           break;
     case  1: *action = DESKTOP_LEFT;    break;
     case  2: *action = DESKTOP_RIGHT;   break;

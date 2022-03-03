@@ -44,50 +44,67 @@ void handle_cli_arguments(int argc, char **argv)
     // Read command line arguments
     for (int i = 1; i < argc; ++i) {
         gboolean error = FALSE;
-        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            print_usage();
-            exit(0);
-        } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
-            fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
-            exit(0);
-        } else if (strcmp(argv[i], "--test") == 0) {
-            run_all_tests(false);
-            exit(0);
-        } else if (strcmp(argv[i], "--test-verbose") == 0) {
-            run_all_tests(true);
-            exit(0);
-        } else if (strcmp(argv[i], "--dump-image-data") == 0) {
-            dump_image_data(argv[i+1], argv[i+2]);
-            exit(0);
-        } else if (strcmp(argv[i], "-c") == 0) {
-            if (i + 1 < argc) {
-                i++;
-                config_path = strdup(argv[i]);
-            } else {
-                error = TRUE;
-            }
-        } else if (strcmp(argv[i], "-s") == 0) {
-            if (i + 1 < argc) {
-                i++;
-                snapshot_path = strdup(argv[i]);
-            } else {
-                error = TRUE;
-            }
-        } else if (i + 1 == argc) {
-            config_path = strdup(argv[i]);
-        }
-#ifdef ENABLE_BATTERY
-        else if (strcmp(argv[i], "--battery-sys-prefix") == 0) {
-            if (i + 1 < argc) {
-                i++;
-                battery_sys_prefix = strdup(argv[i]);
-            } else {
-                error = TRUE;
-            }
-        }
-#endif
-        else {
-            error = TRUE;
+
+        // Arrays for str_index() must be sorted with "LANG=C sort" command
+        switch (str_index ( argv[i],
+                            (char *[]){
+                                "--battery-sys-prefix",
+                                "--dump-image-data",
+                                "--help",
+                                "--test",
+                                "--test-verbose",
+                                "--version",
+                                "-c",
+                                "-h",
+                                "-s",
+                                "-v", },
+                            10 ))
+        {
+            case 2: case 7:
+                    print_usage();
+                    exit(0);
+                    break;
+            case 5: case 9:
+                    fprintf(stdout, "tint2 version %s\n", VERSION_STRING);
+                    exit(0);
+                    break;
+            case 3: run_all_tests(false);
+                    exit(0);
+                    break;
+            case 4: run_all_tests(true);
+                    exit(0);
+                    break;
+            case 1: dump_image_data(argv[i+1], argv[i+2]);
+                    exit(0);
+                    break;
+            case 6: if (i + 1 < argc) {
+                        i++;
+                        config_path = strdup(argv[i]);
+                    } else {
+                        error = TRUE;
+                    }
+                    break;
+            case 8: if (i + 1 < argc) {
+                        i++;
+                        snapshot_path = strdup(argv[i]);
+                    } else {
+                        error = TRUE;
+                    }
+                    break;
+        #ifdef ENABLE_BATTERY
+            case 0: if (i + 1 < argc) {
+                        i++;
+                        battery_sys_prefix = strdup(argv[i]);
+                    } else {
+                        error = TRUE;
+                    }
+                    break;
+        #endif
+            default:
+                if (i + 1 == argc)
+                    config_path = strdup(argv[i]);
+                else
+                    error = TRUE;
         }
         if (error) {
             print_usage();
@@ -240,6 +257,7 @@ void init(int argc, char **argv)
 {
     setlinebuf(stdout);
     setlinebuf(stderr);
+
     default_config();
     handle_env_vars();
     handle_cli_arguments(argc, argv);

@@ -38,6 +38,8 @@ Server server;
 
 int server_catch_error(Display *d, XErrorEvent *ev)
 {
+    g_queue_push_tail (server.errors, GINT_TO_POINTER (ev->error_code));
+    server.err_n++;
     return 0;
 }
 

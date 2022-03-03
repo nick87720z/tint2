@@ -791,6 +791,18 @@ void run_tint2_event_loop()
             handle_x_events();
         }
 
+        if (server.err_n) {
+            long code;
+            STRBUF_AUTO (error_text, 2048);
+            fprintf (stderr, RED "tint2: got %i X errors" RESET "\n", server.err_n);
+            server.err_n = 0;
+            while ( (code = (long)g_queue_pop_head (server.errors)) )
+            {
+                XGetErrorText (server.display, code, error_text, strlen_const(error_text));
+                fprintf (stderr, RED "tint2: %s" RESET "\n", error_text);
+            }
+        }
+
         handle_expired_timers();
     }
 }

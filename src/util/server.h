@@ -123,6 +123,9 @@ typedef struct Viewport {
 typedef struct Server {
     Display *display;
     int x11_fd;
+    GQueue *errors; // Similar to signal handler, this is way for more meaningful error report for user
+    int err_n;
+
     Window root_win;
     Window composite_manager;
     gboolean real_transparency;

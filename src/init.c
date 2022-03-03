@@ -254,6 +254,7 @@ void init_post_config()
 
 void init_X11_pre_config()
 {
+    server.errors = g_queue_new ();
     server.display = XOpenDisplay(NULL);
     if (!server.display) {
         fprintf(stderr, "tint2: could not open display!\n");
@@ -348,7 +349,10 @@ void cleanup()
 
     if (server.display)
         XCloseDisplay(server.display);
+    if (server.errors)
+        g_queue_free (server.errors);
     server.display = NULL;
+    server.errors = NULL;
 
     if (sigchild_pipe_valid) {
         sigchild_pipe_valid = FALSE;

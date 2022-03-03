@@ -26,7 +26,7 @@
 #include "timer.h"
 #include "test.h"
 
-bool warnings_for_timers = true;
+bool timers_warnings = true;
 bool debug_timers = false;
 #define MOCK_ORIGIN 1000000
 
@@ -94,8 +94,10 @@ void init_timer(Timer *timer, const char *name)
 
 void destroy_timer(Timer *timer)
 {
-    if (warnings_for_timers && !g_list_find (timers, timer)) {
-        fprintf(stderr, RED "tint2: Attempt to destroy nonexisting timer: %s" RESET "\n", timer->name_);
+    if (! g_list_find (timers, timer))
+    {
+        if (timers_warnings)
+            fprintf(stderr, RED "tint2: Attempt to destroy nonexisting timer: %s" RESET "\n", timer->name_);
         return;
     }
     if (debug_timers)

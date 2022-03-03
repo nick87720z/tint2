@@ -299,7 +299,7 @@ void init(int argc, char **argv)
     if (!config_read()) {
         fprintf(stderr, "tint2: Could not read config file.\n");
         print_usage();
-        warnings_for_timers = false;
+        timers_warnings = false;
         cleanup();
         exit(EXIT_FAILURE);
     }

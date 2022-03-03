@@ -200,6 +200,20 @@ int str_index(const char *s, char *array[], int size) {
     return p ? p - array : -1;
 }
 
+int str_array_sort_errors (char **a, int len)
+{
+    int result = 0;
+
+    if (len > 1)
+        for (int i = 1; i < len; i++)
+            if (strcmp (a[i], a[i-1]) < 0)
+            {
+                printf ("sort error: [%i]=\"%s\" \t[%i]=\"%s\"\n", i-1, a[i-1], i, a[i]);
+                result++;
+            }
+    return result;
+}
+
 int compare_strings(const void *a, const void *b)
 {
     return strnatcasecmp((const char *)a, (const char *)b);

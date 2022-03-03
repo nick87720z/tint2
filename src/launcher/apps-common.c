@@ -20,6 +20,7 @@
 
 #include "apps-common.h"
 #include "common.h"
+#include "test.h"
 
 #include <glib.h>
 #include <stdio.h>
@@ -328,3 +329,7 @@ const GSList *get_apps_locations()
 
     return apps_locations;
 }
+
+// TESTS
+
+STR_ARRAY_TEST_SORTED (df_opts_sv, ARRAY_SIZE(df_opts_sv));

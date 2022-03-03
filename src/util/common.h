@@ -134,6 +134,18 @@ int str_index(const char *s, char *array[], int size);
 // Array must be sorted with strcmp-compatible comparison method.
 // Returns string index if found, -1 otherwise
 
+int str_array_sort_errors (char **a, int len);
+// Checks strings sorted array for sort errors.
+// Prints errors to stderr.
+// Returns errors number (0 if no errors).
+
+#define STR_ARRAY_TEST_SORTED(a, len)                                                    \
+TEST( a ## _is_sorted )                                                                  \
+{                                                                                        \
+    int result = str_array_sort_errors (a, len);                                         \
+    ASSERT_EQUAL(result, 0);                                                             \
+}
+
 int compare_strings(const void *a, const void *b);
 
 int parse_line(const char *line, char **key, char **value);

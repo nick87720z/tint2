@@ -5,6 +5,7 @@
 #include <gtk/gtk.h>
 
 #include "common.h"
+#include "test.h"
 #include "properties.h"
 #include "properties_rw.h"
 #include "gradient_gui.h"
@@ -2259,3 +2260,7 @@ char *get_action(GtkWidget *combo)
         "next_task",
         "prev_task"}[ gtk_combo_box_get_active (GTK_COMBO_BOX (combo)) + 1 ];
 }
+
+// TESTS
+
+STR_ARRAY_TEST_SORTED (win_act_sv, ARRAY_SIZE (win_act_sv));

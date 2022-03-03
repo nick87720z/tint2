@@ -3,6 +3,8 @@
 // vim: ft=c
 
 #include "config-keys.h"
+#include "test.h"
+#include "common.h"
 
 char *cfg_keys[] = {
     [key_ac_connected_cmd                       ]="ac_connected_cmd",
@@ -198,3 +200,5 @@ char *cfg_keys[] = {
     [key_urgent_nb_of_blink                     ]="urgent_nb_of_blink",
     [key_wm_menu                                ]="wm_menu",
 };
+
+STR_ARRAY_TEST_SORTED (cfg_keys, ARRAY_SIZE(cfg_keys));

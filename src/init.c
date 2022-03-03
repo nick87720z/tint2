@@ -363,3 +363,7 @@ void cleanup()
     cleanup_tracing();
 #endif
 }
+
+// TESTS
+
+STR_ARRAY_TEST_SORTED (help_opt_sv, ARRAY_SIZE(help_opt_sv));

@@ -1,7 +1,11 @@
 // vim: ft=c
 
 #include "config-keys.h"
+#include "test.h"
+#include "common.h"
 
 char *cfg_keys[] = {
     LIST2CODE_CMD list2csarray < config-keys-list
 };
+
+STR_ARRAY_TEST_SORTED (cfg_keys, ARRAY_SIZE(cfg_keys));

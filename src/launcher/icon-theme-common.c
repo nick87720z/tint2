@@ -28,6 +28,7 @@
 #include "apps-common.h"
 #include "common.h"
 #include "cache.h"
+#include "test.h"
 
 gboolean debug_icons = FALSE;
 char *icon_cache_path = NULL;
@@ -842,3 +843,7 @@ notfound:
     path = get_icon_path_helper(wrapper->themes_fallback, DEFAULT_ICON, size);
     return path;
 }
+
+// TESTS
+
+STR_ARRAY_TEST_SORTED (index_opt_sv, ARRAY_SIZE(index_opt_sv));

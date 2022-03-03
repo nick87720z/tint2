@@ -257,11 +257,11 @@ gboolean task_update_title(Task *task)
     if (!panel->g_task.has_text && !panel->g_task.tooltip_enabled && taskbar_sort_method != TASKBAR_SORT_TITLE)
         return FALSE;
 
-    char *name = server_get_property(task->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, 0);
+    char *name = server_get_property(task->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, NULL);
     if (!name || !strlen(name)) {
-        name = server_get_property(task->win, server.atom._NET_WM_NAME, server.atom.UTF8_STRING, 0);
+        name = server_get_property(task->win, server.atom._NET_WM_NAME, server.atom.UTF8_STRING, NULL);
         if (!name || !strlen(name)) {
-            name = server_get_property(task->win, server.atom.WM_NAME, XA_STRING, 0);
+            name = server_get_property(task->win, server.atom.WM_NAME, XA_STRING, NULL);
         }
     }
 

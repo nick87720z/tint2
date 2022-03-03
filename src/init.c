@@ -254,13 +254,13 @@ void init_post_config()
 
 void init_X11_pre_config()
 {
-    server.errors = g_queue_new ();
     server.display = XOpenDisplay(NULL);
     if (!server.display) {
         fprintf(stderr, "tint2: could not open display!\n");
         exit(EXIT_FAILURE);
     }
     server.x11_fd = ConnectionNumber(server.display);
+    server.errors = g_queue_new ();
     XSetErrorHandler(server_catch_error);
     XSetIOErrorHandler(x11_io_error);
     server_init_atoms();

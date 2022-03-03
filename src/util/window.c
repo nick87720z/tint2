@@ -129,9 +129,8 @@ int get_window_desktop(Window win)
     y += server.viewports[desktop].y;
 
     if (x < 0 || y < 0) {
-        int num_results;
         long *x_screen_size =
-            server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, &num_results);
+            server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, NULL);
         if (!x_screen_size)
             return 0;
         int x_screen_width = x_screen_size[0];

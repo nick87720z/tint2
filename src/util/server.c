@@ -204,7 +204,7 @@ int get_property32(Window win, Atom at, Atom type)
     unsigned char *prop_value;
     int data;
 
-    prop_value = server_get_property (win, at, type, NULL);
+    prop_value = get_property (win, at, type, NULL);
     if (prop_value) {
         data = ((gulong *)prop_value)[0];
         XFree (prop_value);
@@ -213,7 +213,7 @@ int get_property32(Window win, Atom at, Atom type)
     return 0;
 }
 
-void *server_get_property(Window win, Atom at, Atom type, int *num_results)
+void *get_property(Window win, Atom at, Atom type, int *num_results)
 {
     Atom type_ret;
     int format_ret = 0;
@@ -250,7 +250,7 @@ void get_root_pixmap()
 
     Atom pixmap_atoms[] = {server.atom [_XROOTPMAP_ID], server.atom [_XROOTMAP_ID]};
     for (int i = 0; i < ARRAY_SIZE (pixmap_atoms); ++i) {
-        Pixmap *res = (unsigned long *)server_get_property(server.root_win, pixmap_atoms[i], XA_PIXMAP, NULL);
+        Pixmap *res = (unsigned long *)get_property(server.root_win, pixmap_atoms[i], XA_PIXMAP, NULL);
         if (res) {
             ret = *res;
             XFree(res);
@@ -436,7 +436,7 @@ void server_get_number_of_desktops()
     if (server.num_desktops > 1)
         return;
 
-    long *work_area_size = server_get_property(server.root_win, server.atom [_NET_WORKAREA], XA_CARDINAL, NULL);
+    long *work_area_size = get_property(server.root_win, server.atom [_NET_WORKAREA], XA_CARDINAL, NULL);
     if (!work_area_size)
         return;
     int work_area_width = work_area_size[0] + work_area_size[2];
@@ -444,7 +444,7 @@ void server_get_number_of_desktops()
     XFree(work_area_size);
 
     long *x_screen_size =
-        server_get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
+        get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
     if (!x_screen_size)
         return;
     int x_screen_width = x_screen_size[0];
@@ -485,7 +485,7 @@ GSList *get_desktop_names()
 
     int count;
     gchar *data_ptr =
-        server_get_property(server.root_win, server.atom [_NET_DESKTOP_NAMES], server.atom [UTF8_STRING], &count);
+        get_property(server.root_win, server.atom [_NET_DESKTOP_NAMES], server.atom [UTF8_STRING], &count);
     if (data_ptr)
     {
         gchar   *ptr  = data_ptr,
@@ -506,7 +506,8 @@ int get_current_desktop()
                             get_property32(server.root_win, server.atom [_NET_CURRENT_DESKTOP], XA_CARDINAL) ));
     }
 
-    long *work_area_size = server_get_property(server.root_win, server.atom [_NET_WORKAREA], XA_CARDINAL, NULL);
+    /*******************************/
+    long *work_area_size = get_property(server.root_win, server.atom [_NET_WORKAREA], XA_CARDINAL, NULL);
     if (!work_area_size)
         return 0;
     int work_area_width = work_area_size[0] + work_area_size[2];
@@ -516,20 +517,23 @@ int get_current_desktop()
     if (work_area_width <= 0 || work_area_height <= 0)
         return 0;
 
-    long *viewport = server_get_property(server.root_win, server.atom [_NET_DESKTOP_VIEWPORT], XA_CARDINAL, NULL);
+    /*******************************/
+    long *viewport = get_property(server.root_win, server.atom [_NET_DESKTOP_VIEWPORT], XA_CARDINAL, NULL);
     if (!viewport)
         return 0;
     int viewport_x = viewport[0];
     int viewport_y = viewport[1];
     XFree(viewport);
 
+    /*******************************/
     long *x_screen_size =
-        server_get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
+        get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
     if (!x_screen_size)
         return 0;
     int x_screen_width = x_screen_size[0];
     XFree(x_screen_size);
 
+    /*******************************/
     int ncols = x_screen_width / work_area_width;
 
     //	fprintf(stderr, "tint2: \n");

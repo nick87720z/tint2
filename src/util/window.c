@@ -72,7 +72,7 @@ gboolean window_is_hidden(Window win)
     Window window;
     int count;
 
-    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
+    Atom *at = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
         if (at[i] == server.atom [_NET_WM_STATE_SKIP_TASKBAR]) {
             XFree(at);
@@ -89,7 +89,7 @@ gboolean window_is_hidden(Window win)
     }
     XFree(at);
 
-    at = server_get_property(win, server.atom [_NET_WM_WINDOW_TYPE], XA_ATOM, &count);
+    at = get_property(win, server.atom [_NET_WM_WINDOW_TYPE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
         if (at[i] == server.atom [_NET_WM_WINDOW_TYPE_DOCK] || at[i] == server.atom [_NET_WM_WINDOW_TYPE_DESKTOP] ||
             at[i] == server.atom [_NET_WM_WINDOW_TYPE_TOOLBAR] || at[i] == server.atom [_NET_WM_WINDOW_TYPE_MENU] ||
@@ -131,7 +131,7 @@ int get_window_desktop(Window win)
 
     if (x < 0 || y < 0) {
         long *x_screen_size =
-            server_get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
+            get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
         if (!x_screen_size)
             return 0;
         int x_screen_width = x_screen_size[0];
@@ -225,7 +225,7 @@ gboolean window_is_iconified(Window win)
     // EWMH specification : minimization of windows use _NET_WM_STATE_HIDDEN.
     // WM_STATE is not accurate for shaded window and in multi_desktop mode.
     int count;
-    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
+    Atom *at = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
         if (at[i] == server.atom [_NET_WM_STATE_HIDDEN]) {
             XFree(at);
@@ -240,7 +240,7 @@ gboolean window_is_urgent(Window win)
 {
     int count;
 
-    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
+    Atom *at = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
         if (at[i] == server.atom [_NET_WM_STATE_DEMANDS_ATTENTION]) {
             XFree(at);
@@ -255,7 +255,7 @@ gboolean window_is_skip_taskbar(Window win)
 {
     int count;
 
-    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
+    Atom *at = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
         if (at[i] == server.atom [_NET_WM_STATE_SKIP_TASKBAR]) {
             XFree(at);

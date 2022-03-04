@@ -300,7 +300,7 @@ void handle_event_property_notify(XEvent *e)
         {
             if (debug) {
                 int count;
-                Atom *atom_state = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
+                Atom *atom_state = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
                 for (int j = 0; j < count; j++)
                 {
                     char *atom_state_name = XGetAtomName(server.display, atom_state[j]);

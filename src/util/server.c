@@ -45,88 +45,95 @@ int server_catch_error(Display *d, XErrorEvent *ev)
 
 void server_init_atoms()
 {
-    server.atom._XROOTPMAP_ID = XInternAtom(server.display, "_XROOTPMAP_ID", False);
-    server.atom._XROOTMAP_ID = XInternAtom(server.display, "_XROOTMAP_ID", False);
-    server.atom._NET_CURRENT_DESKTOP = XInternAtom(server.display, "_NET_CURRENT_DESKTOP", False);
-    server.atom._NET_NUMBER_OF_DESKTOPS = XInternAtom(server.display, "_NET_NUMBER_OF_DESKTOPS", False);
-    server.atom._NET_DESKTOP_NAMES = XInternAtom(server.display, "_NET_DESKTOP_NAMES", False);
-    server.atom._NET_DESKTOP_GEOMETRY = XInternAtom(server.display, "_NET_DESKTOP_GEOMETRY", False);
-    server.atom._NET_DESKTOP_VIEWPORT = XInternAtom(server.display, "_NET_DESKTOP_VIEWPORT", False);
-    server.atom._NET_WORKAREA = XInternAtom(server.display, "_NET_WORKAREA", False);
-    server.atom._NET_ACTIVE_WINDOW = XInternAtom(server.display, "_NET_ACTIVE_WINDOW", False);
-    server.atom._NET_WM_WINDOW_TYPE = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE", False);
-    server.atom._NET_WM_STATE_SKIP_PAGER = XInternAtom(server.display, "_NET_WM_STATE_SKIP_PAGER", False);
-    server.atom._NET_WM_STATE_SKIP_TASKBAR = XInternAtom(server.display, "_NET_WM_STATE_SKIP_TASKBAR", False);
-    server.atom._NET_WM_STATE_STICKY = XInternAtom(server.display, "_NET_WM_STATE_STICKY", False);
-    server.atom._NET_WM_STATE_DEMANDS_ATTENTION = XInternAtom(server.display, "_NET_WM_STATE_DEMANDS_ATTENTION", False);
-    server.atom._NET_WM_WINDOW_TYPE_DOCK = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE_DOCK", False);
-    server.atom._NET_WM_WINDOW_TYPE_DESKTOP = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE_DESKTOP", False);
-    server.atom._NET_WM_WINDOW_TYPE_TOOLBAR = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE_TOOLBAR", False);
-    server.atom._NET_WM_WINDOW_TYPE_MENU = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE_MENU", False);
-    server.atom._NET_WM_WINDOW_TYPE_SPLASH = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE_SPLASH", False);
-    server.atom._NET_WM_WINDOW_TYPE_DIALOG = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE_DIALOG", False);
-    server.atom._NET_WM_WINDOW_TYPE_NORMAL = XInternAtom(server.display, "_NET_WM_WINDOW_TYPE_NORMAL", False);
-    server.atom._NET_WM_DESKTOP = XInternAtom(server.display, "_NET_WM_DESKTOP", False);
-    server.atom.WM_STATE = XInternAtom(server.display, "WM_STATE", False);
-    server.atom._NET_WM_STATE = XInternAtom(server.display, "_NET_WM_STATE", False);
-    server.atom._NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(server.display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-    server.atom._NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom(server.display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-    server.atom._NET_WM_STATE_SHADED = XInternAtom(server.display, "_NET_WM_STATE_SHADED", False);
-    server.atom._NET_WM_STATE_HIDDEN = XInternAtom(server.display, "_NET_WM_STATE_HIDDEN", False);
-    server.atom._NET_WM_STATE_BELOW = XInternAtom(server.display, "_NET_WM_STATE_BELOW", False);
-    server.atom._NET_WM_STATE_ABOVE = XInternAtom(server.display, "_NET_WM_STATE_ABOVE", False);
-    server.atom._NET_WM_STATE_MODAL = XInternAtom(server.display, "_NET_WM_STATE_MODAL", False);
-    server.atom._NET_CLIENT_LIST = XInternAtom(server.display, "_NET_CLIENT_LIST", False);
-    server.atom._NET_WM_VISIBLE_NAME = XInternAtom(server.display, "_NET_WM_VISIBLE_NAME", False);
-    server.atom._NET_WM_NAME = XInternAtom(server.display, "_NET_WM_NAME", False);
-    server.atom._NET_WM_STRUT = XInternAtom(server.display, "_NET_WM_STRUT", False);
-    server.atom._NET_WM_ICON = XInternAtom(server.display, "_NET_WM_ICON", False);
-    server.atom._NET_WM_ICON_GEOMETRY = XInternAtom(server.display, "_NET_WM_ICON_GEOMETRY", False);
-    server.atom._NET_WM_ICON_NAME = XInternAtom(server.display, "_NET_WM_ICON_NAME", False);
-    server.atom._NET_CLOSE_WINDOW = XInternAtom(server.display, "_NET_CLOSE_WINDOW", False);
-    server.atom.UTF8_STRING = XInternAtom(server.display, "UTF8_STRING", False);
-    server.atom._NET_SUPPORTING_WM_CHECK = XInternAtom(server.display, "_NET_SUPPORTING_WM_CHECK", False);
-    server.atom._NET_WM_CM_S0 = XInternAtom(server.display, "_NET_WM_CM_S0", False);
-    server.atom._NET_SUPPORTING_WM_CHECK = XInternAtom(server.display, "_NET_WM_NAME", False);
-    server.atom._NET_WM_STRUT_PARTIAL = XInternAtom(server.display, "_NET_WM_STRUT_PARTIAL", False);
-    server.atom.WM_NAME = XInternAtom(server.display, "WM_NAME", False);
-    server.atom.__SWM_VROOT = XInternAtom(server.display, "__SWM_VROOT", False);
-    server.atom._MOTIF_WM_HINTS = XInternAtom(server.display, "_MOTIF_WM_HINTS", False);
-    server.atom.WM_HINTS = XInternAtom(server.display, "WM_HINTS", False);
-    gchar *name = g_strdup_printf("_XSETTINGS_S%d", DefaultScreen(server.display));
-    server.atom._XSETTINGS_SCREEN = XInternAtom(server.display, name, False);
-    g_free(name);
-    server.atom._XSETTINGS_SETTINGS = XInternAtom(server.display, "_XSETTINGS_SETTINGS", False);
+    gchar *_NET_SYSTEM_TRAY_SCREEN = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", server.screen);
+    gchar *_XSETTINGS_SCREEN       = g_strdup_printf("_XSETTINGS_S%d",       server.screen);
 
-    // systray protocol
-    name = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", DefaultScreen(server.display));
-    server.atom._NET_SYSTEM_TRAY_SCREEN = XInternAtom(server.display, name, False);
-    g_free(name);
-    server.atom._NET_SYSTEM_TRAY_OPCODE = XInternAtom(server.display, "_NET_SYSTEM_TRAY_OPCODE", False);
-    server.atom.MANAGER = XInternAtom(server.display, "MANAGER", False);
-    server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA = XInternAtom(server.display, "_NET_SYSTEM_TRAY_MESSAGE_DATA", False);
-    server.atom._NET_SYSTEM_TRAY_ORIENTATION = XInternAtom(server.display, "_NET_SYSTEM_TRAY_ORIENTATION", False);
-    server.atom._NET_SYSTEM_TRAY_ICON_SIZE = XInternAtom(server.display, "_NET_SYSTEM_TRAY_ICON_SIZE", False);
-    server.atom._NET_SYSTEM_TRAY_PADDING = XInternAtom(server.display, "_NET_SYSTEM_TRAY_PADDING", False);
-    server.atom._XEMBED = XInternAtom(server.display, "_XEMBED", False);
-    server.atom._XEMBED_INFO = XInternAtom(server.display, "_XEMBED_INFO", False);
-    server.atom._NET_WM_PID = XInternAtom(server.display, "_NET_WM_PID", True);
+    XInternAtoms(   server.display,
+                    (char *[]){
+                        "_XROOTPMAP_ID",
+                        "_XROOTMAP_ID",
+                        "_NET_CURRENT_DESKTOP",
+                        "_NET_NUMBER_OF_DESKTOPS",
+                        "_NET_DESKTOP_NAMES",
+                        "_NET_DESKTOP_GEOMETRY",
+                        "_NET_DESKTOP_VIEWPORT",
+                        "_NET_WORKAREA",
+                        "_NET_ACTIVE_WINDOW",
+                        "_NET_WM_WINDOW_TYPE",
+                        "_NET_WM_STATE_SKIP_PAGER",
+                        "_NET_WM_STATE_SKIP_TASKBAR",
+                        "_NET_WM_STATE_STICKY",
+                        "_NET_WM_STATE_DEMANDS_ATTENTION",
+                        "_NET_WM_WINDOW_TYPE_DOCK",
+                        "_NET_WM_WINDOW_TYPE_DESKTOP",
+                        "_NET_WM_WINDOW_TYPE_TOOLBAR",
+                        "_NET_WM_WINDOW_TYPE_MENU",
+                        "_NET_WM_WINDOW_TYPE_SPLASH",
+                        "_NET_WM_WINDOW_TYPE_DIALOG",
+                        "_NET_WM_WINDOW_TYPE_NORMAL",
+                        "_NET_WM_DESKTOP",
+                        "WM_STATE",
+                        "_NET_WM_STATE",
+                        "_NET_WM_STATE_MAXIMIZED_VERT",
+                        "_NET_WM_STATE_MAXIMIZED_HORZ",
+                        "_NET_WM_STATE_SHADED",
+                        "_NET_WM_STATE_HIDDEN",
+                        "_NET_WM_STATE_BELOW",
+                        "_NET_WM_STATE_ABOVE",
+                        "_NET_WM_STATE_MODAL",
+                        "_NET_CLIENT_LIST",
+                        "_NET_WM_NAME",
+                        "_NET_WM_VISIBLE_NAME",
+                        "_NET_WM_STRUT",
+                        "_NET_WM_ICON",
+                        "_NET_WM_ICON_GEOMETRY",
+                        "_NET_WM_ICON_NAME",
+                        "_NET_CLOSE_WINDOW",
+                        "UTF8_STRING",
+                        "_NET_SUPPORTING_WM_CHECK",
+                        "_NET_WM_CM_S0",
+                        "_NET_WM_STRUT_PARTIAL",
+                        "WM_NAME",
+                        "__SWM_VROOT",
+                        "_MOTIF_WM_HINTS",
+                        "WM_HINTS",
 
-    // drag 'n' drop
-    server.atom.XdndAware = XInternAtom(server.display, "XdndAware", False);
-    server.atom.XdndEnter = XInternAtom(server.display, "XdndEnter", False);
-    server.atom.XdndPosition = XInternAtom(server.display, "XdndPosition", False);
-    server.atom.XdndStatus = XInternAtom(server.display, "XdndStatus", False);
-    server.atom.XdndDrop = XInternAtom(server.display, "XdndDrop", False);
-    server.atom.XdndLeave = XInternAtom(server.display, "XdndLeave", False);
-    server.atom.XdndSelection = XInternAtom(server.display, "XdndSelection", False);
-    server.atom.XdndTypeList = XInternAtom(server.display, "XdndTypeList", False);
-    server.atom.XdndActionCopy = XInternAtom(server.display, "XdndActionCopy", False);
-    server.atom.XdndFinished = XInternAtom(server.display, "XdndFinished", False);
-    server.atom.TARGETS = XInternAtom(server.display, "TARGETS", False);
+                        // systray protocol
+                        _NET_SYSTEM_TRAY_SCREEN,
+                        "_NET_SYSTEM_TRAY_OPCODE",
+                        "MANAGER",
+                        "_NET_SYSTEM_TRAY_MESSAGE_DATA",
+                        "_NET_SYSTEM_TRAY_ORIENTATION",
+                        "_NET_SYSTEM_TRAY_ICON_SIZE",
+                        "_NET_SYSTEM_TRAY_PADDING",
+                        "_XEMBED",
+                        "_XEMBED_INFO",
+                        "_NET_WM_PID",
 
-    // tint2 atoms
-    server.atom.TINT2_REFRESH_EXECP = XInternAtom(server.display, "_TINT2_REFRESH_EXECP", False);
+                        // XSettings
+                        _XSETTINGS_SCREEN,
+                        "_XSETTINGS_SETTINGS",
+
+                        // drag 'n' drop
+                        "XdndAware",
+                        "XdndEnter",
+                        "XdndPosition",
+                        "XdndStatus",
+                        "XdndDrop",
+                        "XdndLeave",
+                        "XdndSelection",
+                        "XdndTypeList",
+                        "XdndActionCopy",
+                        "XdndFinished",
+                        "TARGETS",
+
+                        // tint2 atoms
+                        "TINT2_REFRESH_EXECP"
+                    },
+                    71, False, (Atom *)&server.atom);
+
+    g_free(_NET_SYSTEM_TRAY_SCREEN);
+    g_free(_XSETTINGS_SCREEN);
 }
 
 const char *GetAtomName(Display *disp, Atom a)

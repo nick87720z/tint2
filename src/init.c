@@ -263,8 +263,9 @@ void init_X11_pre_config()
     server.errors = g_queue_new ();
     XSetErrorHandler(server_catch_error);
     XSetIOErrorHandler(x11_io_error);
-    server_init_atoms();
+
     server.screen = DefaultScreen(server.display);
+    server_init_atoms ();
     server.root_win = RootWindow(server.display, server.screen);
     server.desktop = get_current_desktop();
     server.has_shm = XShmQueryExtension(server.display);

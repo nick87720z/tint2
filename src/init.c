@@ -146,17 +146,22 @@ void handle_cli_arguments(int argc, char **argv)
 
 void handle_env_vars()
 {
-    debug_geometry  = getenv("DEBUG_GEOMETRY") != NULL;
-    debug_gradients = getenv("DEBUG_GRADIENTS") != NULL;
-    debug_icons     = getenv("DEBUG_ICONS") != NULL;
-    debug_fps       = getenv("DEBUG_FPS") != NULL;
-    debug_frames    = getenv("DEBUG_FRAMES") != NULL;
-    debug_dnd       = getenv("DEBUG_DND") != NULL;
-    debug_thumbnails = getenv("DEBUG_THUMBNAILS") != NULL;
-    debug_timers    = getenv("DEBUG_TIMERS") != NULL;
-    debug_executors = getenv("DEBUG_EXECUTORS") != NULL;
-    debug_blink     = getenv("DEBUG_BLINK") != NULL;
-    thumb_use_shm   = getenv("TINT2_THUMBNAIL_SHM") != NULL;
+    char *tmp;
+
+    #define _load_env_flag(name)                                                         \
+    ( (tmp = getenv(name)) && tmp[0] && str_index(tmp, (char *[]){"0", "no", "off"}, 3) == -1 )
+
+    debug_geometry  = _load_env_flag("DEBUG_GEOMETRY");
+    debug_gradients = _load_env_flag("DEBUG_GRADIENTS");
+    debug_icons     = _load_env_flag("DEBUG_ICONS");
+    debug_fps       = _load_env_flag("DEBUG_FPS");
+    debug_frames    = _load_env_flag("DEBUG_FRAMES");
+    debug_dnd       = _load_env_flag("DEBUG_DND");
+    debug_thumbnails = _load_env_flag("DEBUG_THUMBNAILS");
+    debug_timers    = _load_env_flag("DEBUG_TIMERS");
+    debug_executors = _load_env_flag("DEBUG_EXECUTORS");
+    debug_blink     = _load_env_flag("DEBUG_BLINK");
+    thumb_use_shm   = _load_env_flag("TINT2_THUMBNAIL_SHM");
     if (debug_fps)
     {
         init_fps_distribution();
@@ -165,6 +170,7 @@ void handle_env_vars()
             tracing_fps_threshold = 60;
         }
     }
+    #undef _load_env_flag
 }
 
 static Timer detect_compositor_timer = DEFAULT_TIMER;

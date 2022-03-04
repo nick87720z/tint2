@@ -99,6 +99,10 @@ void walk_windows(Window node, window_callback_t *callback, int action)
         walk_windows(children[i], callback, action);
 }
 
+static int cmp_strp (const void *p1, const void *p2) {
+    return strcmp( *(char **)p1, *(char **)p2 );
+}
+
 int main(int argc, char **argv)
 {
     display = XOpenDisplay(NULL);
@@ -112,18 +116,15 @@ int main(int argc, char **argv)
         fprintf(stderr, "Usage: tint2-send [show|hide|refresh-execp]\n");
         exit(1);
     }
-    char *action = argv[0];
 
-    int tmp = strcmp (action, "refresh-execp");
+    char *array[] = { "hide", "refresh-execp", "show" };
+    char **tmp = bsearch ( &argv[0], array, 3, sizeof(*array), cmp_strp);
+    int action = tmp ? tmp - array : -1;
 
-    tmp =   tmp == 0 ? ACTION_REFRESH_EXECP
-        :   tmp >  0 ? ( strcmp (action, "show") == 0 ? ACTION_SHOW : -1 )
-        :              ( strcmp (action, "hide") == 0 ? ACTION_HIDE : -1 );
-
-    switch (tmp)
+    switch (action)
     {
         case -1:
-            fprintf (stderr, "Error: unknown action %s\n", action);
+            fprintf (stderr, "Error: unknown action %s\n", argv[0]);
             exit(1);
         case ACTION_SHOW:
             event.xcrossing.type = EnterNotify;
@@ -158,7 +159,7 @@ int main(int argc, char **argv)
             strncpy(event.xclient.data.b, execp_name, sizeof(event.xclient.data.b));
             break;
     }
-    walk_windows(DefaultRootWindow(display), handle_tint2_window, tmp);
+    walk_windows(DefaultRootWindow(display), handle_tint2_window, action);
 
     return 0;
 }

@@ -294,7 +294,7 @@ void add_entry(char *key, char *value)
         id = (id < gradients->len && id >= 0) ? id : -1;             \
         if (id >= 0)                                                 \
             gradient = &g_array_index(gradients, GradientClass, id); \
-    } while(0) // TODO: consistent noop default for background and gradient id
+    } while(0)
 
     #define VALUE_DUP_IF_SET(dst) if (*value) dst = strdup(value)
 

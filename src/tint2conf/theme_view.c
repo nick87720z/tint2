@@ -33,7 +33,7 @@ GtkCellRenderer *g_renderer;
 
 gint theme_name_compare(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data);
 
-GtkWidget *create_view()
+void create_view()
 {
     GtkTreeViewColumn *col;
     GtkCellRenderer *renderer;
@@ -46,9 +46,9 @@ GtkWidget *create_view()
                                           G_TYPE_INT,
                                           G_TYPE_BOOLEAN);
 
-    GtkWidget *view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(theme_list_store));
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
+    g_theme_view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(theme_list_store));
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(g_theme_view), TRUE);
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(g_theme_view), FALSE);
 
     g_object_unref(theme_list_store); // destroy store automatically with view
 
@@ -57,13 +57,13 @@ GtkWidget *create_view()
     gtk_tree_view_column_pack_start(col, renderer, TRUE);
     gtk_tree_view_column_add_attribute(col, renderer, "text", COL_THEME_FILE);
     gtk_tree_view_column_set_visible(col, FALSE);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(g_theme_view), col);
 
     renderer = gtk_cell_renderer_text_new();
     col = gtk_tree_view_column_new();
     gtk_tree_view_column_pack_start(col, renderer, TRUE);
     gtk_tree_view_column_add_attribute(col, renderer, "text", COL_THEME_NAME);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(g_theme_view), col);
 
     g_renderer = gtk_cell_renderer_pixbuf_new();
     g_object_set(g_renderer, "xalign", 0.0, NULL);
@@ -73,12 +73,11 @@ GtkWidget *create_view()
     gtk_tree_view_column_add_attribute(col, g_renderer, "pixbuf", COL_SNAPSHOT);
     gtk_tree_view_column_add_attribute(col, g_renderer, "width", COL_WIDTH);
     gtk_tree_view_column_add_attribute(col, g_renderer, "height", COL_HEIGHT);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(g_theme_view), col);
 
     GtkTreeSortable *sortable = GTK_TREE_SORTABLE(theme_list_store);
     gtk_tree_sortable_set_sort_column_id(sortable, COL_THEME_FILE, GTK_SORT_ASCENDING);
     gtk_tree_sortable_set_sort_func(sortable, COL_THEME_FILE, theme_name_compare, NULL, NULL);
-    return view;
 }
 
 gint theme_name_compare(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)

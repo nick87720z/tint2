@@ -15,7 +15,7 @@ enum {
     NB_COL,
 };
 
-GtkWidget *create_view();
+void create_view();
 
 void theme_list_append(const gchar *path);
 

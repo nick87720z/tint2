@@ -150,13 +150,6 @@ void import_with_overwrite(const char *filepath, const char *newpath)
     }
 }
 
-static void menuAddWidget(GtkUIManager *ui_manager, GtkWidget *p_widget, GtkContainer *p_box)
-{
-    gtk_box_pack_start(GTK_BOX(p_box), p_widget, FALSE, FALSE, 0);
-    gtk_widget_show(p_widget);
-}
-
-static void menuAddWidget(GtkUIManager *, GtkWidget *, GtkContainer *);
 static void menuImportFile();
 static void menuSaveAs();
 static void menuDelete();
@@ -174,44 +167,15 @@ static void reload_all_themes();
 
 // ====== Globals ======
 
+//~ GtkBuilder *tint2conf_ui;
 GtkWidget *g_window;
-static GtkUIManager *globalUIManager = NULL;
 GtkWidget *tint_cmd;
+GtkWidget *view_menu;
 
-GtkActionGroup *actionGroup = NULL;
-
-static const char *global_ui = "<ui>"
-                               "  <menubar name='MenuBar'>"
-                               "    <menu action='ThemeMenu'>"
-                               "      <menuitem action='ThemeImportFile'/>"
-                               "      <separator/>"
-                               "      <menuitem action='ThemeEdit'/>"
-                               "      <menuitem action='ThemeSaveAs'/>"
-                               "      <menuitem action='ThemeMakeDefault'/>"
-                               "      <menuitem action='ThemeReset'/>"
-                               "      <menuitem action='ThemeDelete'/>"
-                               "      <separator/>"
-                               "      <menuitem action='ThemeRefresh'/>"
-                               "      <menuitem action='RefreshAll'/>"
-                               "      <separator/>"
-                               "      <menuitem action='Quit'/>"
-                               "    </menu>"
-                               "    <menu action='HelpMenu'>"
-                               "      <menuitem action='HelpAbout'/>"
-                               "    </menu>"
-                               "  </menubar>"
-                               "  <toolbar  name='ToolBar'>"
-                               "    <toolitem action='ThemeEdit'/>"
-                               "    <toolitem action='ThemeMakeDefault'/>"
-                               "  </toolbar>"
-                               "  <popup  name='ThemePopup'>"
-                               "    <menuitem action='ThemeEdit'/>"
-                               "    <menuitem action='ThemeRefresh'/>"
-                               "    <separator/>"
-                               "    <menuitem action='ThemeReset'/>"
-                               "    <menuitem action='ThemeDelete'/>"
-                               "  </popup>"
-                               "</ui>";
+GSimpleActionGroup *actionGroup;
+GSimpleAction
+    *ThemeImportFile, *ThemeSaveAs, *ThemeDelete, *ThemeReset, *ThemeEdit, *ThemeMakeDefault, *ThemeRefresh,
+    *RefreshAll, *Quit, *HelpAbout;
 
 int main(int argc, char **argv)
 {
@@ -240,98 +204,150 @@ int main(int argc, char **argv)
     // config file uses '.' as decimal separator
     setlocale(LC_NUMERIC, "POSIX");
 
+    // Actions
+
+    actionGroup = g_simple_action_group_new ();
+
+    #define add_action(act, name, callback) do {                                         \
+        act = g_simple_action_new ((name), NULL);                                        \
+        g_signal_connect (G_OBJECT(act), "activate", G_CALLBACK(callback), NULL);        \
+        g_simple_action_group_insert (actionGroup, G_ACTION(act));                       \
+    } while (0)
+    add_action (ThemeImportFile, "ThemeImportFile",  menuImportFile);
+    add_action (ThemeSaveAs,     "ThemeSaveAs",      menuSaveAs);
+    add_action (ThemeDelete,     "ThemeDelete",      menuDelete);
+    add_action (ThemeReset,      "ThemeReset",       menuReset);
+    add_action (ThemeEdit,       "ThemeEdit",        edit_theme);
+    add_action (ThemeMakeDefault,"ThemeMakeDefault", make_selected_theme_default);
+    add_action (ThemeRefresh,    "ThemeRefresh",     refresh_current_theme);
+    add_action (RefreshAll,      "RefreshAll",       reload_all_themes);
+    add_action (Quit,            "Quit",             gtk_main_quit);
+    add_action (HelpAbout,       "HelpAbout",        menuAbout);
+    #undef add_action
+
+    // Keyboard accelerators
+
+    GClosure *cl_import = g_cclosure_new (G_CALLBACK(menuImportFile), NULL, NULL);
+    GClosure *cl_about  = g_cclosure_new (G_CALLBACK(menuAbout),      NULL, NULL);
+    GClosure *cl_quit   = g_cclosure_new (G_CALLBACK(gtk_main_quit),  NULL, NULL);
+    GtkAccelGroup *accelGroup = gtk_accel_group_new ();
+    gtk_accel_group_connect (accelGroup, 'n', GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, cl_import);
+    gtk_accel_group_connect (accelGroup, 'a', GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, cl_about);
+    gtk_accel_group_connect (accelGroup, 'q', GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE, cl_quit);
+
     // define main layout : container, menubar, toolbar
-    g_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(g_window), _("Tint2 panel themes"));
-    gtk_window_resize(GTK_WINDOW(g_window), 920, 600);
-    g_signal_connect(G_OBJECT(g_window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
-    vBox = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(g_window), vBox);
+    g_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title (GTK_WINDOW (g_window), _("Tint2 panel themes"));
+    gtk_window_resize (GTK_WINDOW (g_window), 920, 600);
+    gtk_window_add_accel_group (GTK_WINDOW (g_window), accelGroup);
+    gtk_widget_insert_action_group (g_window, "", G_ACTION_GROUP (actionGroup));
+    g_signal_connect (G_OBJECT (g_window), "destroy", G_CALLBACK (gtk_main_quit), NULL);
+    vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+    gtk_container_add (GTK_CONTAINER (g_window), vBox);
 
-    actionGroup = gtk_action_group_new("menuActionGroup");
+    // Menus and toolbar
 
-    // Menubar and toolbar entries
-    GtkActionEntry entries[] =
-        {{"ThemeMenu", NULL, _("_Theme"), NULL, NULL, NULL},
-         {"ThemeImportFile",
-          GTK_STOCK_ADD,
-          _("_Import theme..."),
-          "<Control>N",
-          _("Import theme(s) from file system"),
-          G_CALLBACK(menuImportFile)},
-         {"ThemeSaveAs",
-          GTK_STOCK_SAVE_AS,
-          _("_Save as..."),
-          NULL,
-          _("Save the theme with a new name"),
-          G_CALLBACK(menuSaveAs)},
-         {"ThemeDelete", GTK_STOCK_DELETE, _("_Delete"), NULL, _("Delete the selected theme"), G_CALLBACK(menuDelete)},
-         {"ThemeReset",
-          GTK_STOCK_REVERT_TO_SAVED,
-          _("_Reset"),
-          NULL,
-          _("Reset the selected theme to default"),
-          G_CALLBACK(menuReset)},
-         {"ThemeEdit",
-          GTK_STOCK_PROPERTIES,
-          _("_Edit theme..."),
-          NULL,
-          _("Edit the selected theme"),
-          G_CALLBACK(edit_theme)},
-         {"ThemeMakeDefault",
-          GTK_STOCK_APPLY,
-          _("_Make default"),
-          NULL,
-          _("Replace the default theme with the selected one"),
-          G_CALLBACK(make_selected_theme_default)},
-         {"ThemeRefresh",
-          GTK_STOCK_REFRESH,
-          _("Refresh"),
-          NULL,
-          _("Redraw the selected theme"),
-          G_CALLBACK(refresh_current_theme)},
-         {"RefreshAll", GTK_STOCK_REFRESH, _("Refresh all"), NULL, _("Redraw all themes"), G_CALLBACK(reload_all_themes)},
-         {"Quit", GTK_STOCK_QUIT, _("_Quit"), "<control>Q", _("Quit"), G_CALLBACK(gtk_main_quit)},
-         {"HelpMenu", NULL, _("_Help"), NULL, NULL, NULL},
-         {"HelpAbout", GTK_STOCK_ABOUT, _("_About"), "<Control>A", _("About"), G_CALLBACK(menuAbout)}};
+    GtkWidget *main_menu, *toolbar;
 
-    gtk_action_group_add_actions(actionGroup, entries, G_N_ELEMENTS(entries), NULL);
-    globalUIManager = gtk_ui_manager_new();
-    gtk_ui_manager_insert_action_group(globalUIManager, actionGroup, 0);
-    gtk_window_add_accel_group(GTK_WINDOW(g_window), gtk_ui_manager_get_accel_group(globalUIManager));
-    gtk_ui_manager_add_ui_from_string(globalUIManager, global_ui, -1, (NULL));
-    g_signal_connect(globalUIManager, "add_widget", G_CALLBACK(menuAddWidget), vBox);
-    gtk_ui_manager_ensure_update(globalUIManager);
+    #define add_menu_item(menu, text, icon_name) do {                                    \
+        menu_item = gtk_menu_item_new ();                                                \
+        icon = gtk_image_new_from_icon_name (icon_name, GTK_ICON_SIZE_MENU);             \
+        label = gtk_accel_label_new (text);                                              \
+        gtk_label_set_text_with_mnemonic (GTK_LABEL (label), text);                      \
+        gtk_label_set_xalign (GTK_LABEL (label), 0.0);                                   \
+        box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);                               \
+        gtk_box_pack_start (GTK_BOX (box), icon,  FALSE, TRUE, 0);                       \
+        gtk_box_pack_start (GTK_BOX (box), label, TRUE, TRUE, 0);                        \
+        gtk_container_add (GTK_CONTAINER (menu_item), box);                              \
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);                        \
+    } while (0)
+    #define add_menu_sub(menu, text, icon_name) do {                                     \
+        add_menu_item (menu, text, icon_name);                                           \
+        submenu = gtk_menu_new ();                                                       \
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (menu_item), submenu);                  \
+    } while (0)
+    #define add_menu_act(menu, text, icon_name, act, accel) do {                         \
+        add_menu_item (menu, text, icon_name);                                           \
+        gtk_actionable_set_action_name (GTK_ACTIONABLE (menu_item), act);                \
+        if (accel) {                                                                     \
+            gtk_accel_label_set_accel_closure (GTK_ACCEL_LABEL (label), accel);          \
+        }                                                                                \
+    } while (0)
+    #define add_menu_sep(menu) do {                                                      \
+        menu_item = gtk_separator_menu_item_new ();                                      \
+        gtk_menu_shell_append (GTK_MENU_SHELL (menu), menu_item);                        \
+    } while (0)
+    #define add_tool_button(action, icon) do {                                           \
+        t_item = gtk_tool_button_new (NULL, NULL);                                       \
+        gtk_actionable_set_action_name (GTK_ACTIONABLE (t_item), (action));              \
+        gtk_tool_button_set_icon_name (GTK_TOOL_BUTTON (t_item), (icon));                \
+        gtk_toolbar_insert (GTK_TOOLBAR (toolbar), t_item, -1);                          \
+    } while (0)
 
-    GtkWidget *table, *label;
-    int row, col;
+    {
+        GtkWidget *submenu, *menu_item, *label, *icon, *box;
 
-    row = col = 0;
-    table = gtk_table_new(1, 2, FALSE);
-    gtk_widget_show(table);
-    gtk_box_pack_start(GTK_BOX(vBox), table, FALSE, TRUE, 0);
-    gtk_table_set_row_spacings(GTK_TABLE(table), 8);
-    gtk_table_set_col_spacings(GTK_TABLE(table), 8);
+        view_menu = gtk_menu_new();
+        add_menu_act (view_menu, _("_Edit theme..."), "document-properties",  ".ThemeEdit",    NULL);
+        add_menu_act (view_menu, _("Refresh"),        "view-refresh",         ".ThemeRefresh", NULL);
+        add_menu_sep (view_menu);
+        add_menu_act (view_menu, _("_Reset"),  "document-revert", ".ThemeReset",  NULL);
+        add_menu_act (view_menu, _("_Delete"), "edit-delete",     ".ThemeDelete", NULL);
+
+        main_menu = gtk_menu_bar_new();
+        add_menu_sub (main_menu, _("_Theme"), NULL);
+            add_menu_act (submenu, _("_Import theme..."), "list-add",             ".ThemeImportFile", cl_import);
+            add_menu_act (submenu, _("_Edit theme..."),   "document-properties",  ".ThemeEdit",       NULL);
+            add_menu_act (submenu, _("_Save as..."),      "document-save-as",     ".ThemeSaveAs",     NULL);
+            add_menu_act (submenu, _("_Make default"),    "gtk-apply",            ".ThemeMakeDefault", NULL);
+            add_menu_act (submenu, _("_Reset"),           "document-revert",      ".ThemeReset",      NULL);
+            add_menu_act (submenu, _("_Delete"),          "edit-delete",          ".ThemeDelete",     NULL);
+            add_menu_sep (submenu);
+            add_menu_act (submenu, _("Refresh"),      "view-refresh", ".ThemeRefresh", NULL);
+            add_menu_act (submenu, _("Refresh all"),  "view-refresh", ".RefreshAll",   NULL);
+            add_menu_sep (submenu);
+            add_menu_act (submenu, _("_Quit"), "application-exit", ".Quit", cl_quit);
+        add_menu_sub (main_menu, _("_Help"), NULL);
+            add_menu_act (submenu, _("_About"), "help-about", ".HelpAbout", cl_about);
+    }
+
+    gtk_widget_insert_action_group (GTK_WIDGET (view_menu), "", G_ACTION_GROUP (actionGroup));
+
+    GtkToolItem *t_item;
+    toolbar = gtk_toolbar_new ();
+    add_tool_button (".ThemeEdit",        "document-properties");
+    add_tool_button (".ThemeMakeDefault", "gtk-apply");
+
+    #undef add_menu_sub
+    #undef add_menu_act
+    #undef add_menu_sep
+    #undef add_menu_item
+    #undef add_tool_button
+
+    gtk_box_pack_start (GTK_BOX(vBox), main_menu, FALSE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(vBox), toolbar,   FALSE, TRUE, 0);
+
+    GtkWidget *box, *label;
 
     label = gtk_label_new(_("Command to run tint2: "));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
-    gtk_widget_show(label);
-    gtk_table_attach(GTK_TABLE(table), label, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
-    col++;
+    gtk_label_set_xalign (GTK_LABEL(label), 0);
 
-    tint_cmd = gtk_entry_new();
-    gtk_widget_show(tint_cmd);
+    tint_cmd = gtk_entry_new ();
     gtk_entry_set_text(GTK_ENTRY(tint_cmd), "");
-    gtk_table_attach(GTK_TABLE(table), tint_cmd, col, col + 1, row, row + 1, GTK_FILL | GTK_EXPAND, 0, 0, 0);
+
+    box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_set_spacing (GTK_BOX(box), 8);
+    gtk_box_pack_start (GTK_BOX(box), label, FALSE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(box), tint_cmd, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(vBox), box, FALSE, TRUE, 0);
 
     scrollbar = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbar), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_box_pack_start(GTK_BOX(vBox), scrollbar, TRUE, TRUE, 0);
 
     // define theme view
-    g_theme_view = create_view();
+    create_view();
     gtk_container_add(GTK_CONTAINER(scrollbar), g_theme_view);
-    gtk_widget_show(g_theme_view);
     g_signal_connect(g_theme_view, "button-press-event", (GCallback)view_onButtonPressed, NULL);
     g_signal_connect(g_theme_view, "popup-menu", (GCallback)view_onPopupMenu, NULL);
     g_signal_connect(g_theme_view, "row-activated", G_CALLBACK(viewRowActivated), NULL);
@@ -352,6 +368,7 @@ int main(int argc, char **argv)
     }
 
     gtk_widget_show_all(g_window);
+    gtk_widget_show_all(view_menu);
     gtk_main();
 
     icon_theme_common_cleanup ();
@@ -401,9 +418,9 @@ static void menuImportFile()
     GtkWidget *dialog = gtk_file_chooser_dialog_new(_("Import theme(s)"),
                                                     GTK_WINDOW(g_window),
                                                     GTK_FILE_CHOOSER_ACTION_OPEN,
-                                                    GTK_STOCK_CANCEL,
+                                                    "gtk-cancel",
                                                     GTK_RESPONSE_CANCEL,
-                                                    GTK_STOCK_ADD,
+                                                    "gtk-add",
                                                     GTK_RESPONSE_ACCEPT,
                                                     NULL);
     GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
@@ -468,9 +485,9 @@ static void menuSaveAs()
     GtkWidget *dialog = gtk_file_chooser_dialog_new(_("Save theme as"),
                                                     GTK_WINDOW(g_window),
                                                     GTK_FILE_CHOOSER_ACTION_SAVE,
-                                                    GTK_STOCK_CANCEL,
+                                                    "gtk-cancel",
                                                     GTK_RESPONSE_CANCEL,
-                                                    GTK_STOCK_SAVE,
+                                                    "gtk-save",
                                                     GTK_RESPONSE_ACCEPT,
                                                     NULL);
     GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
@@ -581,13 +598,7 @@ static void menuReset()
 
 static void show_popup_menu(GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
 {
-    gtk_menu_popup(GTK_MENU(gtk_ui_manager_get_widget(globalUIManager, "/ThemePopup")),
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   (event != NULL) ? event->button : 0,
-                   gdk_event_get_time((GdkEvent *)event));
+    gtk_menu_popup_at_pointer(GTK_MENU(view_menu), (GdkEvent *)event);
 }
 
 static gboolean view_onButtonPressed(GtkWidget *treeview, GdkEventButton *event, gpointer userdata)
@@ -635,20 +646,20 @@ static void theme_selection_changed(GtkWidget *treeview, gpointer userdata)
         g_free(text);
         gboolean editable = theme_is_editable(filepath);
         g_free(filepath);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeSaveAs"), TRUE);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeDelete"), editable);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeReset"), editable);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeMakeDefault"), !isdefault);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeEdit"), TRUE);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeRefresh"), TRUE);
+        g_simple_action_set_enabled(ThemeSaveAs,        TRUE);
+        g_simple_action_set_enabled(ThemeDelete,        editable);
+        g_simple_action_set_enabled(ThemeReset,         editable);
+        g_simple_action_set_enabled(ThemeMakeDefault,   !isdefault);
+        g_simple_action_set_enabled(ThemeEdit,          TRUE);
+        g_simple_action_set_enabled(ThemeRefresh,       TRUE);
     } else {
         gtk_entry_set_text(GTK_ENTRY(tint_cmd), "");
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeSaveAs"), FALSE);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeDelete"), FALSE);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeReset"), FALSE);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeMakeDefault"), FALSE);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeEdit"), FALSE);
-        gtk_action_set_sensitive(gtk_action_group_get_action(actionGroup, "ThemeRefresh"), FALSE);
+        g_simple_action_set_enabled(ThemeSaveAs,        FALSE);
+        g_simple_action_set_enabled(ThemeDelete,        FALSE);
+        g_simple_action_set_enabled(ThemeReset,         FALSE);
+        g_simple_action_set_enabled(ThemeMakeDefault,   FALSE);
+        g_simple_action_set_enabled(ThemeEdit,          FALSE);
+        g_simple_action_set_enabled(ThemeRefresh,       FALSE);
     }
 }
 

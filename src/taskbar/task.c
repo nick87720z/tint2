@@ -257,11 +257,11 @@ gboolean task_update_title(Task *task)
     if (!panel->g_task.has_text && !panel->g_task.tooltip_enabled && taskbar_sort_method != TASKBAR_SORT_TITLE)
         return FALSE;
 
-    char *name = server_get_property(task->win, server.atom._NET_WM_VISIBLE_NAME, server.atom.UTF8_STRING, NULL);
+    char *name = server_get_property(task->win, server.atom [_NET_WM_VISIBLE_NAME], server.atom [UTF8_STRING], NULL);
     if (!name || !strlen(name)) {
-        name = server_get_property(task->win, server.atom._NET_WM_NAME, server.atom.UTF8_STRING, NULL);
+        name = server_get_property(task->win, server.atom [_NET_WM_NAME], server.atom [UTF8_STRING], NULL);
         if (!name || !strlen(name)) {
-            name = server_get_property(task->win, server.atom.WM_NAME, XA_STRING, NULL);
+            name = server_get_property(task->win, server.atom [WM_NAME], XA_STRING, NULL);
         }
     }
 
@@ -297,7 +297,7 @@ Imlib_Image task_get_icon(Window win, int icon_size)
 
     if (!img) {
         int len;
-        gulong *data = server_get_property(win, server.atom._NET_WM_ICON, XA_CARDINAL, &len);
+        gulong *data = server_get_property(win, server.atom [_NET_WM_ICON], XA_CARDINAL, &len);
         if (data) {
             if (len > 0) {
                 // get ARGB icon
@@ -579,14 +579,14 @@ void on_change_task(void *obj)
                         task->area.width,
                         task->area.height};
         XChangeProperty(server.display, task->win,
-                        server.atom._NET_WM_ICON_GEOMETRY,
+                        server.atom [_NET_WM_ICON_GEOMETRY],
                         XA_CARDINAL,
                         32,
                         PropModeReplace,
                         (unsigned char *)value,
                         4);
     } else {
-        XDeleteProperty(server.display, task->win, server.atom._NET_WM_ICON_GEOMETRY);
+        XDeleteProperty(server.display, task->win, server.atom [_NET_WM_ICON_GEOMETRY]);
     }
 }
 

@@ -193,7 +193,7 @@ gboolean resize_systray(void *obj)
     if (systray.icon_size > 0) {
         long icon_size = systray.icon_size;
         XChangeProperty(server.display, net_sel_win,
-                        server.atom._NET_SYSTEM_TRAY_ICON_SIZE,
+                        server.atom [_NET_SYSTEM_TRAY_ICON_SIZE],
                         XA_CARDINAL,
                         32,
                         PropModeReplace,
@@ -364,7 +364,7 @@ void start_net()
             return;
     }
 
-    Window win = XGetSelectionOwner(server.display, server.atom._NET_SYSTEM_TRAY_SCREEN);
+    Window win = XGetSelectionOwner(server.display, server.atom [_NET_SYSTEM_TRAY_SCREEN]);
 
     // freedesktop systray specification
     if (win != None) {
@@ -408,7 +408,7 @@ void start_net()
     // Vertical panel will draw the systray horizontal.
     long orientation = 0;
     XChangeProperty(server.display, net_sel_win,
-                    server.atom._NET_SYSTEM_TRAY_ORIENTATION,
+                    server.atom [_NET_SYSTEM_TRAY_ORIENTATION],
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
@@ -417,7 +417,7 @@ void start_net()
     if (systray.icon_size > 0) {
         long icon_size = systray.icon_size;
         XChangeProperty(server.display, net_sel_win,
-                        server.atom._NET_SYSTEM_TRAY_ICON_SIZE,
+                        server.atom [_NET_SYSTEM_TRAY_ICON_SIZE],
                         XA_CARDINAL,
                         32,
                         PropModeReplace,
@@ -426,7 +426,7 @@ void start_net()
     }
     long padding = 0;
     XChangeProperty(server.display, net_sel_win,
-                    server.atom._NET_SYSTEM_TRAY_PADDING,
+                    server.atom [_NET_SYSTEM_TRAY_PADDING],
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
@@ -446,8 +446,8 @@ void start_net()
                     (unsigned char *)&vid,
                     1);
 
-    XSetSelectionOwner(server.display, server.atom._NET_SYSTEM_TRAY_SCREEN, net_sel_win, CurrentTime);
-    if (XGetSelectionOwner(server.display, server.atom._NET_SYSTEM_TRAY_SCREEN) != net_sel_win) {
+    XSetSelectionOwner(server.display, server.atom [_NET_SYSTEM_TRAY_SCREEN], net_sel_win, CurrentTime);
+    if (XGetSelectionOwner(server.display, server.atom [_NET_SYSTEM_TRAY_SCREEN]) != net_sel_win) {
         stop_net();
         fprintf(stderr, RED "tint2: cannot find systray manager" RESET "\n");
         return;
@@ -459,10 +459,10 @@ void start_net()
     XClientMessageEvent ev;
     ev.type = ClientMessage;
     ev.window = server.root_win;
-    ev.message_type = server.atom.MANAGER;
+    ev.message_type = server.atom [MANAGER];
     ev.format = 32;
     ev.data.l[0] = CurrentTime;
-    ev.data.l[1] = server.atom._NET_SYSTEM_TRAY_SCREEN;
+    ev.data.l[1] = server.atom [_NET_SYSTEM_TRAY_SCREEN];
     ev.data.l[2] = net_sel_win;
     ev.data.l[3] = 0;
     ev.data.l[4] = 0;
@@ -489,7 +489,7 @@ void handle_systray_event(XClientMessageEvent *e)
         break;
 
     default:
-        if (opcode == server.atom._NET_SYSTEM_TRAY_MESSAGE_DATA)
+        if (opcode == server.atom [_NET_SYSTEM_TRAY_MESSAGE_DATA])
             fprintf(stderr, "tint2: message from dockapp: %s\n", e->data.b);
         else
             fprintf(stderr, RED "tint2: SYSTEM_TRAY : unknown message type" RESET "\n");
@@ -624,7 +624,7 @@ gboolean add_icon(Window win)
         unsigned char *prop = 0;
         int ret = XGetWindowProperty(server.display,
                                      win,
-                                     server.atom._NET_WM_PID,
+                                     server.atom [_NET_WM_PID],
                                      0,
                                      1024,
                                      False,
@@ -780,7 +780,7 @@ gboolean reparent_icon(TrayWindow *traywin)
         e.xclient.type = ClientMessage;
         e.xclient.serial = 0;
         e.xclient.send_event = True;
-        e.xclient.message_type = server.atom._XEMBED;
+        e.xclient.message_type = server.atom [_XEMBED];
         e.xclient.window = traywin->win;
         e.xclient.format = 32;
         e.xclient.data.l[0] = CurrentTime;
@@ -1074,7 +1074,7 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 void systray_property_notify(TrayWindow *traywin, XEvent *e)
 {
     Atom at = e->xproperty.atom;
-    if (at == server.atom.WM_NAME) {
+    if (at == server.atom [WM_NAME]) {
         free(traywin->name);
         traywin->name = get_window_name(traywin->win);
         if (systray.sort == SYSTRAY_SORT_ASCENDING || systray.sort == SYSTRAY_SORT_DESCENDING) {

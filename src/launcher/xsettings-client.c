@@ -321,11 +321,11 @@ static void read_settings(XSettingsClient *client)
     old_handler = XSetErrorHandler(ignore_errors);
     int result = XGetWindowProperty(client->display,
                                     client->manager_window,
-                                    server.atom._XSETTINGS_SETTINGS,
+                                    server.atom [_XSETTINGS_SETTINGS],
                                     0,
                                     LONG_MAX,
                                     False,
-                                    server.atom._XSETTINGS_SETTINGS,
+                                    server.atom [_XSETTINGS_SETTINGS],
                                     &type,
                                     &format,
                                     &n_items,
@@ -333,7 +333,7 @@ static void read_settings(XSettingsClient *client)
                                     &data);
     XSetErrorHandler(old_handler);
 
-    if (result == Success && type == server.atom._XSETTINGS_SETTINGS) {
+    if (result == Success && type == server.atom [_XSETTINGS_SETTINGS]) {
         if (format != 8) {
             fprintf(stderr, "tint2: Invalid format for XSETTINGS property %d", format);
         } else
@@ -352,7 +352,7 @@ static void check_manager_window(XSettingsClient *client)
 
     XGrabServer(client->display);
 
-    client->manager_window = XGetSelectionOwner(server.display, server.atom._XSETTINGS_SCREEN);
+    client->manager_window = XGetSelectionOwner(server.display, server.atom [_XSETTINGS_SCREEN]);
     if (client->manager_window)
         XSelectInput(server.display, client->manager_window, PropertyChangeMask | StructureNotifyMask);
 
@@ -427,7 +427,7 @@ Bool xsettings_client_process_event(XSettingsClient *client, XEvent *xev)
     are going to be pretty rare. */
 {
     if (xev->xany.window == RootWindow(server.display, server.screen)) {
-        if (xev->xany.type == ClientMessage && xev->xclient.message_type == server.atom.MANAGER) {
+        if (xev->xany.type == ClientMessage && xev->xclient.message_type == server.atom [MANAGER]) {
             check_manager_window(client);
             return True;
         }

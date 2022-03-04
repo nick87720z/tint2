@@ -92,7 +92,7 @@ void handle_event_property_notify(XEvent *e)
         Panel *p = &panels[i];
         if (win == p->main_win)
         {
-            if (at == server.atom._NET_WM_DESKTOP && get_window_desktop(p->main_win) != ALL_DESKTOPS)
+            if (at == server.atom [_NET_WM_DESKTOP] && get_window_desktop(p->main_win) != ALL_DESKTOPS)
                 replace_panel_all_desktops(p);
             return;
         }
@@ -105,18 +105,18 @@ void handle_event_property_notify(XEvent *e)
         }
 
         // Change name of desktops
-        else if (at == server.atom._NET_DESKTOP_NAMES)
+        else if (at == server.atom [_NET_DESKTOP_NAMES])
         {
             if (debug)
                 fprintf(stderr, "tint2: %s %d: win = root, atom = _NET_DESKTOP_NAMES\n", __func__, __LINE__);
             update_desktop_names();
         }
         // Change desktops
-        else if (at == server.atom._NET_NUMBER_OF_DESKTOPS  ||
-                 at == server.atom._NET_DESKTOP_GEOMETRY    ||
-                 at == server.atom._NET_DESKTOP_VIEWPORT    ||
-                 at == server.atom._NET_WORKAREA            ||
-                 at == server.atom._NET_CURRENT_DESKTOP)
+        else if (at == server.atom [_NET_NUMBER_OF_DESKTOPS]  ||
+                 at == server.atom [_NET_DESKTOP_GEOMETRY]    ||
+                 at == server.atom [_NET_DESKTOP_VIEWPORT]    ||
+                 at == server.atom [_NET_WORKAREA]            ||
+                 at == server.atom [_NET_CURRENT_DESKTOP])
         {
             if (debug)
                 fprintf(stderr, "tint2: %s %d: win = root, atom = ?? desktops changed\n", __func__, __LINE__);
@@ -217,7 +217,7 @@ void handle_event_property_notify(XEvent *e)
             }
         }
         // Window list
-        else if (at == server.atom._NET_CLIENT_LIST)
+        else if (at == server.atom [_NET_CLIENT_LIST])
         {
             if (debug)
                 fprintf(stderr, "tint2: %s %d: win = root, atom = _NET_CLIENT_LIST\n", __func__, __LINE__);
@@ -226,14 +226,14 @@ void handle_event_property_notify(XEvent *e)
             schedule_panel_redraw();
         }
         // Change active
-        else if (at == server.atom._NET_ACTIVE_WINDOW)
+        else if (at == server.atom [_NET_ACTIVE_WINDOW])
         {
             if (debug)
                 fprintf(stderr, "tint2: %s %d: win = root, atom = _NET_ACTIVE_WINDOW\n", __func__, __LINE__);
             reset_active_task();
             schedule_panel_redraw();
         }
-        else if (at == server.atom._XROOTPMAP_ID || at == server.atom._XROOTMAP_ID)
+        else if (at == server.atom [_XROOTPMAP_ID] || at == server.atom [_XROOTMAP_ID])
         {
             if (debug)
                 fprintf(stderr, "tint2: %s %d: win = root, atom = _XROOTPMAP_ID\n", __func__, __LINE__);
@@ -265,7 +265,7 @@ void handle_event_property_notify(XEvent *e)
         if (!task) {
             if (debug)
                 fprintf(stderr, "tint2: %s %d\n", __func__, __LINE__);
-            if (at == server.atom._NET_WM_STATE)
+            if (at == server.atom [_NET_WM_STATE])
             {
                 // xfce4 sends _NET_WM_STATE after minimized to tray, so we need to check if window is mapped
                 // if it is mapped and not set as skip_taskbar, we must add it to our task list
@@ -280,9 +280,9 @@ void handle_event_property_notify(XEvent *e)
         // fprintf(stderr, "tint2: atom root_win = %s, %s\n", XGetAtomName(server.display, at), task->title);
 
         // Window title changed
-        if (at == server.atom._NET_WM_VISIBLE_NAME  ||
-            at == server.atom._NET_WM_NAME          ||
-            at == server.atom.WM_NAME)
+        if (at == server.atom [_NET_WM_VISIBLE_NAME]  ||
+            at == server.atom [_NET_WM_NAME]          ||
+            at == server.atom [WM_NAME])
         {
             if (task_update_title(task)) {
                 if (g_tooltip.mapped && (g_tooltip.area == (Area *)task))
@@ -296,11 +296,11 @@ void handle_event_property_notify(XEvent *e)
             }
         }
         // Demand attention
-        else if (at == server.atom._NET_WM_STATE)
+        else if (at == server.atom [_NET_WM_STATE])
         {
             if (debug) {
                 int count;
-                Atom *atom_state = server_get_property(win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+                Atom *atom_state = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
                 for (int j = 0; j < count; j++)
                 {
                     char *atom_state_name = XGetAtomName(server.display, atom_state[j]);
@@ -317,7 +317,7 @@ void handle_event_property_notify(XEvent *e)
                 schedule_panel_redraw();
             }
         }
-        else if (at == server.atom.WM_STATE)
+        else if (at == server.atom [WM_STATE])
         {
             // Iconic state
             TaskState state = (active_task && task->win == active_task->win ? TASK_ACTIVE : TASK_NORMAL);
@@ -327,12 +327,12 @@ void handle_event_property_notify(XEvent *e)
             schedule_panel_redraw();
         }
         // Window icon changed
-        else if (at == server.atom._NET_WM_ICON) {
+        else if (at == server.atom [_NET_WM_ICON]) {
             task_update_icon(task);
             schedule_panel_redraw();
         }
         // Window desktop changed
-        else if (at == server.atom._NET_WM_DESKTOP)
+        else if (at == server.atom [_NET_WM_DESKTOP])
         {
             int desktop = get_window_desktop(win);
             // fprintf(stderr, "tint2:   Window desktop changed %d, %d\n", task->desktop, desktop);
@@ -341,7 +341,7 @@ void handle_event_property_notify(XEvent *e)
                 task_update_desktop(task);
             }
         }
-        else if (at == server.atom.WM_HINTS)
+        else if (at == server.atom [WM_HINTS])
         {
             XWMHints *wmhints = XGetWMHints(server.display, win);
             if (wmhints && wmhints->flags & XUrgencyHint) {
@@ -431,7 +431,7 @@ gboolean handle_x_event_autohide(XEvent *e)
                             break;
         }
         if (panel->is_hidden) {
-            if (e->type == ClientMessage && e->xclient.message_type == server.atom.XdndPosition)
+            if (e->type == ClientMessage && e->xclient.message_type == server.atom [XdndPosition])
             {
                 hidden_panel_shown_for_dnd = TRUE;
                 autohide_show(panel);
@@ -441,7 +441,7 @@ gboolean handle_x_event_autohide(XEvent *e)
                 return TRUE;
             }
         } else if (hidden_panel_shown_for_dnd && e->type == ClientMessage &&
-                   e->xclient.message_type == server.atom.XdndLeave)
+                   e->xclient.message_type == server.atom [XdndLeave])
         {
             hidden_panel_shown_for_dnd = FALSE;
             autohide_hide(panel);
@@ -560,23 +560,23 @@ void handle_x_event(XEvent *e)
 
     case ClientMessage: {
         XClientMessageEvent *ev = &e->xclient;
-        if (ev->data.l[1] == server.atom._NET_WM_CM_S0)
+        if (ev->data.l[1] == server.atom [_NET_WM_CM_S0])
         {
             // Start or stop real_transparency
             emit_self_restart("compositor changed");
         }
-        if (e->xclient.message_type == server.atom._NET_SYSTEM_TRAY_OPCODE &&
+        if (e->xclient.message_type == server.atom [_NET_SYSTEM_TRAY_OPCODE] &&
             systray_enabled && e->xclient.format == 32 && e->xclient.window == net_sel_win)
         {
             handle_systray_event(&e->xclient);
         }
-        else if (e->xclient.message_type == server.atom.XdndEnter)
+        else if (e->xclient.message_type == server.atom [XdndEnter])
             handle_dnd_enter(&e->xclient);
-        else if (e->xclient.message_type == server.atom.XdndPosition)
+        else if (e->xclient.message_type == server.atom [XdndPosition])
             handle_dnd_position(&e->xclient);
-        else if (e->xclient.message_type == server.atom.XdndDrop)
+        else if (e->xclient.message_type == server.atom [XdndDrop])
             handle_dnd_drop(&e->xclient);
-        else if (e->xclient.message_type == server.atom.TINT2_REFRESH_EXECP &&
+        else if (e->xclient.message_type == server.atom [TINT2_REFRESH_EXECP] &&
                  e->xclient.format == 8)
         {
             char name[strlen_const(e->xclient.data.b)] = {};

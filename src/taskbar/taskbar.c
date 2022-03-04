@@ -517,7 +517,7 @@ void taskbar_refresh_tasklist()
         return;
 
     int num_results;
-    Window *win = server_get_property(server.root_win, server.atom._NET_CLIENT_LIST, XA_WINDOW, &num_results);
+    Window *win = server_get_property(server.root_win, server.atom [_NET_CLIENT_LIST], XA_WINDOW, &num_results);
     Window *sorted = (Window *)calloc(num_results, sizeof(Window));
     memcpy(sorted, win, num_results * sizeof(Window));
     if (taskbar_task_orderings)

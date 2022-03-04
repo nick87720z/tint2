@@ -135,7 +135,7 @@ Atom dnd_pick_target_from_targets(Display *disp, Property p)
     // The list of targets is a list of atoms, so it should have type XA_ATOM
     // but it may have the type TARGETS instead.
 
-    if ((p.type != XA_ATOM && p.type != server.atom.TARGETS) || p.format != 32) {
+    if ((p.type != XA_ATOM && p.type != server.atom [TARGETS]) || p.format != 32) {
         // This would be really broken. Targets have to be an atom list
         // and applications should support this. Nevertheless, some
         // seem broken (MATLAB 7, for instance), so ask for STRING
@@ -196,7 +196,7 @@ void handle_dnd_enter(XClientMessageEvent *e)
     if (more_than_3) {
         // Fetch the list of possible conversions
         // Notice the similarity to TARGETS with paste.
-        Property p = dnd_read_property(server.display, dnd_source_window, server.atom.XdndTypeList);
+        Property p = dnd_read_property(server.display, dnd_source_window, server.atom [XdndTypeList]);
         dnd_atom = dnd_pick_target_from_targets(server.display, p);
         XFree(p.data);
     } else {
@@ -236,14 +236,14 @@ void handle_dnd_position(XClientMessageEvent *e)
     XClientMessageEvent se;
     se.type = ClientMessage;
     se.window = e->data.l[0];
-    se.message_type = server.atom.XdndStatus;
+    se.message_type = server.atom [XdndStatus];
     se.format = 32;
     se.data.l[0] = e->window;      // XID of the target window
     se.data.l[1] = accept ? 1 : 0; // bit 0: accept drop    bit 1: send XdndPosition events if inside rectangle
     se.data.l[2] = 0;              // Rectangle x,y for which no more XdndPosition events
     se.data.l[3] = (1 << 16) | 1;  // Rectangle w,h for which no more XdndPosition events
     if (accept) {
-        se.data.l[4] = server.atom.XdndActionCopy;
+        se.data.l[4] = server.atom [XdndActionCopy];
     } else {
         se.data.l[4] = None; // None = drop will not be accepted
     }
@@ -263,14 +263,14 @@ void handle_dnd_drop(XClientMessageEvent *e)
     if (dnd_target_window && dnd_launcher_icon) {
         if (dnd_version >= 1) {
             XConvertSelection(server.display,
-                              server.atom.XdndSelection,
+                              server.atom [XdndSelection],
                               dnd_atom,
                               dnd_selection,
                               dnd_target_window,
                               e->data.l[2]);
         } else {
             XConvertSelection(server.display,
-                              server.atom.XdndSelection,
+                              server.atom [XdndSelection],
                               dnd_atom,
                               dnd_selection,
                               dnd_target_window,
@@ -284,7 +284,7 @@ void handle_dnd_drop(XClientMessageEvent *e)
         m.type = ClientMessage;
         m.display = e->display;
         m.window = e->data.l[0];
-        m.message_type = server.atom.XdndFinished;
+        m.message_type = server.atom [XdndFinished];
         m.format = 32;
         m.data.l[0] = dnd_target_window;
         m.data.l[1] = 0;
@@ -317,7 +317,7 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
 
         if (prop.data) {
             // If we're being given a list of targets (possible conversions)
-            if (target == server.atom.TARGETS && !dnd_sent_request) {
+            if (target == server.atom [TARGETS] && !dnd_sent_request) {
                 dnd_sent_request = 1;
                 dnd_atom = dnd_pick_target_from_targets(server.display, prop);
 
@@ -424,11 +424,11 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                 m.type = ClientMessage;
                 m.display = server.display;
                 m.window = dnd_source_window;
-                m.message_type = server.atom.XdndFinished;
+                m.message_type = server.atom [XdndFinished];
                 m.format = 32;
                 m.data.l[0] = dnd_target_window;
                 m.data.l[1] = 1;
-                m.data.l[2] = server.atom.XdndActionCopy; // We only ever copy.
+                m.data.l[2] = server.atom [XdndActionCopy]; // We only ever copy.
                 XSendEvent(server.display, dnd_source_window, False, NoEventMask, (XEvent *)&m);
                 XSync(server.display, False);
             }

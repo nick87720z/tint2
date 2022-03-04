@@ -43,97 +43,107 @@ int server_catch_error(Display *d, XErrorEvent *ev)
     return 0;
 }
 
+static char *atom_names [NUM_ATOMS]
+= {
+#define _atom_name(name) [name] = #name ,
+
+    _atom_name (_XROOTPMAP_ID)
+    _atom_name (_XROOTMAP_ID)
+    _atom_name (_NET_CURRENT_DESKTOP)
+    _atom_name (_NET_NUMBER_OF_DESKTOPS)
+    _atom_name (_NET_DESKTOP_NAMES)
+    _atom_name (_NET_DESKTOP_GEOMETRY)
+    _atom_name (_NET_DESKTOP_VIEWPORT)
+    _atom_name (_NET_WORKAREA)
+    _atom_name (_NET_ACTIVE_WINDOW)
+    _atom_name (_NET_WM_WINDOW_TYPE)
+    _atom_name (_NET_WM_STATE_SKIP_PAGER)
+    _atom_name (_NET_WM_STATE_SKIP_TASKBAR)
+    _atom_name (_NET_WM_STATE_STICKY)
+    _atom_name (_NET_WM_STATE_DEMANDS_ATTENTION)
+    _atom_name (_NET_WM_WINDOW_TYPE_DOCK)
+    _atom_name (_NET_WM_WINDOW_TYPE_DESKTOP)
+    _atom_name (_NET_WM_WINDOW_TYPE_TOOLBAR)
+    _atom_name (_NET_WM_WINDOW_TYPE_MENU)
+    _atom_name (_NET_WM_WINDOW_TYPE_SPLASH)
+    _atom_name (_NET_WM_WINDOW_TYPE_DIALOG)
+    _atom_name (_NET_WM_WINDOW_TYPE_NORMAL)
+    _atom_name (_NET_WM_DESKTOP)
+    _atom_name (WM_STATE)
+    _atom_name (_NET_WM_STATE)
+    _atom_name (_NET_WM_STATE_MAXIMIZED_VERT)
+    _atom_name (_NET_WM_STATE_MAXIMIZED_HORZ)
+    _atom_name (_NET_WM_STATE_SHADED)
+    _atom_name (_NET_WM_STATE_HIDDEN)
+    _atom_name (_NET_WM_STATE_BELOW)
+    _atom_name (_NET_WM_STATE_ABOVE)
+    _atom_name (_NET_WM_STATE_MODAL)
+    _atom_name (_NET_CLIENT_LIST)
+    _atom_name (_NET_WM_NAME)
+    _atom_name (_NET_WM_VISIBLE_NAME)
+    _atom_name (_NET_WM_STRUT)
+    _atom_name (_NET_WM_ICON)
+    _atom_name (_NET_WM_ICON_GEOMETRY)
+    _atom_name (_NET_WM_ICON_NAME)
+    _atom_name (_NET_CLOSE_WINDOW)
+    _atom_name (UTF8_STRING)
+    _atom_name (_NET_SUPPORTING_WM_CHECK)
+    _atom_name (_NET_WM_CM_S0)
+    _atom_name (_NET_WM_STRUT_PARTIAL)
+    _atom_name (WM_NAME)
+    _atom_name (__SWM_VROOT)
+    _atom_name (_MOTIF_WM_HINTS)
+    _atom_name (WM_HINTS)
+
+    // systray protocol
+    _atom_name (_NET_SYSTEM_TRAY_SCREEN)
+    _atom_name (_NET_SYSTEM_TRAY_OPCODE)
+    _atom_name (MANAGER)
+    _atom_name (_NET_SYSTEM_TRAY_MESSAGE_DATA)
+    _atom_name (_NET_SYSTEM_TRAY_ORIENTATION)
+    _atom_name (_NET_SYSTEM_TRAY_ICON_SIZE)
+    _atom_name (_NET_SYSTEM_TRAY_PADDING)
+    _atom_name (_XEMBED)
+    _atom_name (_XEMBED_INFO)
+    _atom_name (_NET_WM_PID)
+
+    // XSettings
+    _atom_name (_XSETTINGS_SCREEN)
+    _atom_name (_XSETTINGS_SETTINGS)
+
+    // drag 'n' drop
+    _atom_name (XdndAware)
+    _atom_name (XdndEnter)
+    _atom_name (XdndPosition)
+    _atom_name (XdndStatus)
+    _atom_name (XdndDrop)
+    _atom_name (XdndLeave)
+    _atom_name (XdndSelection)
+    _atom_name (XdndTypeList)
+    _atom_name (XdndActionCopy)
+    _atom_name (XdndFinished)
+    _atom_name (TARGETS)
+
+    // tint2 atoms
+    _atom_name (TINT2_REFRESH_EXECP)
+
+#undef _atom_name
+};
+
 void server_init_atoms()
 {
-    gchar *_NET_SYSTEM_TRAY_SCREEN = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", server.screen);
-    gchar *_XSETTINGS_SCREEN       = g_strdup_printf("_XSETTINGS_S%d",       server.screen);
+    gchar * s_NET_SYSTEM_TRAY_SCREEN = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", server.screen);
+    gchar * s_XSETTINGS_SCREEN       = g_strdup_printf("_XSETTINGS_S%d",       server.screen);
+
+    atom_names [_NET_SYSTEM_TRAY_SCREEN] = s_NET_SYSTEM_TRAY_SCREEN;
+    atom_names [_XSETTINGS_SCREEN]       = s_XSETTINGS_SCREEN;
 
     XInternAtoms(   server.display,
-                    (char *[]){
-                        "_XROOTPMAP_ID",
-                        "_XROOTMAP_ID",
-                        "_NET_CURRENT_DESKTOP",
-                        "_NET_NUMBER_OF_DESKTOPS",
-                        "_NET_DESKTOP_NAMES",
-                        "_NET_DESKTOP_GEOMETRY",
-                        "_NET_DESKTOP_VIEWPORT",
-                        "_NET_WORKAREA",
-                        "_NET_ACTIVE_WINDOW",
-                        "_NET_WM_WINDOW_TYPE",
-                        "_NET_WM_STATE_SKIP_PAGER",
-                        "_NET_WM_STATE_SKIP_TASKBAR",
-                        "_NET_WM_STATE_STICKY",
-                        "_NET_WM_STATE_DEMANDS_ATTENTION",
-                        "_NET_WM_WINDOW_TYPE_DOCK",
-                        "_NET_WM_WINDOW_TYPE_DESKTOP",
-                        "_NET_WM_WINDOW_TYPE_TOOLBAR",
-                        "_NET_WM_WINDOW_TYPE_MENU",
-                        "_NET_WM_WINDOW_TYPE_SPLASH",
-                        "_NET_WM_WINDOW_TYPE_DIALOG",
-                        "_NET_WM_WINDOW_TYPE_NORMAL",
-                        "_NET_WM_DESKTOP",
-                        "WM_STATE",
-                        "_NET_WM_STATE",
-                        "_NET_WM_STATE_MAXIMIZED_VERT",
-                        "_NET_WM_STATE_MAXIMIZED_HORZ",
-                        "_NET_WM_STATE_SHADED",
-                        "_NET_WM_STATE_HIDDEN",
-                        "_NET_WM_STATE_BELOW",
-                        "_NET_WM_STATE_ABOVE",
-                        "_NET_WM_STATE_MODAL",
-                        "_NET_CLIENT_LIST",
-                        "_NET_WM_NAME",
-                        "_NET_WM_VISIBLE_NAME",
-                        "_NET_WM_STRUT",
-                        "_NET_WM_ICON",
-                        "_NET_WM_ICON_GEOMETRY",
-                        "_NET_WM_ICON_NAME",
-                        "_NET_CLOSE_WINDOW",
-                        "UTF8_STRING",
-                        "_NET_SUPPORTING_WM_CHECK",
-                        "_NET_WM_CM_S0",
-                        "_NET_WM_STRUT_PARTIAL",
-                        "WM_NAME",
-                        "__SWM_VROOT",
-                        "_MOTIF_WM_HINTS",
-                        "WM_HINTS",
-
-                        // systray protocol
-                        _NET_SYSTEM_TRAY_SCREEN,
-                        "_NET_SYSTEM_TRAY_OPCODE",
-                        "MANAGER",
-                        "_NET_SYSTEM_TRAY_MESSAGE_DATA",
-                        "_NET_SYSTEM_TRAY_ORIENTATION",
-                        "_NET_SYSTEM_TRAY_ICON_SIZE",
-                        "_NET_SYSTEM_TRAY_PADDING",
-                        "_XEMBED",
-                        "_XEMBED_INFO",
-                        "_NET_WM_PID",
-
-                        // XSettings
-                        _XSETTINGS_SCREEN,
-                        "_XSETTINGS_SETTINGS",
-
-                        // drag 'n' drop
-                        "XdndAware",
-                        "XdndEnter",
-                        "XdndPosition",
-                        "XdndStatus",
-                        "XdndDrop",
-                        "XdndLeave",
-                        "XdndSelection",
-                        "XdndTypeList",
-                        "XdndActionCopy",
-                        "XdndFinished",
-                        "TARGETS",
-
-                        // tint2 atoms
-                        "TINT2_REFRESH_EXECP"
-                    },
+                    atom_names,
                     71, False, (Atom *)&server.atom);
 
-    g_free(_NET_SYSTEM_TRAY_SCREEN);
-    g_free(_XSETTINGS_SCREEN);
+    g_free(s_NET_SYSTEM_TRAY_SCREEN);
+    g_free(s_XSETTINGS_SCREEN);
 }
 
 const char *GetAtomName(Display *disp, Atom a)
@@ -238,7 +248,7 @@ void get_root_pixmap()
 {
     Pixmap ret = None;
 
-    Atom pixmap_atoms[] = {server.atom._XROOTPMAP_ID, server.atom._XROOTMAP_ID};
+    Atom pixmap_atoms[] = {server.atom [_XROOTPMAP_ID], server.atom [_XROOTMAP_ID]};
     for (int i = 0; i < ARRAY_SIZE (pixmap_atoms); ++i) {
         Pixmap *res = (unsigned long *)server_get_property(server.root_win, pixmap_atoms[i], XA_PIXMAP, NULL);
         if (res) {
@@ -422,11 +432,11 @@ void server_get_number_of_desktops()
         server.viewports = NULL;
     }
 
-    server.num_desktops = get_property32(server.root_win, server.atom._NET_NUMBER_OF_DESKTOPS, XA_CARDINAL);
+    server.num_desktops = get_property32(server.root_win, server.atom [_NET_NUMBER_OF_DESKTOPS], XA_CARDINAL);
     if (server.num_desktops > 1)
         return;
 
-    long *work_area_size = server_get_property(server.root_win, server.atom._NET_WORKAREA, XA_CARDINAL, NULL);
+    long *work_area_size = server_get_property(server.root_win, server.atom [_NET_WORKAREA], XA_CARDINAL, NULL);
     if (!work_area_size)
         return;
     int work_area_width = work_area_size[0] + work_area_size[2];
@@ -434,7 +444,7 @@ void server_get_number_of_desktops()
     XFree(work_area_size);
 
     long *x_screen_size =
-        server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, NULL);
+        server_get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
     if (!x_screen_size)
         return;
     int x_screen_width = x_screen_size[0];
@@ -475,7 +485,7 @@ GSList *get_desktop_names()
 
     int count;
     gchar *data_ptr =
-        server_get_property(server.root_win, server.atom._NET_DESKTOP_NAMES, server.atom.UTF8_STRING, &count);
+        server_get_property(server.root_win, server.atom [_NET_DESKTOP_NAMES], server.atom [UTF8_STRING], &count);
     if (data_ptr)
     {
         gchar   *ptr  = data_ptr,
@@ -493,10 +503,10 @@ int get_current_desktop()
 {
     if (!server.viewports) {
         return MAX(0, MIN(  server.num_desktops - 1,
-                            get_property32(server.root_win, server.atom._NET_CURRENT_DESKTOP, XA_CARDINAL) ));
+                            get_property32(server.root_win, server.atom [_NET_CURRENT_DESKTOP], XA_CARDINAL) ));
     }
 
-    long *work_area_size = server_get_property(server.root_win, server.atom._NET_WORKAREA, XA_CARDINAL, NULL);
+    long *work_area_size = server_get_property(server.root_win, server.atom [_NET_WORKAREA], XA_CARDINAL, NULL);
     if (!work_area_size)
         return 0;
     int work_area_width = work_area_size[0] + work_area_size[2];
@@ -506,7 +516,7 @@ int get_current_desktop()
     if (work_area_width <= 0 || work_area_height <= 0)
         return 0;
 
-    long *viewport = server_get_property(server.root_win, server.atom._NET_DESKTOP_VIEWPORT, XA_CARDINAL, NULL);
+    long *viewport = server_get_property(server.root_win, server.atom [_NET_DESKTOP_VIEWPORT], XA_CARDINAL, NULL);
     if (!viewport)
         return 0;
     int viewport_x = viewport[0];
@@ -514,7 +524,7 @@ int get_current_desktop()
     XFree(viewport);
 
     long *x_screen_size =
-        server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, NULL);
+        server_get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
     if (!x_screen_size)
         return 0;
     int x_screen_width = x_screen_size[0];
@@ -535,10 +545,10 @@ int get_current_desktop()
 void change_desktop(int desktop)
 {
     if (!server.viewports)
-        send_event32(server.root_win, server.atom._NET_CURRENT_DESKTOP, desktop, 0, 0);
+        send_event32(server.root_win, server.atom [_NET_CURRENT_DESKTOP], desktop, 0, 0);
     else {
         send_event32(server.root_win,
-                     server.atom._NET_DESKTOP_VIEWPORT,
+                     server.atom [_NET_DESKTOP_VIEWPORT],
                      server.viewports[desktop].x,
                      server.viewports[desktop].y,
                      0);
@@ -583,7 +593,7 @@ void server_init_visual()
     XFree(xvi);
 
     // check composite manager
-    server.composite_manager = XGetSelectionOwner(server.display, server.atom._NET_WM_CM_S0);
+    server.composite_manager = XGetSelectionOwner(server.display, server.atom [_NET_WM_CM_S0]);
     if (server.colormap)
         XFreeColormap(server.display, server.colormap);
     if (server.colormap32)

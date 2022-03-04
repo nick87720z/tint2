@@ -20,79 +20,89 @@
 
 extern gboolean primary_monitor_first;
 
-typedef struct Global_atom {
-    Atom _XROOTPMAP_ID;
-    Atom _XROOTMAP_ID;
-    Atom _NET_CURRENT_DESKTOP;
-    Atom _NET_NUMBER_OF_DESKTOPS;
-    Atom _NET_DESKTOP_NAMES;
-    Atom _NET_DESKTOP_GEOMETRY;
-    Atom _NET_DESKTOP_VIEWPORT;
-    Atom _NET_WORKAREA;
-    Atom _NET_ACTIVE_WINDOW;
-    Atom _NET_WM_WINDOW_TYPE;
-    Atom _NET_WM_STATE_SKIP_PAGER;
-    Atom _NET_WM_STATE_SKIP_TASKBAR;
-    Atom _NET_WM_STATE_STICKY;
-    Atom _NET_WM_STATE_DEMANDS_ATTENTION;
-    Atom _NET_WM_WINDOW_TYPE_DOCK;
-    Atom _NET_WM_WINDOW_TYPE_DESKTOP;
-    Atom _NET_WM_WINDOW_TYPE_TOOLBAR;
-    Atom _NET_WM_WINDOW_TYPE_MENU;
-    Atom _NET_WM_WINDOW_TYPE_SPLASH;
-    Atom _NET_WM_WINDOW_TYPE_DIALOG;
-    Atom _NET_WM_WINDOW_TYPE_NORMAL;
-    Atom _NET_WM_DESKTOP;
-    Atom WM_STATE;
-    Atom _NET_WM_STATE;
-    Atom _NET_WM_STATE_MAXIMIZED_VERT;
-    Atom _NET_WM_STATE_MAXIMIZED_HORZ;
-    Atom _NET_WM_STATE_SHADED;
-    Atom _NET_WM_STATE_HIDDEN;
-    Atom _NET_WM_STATE_BELOW;
-    Atom _NET_WM_STATE_ABOVE;
-    Atom _NET_WM_STATE_MODAL;
-    Atom _NET_CLIENT_LIST;
-    Atom _NET_WM_NAME;
-    Atom _NET_WM_VISIBLE_NAME;
-    Atom _NET_WM_STRUT;
-    Atom _NET_WM_ICON;
-    Atom _NET_WM_ICON_GEOMETRY;
-    Atom _NET_WM_ICON_NAME;
-    Atom _NET_CLOSE_WINDOW;
-    Atom UTF8_STRING;
-    Atom _NET_SUPPORTING_WM_CHECK;
-    Atom _NET_WM_CM_S0;
-    Atom _NET_WM_STRUT_PARTIAL;
-    Atom WM_NAME;
-    Atom __SWM_VROOT;
-    Atom _MOTIF_WM_HINTS;
-    Atom WM_HINTS;
-    Atom _NET_SYSTEM_TRAY_SCREEN;
-    Atom _NET_SYSTEM_TRAY_OPCODE;
-    Atom MANAGER;
-    Atom _NET_SYSTEM_TRAY_MESSAGE_DATA;
-    Atom _NET_SYSTEM_TRAY_ORIENTATION;
-    Atom _NET_SYSTEM_TRAY_ICON_SIZE;
-    Atom _NET_SYSTEM_TRAY_PADDING;
-    Atom _XEMBED;
-    Atom _XEMBED_INFO;
-    Atom _NET_WM_PID;
-    Atom _XSETTINGS_SCREEN;
-    Atom _XSETTINGS_SETTINGS;
-    Atom XdndAware;
-    Atom XdndEnter;
-    Atom XdndPosition;
-    Atom XdndStatus;
-    Atom XdndDrop;
-    Atom XdndLeave;
-    Atom XdndSelection;
-    Atom XdndTypeList;
-    Atom XdndActionCopy;
-    Atom XdndFinished;
-    Atom TARGETS;
-    Atom TINT2_REFRESH_EXECP;
-} Global_atom;
+enum atom {
+    _XROOTPMAP_ID,
+    _XROOTMAP_ID,
+    _NET_CURRENT_DESKTOP,
+    _NET_NUMBER_OF_DESKTOPS,
+    _NET_DESKTOP_NAMES,
+    _NET_DESKTOP_GEOMETRY,
+    _NET_DESKTOP_VIEWPORT,
+    _NET_WORKAREA,
+    _NET_ACTIVE_WINDOW,
+    _NET_WM_WINDOW_TYPE,
+    _NET_WM_STATE_SKIP_PAGER,
+    _NET_WM_STATE_SKIP_TASKBAR,
+    _NET_WM_STATE_STICKY,
+    _NET_WM_STATE_DEMANDS_ATTENTION,
+    _NET_WM_WINDOW_TYPE_DOCK,
+    _NET_WM_WINDOW_TYPE_DESKTOP,
+    _NET_WM_WINDOW_TYPE_TOOLBAR,
+    _NET_WM_WINDOW_TYPE_MENU,
+    _NET_WM_WINDOW_TYPE_SPLASH,
+    _NET_WM_WINDOW_TYPE_DIALOG,
+    _NET_WM_WINDOW_TYPE_NORMAL,
+    _NET_WM_DESKTOP,
+    WM_STATE,
+    _NET_WM_STATE,
+    _NET_WM_STATE_MAXIMIZED_VERT,
+    _NET_WM_STATE_MAXIMIZED_HORZ,
+    _NET_WM_STATE_SHADED,
+    _NET_WM_STATE_HIDDEN,
+    _NET_WM_STATE_BELOW,
+    _NET_WM_STATE_ABOVE,
+    _NET_WM_STATE_MODAL,
+    _NET_CLIENT_LIST,
+    _NET_WM_NAME,
+    _NET_WM_VISIBLE_NAME,
+    _NET_WM_STRUT,
+    _NET_WM_ICON,
+    _NET_WM_ICON_GEOMETRY,
+    _NET_WM_ICON_NAME,
+    _NET_CLOSE_WINDOW,
+    UTF8_STRING,
+    _NET_SUPPORTING_WM_CHECK,
+    _NET_WM_CM_S0,
+    _NET_WM_STRUT_PARTIAL,
+    WM_NAME,
+    __SWM_VROOT,
+    _MOTIF_WM_HINTS,
+    WM_HINTS,
+
+    // systray protocol
+    _NET_SYSTEM_TRAY_SCREEN,
+    _NET_SYSTEM_TRAY_OPCODE,
+    MANAGER,
+    _NET_SYSTEM_TRAY_MESSAGE_DATA,
+    _NET_SYSTEM_TRAY_ORIENTATION,
+    _NET_SYSTEM_TRAY_ICON_SIZE,
+    _NET_SYSTEM_TRAY_PADDING,
+    _XEMBED,
+    _XEMBED_INFO,
+    _NET_WM_PID,
+
+    // XSettings
+    _XSETTINGS_SCREEN,
+    _XSETTINGS_SETTINGS,
+
+    // drag 'n' drop
+    XdndAware,
+    XdndEnter,
+    XdndPosition,
+    XdndStatus,
+    XdndDrop,
+    XdndLeave,
+    XdndSelection,
+    XdndTypeList,
+    XdndActionCopy,
+    XdndFinished,
+    TARGETS,
+
+    // tint2 atoms
+    TINT2_REFRESH_EXECP,
+
+    NUM_ATOMS
+};
 
 typedef struct Property {
     unsigned char *data;
@@ -148,7 +158,7 @@ typedef struct Server {
     GC gc;
     Colormap colormap;
     Colormap colormap32;
-    Global_atom atom;
+    Atom atom [NUM_ATOMS];
     int xdamage_event_type;
     int xdamage_event_error_type;
     gboolean has_shm;

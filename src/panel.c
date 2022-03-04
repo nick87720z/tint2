@@ -595,8 +595,8 @@ gboolean resize_panel(void *obj)
 void update_strut(Panel *p)
 {
     if (panel_strut_policy == STRUT_NONE) {
-        XDeleteProperty(server.display, p->main_win, server.atom._NET_WM_STRUT);
-        XDeleteProperty(server.display, p->main_win, server.atom._NET_WM_STRUT_PARTIAL);
+        XDeleteProperty(server.display, p->main_win, server.atom [_NET_WM_STRUT]);
+        XDeleteProperty(server.display, p->main_win, server.atom [_NET_WM_STRUT_PARTIAL]);
         return;
     }
 
@@ -642,14 +642,14 @@ void update_strut(Panel *p)
     }
     // Old specification : fluxbox need _NET_WM_STRUT.
     XChangeProperty(server.display, p->main_win,
-                    server.atom._NET_WM_STRUT,
+                    server.atom [_NET_WM_STRUT],
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
                     (unsigned char *)&struts,
                     STRUT_COUNT_OLD);
     XChangeProperty(server.display, p->main_win,
-                    server.atom._NET_WM_STRUT_PARTIAL,
+                    server.atom [_NET_WM_STRUT_PARTIAL],
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
@@ -721,7 +721,7 @@ void place_panel_all_desktops(Panel *p)
 {
     long val = ALL_DESKTOPS;
     XChangeProperty(server.display, p->main_win,
-                    server.atom._NET_WM_DESKTOP,
+                    server.atom [_NET_WM_DESKTOP],
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
@@ -732,13 +732,13 @@ void place_panel_all_desktops(Panel *p)
 void set_panel_layer(Panel *p, Layer layer)
 {
     Atom state[4];
-    state[0] = server.atom._NET_WM_STATE_SKIP_PAGER;
-    state[1] = server.atom._NET_WM_STATE_SKIP_TASKBAR;
-    state[2] = server.atom._NET_WM_STATE_STICKY;
-    state[3] = layer == BOTTOM_LAYER ? server.atom._NET_WM_STATE_BELOW : server.atom._NET_WM_STATE_ABOVE;
+    state[0] = server.atom [_NET_WM_STATE_SKIP_PAGER];
+    state[1] = server.atom [_NET_WM_STATE_SKIP_TASKBAR];
+    state[2] = server.atom [_NET_WM_STATE_STICKY];
+    state[3] = layer == BOTTOM_LAYER ? server.atom [_NET_WM_STATE_BELOW] : server.atom [_NET_WM_STATE_ABOVE];
     int num_atoms = layer == NORMAL_LAYER ? 3 : 4;
     XChangeProperty(server.display, p->main_win,
-                    server.atom._NET_WM_STATE,
+                    server.atom [_NET_WM_STATE],
                     XA_ATOM,
                     32,
                     PropModeReplace,
@@ -754,7 +754,7 @@ void replace_panel_all_desktops(Panel *p)
     m.send_event = True;
     m.display = server.display;
     m.window = p->main_win;
-    m.message_type = server.atom._NET_WM_DESKTOP;
+    m.message_type = server.atom [_NET_WM_DESKTOP];
     m.format = 32;
     m.data.l[0] = ALL_DESKTOPS;
     XSendEvent(server.display, server.root_win, False, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *)&m);
@@ -800,15 +800,15 @@ void set_panel_properties(Panel *p)
     gchar *name = g_locale_to_utf8(panel_window_name, -1, NULL, &len, NULL);
     if (name != NULL) {
         XChangeProperty(server.display, p->main_win,
-                        server.atom._NET_WM_NAME,
-                        server.atom.UTF8_STRING,
+                        server.atom [_NET_WM_NAME],
+                        server.atom [UTF8_STRING],
                         8,
                         PropModeReplace,
                         (unsigned char *)name,
                         (int)len);
         XChangeProperty(server.display, p->main_win,
-                        server.atom._NET_WM_ICON_NAME,
-                        server.atom.UTF8_STRING,
+                        server.atom [_NET_WM_ICON_NAME],
+                        server.atom [UTF8_STRING],
                         8,
                         PropModeReplace,
                         (unsigned char *)name,
@@ -818,7 +818,7 @@ void set_panel_properties(Panel *p)
 
     long pid = getpid();
     XChangeProperty(server.display, p->main_win,
-                    server.atom._NET_WM_PID,
+                    server.atom [_NET_WM_PID],
                     XA_CARDINAL,
                     32,
                     PropModeReplace,
@@ -827,11 +827,11 @@ void set_panel_properties(Panel *p)
 
     // Dock
     XChangeProperty(server.display, p->main_win,
-                    server.atom._NET_WM_WINDOW_TYPE,
+                    server.atom [_NET_WM_WINDOW_TYPE],
                     XA_ATOM,
                     32,
                     PropModeReplace,
-                    (unsigned char *)&server.atom._NET_WM_WINDOW_TYPE_DOCK,
+                    (unsigned char *)&server.atom [_NET_WM_WINDOW_TYPE_DOCK],
                     1);
 
     place_panel_all_desktops(p);
@@ -854,8 +854,8 @@ void set_panel_properties(Panel *p)
     // Undecorated
     long prop[5] = {2, 0, 0, 0, 0};
     XChangeProperty(server.display, p->main_win,
-                    server.atom._MOTIF_WM_HINTS,
-                    server.atom._MOTIF_WM_HINTS,
+                    server.atom [_MOTIF_WM_HINTS],
+                    server.atom [_MOTIF_WM_HINTS],
                     32,
                     PropModeReplace,
                     (unsigned char *)prop,
@@ -864,7 +864,7 @@ void set_panel_properties(Panel *p)
     // XdndAware - Register for Xdnd events
     Atom version = 4;
     XChangeProperty(server.display, p->main_win,
-                    server.atom.XdndAware,
+                    server.atom [XdndAware],
                     XA_ATOM,
                     32,
                     PropModeReplace,

@@ -43,28 +43,28 @@
 
 void activate_window(Window win)
 {
-    send_event32(win, server.atom._NET_ACTIVE_WINDOW, 2, CurrentTime, 0);
+    send_event32(win, server.atom [_NET_ACTIVE_WINDOW], 2, CurrentTime, 0);
 }
 
 void change_window_desktop(Window win, int desktop)
 {
-    send_event32(win, server.atom._NET_WM_DESKTOP, desktop, 2, 0);
+    send_event32(win, server.atom [_NET_WM_DESKTOP], desktop, 2, 0);
 }
 
 void close_window(Window win)
 {
-    send_event32(win, server.atom._NET_CLOSE_WINDOW, 0, 2, 0);
+    send_event32(win, server.atom [_NET_CLOSE_WINDOW], 0, 2, 0);
 }
 
 void toggle_window_shade(Window win)
 {
-    send_event32(win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_SHADED, 0);
+    send_event32(win, server.atom [_NET_WM_STATE], 2, server.atom [_NET_WM_STATE_SHADED], 0);
 }
 
 void toggle_window_maximized(Window win)
 {
-    send_event32(win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_MAXIMIZED_VERT, 0);
-    send_event32(win, server.atom._NET_WM_STATE, 2, server.atom._NET_WM_STATE_MAXIMIZED_HORZ, 0);
+    send_event32(win, server.atom [_NET_WM_STATE], 2, server.atom [_NET_WM_STATE_MAXIMIZED_VERT], 0);
+    send_event32(win, server.atom [_NET_WM_STATE], 2, server.atom [_NET_WM_STATE_MAXIMIZED_HORZ], 0);
 }
 
 gboolean window_is_hidden(Window win)
@@ -72,9 +72,9 @@ gboolean window_is_hidden(Window win)
     Window window;
     int count;
 
-    Atom *at = server_get_property(win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
-        if (at[i] == server.atom._NET_WM_STATE_SKIP_TASKBAR) {
+        if (at[i] == server.atom [_NET_WM_STATE_SKIP_TASKBAR]) {
             XFree(at);
             return TRUE;
         }
@@ -89,11 +89,12 @@ gboolean window_is_hidden(Window win)
     }
     XFree(at);
 
-    at = server_get_property(win, server.atom._NET_WM_WINDOW_TYPE, XA_ATOM, &count);
+    at = server_get_property(win, server.atom [_NET_WM_WINDOW_TYPE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
-        if (at[i] == server.atom._NET_WM_WINDOW_TYPE_DOCK || at[i] == server.atom._NET_WM_WINDOW_TYPE_DESKTOP ||
-            at[i] == server.atom._NET_WM_WINDOW_TYPE_TOOLBAR || at[i] == server.atom._NET_WM_WINDOW_TYPE_MENU ||
-            at[i] == server.atom._NET_WM_WINDOW_TYPE_SPLASH) {
+        if (at[i] == server.atom [_NET_WM_WINDOW_TYPE_DOCK] || at[i] == server.atom [_NET_WM_WINDOW_TYPE_DESKTOP] ||
+            at[i] == server.atom [_NET_WM_WINDOW_TYPE_TOOLBAR] || at[i] == server.atom [_NET_WM_WINDOW_TYPE_MENU] ||
+            at[i] == server.atom [_NET_WM_WINDOW_TYPE_SPLASH])
+        {
             XFree(at);
             return TRUE;
         }
@@ -114,7 +115,7 @@ gboolean window_is_hidden(Window win)
 
 int get_window_desktop(Window win)
 {
-    int desktop = get_property32(win, server.atom._NET_WM_DESKTOP, XA_CARDINAL);
+    int desktop = get_property32(win, server.atom [_NET_WM_DESKTOP], XA_CARDINAL);
     if (desktop == ALL_DESKTOPS)
         return desktop;
     if (!server.viewports)
@@ -130,7 +131,7 @@ int get_window_desktop(Window win)
 
     if (x < 0 || y < 0) {
         long *x_screen_size =
-            server_get_property(server.root_win, server.atom._NET_DESKTOP_GEOMETRY, XA_CARDINAL, NULL);
+            server_get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
         if (!x_screen_size)
             return 0;
         int x_screen_width = x_screen_size[0];
@@ -224,9 +225,9 @@ gboolean window_is_iconified(Window win)
     // EWMH specification : minimization of windows use _NET_WM_STATE_HIDDEN.
     // WM_STATE is not accurate for shaded window and in multi_desktop mode.
     int count;
-    Atom *at = server_get_property(win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
-        if (at[i] == server.atom._NET_WM_STATE_HIDDEN) {
+        if (at[i] == server.atom [_NET_WM_STATE_HIDDEN]) {
             XFree(at);
             return TRUE;
         }
@@ -239,9 +240,9 @@ gboolean window_is_urgent(Window win)
 {
     int count;
 
-    Atom *at = server_get_property(win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
-        if (at[i] == server.atom._NET_WM_STATE_DEMANDS_ATTENTION) {
+        if (at[i] == server.atom [_NET_WM_STATE_DEMANDS_ATTENTION]) {
             XFree(at);
             return TRUE;
         }
@@ -254,9 +255,9 @@ gboolean window_is_skip_taskbar(Window win)
 {
     int count;
 
-    Atom *at = server_get_property(win, server.atom._NET_WM_STATE, XA_ATOM, &count);
+    Atom *at = server_get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
     for (int i = 0; i < count; i++) {
-        if (at[i] == server.atom._NET_WM_STATE_SKIP_TASKBAR) {
+        if (at[i] == server.atom [_NET_WM_STATE_SKIP_TASKBAR]) {
             XFree(at);
             return TRUE;
         }
@@ -267,12 +268,12 @@ gboolean window_is_skip_taskbar(Window win)
 
 Window get_active_window()
 {
-    return get_property32(server.root_win, server.atom._NET_ACTIVE_WINDOW, XA_WINDOW);
+    return get_property32(server.root_win, server.atom [_NET_ACTIVE_WINDOW], XA_WINDOW);
 }
 
 gboolean window_is_active(Window win)
 {
-    return (win == get_property32(server.root_win, server.atom._NET_ACTIVE_WINDOW, XA_WINDOW));
+    return (win == get_property32(server.root_win, server.atom [_NET_ACTIVE_WINDOW], XA_WINDOW));
 }
 
 int get_icon_count(gulong *data, int num)

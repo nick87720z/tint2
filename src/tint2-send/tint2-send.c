@@ -8,6 +8,7 @@
 static Display  *display = NULL;
 static XEvent event = {};
 static char *execp_name = NULL;
+Atom xa_prop_name;
 
 enum action {
     ACTION_HIDE,
@@ -15,10 +16,9 @@ enum action {
     ACTION_SHOW,
 };
 
-/* From wmctrl */
-char *get_property(Window window, Atom xa_prop_type, const char *prop_name) {
-    Atom xa_prop_name = XInternAtom(display, prop_name, False);
-
+/* From wmctrl (optimized) */
+char *get_property(Window window, Atom xa_prop_type, Atom *prop)
+{
     Atom xa_ret_type;
     int ret_format;
     unsigned long ret_nitems;
@@ -26,7 +26,7 @@ char *get_property(Window window, Atom xa_prop_type, const char *prop_name) {
     unsigned long tmp_size;
     unsigned char *ret_prop = NULL;
 
-    if (XGetWindowProperty(display, window, xa_prop_name, 0, 1024,
+    if (XGetWindowProperty(display, window, *prop, 0, 1024,
                            False, xa_prop_type, &xa_ret_type, &ret_format,
                            &ret_nitems, &ret_bytes_after, &ret_prop) != Success)
         goto err0;
@@ -50,7 +50,7 @@ int is_tint2(Window window)
     // if (attr.map_state != IsViewable)
     //     return 0;
 
-    char *wm_class = get_property(window, XA_STRING, "WM_NAME");
+    char *wm_class = get_property(window, XA_STRING, &xa_prop_name);
     if (!wm_class)
         return 0;
 
@@ -126,6 +126,7 @@ int main(int argc, char **argv)
         );
         exit(1);
     }
+    xa_prop_name = XInternAtom(display, "WM_NAME", False);
 
     char *array[] = { "hide", "refresh-execp", "show" };
 

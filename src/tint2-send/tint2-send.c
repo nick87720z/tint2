@@ -105,6 +105,8 @@ static int cmp_strp (const void *p1, const void *p2) {
 
 int main(int argc, char **argv)
 {
+    int status = 0;
+
     display = XOpenDisplay(NULL);
     if (!display ) {
         fprintf(stderr, "Failed to open X11 connection\n");
@@ -113,53 +115,92 @@ int main(int argc, char **argv)
 
     argc--, argv++;
     if (!argc) {
-        fprintf(stderr, "Usage: tint2-send [show|hide|refresh-execp]\n");
+        fprintf(stderr,
+                "Usage:\n"
+                "    tint2-send COMMAND\n"
+                "    tint2-send --stdin\n"
+                "Commands:\n"
+                "    show\n"
+                "    hide\n"
+                "    refresh-execp EXECP_NAME\n"
+        );
         exit(1);
     }
 
     char *array[] = { "hide", "refresh-execp", "show" };
-    char **tmp = bsearch ( &argv[0], array, 3, sizeof(*array), cmp_strp);
-    int action = tmp ? tmp - array : -1;
 
-    switch (action)
+    int use_stdin = strcmp (argv[0], "--stdin") == 0;
+    char *line = NULL;
+    size_t line_avail = 0;
+    while (1)
     {
-        case -1:
-            fprintf (stderr, "Error: unknown action %s\n", argv[0]);
-            exit(1);
-        case ACTION_SHOW:
-            event.xcrossing.type = EnterNotify;
-            event.xcrossing.mode = NotifyNormal;
-            event.xcrossing.detail = NotifyVirtual;
-            event.xcrossing.same_screen = True;
-            break;
-        case ACTION_HIDE:
-            event.xcrossing.type = LeaveNotify;
-            event.xcrossing.mode = NotifyNormal;
-            event.xcrossing.detail = NotifyVirtual;
-            event.xcrossing.same_screen = True;
-            break;
-        case ACTION_REFRESH_EXECP:
-            execp_name = argv[1];
-            if (!execp_name) {
-                fprintf(stderr, "Error: missing execp name\n");
-                exit(1);
-            }
-            if (!execp_name[0]) {
-                fprintf(stderr, "Error: empty execp name\n");
-                exit(1);
-            }
-            if (strlen(execp_name) > sizeof(event.xclient.data.b)) {
-                fprintf(stderr, "Error: execp name bigger than %ld bytes\n", sizeof(event.xclient.data.b));
-                exit(1);
-            }
-            event.xclient.type = ClientMessage;
-            event.xclient.send_event = True;
-            event.xclient.message_type = XInternAtom(display, "_TINT2_REFRESH_EXECP", False);
-            event.xclient.format = 8;
-            strncpy(event.xclient.data.b, execp_name, sizeof(event.xclient.data.b));
+        char *args[2];
+
+        if (!use_stdin)
+            args[0] = argv[0],
+            args[1] = argv[1];
+        else {
+            fputs (">", stdout);
+            if (getline (&line, &line_avail, stdin) == -1)
+                break;
+            char *saveptr;
+            args[0] = strtok_r (line, " \t\n", &saveptr);
+            args[1] = strtok_r (NULL, " \t\n", &saveptr);
+        }
+
+        char **p = bsearch ( &args[0], array, 3, sizeof(*array), cmp_strp);
+        int action = p ? p - array : -1;
+
+        switch (action)
+        {
+            case -1:
+                fprintf (stderr, "Error: unknown action %s\n", args[0]);
+                status = 1;
+                goto ret;
+            case ACTION_SHOW:
+                event.xcrossing.type = EnterNotify;
+                event.xcrossing.mode = NotifyNormal;
+                event.xcrossing.detail = NotifyVirtual;
+                event.xcrossing.same_screen = True;
+                break;
+            case ACTION_HIDE:
+                event.xcrossing.type = LeaveNotify;
+                event.xcrossing.mode = NotifyNormal;
+                event.xcrossing.detail = NotifyVirtual;
+                event.xcrossing.same_screen = True;
+                break;
+            case ACTION_REFRESH_EXECP:
+                execp_name = args[1];
+                if (!execp_name) {
+                    fprintf(stderr, "Error: missing execp name\n");
+                    status = 1;
+                    goto ret;
+                }
+                if (!execp_name[0]) {
+                    fprintf(stderr, "Error: empty execp name\n");
+                    status = 1;
+                    goto ret;
+                }
+                if (strlen(execp_name) > sizeof(event.xclient.data.b)) {
+                    fprintf(stderr, "Error: execp name bigger than %ld bytes\n", sizeof(event.xclient.data.b));
+                    status = 1;
+                    goto ret;
+                }
+                event.xclient.type = ClientMessage;
+                event.xclient.send_event = True;
+                event.xclient.message_type = XInternAtom(display, "_TINT2_REFRESH_EXECP", False);
+                event.xclient.format = 8;
+                strncpy(event.xclient.data.b, execp_name, sizeof(event.xclient.data.b));
+                break;
+        }
+        walk_windows(DefaultRootWindow(display), handle_tint2_window, action);
+
+        if (!use_stdin)
             break;
     }
-    walk_windows(DefaultRootWindow(display), handle_tint2_window, action);
 
-    return 0;
+ret:
+    if (line)
+        free (line);
+    return status;
 }

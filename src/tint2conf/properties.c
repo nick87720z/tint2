@@ -1141,11 +1141,9 @@ void init_panel_items_page (GtkWidget *parent)
     g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(panel_add_item), NULL);
     gtk_widget_show(button);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-    gtk_tooltips_set_tip(tooltips,
-                         button,
-                         _("Copies the current element in the list of available elements to the list of selected "
-                           "elements."),
-                         NULL);
+    gtk_widget_set_tooltip_text(button,
+                                _("Copies the current element in the list of available elements to the list of selected "
+                                  "elements."));
 
     button = gtk_button_new();
     image = gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD, GTK_ICON_SIZE_BUTTON);

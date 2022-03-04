@@ -14,8 +14,6 @@
 #define GETTEXT_PACKAGE "tint2conf"
 #endif
 
-#define gtk_tooltips_set_tip(t, widget, txt, arg) gtk_widget_set_tooltip_text(widget, txt)
-
 #define SNAPSHOT_TICK 190
 gboolean update_snapshot(gpointer ignored);
 void menuApply();

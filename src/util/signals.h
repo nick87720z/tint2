@@ -1,6 +1,8 @@
 #ifndef SIGNALS_H
 #define SIGNALS_H
 
+typedef struct sigaction sigaction_t;
+
 void init_signals();
 void init_signals_postconfig();
 void emit_self_restart(const char *reason);

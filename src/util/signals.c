@@ -44,24 +44,23 @@ void init_signals()
 
     reset_signals();
 
-    struct sigaction sa_chld = {.sa_handler = SIG_IGN};
-    sigaction(SIGCHLD, &sa_chld, 0);
+    sigaction(SIGCHLD, &(sigaction_t){.sa_handler = SIG_IGN}, NULL);
 
-    struct sigaction sa = {.sa_handler = signal_handler, .sa_flags = SA_RESTART};
-    sigaction(SIGUSR1,  &sa, 0);
-    sigaction(SIGUSR2,  &sa, 0);
-    sigaction(SIGINT,   &sa, 0);
-    sigaction(SIGTERM,  &sa, 0);
-    sigaction(SIGHUP,   &sa, 0);
+    sigaction_t sa = {.sa_handler = signal_handler, .sa_flags = SA_RESTART};
+    sigaction(SIGUSR1,  &sa, NULL);
+    sigaction(SIGUSR2,  &sa, NULL);
+    sigaction(SIGINT,   &sa, NULL);
+    sigaction(SIGTERM,  &sa, NULL);
+    sigaction(SIGHUP,   &sa, NULL);
 
 #ifdef BACKTRACE_ON_SIGNAL
-    struct sigaction sa_crash = {.sa_handler = crash_handler};
-    sigaction(SIGSEGV,  &sa_crash, 0);
-    sigaction(SIGFPE,   &sa_crash, 0);
-    sigaction(SIGPIPE,  &sa_crash, 0);
-    sigaction(SIGBUS,   &sa_crash, 0);
-    sigaction(SIGABRT,  &sa_crash, 0);
-    sigaction(SIGSYS,   &sa_crash, 0);
+    sigaction_t sa_crash = {.sa_handler = crash_handler};
+    sigaction(SIGSEGV,  &sa_crash, NULL);
+    sigaction(SIGFPE,   &sa_crash, NULL);
+    sigaction(SIGPIPE,  &sa_crash, NULL);
+    sigaction(SIGBUS,   &sa_crash, NULL);
+    sigaction(SIGABRT,  &sa_crash, NULL);
+    sigaction(SIGSYS,   &sa_crash, NULL);
 #endif
 }
 
@@ -69,8 +68,7 @@ void init_signals()
 void crash_handler(int sig)
 {
     handle_crash(signal_name(sig));
-    struct sigaction sa = {.sa_handler = SIG_DFL};
-    sigaction(sig, &sa, 0);
+    sigaction(sig, &(sigaction_t){.sa_handler = SIG_DFL}, NULL);
     raise(sig);
 }
 #endif
@@ -144,10 +142,8 @@ void init_signals_postconfig()
             fcntl(sigchild_pipe[0], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[0], F_GETFL));
             fcntl(sigchild_pipe[1], F_SETFL, O_NONBLOCK | fcntl(sigchild_pipe[1], F_GETFL));
             sigchild_pipe_valid = 1;
-            struct sigaction act = {.sa_handler = sigchld_handler, .sa_flags = SA_RESTART};
-            if (sigaction(SIGCHLD, &act, 0)) {
+            if (sigaction(SIGCHLD, &(sigaction_t){.sa_handler = sigchld_handler, .sa_flags = SA_RESTART}, NULL))
                 perror("sigaction");
-            }
         }
     }
 }

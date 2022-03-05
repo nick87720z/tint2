@@ -8,7 +8,17 @@
 static Display  *display = NULL;
 static XEvent event = {};
 static char *execp_name = NULL;
-Atom xa_prop_name;
+
+enum atom_index {
+    WM_NAME,
+    _TINT2_REFRESH_EXECP,
+    NUM_ATOMS
+};
+char *atom_names[NUM_ATOMS] = {
+    [WM_NAME]              = "WM_NAME",
+    [_TINT2_REFRESH_EXECP] = "_TINT2_REFRESH_EXECP",
+};
+Atom xa_props [NUM_ATOMS];
 
 enum action {
     ACTION_HIDE,
@@ -50,7 +60,7 @@ int is_tint2(Window window)
     // if (attr.map_state != IsViewable)
     //     return 0;
 
-    char *wm_class = get_property(window, XA_STRING, &xa_prop_name);
+    char *wm_class = get_property(window, XA_STRING, & xa_props [WM_NAME]);
     if (!wm_class)
         return 0;
 
@@ -126,8 +136,9 @@ int main(int argc, char **argv)
         );
         exit(1);
     }
-    xa_prop_name = XInternAtom(display, "WM_NAME", False);
-    event.xclient.message_type = XInternAtom (display, "_TINT2_REFRESH_EXECP", False);
+
+    XInternAtoms (display, atom_names, NUM_ATOMS, False, xa_props);
+    event.xclient.message_type = xa_props [_TINT2_REFRESH_EXECP];
 
     char *actions_strv[] = { "hide", "refresh-execp", "show" };
 

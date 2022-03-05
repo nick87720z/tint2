@@ -579,7 +579,7 @@ void handle_x_event(XEvent *e)
         else if (e->xclient.message_type == server.atom [_TINT2_REFRESH_EXECP] &&
                  e->xclient.format == 8)
         {
-            char name[strlen_const(e->xclient.data.b)] = {};
+            char name[sizeof(e->xclient.data.b) + 1] = {};
             memcpy(name, e->xclient.data.b, sizeof(e->xclient.data.b));
             for (GList *l = panel_config.execp_list; l; l = l->next)
             {

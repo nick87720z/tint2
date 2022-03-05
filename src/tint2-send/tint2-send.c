@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     xa_prop_name = XInternAtom(display, "WM_NAME", False);
     event.xclient.message_type = XInternAtom (display, "_TINT2_REFRESH_EXECP", False);
 
-    char *array[] = { "hide", "refresh-execp", "show" };
+    char *actions_strv[] = { "hide", "refresh-execp", "show" };
 
     int use_stdin = strcmp (argv[0], "--stdin") == 0;
     char *line = NULL;
@@ -150,8 +150,8 @@ int main(int argc, char **argv)
             args[1] = strtok_r (NULL, " \t\n", &saveptr);
         }
 
-        char **p = bsearch ( &args[0], array, 3, sizeof(*array), cmp_strp);
-        int action = p ? p - array : -1;
+        char **p = bsearch ( &args[0], actions_strv, 3, sizeof(*actions_strv), cmp_strp);
+        int action = p ? p - actions_strv : -1;
 
         switch (action)
         {

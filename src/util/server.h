@@ -99,7 +99,7 @@ enum atom {
     TARGETS,
 
     // tint2 atoms
-    TINT2_REFRESH_EXECP,
+    _TINT2_REFRESH_EXECP,
 
     NUM_ATOMS
 };

@@ -576,7 +576,7 @@ void handle_x_event(XEvent *e)
             handle_dnd_position(&e->xclient);
         else if (e->xclient.message_type == server.atom [XdndDrop])
             handle_dnd_drop(&e->xclient);
-        else if (e->xclient.message_type == server.atom [TINT2_REFRESH_EXECP] &&
+        else if (e->xclient.message_type == server.atom [_TINT2_REFRESH_EXECP] &&
                  e->xclient.format == 8)
         {
             char name[strlen_const(e->xclient.data.b)] = {};

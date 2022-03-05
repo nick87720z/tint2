@@ -125,7 +125,7 @@ static char *atom_names [NUM_ATOMS]
     _atom_name (TARGETS)
 
     // tint2 atoms
-    _atom_name (TINT2_REFRESH_EXECP)
+    _atom_name (_TINT2_REFRESH_EXECP)
 
 #undef _atom_name
 };

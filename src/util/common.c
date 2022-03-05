@@ -1165,6 +1165,8 @@ void dump_image_data(const char *file_name, const char *name)
 
     imlib_context_set_image(image);
 
+    int height = imlib_image_get_height(),
+        width = imlib_image_get_width();
     gchar *source_name = g_strdup_printf("%s.c", name);
     FILE *source = fopen(source_name, "wt");
     fprintf(source,
@@ -1175,13 +1177,11 @@ void dump_image_data(const char *file_name, const char *name)
             "DATA32 %s_data[] = {\n",
             name,
             name,
-            imlib_image_get_width(),
+            width,
             name,
-            imlib_image_get_height(),
+            height,
             name);
 
-    size_t  height = (size_t)imlib_image_get_height(),
-            width = (size_t)imlib_image_get_width();
     DATA32 *data = imlib_image_get_data_for_reading_only();
     int *col_widths = malloc (width * sizeof (*col_widths));
     for (size_t c = 0; c < width; c++)

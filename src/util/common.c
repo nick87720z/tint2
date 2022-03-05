@@ -1172,7 +1172,7 @@ void dump_image_data(const char *file_name, const char *name)
             "\n"
             "int %s_width = %d;\n"
             "int %s_height = %d;\n"
-            "DATA32 %s_data[] = {",
+            "DATA32 %s_data[] = {\n",
             name,
             name,
             imlib_image_get_width(),
@@ -1180,12 +1180,33 @@ void dump_image_data(const char *file_name, const char *name)
             imlib_image_get_height(),
             name);
 
-    size_t size = (size_t)imlib_image_get_width() * (size_t)imlib_image_get_height();
+    size_t  height = (size_t)imlib_image_get_height(),
+            width = (size_t)imlib_image_get_width();
     DATA32 *data = imlib_image_get_data_for_reading_only();
-    for (size_t i = 0; i < size; i++) {
-        fprintf(source, "%s%u", i == 0 ? "" : ", ", data[i]);
+    int *col_widths = malloc (width * sizeof (*col_widths));
+    for (size_t c = 0; c < width; c++)
+    {
+        int col_width = 0;
+        for (size_t l = 0; l < height; l++)
+        {
+            DATA32 value = data [width * l + c];
+            int w = value ? (int) floor (log10 (value)) + 1 : 1;
+            if (col_width < w)
+                col_width = w;
+        }
+        col_widths [c] = col_width;
+    }
+    for (size_t l = 0; l < height; l++)
+    {
+        fprintf (source, "\t");
+        for (size_t c = 0; c < width; c++)
+        {
+            fprintf(source, "%*u%s", col_widths[c], data[width * l + c], (l == width-1 && c == height-1) ? "" : ", ");
+        }
+        fprintf (source, "\n");
     }
     fprintf(source, "};\n");
+    free (col_widths);
     fclose(source);
     g_free(source_name);
 

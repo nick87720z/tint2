@@ -127,6 +127,7 @@ int main(int argc, char **argv)
         exit(1);
     }
     xa_prop_name = XInternAtom(display, "WM_NAME", False);
+    event.xclient.message_type = XInternAtom (display, "_TINT2_REFRESH_EXECP", False);
 
     char *array[] = { "hide", "refresh-execp", "show" };
 
@@ -189,7 +190,6 @@ int main(int argc, char **argv)
                 }
                 event.xclient.type = ClientMessage;
                 event.xclient.send_event = True;
-                event.xclient.message_type = XInternAtom(display, "_TINT2_REFRESH_EXECP", False);
                 event.xclient.format = 8;
                 strncpy(event.xclient.data.b, execp_name, sizeof(event.xclient.data.b));
                 break;

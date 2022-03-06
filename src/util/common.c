@@ -846,8 +846,7 @@ Imlib_Image load_image(const char *path, int cached)
                 imlib_context_set_image (image);
                 imlib_image_set_has_alpha (1);
                 if (fd >= 0)
-                    imlib_image_set_format ("png"),
-                    imlib_save_image (tmp_filename);
+                    imlib_image_set_format ("png");
                 else
                     imlib_image_set_irrelevant_format (1);
 
@@ -865,6 +864,8 @@ Imlib_Image load_image(const char *path, int cached)
                         break;
                 }
                 imlib_image_put_back_data (data);
+                if (fd >= 0)
+                    imlib_save_image (tmp_filename);
                 close (pipe_fd_stdout[0]);
             }
         }

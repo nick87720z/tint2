@@ -243,7 +243,7 @@ void init_panel()
         p->area._resize = resize_panel;
         p->area._clear = panel_clear_background;
         p->separator_list = NULL;
-        init_panel_size_and_position(p);
+        init_panel_geometry(p);
         area_gradients_create(&p->area);
         // add children according to panel_items
         for_panel_items_order() {
@@ -416,7 +416,7 @@ void panel_compute_position(Panel *panel)
     // panel->area.height);
 }
 
-void init_panel_size_and_position(Panel *panel)
+void init_panel_geometry(Panel *panel)
 {
     panel_compute_size(panel);
     panel_compute_position(panel);

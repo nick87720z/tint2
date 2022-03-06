@@ -182,7 +182,7 @@ void init_panel();
 // realloc panels according to number of monitor
 // use panel_config as default value
 
-void init_panel_size_and_position(Panel *panel);
+void init_panel_geometry(Panel *panel);
 gboolean resize_panel(void *obj);
 void render_panel(Panel *panel);
 void shrink_panel(Panel *panel);

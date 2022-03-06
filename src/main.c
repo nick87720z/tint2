@@ -610,7 +610,7 @@ void handle_x_event(XEvent *e)
 
 void handle_x_events()
 {
-    if (XPending(server.display) > 0)
+    while (XPending(server.display) > 0)
     {
         XEvent e;
         XNextEvent(server.display, &e);

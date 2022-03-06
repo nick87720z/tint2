@@ -75,9 +75,9 @@ void fetch_user_config_dir (void) {
     }
 }
 
-void write_string(int fd, const char *s)
+void write_data(int fd, const char *s, int len)
+// Reliable write() wrapper
 {
-    int len = strlen(s);
     while (len > 0) {
         int count = write(fd, s, len);
         if (count >= 0) {
@@ -87,6 +87,11 @@ void write_string(int fd, const char *s)
             break;
         }
     }
+}
+
+void write_string(int fd, const char *s)
+{
+    write_data (fd, s, strlen(s));
 }
 
 void log_string(int fd, const char *s)
@@ -774,21 +779,24 @@ void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color
 Imlib_Image load_image(const char *path, int cached)
 {
     Imlib_Image image;
-    static unsigned long counter = 0;
     if (debug_icons)
         fprintf(stderr, "tint2: loading icon %s\n", path);
     image = imlib_load_image(path);
 #ifdef HAVE_RSVG
     if (!image && g_str_has_suffix(path, ".svg")) {
-        char tmp_filename[128];
-        STRBUF_AUTO_PRINTF (tmp_filename, "/tmp/tint2-%d-%lu.png", (int)getpid(), counter);
-        counter++;
-        int fd = open(tmp_filename, O_CREAT | O_EXCL, 0600);
-        if (fd >= 0) {
+        int pipe_fd_stdout[2];
+
+        if (pipe (pipe_fd_stdout))
+            fprintf (stderr, "tint2: load_image: Creating output pipe for SVG loader failed!\n");
+        else {
             // We fork here because librsvg allocates memory like crazy
             pid_t pid = fork();
             if (pid == 0) {
                 // Child
+                close (pipe_fd_stdout[0]);
+                dup2  (pipe_fd_stdout[1], 1); // 1 is stdout
+                close (pipe_fd_stdout[1]);
+
                 GError *err = NULL;
                 RsvgHandle *svg = rsvg_handle_new_from_file(path, &err);
 
@@ -797,15 +805,56 @@ Imlib_Image load_image(const char *path, int cached)
                     g_error_free(err);
                 } else {
                     GdkPixbuf *pixbuf = rsvg_handle_get_pixbuf(svg);
-                    gdk_pixbuf_save(pixbuf, tmp_filename, "png", NULL, NULL);
+                    int dim[] = {
+                        gdk_pixbuf_get_width (pixbuf),
+                        gdk_pixbuf_get_height (pixbuf),
+                    };
+                    bool has_alpha = gdk_pixbuf_get_has_alpha (pixbuf);
+
+                    // Convert from GdkPixbuf RGBA byte array to DATA32 bitfield
+                    const guint8 *data = gdk_pixbuf_read_pixels (pixbuf);   // Modifying pixbuf internal data
+                    write_data (1, (const char *)dim, sizeof(dim));
+                    if (has_alpha)
+                        for (int i = 0, I = dim[0] * dim[1]; i < I; i++)
+                        {
+                            guint8 *p = (guint8 *)data + i * 4;
+                            *(DATA32 *)p = ((DATA32)p[3] << 24) | ((DATA32)p[0] << 16) | ((DATA32)p[1] << 8) | (DATA32)p[2];
+                        }
+                    else
+                        for (int i = 0, I = dim[0] * dim[1]; i < I; i++)
+                        {
+                            guint8 *p = (guint8 *)data + i * 4;
+                            *(DATA32 *)p = 0xFF000000 | ((DATA32)p[0] << 16) | ((DATA32)p[1] << 8) | (DATA32)p[2];
+                        }
+                    write_data (1, (const char *)data, dim[0] * dim[1] * 4);
                 }
                 _exit(0);
             } else {
                 // Parent
-                close(fd);
-                waitpid(pid, 0, 0);
-                image = imlib_load_image_immediately(tmp_filename);
-                unlink(tmp_filename);
+                int dim[2], size, ret;
+                close (pipe_fd_stdout[1]);
+
+                ret = read (pipe_fd_stdout[0], dim, sizeof(dim));
+                image = imlib_create_image (dim[0], dim[1]);
+                imlib_context_set_image (image);
+                imlib_image_set_irrelevant_format (1);
+                imlib_image_set_has_alpha (1);
+
+                DATA32 *data = imlib_image_get_data ();
+                size = dim[0] * dim[1] * sizeof(DATA32);
+                char *p = (char *)data;
+                while (size)
+                {
+                    ret = read (pipe_fd_stdout[0], p, size);
+                    if (ret > 0) {
+                        size -= ret;
+                        p += ret;
+                    }
+                    else if (ret == 0 || (ret == -1 && errno != EINTR))
+                        break;
+                }
+                imlib_image_put_back_data (data);
+                close (pipe_fd_stdout[0]);
             }
         }
     }

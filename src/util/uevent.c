@@ -141,7 +141,7 @@ void uevent_handler()
         return;
 
     /* buf must be null-terminated */
-    buf[ MAX(len, strlen_const(buf)) ] = '\0';
+    buf[ MIN(len, strlen_const(buf)) ] = '\0';
 
     struct uevent ev;
 

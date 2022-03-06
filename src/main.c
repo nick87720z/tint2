@@ -610,6 +610,11 @@ void handle_x_event(XEvent *e)
 
 void handle_x_events()
 {
+    // WARNING: breaking this loop causes unexpected effects like timers vs events races,
+    // One example - panel will flicker if mouse was over during startup, if autohide is
+    // enabled with autohide timeouts =0.
+    // FIXME: Not correct behavior, because other events are not handled after each single
+    // X event.
     while (XPending(server.display) > 0)
     {
         XEvent e;

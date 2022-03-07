@@ -212,19 +212,21 @@ void start_detect_compositor()
 
 void create_default_elements()
 {
-    default_timers();
-    default_systray();
     memset(&server, 0, sizeof(server));
+    default_timers();
+    default_panel();
+    default_tooltip();
+
+    default_systray();
 #ifdef ENABLE_BATTERY
     default_battery();
 #endif
     default_clock();
     default_launcher();
     default_taskbar();
-    default_tooltip();
+
     default_execp();
     default_button();
-    default_panel();
 }
 
 void load_default_task_icon()
@@ -299,22 +301,23 @@ void init(int argc, char **argv)
     setlinebuf(stdout);
     setlinebuf(stderr);
 
+    create_default_elements();
     default_config();
     handle_env_vars();
     handle_cli_arguments(argc, argv);
-    create_default_elements();
     init_signals();
 
     init_X11_pre_config();
-    if (!config_read()) {
+    if (!config_read())
+    {
         fprintf(stderr, "tint2: Could not read config file.\n");
         print_usage();
         timers_warnings = false;
         cleanup();
         exit(EXIT_FAILURE);
     }
-
     init_post_config();
+
     start_detect_compositor();
     init_panel();
 }

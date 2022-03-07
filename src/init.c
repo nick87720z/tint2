@@ -288,7 +288,6 @@ void init_X11_pre_config()
     // get monitor and desktop config
     get_monitors();
     get_desktops();
-    server.desktop = get_current_desktop();
 
     server.disable_transparency = FALSE;
 

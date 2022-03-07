@@ -94,11 +94,10 @@ Atom dnd_pick_target_from_list(Display *disp, Atom *atom_list, int nitems)
 
         // See if this data type is allowed and of higher priority (closer to zero)
         // than the present one.
-        if (strcasecmp(atom_name, "STRING") == 0) {
+        if ((strcasecmp(atom_name, "STRING") == 0) ||
+            (!to_be_requested && strcasecmp(atom_name, "text/uri-list") == 0))
+
             to_be_requested = atom_list[i];
-        } else if (strcasecmp(atom_name, "text/uri-list") == 0 && !to_be_requested) {
-            to_be_requested = atom_list[i];
-        }
     }
 
     fprintf(stderr,

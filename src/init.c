@@ -190,7 +190,7 @@ void detect_compositor(void *arg)
     }
 
     // No compositor, check for one
-    if (XGetSelectionOwner(server.display, server.atom [_NET_WM_CM_S0]) != None) {
+    if (GET_COMPOSITE_MANAGER() != None) {
         stop_timer(&detect_compositor_timer);
         // Restart tint2
         fprintf(stderr, "tint2: Detected compositor, restarting tint2...\n");

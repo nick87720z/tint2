@@ -170,6 +170,8 @@ typedef struct Server {
 
 extern Server server;
 
+#define GET_COMPOSITE_MANAGER() XGetSelectionOwner(server.display, server.atom [_NET_WM_CM_S0])
+
 void cleanup_server();
 // freed memory
 

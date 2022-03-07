@@ -180,22 +180,18 @@ void cleanup_server()
 
 void send_event32(Window win, Atom at, long data1, long data2, long data3)
 {
-    XEvent event;
-
-    event.xclient.type = ClientMessage;
-    event.xclient.serial = 0;
-    event.xclient.send_event = True;
-    event.xclient.display = server.display;
-    event.xclient.window = win;
-    event.xclient.message_type = at;
-
-    event.xclient.format = 32;
-    event.xclient.data.l[0] = data1;
-    event.xclient.data.l[1] = data2;
-    event.xclient.data.l[2] = data3;
-    event.xclient.data.l[3] = 0;
-    event.xclient.data.l[4] = 0;
-
+    XEvent event = {
+        .xclient = {
+            .type = ClientMessage,
+            .serial = 0,
+            .send_event = True,
+            .display = server.display,
+            .window = win,
+            .message_type = at,
+            .format = 32,
+            .data.l = { data1, data2, data3, 0, 0 }
+        }
+    };
     XSendEvent(server.display, server.root_win, False, SubstructureRedirectMask | SubstructureNotifyMask, &event);
 }
 
@@ -427,10 +423,8 @@ void print_monitors()
 
 void server_get_number_of_desktops()
 {
-    if (server.viewports) {
-        free(server.viewports);
-        server.viewports = NULL;
-    }
+    if (server.viewports)
+        free_and_null (server.viewports);
 
     server.num_desktops = get_property32(server.root_win, server.atom [_NET_NUMBER_OF_DESKTOPS], XA_CARDINAL);
     if (server.num_desktops > 1)
@@ -578,13 +572,14 @@ void get_desktops()
 
 void server_init_visual()
 {
+    Visual *visual = NULL;
+
     // inspired by freedesktops fdclock ;)
     XVisualInfo templ = {.screen = server.screen, .depth = 32, .class = TrueColor};
     int nvi;
     XVisualInfo *xvi = XGetVisualInfo(  server.display,
                                         VisualScreenMask | VisualDepthMask | VisualClassMask,
                                         &templ, &nvi);
-    Visual *visual = NULL;
     if (xvi) {
         XRenderPictFormat *format;
         for (int i = 0; i < nvi; i++) {
@@ -597,8 +592,6 @@ void server_init_visual()
     }
     XFree(xvi);
 
-    // check composite manager
-    server.composite_manager = XGetSelectionOwner(server.display, server.atom [_NET_WM_CM_S0]);
     if (server.colormap)
         XFreeColormap(server.display, server.colormap);
     if (server.colormap32)
@@ -608,6 +601,9 @@ void server_init_visual()
         server.visual32 = visual;
         server.colormap32 = XCreateColormap(server.display, server.root_win, visual, AllocNone);
     }
+
+    // check composite manager
+    server.composite_manager = GET_COMPOSITE_MANAGER();
 
     if (!server.disable_transparency && visual && server.composite_manager != None && !snapshot_path) {
         XSetWindowAttributes attrs;

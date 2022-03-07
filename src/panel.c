@@ -1045,8 +1045,9 @@ void autohide_trigger_hide(Panel *p, bool forced)
         Window root, child;
         int xr, yr, xw, yw;
         unsigned int mask;
-        if (XQueryPointer(server.display, p->main_win, &root, &child, &xr, &yr, &xw, &yw, &mask) && child)
-            return;
+        if (XQueryPointer(server.display, p->main_win, &root, &child, &xr, &yr, &xw, &yw, &mask) &&
+            (child || area_is_under_mouse (&p->area, xw, yw))
+        ) return;
     }
     change_timer(&p->autohide_timer, true, forced ? 0 : panel_autohide_hide_timeout, 0, autohide_hide, p);
 }

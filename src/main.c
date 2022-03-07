@@ -615,7 +615,7 @@ void handle_x_events()
     // enabled with autohide timeouts =0.
     // FIXME: Not correct behavior, because other events are not handled after each single
     // X event.
-    while (XPending(server.display) > 0)
+    if (XPending(server.display) > 0)
     {
         XEvent e;
         XNextEvent(server.display, &e);

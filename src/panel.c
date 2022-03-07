@@ -728,12 +728,17 @@ void place_panel_all_desktops(Panel *p)
 
 void set_panel_layer(Panel *p, Layer layer)
 {
-    Atom state[4];
-    state[0] = server.atom [_NET_WM_STATE_SKIP_PAGER];
-    state[1] = server.atom [_NET_WM_STATE_SKIP_TASKBAR];
-    state[2] = server.atom [_NET_WM_STATE_STICKY];
-    state[3] = layer == BOTTOM_LAYER ? server.atom [_NET_WM_STATE_BELOW] : server.atom [_NET_WM_STATE_ABOVE];
-    int num_atoms = layer == NORMAL_LAYER ? 3 : 4;
+    int num_atoms;
+    Atom state[4] = {
+        [0] = server.atom [_NET_WM_STATE_SKIP_PAGER],
+        [1] = server.atom [_NET_WM_STATE_SKIP_TASKBAR],
+        [2] = server.atom [_NET_WM_STATE_STICKY],
+    };
+    if (layer == NORMAL_LAYER)
+        num_atoms = 3;
+    else
+        num_atoms = 4,
+        state[3] = layer == BOTTOM_LAYER ? server.atom [_NET_WM_STATE_BELOW] : server.atom [_NET_WM_STATE_ABOVE];
     XChangeProperty(server.display, p->main_win,
                     server.atom [_NET_WM_STATE],
                     XA_ATOM,

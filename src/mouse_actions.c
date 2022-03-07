@@ -61,8 +61,8 @@ gboolean tint2_handles_click(Panel *panel, XButtonEvent *e)
         }
 #endif
     return
-        click_execp(panel, e->x, e->y) ||
-        click_button(panel, e->x, e->y);
+        !!click_execp(panel, e->x, e->y) ||
+        !!click_button(panel, e->x, e->y);
 }
 
 void handle_mouse_press_event(XEvent *e)
@@ -77,8 +77,7 @@ void handle_mouse_press_event(XEvent *e)
     }
     task_drag = click_task(panel, e->xbutton.x, e->xbutton.y);
 
-    if (panel_layer == BOTTOM_LAYER)
-        XLowerWindow(server.display, panel->main_win);
+    lower_if_bottom (panel);
 }
 
 void handle_mouse_move_event(XEvent *e)
@@ -155,8 +154,7 @@ void handle_mouse_release_event(XEvent *e)
 
     if (wm_menu && !tint2_handles_click(panel, &e->xbutton)) {
         forward_click(e);
-        if (panel_layer == BOTTOM_LAYER)
-            XLowerWindow(server.display, panel->main_win);
+        lower_if_bottom (panel);
         task_drag = NULL;
         return;
     }
@@ -178,8 +176,7 @@ void handle_mouse_release_event(XEvent *e)
                             e->xbutton.x - clock->area.posx,
                             e->xbutton.y - clock->area.posy,
                             e->xbutton.time);
-        if (panel_layer == BOTTOM_LAYER)
-            XLowerWindow(server.display, panel->main_win);
+        lower_if_bottom (panel);
         task_drag = NULL;
         return;
     }
@@ -191,8 +188,7 @@ void handle_mouse_release_event(XEvent *e)
                                 e->xbutton.x - battery->area.posx,
                                 e->xbutton.y - battery->area.posy,
                                 e->xbutton.time);
-        if (panel_layer == BOTTOM_LAYER)
-            XLowerWindow(server.display, panel->main_win);
+        lower_if_bottom (panel);
         task_drag = NULL;
         return;
     }
@@ -204,8 +200,7 @@ void handle_mouse_release_event(XEvent *e)
                             e->xbutton.x - execp->area.posx,
                             e->xbutton.y - execp->area.posy,
                             e->xbutton.time);
-        if (panel_layer == BOTTOM_LAYER)
-            XLowerWindow(server.display, panel->main_win);
+        lower_if_bottom (panel);
         task_drag = NULL;
         return;
     }
@@ -216,8 +211,7 @@ void handle_mouse_release_event(XEvent *e)
                                 e->xbutton.x - button->area.posx,
                                 e->xbutton.y - button->area.posy,
                                 e->xbutton.time);
-        if (panel_layer == BOTTOM_LAYER)
-            XLowerWindow(server.display, panel->main_win);
+        lower_if_bottom (panel);
         task_drag = NULL;
         return;
     }
@@ -235,8 +229,7 @@ void handle_mouse_release_event(XEvent *e)
     Taskbar *taskbar;
     if (!(taskbar = click_taskbar(panel, e->xbutton.x, e->xbutton.y))) {
         // TODO: check better solution to keep window below
-        if (panel_layer == BOTTOM_LAYER)
-            XLowerWindow(server.display, panel->main_win);
+        lower_if_bottom (panel);
         task_drag = NULL;
         return;
     }
@@ -275,6 +268,5 @@ void handle_mouse_release_event(XEvent *e)
     }
 
     // to keep window below
-    if (panel_layer == BOTTOM_LAYER)
-        XLowerWindow(server.display, panel->main_win);
+    lower_if_bottom (panel);
 }

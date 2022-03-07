@@ -300,10 +300,12 @@ void init_panel()
         // fprintf(stderr, "tint2: panel %d : %d, %d, %d, %d\n", i, p->posx, p->posy, p->area.width, p->area.height);
         set_panel_properties(p);
         set_panel_background(p);
-        if (!snapshot_path) {
-            // if we are not in 'snapshot' mode then map new panel
-            XMapWindow(server.display, p->main_win);
-        }
+
+        if (snapshot_path)
+            continue;
+
+        // if we are not in 'snapshot' mode then map new panel
+        XMapWindow(server.display, p->main_win);
 
         if (panel_autohide)
             autohide_trigger_hide(p, false);

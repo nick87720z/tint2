@@ -277,27 +277,22 @@ void init_panel()
         set_panel_items_order(p);
 
         // catch some events
-        XSetWindowAttributes att = {.colormap = server.colormap, .background_pixel = 0, .border_pixel = 0};
-        unsigned long mask = CWEventMask | CWColormap | CWBackPixel | CWBorderPixel;
+        XSetWindowAttributes att = {
+            .colormap = server.colormap, .background_pixel = 0, .border_pixel = 0,
+            .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | PropertyChangeMask
+        };
+        if (p->mouse_effects || p->g_task.tooltip_enabled || p->clock.area._get_tooltip_text ||
+            (launcher_enabled && launcher_tooltip_enabled))
+            att.event_mask |= PointerMotionMask | LeaveWindowMask;
+        if (panel_autohide)
+            att.event_mask |= LeaveWindowMask | EnterWindowMask;
         p->main_win = XCreateWindow(server.display, server.root_win,
                                     p->posx, p->posy, p->area.width, p->area.height, 0,
                                     server.depth,
                                     InputOutput,
                                     server.visual,
-                                    mask,
+                                    CWEventMask | CWColormap | CWBackPixel | CWBorderPixel,
                                     &att);
-
-        long event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | PropertyChangeMask;
-        if (p->mouse_effects || p->g_task.tooltip_enabled || p->clock.area._get_tooltip_text ||
-            (launcher_enabled && launcher_tooltip_enabled))
-            event_mask |= PointerMotionMask | LeaveWindowMask;
-        if (panel_autohide)
-            event_mask |= LeaveWindowMask | EnterWindowMask;
-        XChangeWindowAttributes(server.display,
-                                p->main_win,
-                                CWEventMask,
-                                &(XSetWindowAttributes){.event_mask = event_mask});
-
         if (!server.gc) {
             XGCValues gcv;
             server.gc = XCreateGC(server.display, p->main_win, 0, &gcv);

@@ -613,7 +613,7 @@ void server_init_visual()
         server.real_transparency = TRUE;
         server.depth = 32;
         fprintf(stderr, "tint2: real transparency on... depth: %d\n", server.depth);
-        server.colormap = XCreateColormap(server.display, server.root_win, visual, AllocNone);
+        server.colormap = server.colormap32;
         server.visual = visual;
     } else {
         // no composite manager or snapshot mode => fake transparency

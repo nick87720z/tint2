@@ -82,6 +82,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
   * Graphical glitches on Intel graphics cards can be avoided by changing the acceleration method to UXA ([issue 595](https://gitlab.com/o9000/tint2/issues/595))
   * Window managers that do not follow exactly the EWMH specification might not interact well with tint2 ([issue 627](https://gitlab.com/o9000/tint2/issues/627)).
+  * tint2-send refresh-execp doesn't work without visible windows (e.g. hidden by autohide option).
 
 # How can I help out?
 

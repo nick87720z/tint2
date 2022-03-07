@@ -886,7 +886,9 @@ void set_panel_properties(Panel *p)
 void panel_clear_background(void *obj)
 {
     Panel *p = obj;
-    if (!server.real_transparency) {
+    if (server.real_transparency)
+        clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
+    else {
         get_root_pixmap();
         // copy background (server.root_pmap) in panel.area.pix
         Window dummy;
@@ -905,8 +907,7 @@ void panel_clear_background(void *obj)
 
         XSetTSOrigin(server.display, server.gc, -x, -y);
         XFillRectangle(server.display, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
-    } else
-        clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
+    }
 }
 
 void set_panel_background(Panel *p)

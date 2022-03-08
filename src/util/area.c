@@ -215,8 +215,9 @@ void relayout_dynamic(Area *a, int level)
 
                 relayout_dynamic(child, level + 1);
 
-                pos += panel_horizontal ? child->width + a->spacing : child->height + a->spacing;
+                pos += (panel_horizontal ? child->width : child->height) + a->spacing;
             }
+            break;
         }
     }
 
@@ -726,12 +727,8 @@ void mouse_over(Area *area, gboolean pressed)
 
     MouseState new_state = MOUSE_NORMAL;
     if (area) {
-        if (!pressed) {
-            new_state = area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
-        } else {
-            new_state =
-                area->has_mouse_press_effect ? MOUSE_DOWN : area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
-        }
+        new_state = (pressed && area->has_mouse_press_effect) ? MOUSE_DOWN
+                    : area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
     }
 
     if (mouse_over_area == area && mouse_over_area->mouse_state == new_state)

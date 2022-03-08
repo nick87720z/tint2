@@ -371,7 +371,7 @@ void get_monitors()
         }
 
         // Sort monitors by inclusion
-        qsort(server.monitors, num_monitors, sizeof(Monitor), monitor_includes_monitor);
+        qsort(server.monitors, num_monitors, sizeof(Monitor), monitors_inside_monitor);
 
         // Remove monitors included in other ones
         int i = 0;

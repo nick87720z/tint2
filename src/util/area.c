@@ -810,19 +810,15 @@ gboolean full_width_area_is_under_mouse(void *obj, int x, int y)
 Area *find_area_under_mouse(void *root, int x, int y)
 {
     Area *result = root;
-    Area *new_result = result;
-    do {
-        result = new_result;
-        GList *it = result->children;
-        while (it) {
+    deeper:
+        for (GList *it = result->children; it; it = it->next)
+        {
             Area *a = (Area *)it->data;
             if (area_is_under_mouse(a, x, y)) {
-                new_result = a;
-                break;
+                result = a;
+                goto deeper;
             }
-            it = it->next;
         }
-    } while (new_result != result);
     return result;
 }
 
@@ -1167,7 +1163,8 @@ void area_gradients_create(Area *area)
 {
     if (debug_gradients)
         fprintf(stderr, "tint2: Initializing gradients for area %s\n", area->name);
-    for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+    for (int i = 0; i < MOUSE_STATE_COUNT; i++)
+    {
         g_assert_null(area->gradient_instances_by_state[i]);
         GradientClass *g = area->bg->gradients[i];
         if (!g)
@@ -1183,7 +1180,8 @@ void area_gradients_free(Area *area)
     if (debug_gradients)
         fprintf(stderr, "tint2: Freeing gradients for area %s\n", area->name);
     for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-        for (GList *l = area->gradient_instances_by_state[i]; l; l = l->next) {
+        for (GList *l = area->gradient_instances_by_state[i]; l; l = l->next)
+        {
             gradient_destroy(l->data);
             free(l->data);
         }

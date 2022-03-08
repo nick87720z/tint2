@@ -810,15 +810,15 @@ gboolean full_width_area_is_under_mouse(void *obj, int x, int y)
 Area *find_area_under_mouse(void *root, int x, int y)
 {
     Area *result = root;
-    deeper:
-        for (GList *it = result->children; it; it = it->next)
-        {
-            Area *a = (Area *)it->data;
-            if (area_is_under_mouse(a, x, y)) {
-                result = a;
-                goto deeper;
-            }
+deeper:
+    for (GList *it = result->children; it; it = it->next)
+    {
+        Area *a = (Area *)it->data;
+        if (area_is_under_mouse(a, x, y)) {
+            result = a;
+            goto deeper;
         }
+    }
     return result;
 }
 

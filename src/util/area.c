@@ -392,29 +392,32 @@ void draw_tree(Area *a)
 
 void hide(Area *a)
 {
-    Area *parent = (Area *)a->parent;
-
     if (!a->on_screen)
         return;
+
     a->on_screen = FALSE;
-    if (parent)
-        parent->resize_needed = TRUE;
     if (panel_horizontal)
         a->width = 0;
     else
         a->height = 0;
+
+    Area *parent = a->parent;
+    if (parent)
+        parent->resize_needed = TRUE;
 }
 
 void show(Area *a)
 {
-    Area *parent = (Area *)a->parent;
-
     if (a->on_screen)
         return;
+
     a->on_screen = TRUE;
+    a->resize_needed = TRUE;
+
+    Area *parent = a->parent;
     if (parent)
         parent->resize_needed = TRUE;
-    a->resize_needed = TRUE;
+
     schedule_panel_redraw();
 }
 
@@ -672,8 +675,8 @@ void draw_background(Area *a, cairo_t *c)
 
 void remove_area(Area *a)
 {
-    Area *area = (Area *)a;
-    Area *parent = (Area *)area->parent;
+    Area *area = a;
+    Area *parent = a->parent;
 
     area_gradients_free(a);
 
@@ -722,37 +725,43 @@ void free_area(Area *a)
 
 void mouse_over(Area *area, gboolean pressed)
 {
-    if (mouse_over_area == area && !area)
+    MouseState new_state;
+    if (!area)
+    {
+        if (mouse_over_area) {
+            new_state = MOUSE_NORMAL;
+            mouse_out ();
+        }
         return;
-
-    MouseState new_state = MOUSE_NORMAL;
-    if (area) {
-        new_state = (pressed && area->has_mouse_press_effect) ? MOUSE_DOWN
-                    : area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
     }
+
+    new_state = (pressed && area->has_mouse_press_effect) ? MOUSE_DOWN
+                : area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
 
     if (mouse_over_area == area && mouse_over_area->mouse_state == new_state)
         return;
-    mouse_out();
-    if (new_state == MOUSE_NORMAL)
-        return;
-    mouse_over_area = area;
 
-    mouse_over_area->mouse_state = new_state;
-    mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
-    mouse_over_area->_redraw_needed = TRUE;
-    schedule_panel_redraw();
+    mouse_out ();
+    if (new_state != MOUSE_NORMAL) {
+        mouse_over_area = area;
+
+        mouse_over_area->mouse_state = new_state;
+        mouse_over_area->pix = mouse_over_area->pix_by_state [mouse_over_area->mouse_state];
+        mouse_over_area->_redraw_needed = TRUE;
+        schedule_panel_redraw ();
+    }
 }
 
 void mouse_out()
 {
-    if (!mouse_over_area)
-        return;
-    mouse_over_area->mouse_state = MOUSE_NORMAL;
-    mouse_over_area->pix = mouse_over_area->pix_by_state[mouse_over_area->mouse_state];
-    mouse_over_area->_redraw_needed = TRUE;
-    schedule_panel_redraw();
-    mouse_over_area = NULL;
+    if (mouse_over_area)
+    {
+        mouse_over_area->mouse_state = MOUSE_NORMAL;
+        mouse_over_area->pix = mouse_over_area->pix_by_state [mouse_over_area->mouse_state];
+        mouse_over_area->_redraw_needed = TRUE;
+        schedule_panel_redraw ();
+        mouse_over_area = NULL;
+    }
 }
 
 gboolean area_is_end(void *obj, gboolean first)
@@ -947,13 +956,8 @@ void area_compute_inner_size(Area *area,
                              int *inner_w,
                              int *inner_h)
 {
-    if (panel_horizontal) {
-        *inner_w = area->width - 2 * area->paddingx - left_right_border_width(area);
-        *inner_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
-    } else {
-        *inner_w = area->width - 2 * area->paddingx - left_right_border_width(area);
-        *inner_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
-    }
+    *inner_w = area->width  - left_right_border_width (area) - 2 * area->paddingx;
+    *inner_h = area->height - top_bottom_border_width (area) - 2 * area->paddingy;
 }
 
 void area_compute_text_geometry(Area *area,

@@ -1049,7 +1049,10 @@ void autohide_trigger_hide(Panel *p, bool forced)
     if (!p)
         return;
 
-    if (!forced) { // check, is mouse over system tray icon
+    if (!forced) // check, is mouse over system tray icon
+    {
+        // WARNING: first_hide flag is important to make it work from init_panel(), when XQueryPointer
+        // returns true, but None child, though mouse coordinates are valid
         static bool first_hide = true;
         Window root, child;
         int xr, yr, xw, yw;

@@ -96,21 +96,21 @@ void handle_mouse_move_event(XEvent *e)
 
     // If the event takes place on the same taskbar as the task being dragged
     if (&event_taskbar->area == task_drag->area.parent) {
-        if (taskbar_sort_method != TASKBAR_NOSORT) {
+        if (taskbar_sort_method != TASKBAR_NOSORT)
             sort_tasks(event_taskbar);
-        } else {
+        else {
             // Swap the task_drag with the task on the event's location (if they differ)
-            if (event_task && event_task != task_drag) {
-                GList *drag_iter = g_list_find(event_taskbar->area.children, task_drag);
-                GList *task_iter = g_list_find(event_taskbar->area.children, event_task);
-                if (drag_iter && task_iter) {
-                    gpointer temp = task_iter->data;
-                    task_iter->data = drag_iter->data;
-                    drag_iter->data = temp;
-                    event_taskbar->area.resize_needed = TRUE;
-                    schedule_panel_redraw();
-                    task_dragged = TRUE;
-                }
+            GList *drag_iter, *task_iter;
+            if ((event_task && event_task != task_drag) &&
+                (drag_iter = g_list_find (event_taskbar->area.children, task_drag)) &&
+                (task_iter = g_list_find (event_taskbar->area.children, event_task)) )
+            {
+                gpointer temp = task_iter->data;
+                task_iter->data = drag_iter->data;
+                drag_iter->data = temp;
+                event_taskbar->area.resize_needed = TRUE;
+                schedule_panel_redraw();
+                task_dragged = TRUE;
             }
         }
     } else { // The event is on another taskbar than the task being dragged

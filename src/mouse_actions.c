@@ -82,8 +82,8 @@ void handle_mouse_press_event(XEvent *e)
 
 void handle_mouse_move_event(XEvent *e)
 {
-    Panel *panel = get_panel(e->xany.window);
-    if (!panel || !task_drag)
+    Panel *panel;
+    if (!task_drag || !(panel = get_panel(e->xany.window)))
         return;
 
     // Find the taskbar on the event's location
@@ -159,7 +159,7 @@ void handle_mouse_release_event(XEvent *e)
         return;
     }
 
-    MouseAction action = TOGGLE_ICONIFY;
+    MouseAction action;
     switch (e->xbutton.button) {
     case 1: action = mouse_left;        break;
     case 2: action = mouse_middle;      break;
@@ -168,6 +168,7 @@ void handle_mouse_release_event(XEvent *e)
     case 5: action = mouse_scroll_down; break;
     case 6: action = mouse_tilt_left;   break;
     case 7: action = mouse_tilt_right;  break;
+    default: action = TOGGLE_ICONIFY;
     }
 
     Clock *clock = click_clock(panel, e->xbutton.x, e->xbutton.y);

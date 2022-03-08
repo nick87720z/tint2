@@ -634,10 +634,8 @@ gboolean add_icon(Window win)
                                      &nitems,
                                      &bytes_after,
                                      &prop);
-        if (ret == Success && prop) {
-            pid = prop[1] * 256;
-            pid += prop[0];
-        }
+        if (ret == Success && prop)
+            pid = (int)prop[1] * 256 + prop[0];
     }
 
     // Create the parent window that will embed the icon

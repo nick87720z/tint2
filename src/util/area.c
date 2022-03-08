@@ -115,9 +115,10 @@ void relayout_dynamic(Area *a, int level)
 
     // Layout children
     if (a->children) {
-        if (a->alignment == ALIGN_LEFT) {
-            int pos =
-                (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx;
+        int pos;
+        switch (a->alignment) {
+        case ALIGN_LEFT:
+            pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx;
 
             for_children(a, l, GList *)
             {
@@ -141,12 +142,12 @@ void relayout_dynamic(Area *a, int level)
 
                 relayout_dynamic(child, level + 1);
 
-                pos += panel_horizontal ? child->width + a->spacing : child->height + a->spacing;
+                pos += (panel_horizontal ? child->width : child->height) + a->spacing;
             }
-        } else if (a->alignment == ALIGN_RIGHT) {
-            int pos = (panel_horizontal ? a->posx + a->width - right_border_width(a)
-                                        : a->posy + a->height - bottom_border_width(a)) -
-                      a->paddingx;
+            break;
+        case ALIGN_RIGHT:
+            pos = (panel_horizontal ? a->posx + a->width - right_border_width(a)
+                                    : a->posy + a->height - bottom_border_width(a)) - a->paddingx;
 
             for_children_rev(a, l, GList *)
             {
@@ -174,23 +175,24 @@ void relayout_dynamic(Area *a, int level)
 
                 pos -= a->spacing;
             }
-        } else if (a->alignment == ALIGN_CENTER) {
-
-            int children_size = 0;
-
-            for_children(a, l, GList *)
+            break;
+        case ALIGN_CENTER:
             {
-                Area *child = ((Area *)l->data);
-                if (!child->on_screen)
-                    continue;
+                int children_size = 0;
 
-                children_size += panel_horizontal ? child->width : child->height;
-                children_size += (l == a->children) ? 0 : a->spacing;
+                for_children(a, l, GList *)
+                {
+                    Area *child = ((Area *)l->data);
+                    if (!child->on_screen)
+                        continue;
+
+                    children_size += panel_horizontal ? child->width : child->height;
+                    children_size += (l == a->children) ? 0 : a->spacing;
+                }
+
+                pos = (panel_horizontal ? a->posx + left_border_width(a) + (a->width - children_size) / 2
+                                        : a->posy + top_border_width(a) + (a->height - children_size) / 2) + a->paddingx;
             }
-
-            int pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx
-                    + ((panel_horizontal ? a->width : a->height) - children_size) / 2;
-
             for_children(a, l, GList *)
             {
                 Area *child = ((Area *)l->data);
@@ -756,7 +758,7 @@ void mouse_out()
     mouse_over_area = NULL;
 }
 
-gboolean area_is_first(void *obj)
+gboolean area_is_end(void *obj, gboolean first)
 {
     Area *a = obj;
     if (!a->on_screen)
@@ -779,36 +781,8 @@ gboolean area_is_first(void *obj)
             if (!child->on_screen || child->width == 0 || child->height == 0)
                 continue;
             node = child;
-            break;
-        }
-    }
-
-    return FALSE;
-}
-
-gboolean area_is_last(void *obj)
-{
-    Area *a = obj;
-    if (!a->on_screen)
-        return FALSE;
-
-    Panel *panel = a->panel;
-
-    Area *node = &panel->area;
-
-    while (node) {
-        if (!node->on_screen || node->width == 0 || node->height == 0)
-            return FALSE;
-        if (node == a)
-            return TRUE;
-
-        GList *l = node->children;
-        node = NULL;
-        for (; l; l = l->next) {
-            Area *child = l->data;
-            if (!child->on_screen || child->width == 0 || child->height == 0)
-                continue;
-            node = child;
+            if (first)
+                break;
         }
     }
 

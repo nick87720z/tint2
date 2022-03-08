@@ -357,8 +357,9 @@ void mouse_out();
 void update_gradient(GradientInstance *gi);
 void update_dependent_gradients(Area *a);
 
-gboolean area_is_first(void *obj);
-gboolean area_is_last(void *obj);
+gboolean area_is_end(void *obj, gboolean first);
+#define area_is_first(a) area_is_end(a, TRUE)
+#define area_is_last(a)  area_is_end(a, FALSE)
 
 #define for_panel_items_order(...)                                                       \
 for (int items_n = strlen(panel_items_order), k = 0; k < items_n __VA_ARGS__; k++)

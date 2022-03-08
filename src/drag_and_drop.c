@@ -88,7 +88,8 @@ Atom dnd_pick_target_from_list(Display *disp, Atom *atom_list, int nitems)
 {
     Atom to_be_requested = None;
     int i;
-    for (i = 0; i < nitems; i++) {
+    for (i = 0; i < nitems; i++)
+    {
         const char *atom_name = GetAtomName(disp, atom_list[i]);
         fprintf(stderr, "tint2: DnD %s:%d: Type %d = %s\n", __FILE__, __LINE__, i, atom_name);
 
@@ -134,17 +135,13 @@ Atom dnd_pick_target_from_targets(Display *disp, Property p)
     // The list of targets is a list of atoms, so it should have type XA_ATOM
     // but it may have the type TARGETS instead.
 
-    if ((p.type != XA_ATOM && p.type != server.atom [TARGETS]) || p.format != 32) {
-        // This would be really broken. Targets have to be an atom list
-        // and applications should support this. Nevertheless, some
-        // seem broken (MATLAB 7, for instance), so ask for STRING
-        // next instead as the lowest common denominator
-        return XA_STRING;
-    } else {
-        Atom *atom_list = (Atom *)p.data;
-
-        return dnd_pick_target_from_list(disp, atom_list, p.nitems);
-    }
+    return  (p.type != XA_ATOM && p.type != server.atom [TARGETS]) || p.format != 32
+                // This would be really broken. Targets have to be an atom list
+                // and applications should support this. Nevertheless, some
+                // seem broken (MATLAB 7, for instance), so ask for STRING
+                // next instead as the lowest common denominator
+            ?   XA_STRING
+            :   dnd_pick_target_from_list (disp, (Atom *)p.data, p.nitems);
 }
 
 void dnd_init()
@@ -198,10 +195,9 @@ void handle_dnd_enter(XClientMessageEvent *e)
         Property p = dnd_read_property(server.display, dnd_source_window, server.atom [XdndTypeList]);
         dnd_atom = dnd_pick_target_from_targets(server.display, p);
         XFree(p.data);
-    } else {
+    } else
         // Use the available list
         dnd_atom = dnd_pick_target_from_atoms(server.display, e->data.l[2], e->data.l[3], e->data.l[4]);
-    }
 
     if (debug_dnd)
         fprintf(stderr,
@@ -241,11 +237,7 @@ void handle_dnd_position(XClientMessageEvent *e)
     se.data.l[1] = accept ? 1 : 0; // bit 0: accept drop    bit 1: send XdndPosition events if inside rectangle
     se.data.l[2] = 0;              // Rectangle x,y for which no more XdndPosition events
     se.data.l[3] = (1 << 16) | 1;  // Rectangle w,h for which no more XdndPosition events
-    if (accept) {
-        se.data.l[4] = server.atom [XdndActionCopy];
-    } else {
-        se.data.l[4] = None; // None = drop will not be accepted
-    }
+    se.data.l[4] = accept ? server.atom [XdndActionCopy] : None; // None = drop will not be accepted
 
     if (debug_dnd)
         fprintf(stderr,
@@ -259,23 +251,14 @@ void handle_dnd_position(XClientMessageEvent *e)
 
 void handle_dnd_drop(XClientMessageEvent *e)
 {
-    if (dnd_target_window && dnd_launcher_icon) {
-        if (dnd_version >= 1) {
-            XConvertSelection(server.display,
-                              server.atom [XdndSelection],
-                              dnd_atom,
-                              dnd_selection,
-                              dnd_target_window,
-                              e->data.l[2]);
-        } else {
-            XConvertSelection(server.display,
-                              server.atom [XdndSelection],
-                              dnd_atom,
-                              dnd_selection,
-                              dnd_target_window,
-                              CurrentTime);
-        }
-    } else {
+    if (dnd_target_window && dnd_launcher_icon)
+        XConvertSelection(server.display,
+                          server.atom [XdndSelection],
+                          dnd_atom,
+                          dnd_selection,
+                          dnd_target_window,
+                          dnd_version >= 1 ? ( e->data.l[2] ) : CurrentTime);
+    else {
         // The source is sending anyway, despite instructions to the contrary.
         // So reply that we're not interested.
         XClientMessageEvent m;
@@ -316,7 +299,8 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
 
         if (prop.data) {
             // If we're being given a list of targets (possible conversions)
-            if (target == server.atom [TARGETS] && !dnd_sent_request) {
+            if (target == server.atom [TARGETS] && !dnd_sent_request)
+            {
                 dnd_sent_request = 1;
                 dnd_atom = dnd_pick_target_from_targets(server.display, prop);
 
@@ -334,7 +318,9 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                                       dnd_target_window,
                                       CurrentTime);
                 }
-            } else if (target == dnd_atom) {
+            }
+            else if (target == dnd_atom)
+            {
                 // Dump the binary data
                 if (debug_dnd) {
                     fprintf(stderr, "tint2: DnD %s:%d: Received data:\n", __FILE__, __LINE__);
@@ -352,7 +338,8 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                     GString *url = g_string_new("");
                     GString *prev_url = g_string_new("");
                     gboolean must_unescape = strcasecmp(atom_name, "text/uri-list") == 0;
-                    for (int i = 0; i < prop.nitems * prop.format / 8; i++) {
+                    for (int i = 0; i < prop.nitems * prop.format / 8; i++)
+                    {
                         char c = ((char *)prop.data)[i];
                         if (c == '\n') {
                             if (must_unescape) {
@@ -366,7 +353,8 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                             tint2_g_string_replace(url, "file://", "");
                             // Some programs put duplicates in the list, we remove them
                             if (strcmp(url->str, prev_url->str) != 0) {
-                                if (strstr(cmd->str, "%F")) {
+                                if (strstr(cmd->str, "%F"))
+                                {
                                     GString *piece = g_string_new("");
                                     g_string_append(piece, " \"");
                                     g_string_append(piece, url->str);
@@ -374,7 +362,9 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                                     g_string_append(piece, " %F");
                                     tint2_g_string_replace(cmd, "%F", piece->str);
                                     g_string_free(piece, TRUE);
-                                } else if (strstr(cmd->str, "%f")) {
+                                }
+                                else if (strstr(cmd->str, "%f"))
+                                {
                                     GString *piece = g_string_new("");
                                     g_string_append(piece, " \"");
                                     g_string_append(piece, url->str);
@@ -382,7 +372,9 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                                     tint2_g_string_replace(cmd, "%f", piece->str);
                                     g_string_free(piece, TRUE);
                                     break;
-                                } else {
+                                }
+                                else
+                                {
                                     g_string_append(cmd, " \"");
                                     g_string_append(cmd, url->str);
                                     g_string_append(cmd, "\"");
@@ -393,9 +385,8 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                         } else if (c == '\r') {
                             // Nothing to do
                         } else {
-                            if (c == '`' || c == '$' || c == '\\') {
+                            if (c == '`' || c == '$' || c == '\\')
                                 g_string_append(url, "\\");
-                            }
                             g_string_append_c(url, c);
                         }
                     }

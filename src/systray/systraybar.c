@@ -149,9 +149,8 @@ void systray_compute_geometry(int *size)
         systray.icon_size = MIN(systray.icon_size, systray_max_icon_size * panel->scale);
 
     int count = 0;
-    for (GSList *l = systray.list_icons; l; l = l->next) {
+    for (GSList *l = systray.list_icons; l; l = l->next)
         count++;
-    }
 
     if (panel_horizontal) {
         int height = systray.area.height - top_bottom_border_width(&systray.area) - 2 * systray.area.paddingy * panel->scale;
@@ -249,7 +248,8 @@ void systray_dump_geometry(void *obj, int indent)
 
     fprintf(stderr, "tint2: %*sIcons:\n", indent, "");
     indent += 2;
-    for (GSList *l = tray->list_icons; l; l = l->next) {
+    for (GSList *l = tray->list_icons; l; l = l->next)
+    {
         TrayWindow *traywin = (TrayWindow *)l->data;
         fprintf(stderr,
                 "tint2: %*sIcon: x = %d, y = %d, w = %d, h = %d, name = %s\n",
@@ -306,16 +306,16 @@ void on_change_systray(void *obj)
         traywin->width = systray.icon_size;
         traywin->height = systray.icon_size;
         if (panel_horizontal) {
-            if (i % systray.icons_per_column) {
+            if (i % systray.icons_per_column)
                 posy += systray.icon_size + systray.area.spacing * panel->scale;
-            } else {
+            else {
                 posy = start;
                 posx += (systray.icon_size + systray.area.spacing * panel->scale);
             }
         } else {
-            if (i % systray.icons_per_row) {
+            if (i % systray.icons_per_row)
                 posx += systray.icon_size + systray.area.spacing * panel->scale;
-            } else {
+            else {
                 posx = start;
                 posy += (systray.icon_size + systray.area.spacing * panel->scale);
             }
@@ -326,9 +326,9 @@ void on_change_systray(void *obj)
         int xpos, ypos;
         unsigned int width, height, depth;
         Window root;
-        if (!XGetGeometry(server.display, traywin->parent, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+        if (!XGetGeometry(server.display, traywin->parent, &root, &xpos, &ypos, &width, &height, &border_width, &depth))
             fprintf(stderr, RED "tint2: Couldn't get geometry of window!" RESET "\n");
-        }
+
         if (width != traywin->width || height != traywin->height || xpos != traywin->x || ypos != traywin->y) {
             if (systray_profile)
                 fprintf(stderr,
@@ -433,11 +433,8 @@ void start_net()
                     (unsigned char *)&padding,
                     1);
 
-    VisualID vid;
-    if (systray_composited)
-        vid = XVisualIDFromVisual(server.visual32);
-    else
-        vid = XVisualIDFromVisual(server.visual);
+    VisualID vid = XVisualIDFromVisual (systray_composited ? server.visual32 : server.visual);
+
     XChangeProperty(server.display, net_sel_win,
                     XInternAtom(server.display, "_NET_SYSTEM_TRAY_VISUAL", False),
                     XA_VISUALID,
@@ -522,9 +519,8 @@ int window_error_handler(Display *d, XErrorEvent *e)
     if (systray_profile)
         fprintf(stderr, RED "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __func__, __LINE__);
     error = TRUE;
-    if (e->error_code != BadWindow) {
+    if (e->error_code != BadWindow)
         fprintf(stderr, RED "tint2: systray: error code %d" RESET "\n", e->error_code);
-    }
     return 0;
 }
 
@@ -558,7 +554,8 @@ void print_icons()
         fprintf(stderr, "tint2: %s\n", t->name);
     }
     fprintf(stderr, "tint2: systray.list_icons order: \n");
-    for (GSList *l = systray.list_icons; l; l = l->next) {
+    for (GSList *l = systray.list_icons; l; l = l->next)
+    {
         if (l->next) {
             TrayWindow *t = l->data;
             TrayWindow *u = l->next->data;
@@ -593,9 +590,10 @@ gboolean add_icon(Window win)
     // Avoid duplicates
     for (GSList *l = systray.list_icons; l; l = l->next) {
         TrayWindow *other = (TrayWindow *)l->data;
-        if (other->win == win) {
+
+        if (other->win == win)
             return FALSE;
-        }
+
     }
 
     // Filter out systray_hide_by_icon_name
@@ -958,9 +956,9 @@ void systray_resize_icon(void *t)
     int xpos, ypos;
     unsigned int width, height, depth;
     Window root;
-    if (!XGetGeometry(server.display, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+    if (!XGetGeometry(server.display, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth))
         return;
-    } else {
+    else {
         if (systray_profile)
             fprintf(stderr,
                     "systray_resize_icon win = %ld, w = %d, h = %d\n",
@@ -1016,27 +1014,27 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
     if (!traywin->reparented)
         return;
 
-    if (e->xconfigure.width != traywin->width || e->xconfigure.height != traywin->height || e->xconfigure.x != 0 ||
-        e->xconfigure.y != 0) {
+    if (e->xconfigure.x != 0 || e->xconfigure.width != traywin->width ||
+        e->xconfigure.y != 0 || e->xconfigure.height != traywin->height)
+    {
         if (traywin->bad_size_counter < max_bad_resize_events) {
             struct timespec now;
             clock_gettime(CLOCK_MONOTONIC, &now);
             struct timespec earliest_resize = add_msec_to_timespec(traywin->time_last_resize, resize_period_threshold);
-            if (compare_timespecs(&earliest_resize, &now) > 0) {
+            if (compare_timespecs(&earliest_resize, &now) > 0)
                 // Fast resize, but below the threshold
                 traywin->bad_size_counter++;
-            } else {
+            else {
                 // Slow resize, reset counter
                 traywin->time_last_resize.tv_sec = now.tv_sec;
                 traywin->time_last_resize.tv_nsec = now.tv_nsec;
                 traywin->bad_size_counter = 0;
             }
-            if (traywin->bad_size_counter < min_bad_resize_events) {
+            if (traywin->bad_size_counter < min_bad_resize_events)
                 systray_resize_icon(traywin);
-            } else {
+            else
                 if (!traywin->resize_timer.enabled_)
                     change_timer(&traywin->resize_timer, true, fast_resize_period, 0, systray_resize_icon, traywin);
-            }
         } else {
             if (traywin->bad_size_counter == max_bad_resize_events) {
                 traywin->bad_size_counter++;
@@ -1053,10 +1051,9 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
                 change_timer(&traywin->resize_timer, true, slow_resize_period, 0, systray_resize_icon, traywin);
             return;
         }
-    } else {
+    } else
         // Correct size
         stop_timer(&traywin->resize_timer);
-    }
 
     // Resize and redraw the systray
     if (systray_profile)
@@ -1072,13 +1069,13 @@ void systray_reconfigure_event(TrayWindow *traywin, XEvent *e)
 void systray_property_notify(TrayWindow *traywin, XEvent *e)
 {
     Atom at = e->xproperty.atom;
-    if (at == server.atom [WM_NAME]) {
+    if (at == server.atom [WM_NAME])
+    {
         free(traywin->name);
         traywin->name = get_window_name(traywin->win);
-        if (systray.sort == SYSTRAY_SORT_ASCENDING || systray.sort == SYSTRAY_SORT_DESCENDING) {
+        if (systray.sort == SYSTRAY_SORT_ASCENDING || systray.sort == SYSTRAY_SORT_DESCENDING)
             systray.list_icons = g_slist_sort(systray.list_icons, compare_traywindows);
             // print_icons();
-        }
     }
 }
 
@@ -1096,26 +1093,28 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
         return;
 
     if (e->xresizerequest.width != traywin->width || e->xresizerequest.height != traywin->height) {
-        if (traywin->bad_size_counter < max_bad_resize_events) {
+        if (traywin->bad_size_counter < max_bad_resize_events)
+        {
             struct timespec now;
             clock_gettime(CLOCK_MONOTONIC, &now);
             struct timespec earliest_resize = add_msec_to_timespec(traywin->time_last_resize, resize_period_threshold);
-            if (compare_timespecs(&earliest_resize, &now) > 0) {
+            if (compare_timespecs(&earliest_resize, &now) > 0)
                 // Fast resize, but below the threshold
                 traywin->bad_size_counter++;
-            } else {
+            else {
                 // Slow resize, reset counter
                 traywin->time_last_resize.tv_sec = now.tv_sec;
                 traywin->time_last_resize.tv_nsec = now.tv_nsec;
                 traywin->bad_size_counter = 0;
             }
-            if (traywin->bad_size_counter < min_bad_resize_events) {
+            if (traywin->bad_size_counter < min_bad_resize_events)
                 systray_resize_icon(traywin);
-            } else {
+            else
                 if (!traywin->resize_timer.enabled_)
                     change_timer(&traywin->resize_timer, true, fast_resize_period, 0, systray_resize_icon, traywin);
-            }
-        } else {
+        }
+        else
+        {
             if (traywin->bad_size_counter == max_bad_resize_events) {
                 traywin->bad_size_counter++;
                 fprintf(stderr,
@@ -1130,10 +1129,9 @@ void systray_resize_request_event(TrayWindow *traywin, XEvent *e)
                     change_timer(&traywin->resize_timer, true, slow_resize_period, 0, systray_resize_icon, traywin);
             return;
         }
-    } else {
+    } else
         // Correct size
         stop_timer(&traywin->resize_timer);
-    }
 
     // Resize and redraw the systray
     if (systray_profile)
@@ -1175,7 +1173,6 @@ void systray_render_icon_from_image(TrayWindow *traywin)
 void systray_render_icon_composited(void *t)
 // we end up in this function only in real transparency mode or if systray_task_asb != 100 0 0
 // we made also sure, that we always have a 32 bit visual, i.e. we can safely create 32 bit pixmaps here
-
 {
     TrayWindow *traywin = t;
 
@@ -1237,9 +1234,9 @@ void systray_render_icon_composited(void *t)
     // drawable. If someone knows why it does not work with the traywindow itself, please tell me ;)
     Pixmap tmp_pmap = XCreatePixmap(server.display, traywin->win,
                                     traywin->width, traywin->height, 32);
-    if (!tmp_pmap) {
+    if (!tmp_pmap)
         goto on_systray_error;
-    }
+
     XRenderPictFormat *f;
     
     switch (traywin->depth) {
@@ -1315,9 +1312,8 @@ void systray_render_icon_composited(void *t)
     // imlib_save_image("/home/thil77/test.jpg");
     imlib_image_set_has_alpha(1);
     DATA32 *data = imlib_image_get_data();
-    if (traywin->depth == 24) {
+    if (traywin->depth == 24)
         create_heuristic_mask(data, traywin->width, traywin->height);
-    }
 
     if (systray.alpha != 100 || systray.brightness != 0 || systray.saturation != 0)
         adjust_asb(data,
@@ -1408,26 +1404,27 @@ void systray_render_icon(void *t)
         int xpos, ypos;
         unsigned int width, height, depth;
         Window root;
-        if (!XGetGeometry(server.display, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth)) {
+        if (!XGetGeometry(server.display, traywin->win, &root, &xpos, &ypos, &width, &height, &border_width, &depth))
+        {
             change_timer(&traywin->render_timer, true, min_refresh_period, 0, systray_render_icon, traywin);
             systray_render_icon_from_image(traywin);
             XSetErrorHandler(old);
             return;
-        } else {
-            if (xpos != 0 || ypos != 0 || width != traywin->width || height != traywin->height) {
-                change_timer(&traywin->render_timer, true, min_refresh_period, 0, systray_render_icon, traywin);
-                systray_render_icon_from_image(traywin);
-                if (systray_profile)
-                    fprintf(stderr,
-                            YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
-                            profiling_get_time(),
-                            __func__,
-                            __LINE__,
-                            traywin->win,
-                            traywin->name);
-                XSetErrorHandler(old);
-                return;
-            }
+        }
+        else if (xpos != 0 || ypos != 0 || width != traywin->width || height != traywin->height)
+        {
+            change_timer(&traywin->render_timer, true, min_refresh_period, 0, systray_render_icon, traywin);
+            systray_render_icon_from_image(traywin);
+            if (systray_profile)
+                fprintf(stderr,
+                        YELLOW "[%f] %s:%d win = %lu (%s) delaying rendering" RESET "\n",
+                        profiling_get_time(),
+                        __func__,
+                        __LINE__,
+                        traywin->win,
+                        traywin->name);
+            XSetErrorHandler(old);
+            return;
         }
         XSetErrorHandler(old);
     }
@@ -1435,9 +1432,9 @@ void systray_render_icon(void *t)
     if (systray_profile)
         fprintf(stderr, "tint2: rendering tray icon\n");
 
-    if (systray_composited) {
+    if (systray_composited)
         systray_render_icon_composited(traywin);
-    } else {
+    else {
         // Trigger window repaint
         if (systray_profile)
             fprintf(stderr,
@@ -1458,7 +1455,8 @@ void refresh_systray_icons()
         fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __func__, __LINE__);
     TrayWindow *traywin;
     GSList *l;
-    for (l = systray.list_icons; l; l = l->next) {
+    for (l = systray.list_icons; l; l = l->next)
+    {
         traywin = (TrayWindow *)l->data;
         systray_render_icon(traywin);
     }
@@ -1471,7 +1469,8 @@ gboolean systray_on_monitor(int i_monitor, int n_panels)
 
 TrayWindow *systray_find_icon(Window win)
 {
-    for (GSList *l = systray.list_icons; l; l = l->next) {
+    for (GSList *l = systray.list_icons; l; l = l->next)
+    {
         TrayWindow *traywin = (TrayWindow *)l->data;
         if (traywin->win == win || traywin->parent == win)
             return traywin;

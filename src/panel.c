@@ -168,7 +168,8 @@ void cleanup_panel()
 
     g_array_free(backgrounds, TRUE);
     backgrounds = NULL;
-    if (gradients) {
+    if (gradients)
+    {
         for (guint i = 0; i < gradients->len; i++)
             cleanup_gradient(&g_array_index(gradients, GradientClass, i));
         g_array_free(gradients, TRUE);
@@ -206,9 +207,9 @@ void init_panel()
 
     // number of panels (one monitor or 'all' monitors)
     num_panels = panel_config.monitor >= 0 ? 1 : server.num_monitors;
-
     panels = calloc(num_panels, sizeof(Panel));
-    for (int i = 0; i < num_panels; i++) {
+    for (int i = 0; i < num_panels; i++)
+    {
         panels[i] = panel_config;
         INIT_TIMER(panels[i].autohide_timer);
     }
@@ -246,7 +247,8 @@ void init_panel()
         init_panel_geometry(p);
         area_gradients_create(&p->area);
         // add children according to panel_items
-        for_panel_items_order() {
+        for_panel_items_order()
+        {
             switch (panel_items_order[k]) {
             case 'L':   init_launcher_panel(p);
                         break;
@@ -283,7 +285,9 @@ void init_panel()
         };
         if (p->mouse_effects || p->g_task.tooltip_enabled || p->clock.area._get_tooltip_text ||
             (launcher_enabled && launcher_tooltip_enabled))
+        {
             att.event_mask |= PointerMotionMask | LeaveWindowMask;
+        }
         if (panel_autohide)
             att.event_mask |= LeaveWindowMask | EnterWindowMask;
         p->main_win = XCreateWindow(server.display, server.root_win,
@@ -319,7 +323,8 @@ void init_panel()
 void panel_compute_size(Panel *panel)
 {
     Monitor *mon = server.monitors + panel->monitor;
-    if (panel_horizontal) {
+    if (panel_horizontal)
+    {
         if (panel->area.width == 0) {
             panel->fractional_width = TRUE;
             panel->area.width = 100;
@@ -338,7 +343,14 @@ void panel_compute_size(Panel *panel)
             panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
             panel->area.bg->border.radius = panel->area.height / 2;
         }
-    } else {
+        ////////////////////////////////
+        if (!panel->fractional_width)
+            panel->area.width *= panel->scale;
+        if (!panel->fractional_height)
+            panel->area.height *= panel->scale;
+    }
+    else
+    {
         if (panel->area.height == 0) {
             panel->fractional_height = TRUE;
             panel->area.height = 100;
@@ -363,18 +375,10 @@ void panel_compute_size(Panel *panel)
             panel->area.bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
             panel->area.bg->border.radius = panel->area.width / 2;
         }
-    }
-
-    if (!panel->fractional_width) {
-        if (panel_horizontal)
-            panel->area.width *= panel->scale;
-        else
+        ////////////////////////////////
+        if (!panel->fractional_width)
             panel->area.height *= panel->scale;
-    }
-    if (!panel->fractional_height) {
-        if (panel_horizontal)
-            panel->area.height *= panel->scale;
-        else
+        if (!panel->fractional_height)
             panel->area.width *= panel->scale;
     }
 
@@ -425,18 +429,23 @@ gboolean resize_panel(void *obj)
     relayout_with_constraint(&panel->area, 0);
 
     // fprintf(stderr, "tint2: resize_panel\n");
-    if (taskbar_mode != MULTI_DESKTOP && taskbar_enabled) {
+    if (taskbar_mode != MULTI_DESKTOP && taskbar_enabled)
+    {
         // propagate width/height on hidden taskbar
         int width = panel->taskbar[server.desktop].area.width;
         int height = panel->taskbar[server.desktop].area.height;
-        for (int i = 0; i < panel->num_desktops; i++) {
-            panel->taskbar[i].area.resize_needed =
-                panel->taskbar[i].area.width != width || panel->taskbar[i].area.height != height;
+        for (int i = 0; i < panel->num_desktops; i++)
+        {
+            panel->taskbar[i].area.resize_needed =  panel->taskbar[i].area.width != width ||
+                                                    panel->taskbar[i].area.height != height;
             panel->taskbar[i].area.width = width;
             panel->taskbar[i].area.height = height;
         }
-    } else if (taskbar_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size) {
-        for (int i = 0; i < panel->num_desktops; i++) {
+    }
+    else if (taskbar_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size)
+    {
+        for (int i = 0; i < panel->num_desktops; i++)
+        {
             Taskbar *taskbar = &panel->taskbar[i];
             taskbar->area.old_width = taskbar->area.width;
             taskbar->area.old_height = taskbar->area.height;
@@ -444,7 +453,8 @@ gboolean resize_panel(void *obj)
 
         // The total available size
         int total_size = 0;
-        for (int i = 0; i < panel->num_desktops; i++) {
+        for (int i = 0; i < panel->num_desktops; i++)
+        {
             Taskbar *taskbar = &panel->taskbar[i];
             if (!taskbar->area.on_screen)
                 continue;
@@ -452,14 +462,17 @@ gboolean resize_panel(void *obj)
         }
 
         // Reserve size for padding, taskbarname and spacings
-        for (int i = 0; i < panel->num_desktops; i++) {
+        for (int i = 0; i < panel->num_desktops; i++)
+        {
             Taskbar *taskbar = &panel->taskbar[i];
             if (!taskbar->area.on_screen)
                 continue;
+
             if (panel_horizontal)
                 taskbar->area.width = 2 * taskbar->area.paddingx * panel->scale;
             else
                 taskbar->area.height = 2 * taskbar->area.paddingx * panel->scale;
+
             if (taskbarname_enabled && taskbar->area.children) {
                 Area *name = (Area *)taskbar->area.children->data;
                 if (name->on_screen) {
@@ -470,7 +483,8 @@ gboolean resize_panel(void *obj)
                 }
             }
             gboolean first_child = TRUE;
-            for (GList *l = taskbar->area.children; l; l = l->next) {
+            for (GList *l = taskbar->area.children; l; l = l->next)
+            {
                 Area *child = (Area *)l->data;
                 if (!child->on_screen)
                     continue;
@@ -487,15 +501,14 @@ gboolean resize_panel(void *obj)
 
         // Compute the total number of tasks
         int num_tasks = 0;
-        for (int i = 0; i < panel->num_desktops; i++) {
+        for (int i = 0; i < panel->num_desktops; i++)
+        {
             Taskbar *taskbar = &panel->taskbar[i];
             if (!taskbar->area.on_screen)
                 continue;
             for (GList *l = taskbar->area.children; l; l = l->next) {
                 Area *child = (Area *)l->data;
-                if (!child->on_screen)
-                    continue;
-                if (taskbarname_enabled && l == taskbar->area.children)
+                if (!child->on_screen || (taskbarname_enabled && l == taskbar->area.children))
                     continue;
                 num_tasks++;
             }
@@ -506,16 +519,17 @@ gboolean resize_panel(void *obj)
             int task_size = total_size / num_tasks;
             if (taskbar_alignment != ALIGN_LEFT)
                 task_size = MIN(task_size, panel_horizontal ? panel_config.g_task.maximum_width : panel_config.g_task.maximum_height);
-            for (int i = 0; i < panel->num_desktops; i++) {
+            for (int i = 0; i < panel->num_desktops; i++)
+            {
                 Taskbar *taskbar = &panel->taskbar[i];
                 if (!taskbar->area.on_screen)
                     continue;
-                for (GList *l = taskbar->area.children; l; l = l->next) {
+                for (GList *l = taskbar->area.children; l; l = l->next)
+                {
                     Area *child = (Area *)l->data;
-                    if (!child->on_screen)
+                    if (! child->on_screen || (taskbarname_enabled && l == taskbar->area.children) )
                         continue;
-                    if (taskbarname_enabled && l == taskbar->area.children)
-                        continue;
+
                     if (panel_horizontal)
                         taskbar->area.width += task_size;
                     else
@@ -523,61 +537,75 @@ gboolean resize_panel(void *obj)
                 }
             }
             int slack = total_size - task_size * num_tasks;
-            if (taskbar_alignment == ALIGN_RIGHT) {
-                for (int i = 0; i < panel->num_desktops; i++) {
+            switch (taskbar_alignment) {
+            case ALIGN_RIGHT:
+                for (int i = 0; i < panel->num_desktops; i++)
+                {
                     Taskbar *taskbar = &panel->taskbar[i];
                     if (!taskbar->area.on_screen)
                         continue;
+
                     if (panel_horizontal)
                         taskbar->area.width += slack;
                     else
                         taskbar->area.height += slack;
+
                     break;
                 }
-            } else if (taskbar_alignment == ALIGN_CENTER) {
+                break;
+            case ALIGN_CENTER: {
                 slack /= 2;
                 Taskbar *left_taskbar = NULL;
                 Taskbar *right_taskbar = NULL;
-                for (int i = 0; i < panel->num_desktops; i++) {
+                for (int i = 0; i < panel->num_desktops; i++)
+                {
                     Taskbar *taskbar = &panel->taskbar[i];
                     if (!taskbar->area.on_screen)
                         continue;
+
                     if (panel_horizontal)
                         taskbar->area.width += slack;
                     else
                         taskbar->area.height += slack;
+
                     taskbar->area.alignment = ALIGN_RIGHT;
                     left_taskbar = taskbar;
                     break;
                 }
-                for (int i = panel->num_desktops - 1; i >= 0; i--) {
+                for (int i = panel->num_desktops - 1; i >= 0; i--)
+                {
                     Taskbar *taskbar = &panel->taskbar[i];
                     if (!taskbar->area.on_screen)
                         continue;
+
                     if (panel_horizontal)
                         taskbar->area.width += slack;
                     else
                         taskbar->area.height += slack;
+
                     taskbar->area.alignment = ALIGN_LEFT;
                     right_taskbar = taskbar;
                     break;
                 }
                 if (left_taskbar == right_taskbar)
                     left_taskbar->area.alignment = ALIGN_CENTER;
-            }
-        } else {
+                break;
+            }}
+        } else
             // No tasks => expand the first visible taskbar
-            for (int i = 0; i < panel->num_desktops; i++) {
+            for (int i = 0; i < panel->num_desktops; i++)
+            {
                 Taskbar *taskbar = &panel->taskbar[i];
                 if (!taskbar->area.on_screen)
                     continue;
+
                 if (panel_horizontal)
                     taskbar->area.width += total_size;
                 else
                     taskbar->area.height += total_size;
+
                 break;
             }
-        }
         for (int i = 0; i < panel->num_desktops; i++) {
             Taskbar *taskbar = &panel->taskbar[i];
             taskbar->area.resize_needed =
@@ -946,11 +974,11 @@ Task *click_task(Panel *panel, int x, int y)
         GList *l = taskbar->area.children;
         if (taskbarname_enabled)
             l = l->next;
-        for (; l; l = l->next) {
+        for (; l; l = l->next)
+        {
             Task *task = (Task *)l->data;
-            if (area_is_under_mouse(task, x, y)) {
+            if (area_is_under_mouse(task, x, y))
                 return task;
-            }
         }
     }
     return NULL;
@@ -965,13 +993,12 @@ Launcher *click_launcher(Panel *panel, int x, int y)
 LauncherIcon *click_launcher_icon(Panel *panel, int x, int y)
 {
     Launcher *launcher = click_launcher(panel, x, y);
-    if (launcher) {
+    if (launcher)
         for (GSList *l = launcher->list_icons; l; l = l->next) {
             LauncherIcon *icon = (LauncherIcon *)l->data;
             if (area_is_under_mouse(icon, x, y))
                 return icon;
         }
-    }
     return NULL;
 }
 

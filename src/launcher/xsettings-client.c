@@ -46,7 +46,8 @@ struct _XSettingsClient {
 
 void xsettings_notify_cb(const char *name, XSettingsAction action, XSettingsSetting *setting, void *data)
 {
-    if ((action == XSETTINGS_ACTION_NEW || action == XSETTINGS_ACTION_CHANGED) && name != NULL && setting != NULL) {
+    if ((action == XSETTINGS_ACTION_NEW || action == XSETTINGS_ACTION_CHANGED) && name != NULL && setting != NULL)
+    {
         if (strcmp(name, "Net/IconThemeName") == 0 && setting->type == XSETTINGS_TYPE_STRING) {
             fprintf(stderr, "tint2: xsettings: %s = %s\n", name, setting->data.v_string);
             if (icon_theme_name_xsettings) {

@@ -55,26 +55,22 @@ void init_taskbarname_panel(void *p)
 
     GSList *list = get_desktop_names();
     GSList *l = list;
-    for (int j = 0; j < panel->num_desktops; j++) {
+    for (int j = 0; j < panel->num_desktops; j++)
+    {
         Taskbar *taskbar = &panel->taskbar[j];
         taskbar->bar_name.area = panel->g_taskbar.area_name;
         taskbar->bar_name.area.parent = taskbar;
         taskbar->bar_name.area.has_mouse_over_effect = panel_config.mouse_effects;
         taskbar->bar_name.area.has_mouse_press_effect = panel_config.mouse_effects;
         taskbar->bar_name.area._compute_desired_size = taskbarname_compute_desired_size;
-        if (j == server.desktop) {
-            taskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_ACTIVE];
-        } else {
-            taskbar->bar_name.area.bg = panel->g_taskbar.background_name[TASKBAR_NORMAL];
-        }
+        taskbar->bar_name.area.bg = panel->g_taskbar.background_name [j == server.desktop ? TASKBAR_ACTIVE : TASKBAR_NORMAL];
 
         // use desktop number if name is missing
         if (l) {
             taskbar->bar_name.name = g_strdup(l->data);
             l = l->next;
-        } else {
+        } else
             taskbar->bar_name.name = g_strdup_printf("%d", j + 1);
-        }
 
         // append the name at the beginning of taskbar
         taskbar->area.children = g_list_append(taskbar->area.children, &taskbar->bar_name);
@@ -103,7 +99,8 @@ void taskbarname_default_font_changed()
     panel_config.taskbarname_font_desc = NULL;
     taskbarname_init_fonts();
     for (int i = 0; i < num_panels; i++) {
-        for (int j = 0; j < panels[i].num_desktops; j++) {
+        for (int j = 0; j < panels[i].num_desktops; j++)
+        {
             Taskbar *taskbar = &panels[i].taskbar[j];
             taskbar->bar_name.area.resize_needed = TRUE;
             schedule_redraw(&taskbar->bar_name.area);
@@ -114,9 +111,11 @@ void taskbarname_default_font_changed()
 
 void cleanup_taskbarname()
 {
-    for (int i = 0; i < num_panels; i++) {
+    for (int i = 0; i < num_panels; i++)
+    {
         Panel *panel = &panels[i];
-        for (int j = 0; j < panel->num_desktops; j++) {
+        for (int j = 0; j < panel->num_desktops; j++)
+        {
             Taskbar *taskbar = &panel->taskbar[j];
             g_free(taskbar->bar_name.name);
             taskbar->bar_name.name = NULL;
@@ -220,25 +219,25 @@ void update_desktop_names()
     if (!taskbarname_enabled)
         return;
     GSList *list = get_desktop_names();
-    for (int i = 0; i < num_panels; i++) {
+    for (int i = 0; i < num_panels; i++)
+    {
         int j;
         GSList *l;
-        for (j = 0, l = list; j < panels[i].num_desktops; j++) {
+        for (j = 0, l = list; j < panels[i].num_desktops; j++)
+        {
             gchar *name;
             if (l) {
                 name = g_strdup(l->data);
                 l = l->next;
-            } else {
+            } else
                 name = g_strdup_printf("%d", j + 1);
-            }
             Taskbar *taskbar = &panels[i].taskbar[j];
             if (strcmp(name, taskbar->bar_name.name) != 0) {
                 g_free(taskbar->bar_name.name);
                 taskbar->bar_name.name = name;
                 taskbar->bar_name.area.resize_needed = TRUE;
-            } else {
+            } else
                 g_free(name);
-            }
         }
     }
     for (GSList *l = list; l; l = l->next)

@@ -113,21 +113,21 @@ void destroy_execp(void *obj)
     }
     // This is a backend element
     destroy_timer(&backend->timer);
-    if (backend->child) {
+    if (backend->child)
         kill(-backend->child, SIGHUP);
-    }
-    if (backend->child_pipe_stdin >= 0) {
+
+    if (backend->child_pipe_stdin >= 0)
         close(backend->child_pipe_stdin);
-    }
-    if (backend->child_pipe_stdout >= 0) {
+
+    if (backend->child_pipe_stdout >= 0)
         close(backend->child_pipe_stdout);
-    }
-    if (backend->child_pipe_stderr >= 0) {
+
+    if (backend->child_pipe_stderr >= 0)
         close(backend->child_pipe_stderr);
-    }
-    if (backend->cmd_pids) {
+
+    if (backend->cmd_pids)
         g_tree_destroy(backend->cmd_pids);
-    }
+
     pango_font_description_free(backend->font_desc);
     
     free(backend->buf_stdout);
@@ -156,9 +156,9 @@ void init_execp()
 {
     GList *to_remove = panel_config.execp_list;
     for_panel_items_order (&& to_remove)
-        if (panel_items_order[k] == 'E') {
+        if (panel_items_order[k] == 'E')
             to_remove = to_remove->next;
-        }
+
     if (to_remove) {
         if (to_remove == panel_config.execp_list) {
             g_list_free_full(to_remove, destroy_execp);
@@ -258,7 +258,8 @@ void execp_default_font_changed()
         return;
 
     execp_init_fonts();
-    for (int i = 0; i < num_panels; i++) {
+    for (int i = 0; i < num_panels; i++)
+    {
         for (GList *l = panels[i].execp_list; l; l = l->next) {
             Execp *execp = l->data;
 
@@ -306,19 +307,15 @@ gboolean reload_icon(Execp *execp)
             ow = w = imlib_image_get_width();
             oh = h = imlib_image_get_height();
             if (w && h) {
-                if (backend->icon_w) {
-                    if (backend->icon_h) {
-                        w = backend->icon_w;
-                        h = backend->icon_h;
-                    } else {
-                        h = (int)(0.5 + h * backend->icon_w / (float)w);
-                        w = backend->icon_w;
-                    }
-                } else {
-                    if (backend->icon_h) {
-                        w = (int)(0.5 + w * backend->icon_h / (float)h);
-                        h = backend->icon_h;
-                    }
+                if (backend->icon_w)
+                {
+                    w = backend->icon_w;
+                    h = backend->icon_h ? backend->icon_h : (int)(0.5 + h * backend->icon_w / (float)w);
+                }
+                else if (backend->icon_h)
+                {
+                    w = (int)(0.5 + w * backend->icon_h / (float)h);
+                    h = backend->icon_h;
                 }
                 if (w < 1)
                     w = 1;
@@ -599,9 +596,9 @@ void draw_execp(void *obj, cairo_t *c)
     }
 
     // draw layout
-    if (!backend->has_markup) {
+    if (!backend->has_markup)
         pango_layout_set_text(layout, backend->text, strlen(backend->text));
-    } else {
+    else {
         pango_layout_set_markup(layout, backend->text, strlen(backend->text));
         if (panel_config.font_shadow) {
             shadow_layout = create_execp_text_layout(execp, context);
@@ -661,10 +658,9 @@ void execp_force_update(Execp *execp)
     ExecpBackend * backend = execp->backend;
     if (backend->child_pipe_stdout > 0) {
         // Command currently running, nothing to do
-    } else {
+    } else
         // Run command right away
         change_timer(&backend->timer, true, 10, 0, execp_timer_callback, execp);
-    }
 }
 
 void execp_action(void *obj, int button, int x, int y, Time time)
@@ -709,9 +705,8 @@ void execp_action(void *obj, int button, int x, int y, Time time)
         default:
             fprintf (stderr, "Global command sinks not implemented yet\n");
         }
-    } else {
+    } else
         execp_force_update(execp);
-    }
 }
 
 void execp_cmd_completed(Execp *execp, pid_t pid)
@@ -864,7 +859,7 @@ int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffe
 }
 
 #if 1
-char *last_substring(char *s, char *sub)
+char *strrstr(char *s, char *sub)
 // On my PC this function was 2x faster than below one.
 // Could be compiler or platform specific, so preserving both.
 {
@@ -878,7 +873,7 @@ char *last_substring(char *s, char *sub)
 }
 
 #else
-char *last_substring(char *s, char *sub)
+char *strrstr(char *s, char *sub)
 {
  char *result = NULL,
          *p=s, *q;
@@ -962,7 +957,7 @@ gboolean read_execp(void *obj)
         // Handle stderr
         if (!backend->has_user_tooltip) {
             free_and_null(backend->tooltip);
-            char *start = last_substring(backend->buf_stderr, ansi_clear_screen);
+            char *start = strrstr(backend->buf_stderr, ansi_clear_screen);
             if (start) {
                 start += strlen(ansi_clear_screen);
                 memmove(backend->buf_stderr, start, strlen(start) + 1);
@@ -980,7 +975,8 @@ gboolean read_execp(void *obj)
         // Count lines in buffer
         int num_lines = 0;
         char *end = NULL;
-        for (char *c = backend->buf_stdout; *c; c++) {
+        for (char *c = backend->buf_stdout; *c; c++)
+        {
             if (*c == '\n') {
                 num_lines++;
                 if (num_lines == backend->continuous)
@@ -999,9 +995,8 @@ gboolean read_execp(void *obj)
                 if (text) {
                     *text++ = '\0';
                     backend->text = strdup(text);
-                } else {
+                } else
                     strdup_static(backend->text, "");
-                }
                 backend->icon_path = expand_tilde(backend->buf_stdout);
             }
             size_t len = strlen(backend->text);
@@ -1038,9 +1033,8 @@ gboolean read_execp(void *obj)
             if (text) {
                 *text++ = '\0';
                 backend->text = strdup(text);
-            } else {
+            } else
                 strdup_static(backend->text, "");
-            }
             backend->icon_path = strdup(backend->buf_stdout);
         }
         int len = strlen(backend->text);
@@ -1051,7 +1045,7 @@ gboolean read_execp(void *obj)
         // Handle stderr
         if (!backend->has_user_tooltip) {
             free_and_null(backend->tooltip);
-            char *start = last_substring(backend->buf_stderr, ansi_clear_screen);
+            char *start = strrstr(backend->buf_stderr, ansi_clear_screen);
             start = start   ? start + strlen(ansi_clear_screen)
                             : backend->buf_stderr;
             if (*start) {
@@ -1074,9 +1068,9 @@ const char *time_to_string(int s, char *buffer, size_t buffer_size)
 // WARNING: buffer size is used completely,
 // it's programmer responsibility to reserve place for terminating null
 {
-    if (s < 60) {
+    if (s < 60)
         snprintf(buffer, buffer_size, "%ds", s);
-    } else if (s < 60 * 60) {
+    else if (s < 60 * 60) {
         int m = s / 60;
         s = s % 60;
         int s = s;
@@ -1111,7 +1105,7 @@ char *execp_get_tooltip(void *obj)
         // Not executing command
         if (backend->last_update_finish_time) {
             // We updated at least once
-            if (backend->interval > 0) {
+            if (backend->interval > 0)
                 snprintf(backend->tooltip_text,
                          strlen_const(backend->tooltip_text),
                          "Last update finished %s ago (took %s). Next update starting in %s.",
@@ -1119,33 +1113,30 @@ char *execp_get_tooltip(void *obj)
                          time_to_string((int)backend->last_update_duration, tmp_buf2, strlen_const(tmp_buf2)),
                          time_to_string((int)(backend->interval - (now - backend->last_update_finish_time)),
                                         tmp_buf3, strlen_const(tmp_buf3)));
-            } else {
+            else
                 snprintf(backend->tooltip_text,
                          strlen_const(backend->tooltip_text),
                          "Last update finished %s ago (took %s).",
                          time_to_string((int)(now - backend->last_update_finish_time), tmp_buf1, strlen_const(tmp_buf1)),
                          time_to_string((int)backend->last_update_duration, tmp_buf2, strlen_const(tmp_buf2)));
-            }
-        } else {
+        } else
             // we never requested an update
             snprintf(backend->tooltip_text, strlen_const(backend->tooltip_text), "Never updated. No update scheduled.");
-        }
     } else {
         // Currently executing command
-        if (backend->last_update_finish_time) {
+        if (backend->last_update_finish_time)
             // we finished updating at least once
             snprintf(backend->tooltip_text,
                      strlen_const(backend->tooltip_text),
                      "Last update finished %s ago. Update in progress (started %s ago).",
                      time_to_string((int)(now - backend->last_update_finish_time), tmp_buf1, strlen_const(tmp_buf1)),
                      time_to_string((int)(now - backend->last_update_start_time), tmp_buf3, strlen_const(tmp_buf3)));
-        } else {
+        else
             // we never finished an update
             snprintf(backend->tooltip_text,
                      strlen_const(backend->tooltip_text),
                      "First update in progress (started %s seconds ago).",
                      time_to_string((int)(now - backend->last_update_start_time), tmp_buf1, strlen_const(tmp_buf1)));
-        }
     }
     return strdup(backend->tooltip_text);
 }
@@ -1163,10 +1154,10 @@ void execp_update_post_read(Execp *execp)
     } else
         icon_w = icon_h = 0;
 
-    if (( !icon_h || !icon_w ) && !backend->text[0]) {
+    if (( !icon_h || !icon_w ) && !backend->text[0])
         // Easy to test with bash -c 'R=$(( RANDOM % 2 )); [ $R -eq 0 ] && echo HELLO $R'
         hide(&execp->area);
-    } else {
+    else {
         show(&execp->area);
         execp->area.resize_needed = TRUE;
         schedule_panel_redraw();
@@ -1179,12 +1170,12 @@ void handle_execp_events()
 {
     for (GList *l = panel_config.execp_list; l; l = l->next) {
         Execp *execp = (Execp *)l->data;
-        if (read_execp(execp)) {
-            GList *l_instance;
-            for (l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next) {
+
+        if (read_execp(execp))
+            for (GList *l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next)
+            {
                 Execp *instance = (Execp *)l_instance->data;
                 execp_update_post_read(instance);
             }
-        }
     }
 }

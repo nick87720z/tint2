@@ -529,7 +529,8 @@ void taskbar_refresh_tasklist()
         return;
 
     GList *win_list = g_hash_table_get_keys(win_to_task);
-    for (GList *it = win_list; it; it = it->next) {
+    for (GList *it = win_list; it; it = it->next)
+    {
         int i;
         for (i = 0; i < num_results; i++)
             if (*((Window *)it->data) == sorted[i])

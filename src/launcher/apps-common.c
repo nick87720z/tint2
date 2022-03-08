@@ -60,7 +60,8 @@ void expand_exec(DesktopEntry *entry, const char *path)
         char *exec2 = calloc(buf_size, 1);
         char *p, *q;
         // p will never point to an escaped char
-        for (p = entry->exec, q = exec2; *p; p++, q++) {
+        for (p = entry->exec, q = exec2; *p; p++, q++)
+        {
             *q = *p; // Copy
             if (*p == '\\') {
                 p++, q++;
@@ -140,10 +141,9 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     if (LANG_DBG)
         fprintf(stderr, "tint2: Languages:");
     {   int i;
-        for (i = 0; languages[i]; i++) {
+        for (i = 0; languages[i]; i++)
             if (LANG_DBG)
                 fprintf(stderr, " %s", languages[i]);
-        }
         lang_index_default = i;
     }
     if (LANG_DBG)
@@ -159,10 +159,11 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
     while ((len = getline(&line, &line_size, fp)) >= 0) {
         if (len == 0)
             continue;
+
         str_strip_newline (line, len);
-        if (line[0] == '[') {
+        if (line[0] == '[')
             inside_desktop_entry = str_lequal_static (line, "[Desktop Entry]", len);
-        }
+
         char *key, *value;
         if (inside_desktop_entry && parse_dektop_line(line, &key, &value))
         {

@@ -160,7 +160,8 @@ void cleanup_server()
         XFreeColormap(server.display, server.colormap32);
     server.colormap32 = 0;
     if (server.monitors) {
-        for (int i = 0; i < server.num_monitors; ++i) {
+        for (int i = 0; i < server.num_monitors; ++i)
+        {
             g_strfreev(server.monitors[i].names);
             server.monitors[i].names = NULL;
         }
@@ -245,7 +246,8 @@ void get_root_pixmap()
     Pixmap ret = None;
 
     Atom pixmap_atoms[] = {server.atom [_XROOTPMAP_ID], server.atom [_XROOTMAP_ID]};
-    for (int i = 0; i < ARRAY_SIZE (pixmap_atoms); ++i) {
+    for (int i = 0; i < ARRAY_SIZE (pixmap_atoms); ++i)
+    {
         Pixmap *res = (unsigned long *)get_property(server.root_win, pixmap_atoms[i], XA_PIXMAP, NULL);
         if (res) {
             ret = *res;
@@ -255,9 +257,9 @@ void get_root_pixmap()
     }
     server.root_pmap = ret;
 
-    if (server.root_pmap == None) {
+    if (server.root_pmap == None)
         fprintf(stderr, "tint2: pixmap background detection failed\n");
-    } else {
+    else {
         XGCValues gcv;
         gcv.ts_x_origin = 0;
         gcv.ts_y_origin = 0;
@@ -313,21 +315,24 @@ int compute_dpi(XRRCrtcInfo *crtc, XRROutputInfo *output)
 
 void get_monitors()
 {
-    if (XineramaIsActive(server.display)) {
+    if (XineramaIsActive(server.display))
+    {
         int num_monitors;
         XineramaScreenInfo *info = XineramaQueryScreens(server.display, &num_monitors);
         XRRScreenResources *res = XRRGetScreenResourcesCurrent(server.display, server.root_win);
         RROutput primary_output = XRRGetOutputPrimary(server.display, server.root_win);
-
-        if (res && res->ncrtc >= num_monitors) {
+        if (res && res->ncrtc >= num_monitors)
+        {
             // use xrandr to identify monitors (does not work with proprietery nvidia drivers)
             fprintf(stderr, "tint2: xRandr: Found crtc's: %d\n", res->ncrtc);
             server.monitors = calloc(res->ncrtc, sizeof(Monitor));
             num_monitors = 0;
-            for (int i = 0; i < res->ncrtc; ++i) {
+            for (int i = 0; i < res->ncrtc; ++i)
+            {
                 XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(server.display, res, res->crtcs[i]);
                 // Ignore empty crtc
-                if (!crtc_info->width || !crtc_info->height) {
+                if (!crtc_info->width || !crtc_info->height)
+                {
                     fprintf(stderr, "tint2: xRandr: crtc %d seems disabled\n", i);
                     XRRFreeCrtcInfo(crtc_info);
                     continue;
@@ -339,7 +344,8 @@ void get_monitors()
                 mon->height = crtc_info->height;
                 mon->names = calloc((crtc_info->noutput + 1), sizeof(gchar *));
                 mon->dpi = 96;
-                for (int j = 0; j < crtc_info->noutput; ++j) {
+                for (int j = 0; j < crtc_info->noutput; ++j)
+                {
                     XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
                     mon->names[j] = g_strdup(output_info->name);
                     mon->primary = crtc_info->outputs[j] == primary_output;
@@ -358,9 +364,12 @@ void get_monitors()
                 mon->names[crtc_info->noutput] = NULL;
                 XRRFreeCrtcInfo(crtc_info);
             }
-        } else if (info && num_monitors > 0) {
+        }
+        else if (info && num_monitors > 0)
+        {
             server.monitors = calloc(num_monitors, sizeof(Monitor));
-            for (int i = 0; i < num_monitors; i++) {
+            for (int i = 0; i < num_monitors; i++)
+            {
                 server.monitors[i].x = info[i].x_org;
                 server.monitors[i].y = info[i].y_org;
                 server.monitors[i].width = info[i].width;
@@ -395,8 +404,8 @@ void get_monitors()
             XRRFreeScreenResources(res);
         XFree(info);
     }
-
-    if (!server.num_monitors) {
+    if (!server.num_monitors)
+    {
         server.num_monitors = 1;
         server.monitors = calloc(1, sizeof(Monitor));
         server.monitors[0].x = server.monitors[0].y = 0;
@@ -410,7 +419,8 @@ void get_monitors()
 void print_monitors()
 {
     fprintf(stderr, "tint2: Number of monitors: %d\n", server.num_monitors);
-    for (int i = 0; i < server.num_monitors; i++) {
+    for (int i = 0; i < server.num_monitors; i++)
+    {
         fprintf(stderr,
                 "Monitor %d: x = %d, y = %d, w = %d, h = %d\n",
                 i + 1,
@@ -437,8 +447,7 @@ void server_get_number_of_desktops()
     int work_area_height = work_area_size[1] + work_area_size[3];
     XFree(work_area_size);
 
-    long *x_screen_size =
-        get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
+    long *x_screen_size = get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
     if (!x_screen_size)
         return;
     int x_screen_width = x_screen_size[0];
@@ -478,8 +487,7 @@ GSList *get_desktop_names()
     }
 
     int count;
-    gchar *data_ptr =
-        get_property(server.root_win, server.atom [_NET_DESKTOP_NAMES], server.atom [UTF8_STRING], &count);
+    gchar *data_ptr = get_property(server.root_win, server.atom [_NET_DESKTOP_NAMES], server.atom [UTF8_STRING], &count);
     if (data_ptr)
     {
         gchar   *ptr  = data_ptr,
@@ -495,10 +503,9 @@ GSList *get_desktop_names()
 
 int get_current_desktop()
 {
-    if (!server.viewports) {
+    if (!server.viewports)
         return MAX(0, MIN(  server.num_desktops - 1,
                             get_property32(server.root_win, server.atom [_NET_CURRENT_DESKTOP], XA_CARDINAL) ));
-    }
 
     /*******************************/
     long *work_area_size = get_property(server.root_win, server.atom [_NET_WORKAREA], XA_CARDINAL, NULL);
@@ -544,20 +551,20 @@ void change_desktop(int desktop)
 {
     if (!server.viewports)
         send_event32(server.root_win, server.atom [_NET_CURRENT_DESKTOP], desktop, 0, 0);
-    else {
+    else
         send_event32(server.root_win,
                      server.atom [_NET_DESKTOP_VIEWPORT],
                      server.viewports[desktop].x,
                      server.viewports[desktop].y,
                      0);
-    }
 }
 
 void get_desktops()
 {
     // detect number of desktops
     // wait 15s to leave some time for window manager startup
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 15; i++)
+    {
         server_get_number_of_desktops();
         if (server.num_desktops > 0)
             break;
@@ -582,7 +589,8 @@ void server_init_visual()
                                         &templ, &nvi);
     if (xvi) {
         XRenderPictFormat *format;
-        for (int i = 0; i < nvi; i++) {
+        for (int i = 0; i < nvi; i++)
+        {
             format = XRenderFindVisualFormat(server.display, xvi[i].visual);
             if (format->type == PictTypeDirect && format->direct.alphaMask) {
                 visual = xvi[i].visual;
@@ -605,7 +613,8 @@ void server_init_visual()
     // check composite manager
     server.composite_manager = GET_COMPOSITE_MANAGER();
 
-    if (!server.disable_transparency && visual && server.composite_manager != None && !snapshot_path) {
+    if (!server.disable_transparency && visual && server.composite_manager != None && !snapshot_path)
+    {
         XSetWindowAttributes attrs;
         attrs.event_mask = StructureNotifyMask;
         XChangeWindowAttributes(server.display, server.composite_manager, CWEventMask, &attrs);
@@ -615,7 +624,9 @@ void server_init_visual()
         fprintf(stderr, "tint2: real transparency on... depth: %d\n", server.depth);
         server.colormap = server.colormap32;
         server.visual = visual;
-    } else {
+    }
+    else
+    {
         // no composite manager or snapshot mode => fake transparency
         server.real_transparency = FALSE;
         server.depth = DefaultDepth(server.display, server.screen);

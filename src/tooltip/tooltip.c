@@ -117,12 +117,13 @@ void tooltip_trigger_show(Area *area, Panel *p, XEvent *e)
     y = area->posy + area->height / 2 + e->xmotion.y_root - e->xmotion.y;
     just_shown = TRUE;
     g_tooltip.panel = p;
-    if (g_tooltip.mapped && g_tooltip.area != area) {
+    if (!g_tooltip.mapped)
+        start_show_timer();
+    else if (g_tooltip.area != area)
+    {
         tooltip_set_area(area);
         tooltip_update();
         stop_tooltip_timer();
-    } else if (!g_tooltip.mapped) {
-        start_show_timer();
     }
 }
 
@@ -181,9 +182,8 @@ void tooltip_update_geometry()
     if (img_useful) {
         width = space + MAX(img_width, r2.width);
         height += g_tooltip.paddingy * panel->scale + cairo_image_surface_get_height(g_tooltip.image);
-    } else {
+    } else
         width = space + r2.width;
-    }
 
     if (!panel_horizontal)
         goto xlim;
@@ -341,10 +341,9 @@ void tooltip_trigger_hide()
     if (g_tooltip.mapped) {
         tooltip_set_area(NULL);
         start_hide_timer();
-    } else {
+    } else
         // tooltip not visible yet, but maybe a timer is still pending
         stop_tooltip_timer();
-    }
 }
 
 void tooltip_hide(void *arg)

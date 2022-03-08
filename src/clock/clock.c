@@ -130,17 +130,16 @@ struct tm *clock_gettime_for_tz(const char *timezone)
         else
             unsetenv("TZ");
         return result;
-    } else {
+    } else
         return localtime(&time_clock.tv_sec);
-    }
 }
 
 void update_clock_text(char *dst, size_t size, const char *format,
                        const char *timezone, bool *changed)
 {
-    if (!dst || !format) {
+    if (!dst || !format)
         return;
-    }
+
     char tmp[256] = "";
     strncpy(tmp, dst, strlen_const(tmp));
     strftime(dst, size, format, clock_gettime_for_tz(timezone));
@@ -153,7 +152,8 @@ void update_clocks()
     update_clock_text(buf_time, sizeof(buf_time), time1_format, time1_timezone, &changed);
     update_clock_text(buf_date, sizeof(buf_date), time2_format, time2_timezone, &changed);
     if (changed) {
-        for (int i = 0; i < num_panels; i++) {
+        for (int i = 0; i < num_panels; i++)
+        {
             panels[i].clock.area.resize_needed = TRUE;
             tooltip_update_for_area (&panels[i].clock.area);
         }
@@ -213,22 +213,24 @@ void init_clock_panel(void *p)
         strftime(buf_tooltip, sizeof(buf_tooltip), time_tooltip_format, clock_gettime_for_tz(time_tooltip_timezone));
     }
 
-    if (!clock_timer.enabled_) {
+    if (!clock_timer.enabled_)
         update_clocks_sec(NULL);
-    }
 }
 
 void clock_init_fonts()
 {
-    if (!time1_font_desc) {
+    if (!time1_font_desc)
+    {
         time1_font_desc = pango_font_description_from_string(get_default_font());
-        pango_font_description_set_weight(time1_font_desc, PANGO_WEIGHT_BOLD);
-        pango_font_description_set_size(time1_font_desc, pango_font_description_get_size(time1_font_desc));
+        pango_font_description_set_weight (time1_font_desc, PANGO_WEIGHT_BOLD);
+        pango_font_description_set_size   (time1_font_desc,
+                                           pango_font_description_get_size (time1_font_desc));
     }
-    if (!time2_font_desc) {
+    if (!time2_font_desc)
+    {
         time2_font_desc = pango_font_description_from_string(get_default_font());
         pango_font_description_set_size(time2_font_desc,
-                                        pango_font_description_get_size(time2_font_desc) - PANGO_SCALE);
+                                        pango_font_description_get_size (time2_font_desc) - PANGO_SCALE);
     }
 }
 
@@ -313,9 +315,8 @@ void clock_dump_geometry(void *obj, int indent)
 {
     Clock *clock = (Clock *)obj;
     fprintf(stderr, "tint2: %*sText 1: y = %d, text = %s\n", indent, "", clock->time1_posy, buf_time);
-    if (time2_format) {
+    if (time2_format)
         fprintf(stderr, "tint2: %*sText 2: y = %d, text = %s\n", indent, "", clock->time2_posy, buf_date);
-    }
 }
 
 char *clock_get_tooltip(void *obj)

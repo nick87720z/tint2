@@ -98,9 +98,8 @@ void init_button()
     GList *to_remove = panel_config.button_list;
 
     for_panel_items_order (&& to_remove)
-        if (panel_items_order[k] == 'P') {
+        if (panel_items_order[k] == 'P')
             to_remove = to_remove->next;
-        }
 
     if (to_remove) {
         if (to_remove == panel_config.button_list) {
@@ -117,7 +116,8 @@ void init_button()
     }
 
     button_init_fonts();
-    for (GList *l = panel_config.button_list; l; l = l->next) {
+    for (GList *l = panel_config.button_list; l; l = l->next)
+    {
         Button *button = l->data;
         ButtonBackend *backend = button->backend;
 
@@ -186,7 +186,8 @@ void button_init_fonts()
 void button_default_font_changed()
 {
     gboolean needs_update = FALSE;
-    for (GList *l = panel_config.button_list; l; l = l->next) {
+    for (GList *l = panel_config.button_list; l; l = l->next)
+    {
         ButtonBackend *backend = ((Button *)l->data)->backend;
         if (!backend->has_font) {
             pango_font_description_free(backend->font_desc);
@@ -199,7 +200,8 @@ void button_default_font_changed()
 
     button_init_fonts();
     for (int i = 0; i < num_panels; i++) {
-        for (GList *l = panels[i].button_list; l; l = l->next) {
+        for (GList *l = panels[i].button_list; l; l = l->next)
+        {
             Button *button = l->data;
             Area *area = &button->area;
 
@@ -259,11 +261,9 @@ void button_reload_icon(Button *button)
 
 void button_default_icon_theme_changed()
 {
-    for (int i = 0; i < num_panels; i++) {
-        for (GList *l = panels[i].button_list; l; l = l->next) {
+    for (int i = 0; i < num_panels; i++)
+        for (GList *l = panels[i].button_list; l; l = l->next)
             button_reload_icon(l->data);
-        }
-    }
     schedule_panel_redraw();
 }
 
@@ -290,12 +290,10 @@ int button_icon_desired_size(Button *button)
         size = ( panel_horizontal ?
             area->height - top_bottom_border_width(area) : 
             area->width  - left_right_border_width(area) ) - 2 * area->paddingy;
-        if (max_icon_size) {
+        if (max_icon_size)
             size = MIN(size, max_icon_size * ((Panel *)area->panel)->scale);
-        }
-    } else {
+    } else
         size = 0;
-    }
     
     return size;
 }
@@ -316,7 +314,7 @@ int button_compute_desired_size(void *obj)
 
     int txt_height, txt_width;
     if (backend->text) {
-        if (panel_horizontal) {
+        if (panel_horizontal)
             get_text_size2(backend->font_desc,
                            &txt_height,
                            &txt_width,
@@ -329,7 +327,7 @@ int button_compute_desired_size(void *obj)
                            backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                            FALSE,
                            panel->scale);
-        } else {
+        else {
             int x1 = icon_w ? icon_w + interior_padding : 0;
             get_text_size2(backend->font_desc,
                            &txt_height,
@@ -345,9 +343,8 @@ int button_compute_desired_size(void *obj)
                            FALSE,
                            panel->scale);
         }
-    } else {
+    } else
         txt_height = txt_width = 0;
-    }
 
     if (panel_horizontal) {
         int new_size, x1, x2;
@@ -400,7 +397,7 @@ gboolean resize_button(void *obj)
     }
 
     int txt_height, txt_width;
-    if (backend->text) {
+    if (backend->text)
         get_text_size2(backend->font_desc,
                        &txt_height,
                        &txt_width,
@@ -413,12 +410,12 @@ gboolean resize_button(void *obj)
                        backend->centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT,
                        FALSE,
                        panel->scale);
-    } else {
+    else
         txt_height = txt_width = 0;
-    }
 
     gboolean result = FALSE;
-    if (panel_horizontal) {
+    if (panel_horizontal)
+    {
         int new_size, x1, x2;
         new_size = !icon_w ? txt_width : !txt_width ? icon_w :
                     (
@@ -432,7 +429,9 @@ gboolean resize_button(void *obj)
             area->width = new_size;
             result = TRUE;
         }
-    } else {
+    }
+    else
+    {
         int new_size;
         new_size = txt_height + 2 * vert_padding + top_bottom_border_width(area);
         new_size = MAX(new_size, icon_h + 2 * vert_padding + top_bottom_border_width(area));

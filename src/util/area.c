@@ -244,6 +244,7 @@ int container_compute_desired_size(Area *a)
 {
     if (!a->on_screen)
         return 0;
+
     int result = 2 * a->paddingx + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
     int children_count = 0;
     for_children(a, l, GList *)
@@ -433,8 +434,10 @@ void update_dependent_gradients(Area *a)
 {
     if (!a->on_screen)
         return;
+
     if (a->_changed & CHANGED_SIZE) {
-        for (GList *l = a->dependent_gradients; l; l = l->next) {
+        for (GList *l = a->dependent_gradients; l; l = l->next)
+        {
             GradientInstance *gi = (GradientInstance *)l->data;
             gradient_pattern_destroy(gi);
             update_gradient(gi);
@@ -449,7 +452,8 @@ void update_dependent_gradients(Area *a)
 void free_pixmaps(Area *a)
 {
     a->pix = None;
-    for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
+    for (int i = 0; i < MOUSE_STATE_COUNT; i++)
+    {
         if (! a->pix_by_state[i])
             continue;
         XFreePixmap(server.display, a->pix_by_state[i]);
@@ -463,24 +467,23 @@ void draw(Area *a)
         // On resize/move, invalidate cached pixmaps
         free_pixmaps (a);
 
-    {int pix_i = a->has_mouse_over_effect ? a->mouse_state : 0;
-        if (! a->pix_by_state[pix_i]) {
+    {   int pix_i = a->has_mouse_over_effect ? a->mouse_state : 0;
+        if (! a->pix_by_state[pix_i])
             a->pix_by_state[pix_i] = a->pix = XCreatePixmap(server.display, server.root_win,
                                                             a->width, a->height, server.depth);
-        } else
+        else
             a->pix = a->pix_by_state[pix_i];
     }
 
-    if (!a->_clear) {
+    if (!a->_clear)
         // Add layer of root pixmap (or clear pixmap if real_transparency==true)
         XCopyArea(server.display,
                   ((Panel *)a->panel)->temp_pmap, a->pix, server.gc,
                   a->posx,  a->posy,
                   a->width, a->height,
                   0, 0);
-    } else {
+    else
         a->_clear(a);
-    }
 
     cairo_surface_t *cs = cairo_xlib_surface_create(server.display, a->pix, server.visual, a->width, a->height);
     cairo_t *c = cairo_create(cs);
@@ -631,7 +634,8 @@ void draw_background(Area *a, cairo_t *c)
         set_cairo_source_bg_color(a, c);
         cairo_fill_preserve(c);
     }
-    for (GList *l = a->gradient_instances_by_state[a->mouse_state]; l; l = l->next) {
+    for (GList *l = a->gradient_instances_by_state[a->mouse_state]; l; l = l->next)
+    {
         GradientInstance *gi = (GradientInstance *)l->data;
         if (!gi->pattern)
             update_gradient(gi);
@@ -687,9 +691,8 @@ void remove_area(Area *a)
         schedule_redraw(parent);
     }
 
-    if (mouse_over_area == a) {
+    if (mouse_over_area == a)
         mouse_out();
-    }
 }
 
 void add_area(Area *a, Area *parent)
@@ -717,9 +720,9 @@ void free_area(Area *a)
         a->children = NULL;
     }
     free_pixmaps (a);
-    if (mouse_over_area == a) {
+    if (mouse_over_area == a)
         mouse_over_area = NULL;
-    }
+
     area_gradients_free(a);
 }
 
@@ -773,8 +776,8 @@ gboolean area_is_end(void *obj, gboolean first)
     Panel *panel = a->panel;
 
     Area *node = &panel->area;
-
-    while (node) {
+    while (node)
+    {
         if (!node->on_screen || node->width == 0 || node->height == 0)
             return FALSE;
         if (node == a)
@@ -1057,13 +1060,13 @@ gboolean resize_text_area(Area *area,
                                                   line1_font_desc,
                                                   line2_font_desc);
     if (panel_horizontal) {
-        if (new_size != area->width) {
-            if (new_size < area->width && abs(new_size - area->width) < 6) {
+        if (new_size != area->width)
+        {
+            if (new_size < area->width && abs(new_size - area->width) < 6)
                 // we try to limit the number of resizes
                 new_size = area->width;
-            } else {
+            else
                 area->width = new_size;
-            }
             *line1_posy = (area->height - line1_height) / 2;
             if (line2) {
                 *line1_posy -= (line2_height) / 2;
@@ -1072,7 +1075,8 @@ gboolean resize_text_area(Area *area,
             result = TRUE;
         }
     } else {
-        if (new_size != area->height) {
+        if (new_size != area->height)
+        {
             area->height = new_size;
             *line1_posy = (area->height - line1_height) / 2;
             if (line2) {

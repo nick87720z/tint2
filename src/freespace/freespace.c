@@ -111,11 +111,10 @@ gboolean resize_freespace(void *obj)
     if (old_size == size)
         return FALSE;
 
-    if (panel_horizontal) {
+    if (panel_horizontal)
         freespace->area.width = size;
-    } else {
+    else
         freespace->area.height = size;
-    }
 
     schedule_redraw(&freespace->area);
     schedule_panel_redraw();

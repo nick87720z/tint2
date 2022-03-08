@@ -83,9 +83,8 @@ void write_data(int fd, const char *s, int len)
         if (count >= 0) {
             s += count;
             len -= count;
-        } else {
+        } else
             break;
-        }
     }
 }
 
@@ -105,7 +104,8 @@ void dump_backtrace(int log_fd)
     struct backtrace bt;
     get_backtrace(&bt, 1);
     log_string(log_fd, "\n" YELLOW "Backtrace:" RESET "\n");
-    for (size_t i = 0; i < bt.frame_count; i++) {
+    for (size_t i = 0; i < bt.frame_count; i++)
+    {
         log_string(log_fd, bt.frames[i].name);
         log_string(log_fd, "\n");
     }
@@ -185,11 +185,9 @@ void copy_file(const char *path_src, const char *path_dest)
     if ( !(file_dest = fopen(path_dest, "wb")) )
         goto r1;
 
-    while ((nb = fread(buffer, 1, sizeof(buffer), file_src)) > 0) {
-        if (nb != fwrite(buffer, 1, nb, file_dest)) {
+    while ((nb = fread(buffer, 1, sizeof(buffer), file_src)) > 0)
+        if (nb != fwrite(buffer, 1, nb, file_dest))
             fprintf(stderr, "tint2: Error while copying file %s to %s\n", path_src, path_dest);
-        }
-    }
 
     fclose(file_dest);
 r1: fclose(file_src);
@@ -346,9 +344,8 @@ pid_t tint_exec(const char *command,
         setenvd("TINT2_BUTTON_PANEL_Y1", panel_y1);
         setenvd("TINT2_BUTTON_PANEL_X2", panel_x2);
         setenvd("TINT2_BUTTON_PANEL_Y2", panel_y2);
-    } else {
+    } else
         setenv("TINT2_CONFIG", config_path, 1);
-    }
 
     if (!command)
         return -1;
@@ -368,24 +365,20 @@ pid_t tint_exec(const char *command,
 #endif /* HAVE_SN */
     pid_t pid;
     pid = fork();
-    if (pid < 0) {
+    if (pid < 0)
         fprintf(stderr, "tint2: Could not fork\n");
-    } else if (pid == 0) {
+    else if (pid == 0) {
 // Child process
 #if HAVE_SN
-        if (startup_notifications && startup_notification && time) {
+        if (startup_notifications && startup_notification && time)
             sn_launcher_context_setup_child_process(ctx);
-        }
 #endif // HAVE_SN
         // Allow children to exist after parent destruction
         setsid();
         // Run the command
-        if (dir) {
-            int ret = chdir(dir);
-            if (ret != 0) {
+        if (dir)
+            if (chdir(dir) != 0)
                 fprintf(stderr, "tint2: failed to chdir to %s\n", dir);
-            }
-        }
         close_all_fds();
         reset_signals();
         if (terminal) {
@@ -406,17 +399,15 @@ pid_t tint_exec(const char *command,
         execlp("sh", "sh", "-c", command, NULL);
         fprintf(stderr, "tint2: Failed to execute %s\n", command);
 #if HAVE_SN
-        if (startup_notifications && startup_notification && time) {
+        if (startup_notifications && startup_notification && time)
             sn_launcher_context_unref(ctx);
-        }
 #endif // HAVE_SN
         _exit(1);
     } else {
 // Parent process
 #if HAVE_SN
-        if (startup_notifications && startup_notification && time) {
+        if (startup_notifications && startup_notification && time)
             g_tree_insert(server.pids, GINT_TO_POINTER(pid), ctx);
-        }
 #endif // HAVE_SN
     }
 
@@ -556,7 +547,8 @@ int extract_values(char *str, char **tvec, unsigned tnum)
 
 void adjust_asb(DATA32 *data, int w, int h, float alpha_adjust, float satur_adjust, float bright_adjust)
 {
-    for (int id = 0; id < w * h; id++) {
+    for (int id = 0; id < w * h; id++)
+    {
         unsigned int argb = data[id];
         int a = (argb >> 24) & 0xff;
         // transparent => nothing to do.
@@ -666,7 +658,8 @@ void create_heuristic_mask(DATA32 *data, int w, int h)
     unsigned char b = udata[4 * maskPos];
     unsigned char g = udata[4 * maskPos + 1];
     unsigned char r = udata[4 * maskPos + 1];
-    for (int i = 0; i < h * w; ++i) {
+    for (int i = 0; i < h * w; ++i)
+    {
         if (b - udata[0] == 0 && g - udata[1] == 0 && r - udata[2] == 0)
             udata[3] = 0;
         udata += 4;
@@ -753,7 +746,8 @@ void draw_shadow(cairo_t *c, int posx, int posy, PangoLayout *shadow_layout)
     const double shadow_edge_alpha = 0.0;
     int i, j;
     for (i = -shadow_size; i <= shadow_size; i++) {
-        for (j = -shadow_size; j <= shadow_size; j++) {
+        for (j = -shadow_size; j <= shadow_size; j++)
+        {
             double r = sqrt(i*i + j*j);
             if (r <= 0) continue;
             cairo_set_source_rgba(c,
@@ -913,33 +907,25 @@ void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, doub
         rbl = corner_mask & CORNER_BL ? r : 0;
 
     cairo_move_to(c, x+rtl, y);
-
-    // Top line
-    cairo_line_to (c, x+w-rtr, y);
-    // Top right corner
-    if (rtr > 0)
+    cairo_line_to (c, x+w-rtr, y);                                  // Top line
+    if (rtr > 0)                                                    // Top right corner
         cairo_curve_to (c, x+w-r+c1, y, x+w, y+r-c1, x+w, y+r);
-    // Right line
-    cairo_line_to (c, x+w, y+h-rbr);
-    // Bottom right corner
-    if (rbr > 0)
+    cairo_line_to (c, x+w, y+h-rbr);                                // Right line
+    if (rbr > 0)                                                    // Bottom right corner
         cairo_curve_to (c, x+w, y+h-r+c1, x+w-r+c1, y+h, x+w-r, y+h);
-    // Bottom line
-    cairo_line_to (c, x+rbl, y+h);
-    // Bottom left corner
-    if (rbl > 0)
+    cairo_line_to (c, x+rbl, y+h);                                  // Bottom line
+    if (rbl > 0)                                                    // Bottom left corner
         cairo_curve_to (c, x+r-c1, y+h, x, y+h-r+c1, x, y+h-r);
-    // Left line
-    cairo_line_to (c, x, y+rtl);
-    // Top left corner
-    if (rtl > 0)
+    cairo_line_to (c, x, y+rtl);                                    // Left line
+    if (rtl > 0)                                                    // Top left corner
         cairo_curve_to (c, x, y+r-c1, x+r-c1, y, x+r, y);
 }
 
 void clear_pixmap(Pixmap p, int x, int y, int w, int h)
 {
-    Picture pict =
-        XRenderCreatePicture(server.display, p, XRenderFindVisualFormat(server.display, server.visual), 0, 0);
+    Picture pict = XRenderCreatePicture (server.display, p,
+                                         XRenderFindVisualFormat(server.display, server.visual),
+                                         0, 0);
     XRenderColor col;
     XRenderFillRectangle(server.display, PictOpClear, pict, &col, x, y, w, h);
     XRenderFreePicture(server.display, pict);
@@ -1001,11 +987,9 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data)
 {
     list = g_list_copy(list);
 
-    if (func) {
-        for (GList *l = list; l; l = l->next) {
+    if (func)
+        for (GList *l = list; l; l = l->next)
             l->data = func(l->data, user_data);
-        }
-    }
 
     return list;
 }
@@ -1014,7 +998,7 @@ GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data)
 GSList *load_locations_from_dir(GSList *locations, const char *dir, ...) {
     int buf_cap = 0;
     char *buf = NULL;
-    fprintf(stderr, "%s: '%s'\n", __FUNCTION__, dir);
+    //~ fprintf(stderr, "%s: '%s'\n", __FUNCTION__, dir);
     
     int dir_len = strlen(dir);
     if (dir_len > buf_cap)
@@ -1037,7 +1021,7 @@ GSList *load_locations_from_dir(GSList *locations, const char *dir, ...) {
         memcpy(buf + dir_len, suffix, suf_len);
         buf[buf_size_req] = '\0';
         
-        fprintf(stderr, " location: '%s'\n", buf);
+        //~ fprintf(stderr, " location: '%s'\n", buf);
         locations = slist_append_uniq_dup(locations, buf, g_str_equal);
     }
     va_end(ap);
@@ -1050,38 +1034,44 @@ GSList *load_locations_from_env(GSList *locations, const char *var, ...)
 {
     int buf_cap = 0;
     char *buf = NULL;
-    char *value = getenv(var);
-    if (value) {
-        fprintf(stderr, "%s: %s = '%s'\n", __FUNCTION__, var, value);
-        value = strdup(value);
-        char *p = value;
+    char *value = getenv (var);
+    if (value)
+    {
+        //~ fprintf (stderr, "%s: %s = '%s'\n", __FUNCTION__, var, value);
+        value = strdup (value);
         char *t;
-        for (char *token = strtok_r(value, ":", &t); token; token = strtok_r(NULL, ":", &t)) {
-            int tok_len = strlen(token);
+        for (char *token = strtok_r (value, ":", &t);
+             token;
+             token = strtok_r (NULL, ":", &t))
+        {
+            int tok_len = strlen (token);
             if (tok_len > buf_cap)
-                buf = realloc(buf, (buf_cap = tok_len) + 1);
-            memcpy(buf, token, tok_len);
-            buf[tok_len] = G_DIR_SEPARATOR;
+                buf = realloc (buf, (buf_cap = tok_len) + 1);
+            memcpy (buf, token, tok_len);
+            buf [tok_len] = G_DIR_SEPARATOR;
 
             va_list ap;
-            va_start(ap, var);
+            va_start (ap, var);
             tok_len++;
-            for (const char *suffix = va_arg(ap, const char *); suffix; suffix = va_arg(ap, const char *)) {
+            for (const char *suffix = va_arg (ap, const char *);
+                 suffix;
+                 suffix = va_arg (ap, const char *))
+            {
                 int suf_len, buf_size_req;
-                suf_len = strlen(suffix);
+                suf_len = strlen (suffix);
                 buf_size_req = tok_len + suf_len;
                 if (buf_size_req > buf_cap)
-                    buf = realloc(buf, (buf_cap = buf_size_req) + 1);
-                memcpy(buf + tok_len, suffix, suf_len);
-                buf[buf_size_req] = '\0';
+                    buf = realloc (buf, (buf_cap = buf_size_req) + 1);
+                memcpy (buf + tok_len, suffix, suf_len);
+                buf [buf_size_req] = '\0';
                 
-                fprintf(stderr, " location: '%s'\n", buf);
-                locations = slist_append_uniq_dup(locations, buf, g_str_equal);
+                //~ fprintf (stderr, " location: '%s'\n", buf);
+                locations = slist_append_uniq_dup (locations, buf, g_str_equal);
             }
-            va_end(ap);
+            va_end (ap);
         }
-        free(p);
-        free(buf);
+        free (value);
+        free (buf);
     }
     return locations;
 }
@@ -1116,9 +1106,8 @@ gint cmp_ptr(gconstpointer a, gconstpointer b)
 void close_all_fds()
 {
     long maxfd = sysconf(_SC_OPEN_MAX);
-    for (int fd = 3; fd < maxfd; fd++) {
+    for (int fd = 3; fd < maxfd; fd++)
         close(fd);
-    }
 }
 
 GString *tint2_g_string_replace(GString *s, const char *from, const char *to)

@@ -8,11 +8,12 @@
 
 GradientType gradient_type_from_string(const char *str)
 {
-    return  g_str_equal(str, "horizontal") ? GRADIENT_HORIZONTAL
-        :   g_str_equal(str, "vertical"  ) ? GRADIENT_VERTICAL
-        :   g_str_equal(str, "radial"    ) ? GRADIENT_CENTERED
-        :(fprintf(stderr, RED "tint2: Invalid gradient type: %s" RESET "\n", str),
-          GRADIENT_VERTICAL);
+    switch (str_index (str, (char *[]){"horizontal", "radial", "vertical"}, 3)) {
+        case 0:     return GRADIENT_HORIZONTAL;
+        case 1:     return GRADIENT_CENTERED;
+        case -1:    fprintf(stderr, RED "tint2: Invalid gradient type: %s" RESET "\n", str);
+        case 2:     return GRADIENT_VERTICAL;
+    }
 }
 
 void init_gradient(GradientClass *g, GradientType type)
@@ -55,15 +56,12 @@ void cleanup_gradient(GradientClass *g)
     case GRADIENT_VERTICAL:     free(g->from.offsets_y);
                                 free(g->to.offsets_y);
                                 break;
-    case GRADIENT_HORIZONTAL:   free(g->from.offsets_x);
-                                free(g->to.offsets_x);
-                                break;
-    case GRADIENT_CENTERED:     free(g->from.offsets_x);
-                                free(g->from.offsets_y);
+    case GRADIENT_CENTERED:     free(g->from.offsets_y);
                                 free(g->from.offsets_r);
-                                free(g->to.offsets_x);
                                 free(g->to.offsets_y);
                                 free(g->to.offsets_r);
+    case GRADIENT_HORIZONTAL:   free(g->from.offsets_x);
+                                free(g->to.offsets_x);
                                 break;
     }
     memset(g, 0, sizeof(*g));

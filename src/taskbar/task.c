@@ -93,9 +93,9 @@ Task *add_task(Window win)
     // allocate only one title and one icon
     // even with task_on_all_desktop and with task_on_all_panel
     task_template.title = NULL;
-    for (int k = 0; k < TASK_STATE_COUNT; ++k) {
+    for (int k = 0; k < TASK_STATE_COUNT; ++k)
         task_template.icon[k] = NULL;
-    }
+
     task_update_title(&task_template);
     task_update_icon(&task_template);
     snprintf(task_template.area.name,
@@ -140,9 +140,9 @@ Task *add_task(Window win)
         task_instance->win_w = task_template.win_w;
         task_instance->win_h = task_template.win_h;
         task_instance->current_state = TASK_UNDEFINED; // to update the current state later in set_task_state...
-        if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j) {
+        if (task_instance->desktop == ALL_DESKTOPS && server.desktop != j)
             task_instance->area.on_screen = always_show_all_desktop_tasks;
-        }
+
         task_instance->title = task_template.title;
         task_instance->application = task_template.application;
         if (panels[monitor].g_task.tooltip_enabled) {
@@ -152,7 +152,8 @@ Task *add_task(Window win)
         task_instance->icon_color = task_template.icon_color;
         task_instance->icon_color_hover = task_template.icon_color_hover;
         task_instance->icon_color_press = task_template.icon_color_press;
-        for (int k = 0; k < TASK_STATE_COUNT; ++k) {
+        for (int k = 0; k < TASK_STATE_COUNT; ++k)
+        {
             task_instance->icon[k] = task_template.icon[k];
             task_instance->icon_hover[k] = task_template.icon_hover[k];
             task_instance->icon_press[k] = task_template.icon_press[k];
@@ -176,9 +177,8 @@ Task *add_task(Window win)
         panel->area.resize_needed = TRUE;
     }
 
-    if (window_is_urgent(win)) {
+    if (window_is_urgent(win))
         add_urgent((Task *)g_ptr_array_index(task_buttons, 0));
-    }
 
     if (hide_taskbar_if_empty)
         update_all_taskbars_visibility();
@@ -190,23 +190,17 @@ void task_remove_icon(Task *task)
 {
     if (!task)
         return;
-    for (int k = 0; k < TASK_STATE_COUNT; ++k) {
-        if (task->icon[k]) {
-            imlib_context_set_image(task->icon[k]);
-            imlib_free_image();
-            task->icon[k] = NULL;
+
+    Imlib_Image *icon_lists[3] = { task->icon, task->icon_hover, task->icon_press };
+    for (int k = 0; k < TASK_STATE_COUNT; k++)
+        for (int i = 0; i < ARRAY_SIZE(icon_lists); i++)
+        {
+            if (icon_lists[i][k]) {
+                imlib_context_set_image(icon_lists[i][k]);
+                imlib_free_image();
+                icon_lists[i][k] = NULL;
+            }
         }
-        if (task->icon_hover[k]) {
-            imlib_context_set_image(task->icon_hover[k]);
-            imlib_free_image();
-            task->icon_hover[k] = NULL;
-        }
-        if (task->icon_press[k]) {
-            imlib_context_set_image(task->icon_press[k]);
-            imlib_free_image();
-            task->icon_press[k] = NULL;
-        }
-    }
 }
 
 void remove_task(Task *task)
@@ -260,9 +254,8 @@ gboolean task_update_title(Task *task)
     char *name = get_property(task->win, server.atom [_NET_WM_VISIBLE_NAME], server.atom [UTF8_STRING], NULL);
     if (!name || !strlen(name)) {
         name = get_property(task->win, server.atom [_NET_WM_NAME], server.atom [UTF8_STRING], NULL);
-        if (!name || !strlen(name)) {
+        if (!name || !strlen(name))
             name = get_property(task->win, server.atom [WM_NAME], XA_STRING, NULL);
-        }
     }
 
     char *title = strdup(name && strlen(name) ? name : "Untitled");
@@ -274,15 +267,15 @@ gboolean task_update_title(Task *task)
         if (strcmp(task->title, title) == 0) {
             free(title);
             return FALSE;
-        } else {
+        } else
             free(task->title);
-        }
     }
 
     task->title = title;
     GPtrArray *task_buttons = get_task_buttons(task->win);
     if (task_buttons) {
-        for (int i = 0; i < task_buttons->len; ++i) {
+        for (int i = 0; i < task_buttons->len; ++i)
+        {
             Task *task2 = g_ptr_array_index(task_buttons, i);
             task2->title = task->title;
             schedule_redraw(&task2->area);
@@ -295,32 +288,30 @@ Imlib_Image task_get_icon(Window win, int icon_size)
 {
     Imlib_Image img = NULL;
 
-    if (!img) {
-        int len;
-        gulong *data = get_property(win, server.atom [_NET_WM_ICON], XA_CARDINAL, &len);
-        if (data) {
-            if (len > 0) {
-                // get ARGB icon
-                int w, h;
-                gulong *tmp_data = get_best_icon(data, get_icon_count(data, len), len, &w, &h, icon_size);
-                if (tmp_data) {
-                    int array_size = w * h;
-                    // imlib needs the array in DATA32 type
-                    // using malloc for the array to protect from stack overflow
-                    DATA32 *icon_data = (DATA32*) g_try_malloc(sizeof(*icon_data) * array_size);
-                    if (icon_data) {
-                        for (int j = 0; j < array_size; ++j)
-                            icon_data[j] = tmp_data[j];
-                        img = imlib_create_image_using_copied_data(w, h, icon_data);
-                        g_free(icon_data);
-                    }
+    int len;
+    gulong *data = get_property(win, server.atom [_NET_WM_ICON], XA_CARDINAL, &len);
+    if (data) {
+        if (len > 0) {
+            // get ARGB icon
+            int w, h;
+            gulong *tmp_data = get_best_icon(data, get_icon_count(data, len), len, &w, &h, icon_size);
+            if (tmp_data) {
+                int array_size = w * h;
+                // imlib needs the array in DATA32 type
+                // using malloc for the array to protect from stack overflow
+                DATA32 *icon_data = (DATA32*) g_try_malloc(sizeof(*icon_data) * array_size);
+                if (icon_data) {
+                    for (int j = 0; j < array_size; ++j)
+                        icon_data[j] = tmp_data[j];
+                    img = imlib_create_image_using_copied_data(w, h, icon_data);
+                    g_free(icon_data);
                 }
             }
-            XFree(data);
         }
+        XFree(data);
     }
-
-    if (!img) {
+    if (!img)
+    {
         XWMHints *hints = XGetWMHints(server.display, win);
         if (hints) {
             if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
@@ -349,7 +340,8 @@ Imlib_Image task_get_icon(Window win, int icon_size)
 void task_set_icon_color(Task *task, Imlib_Image icon)
 {
     get_image_mean_color(icon, &task->icon_color);
-    if (panel_config.mouse_effects) {
+    if (panel_config.mouse_effects)
+    {
         task->icon_color_hover = task->icon_color;
         adjust_color(&task->icon_color_hover,
                      panel_config.mouse_over_alpha,
@@ -367,7 +359,8 @@ void task_update_icon(Task *task)
 {
     Panel *panel = task->area.panel;
     if (!panel->g_task.has_icon) {
-        if (panel_config.g_task.has_content_tint) {
+        if (panel_config.g_task.has_content_tint)
+        {
             Imlib_Image img = task_get_icon(task->win, panel->g_task.icon_size1);
             task_set_icon_color(task, img);
             imlib_context_set_image(img);
@@ -393,7 +386,8 @@ void task_update_icon(Task *task)
     imlib_context_set_image(orig_image);
     task->icon_width = imlib_image_get_width();
     task->icon_height = imlib_image_get_height();
-    for (int k = 0; k < TASK_STATE_COUNT; ++k) {
+    for (int k = 0; k < TASK_STATE_COUNT; ++k)
+    {
         task->icon[k] = adjust_icon(orig_image,
                                     panel->g_task.alpha[k],
                                     panel->g_task.saturation[k],
@@ -414,14 +408,16 @@ void task_update_icon(Task *task)
 
     GPtrArray *task_buttons = get_task_buttons(task->win);
     if (task_buttons) {
-        for (int i = 0; i < task_buttons->len; ++i) {
+        for (int i = 0; i < task_buttons->len; ++i)
+        {
             Task *task2 = (Task *)g_ptr_array_index(task_buttons, i);
             task2->icon_width = task->icon_width;
             task2->icon_height = task->icon_height;
             task2->icon_color = task->icon_color;
             task2->icon_color_hover = task->icon_color_hover;
             task2->icon_color_press = task->icon_color_press;
-            for (int k = 0; k < TASK_STATE_COUNT; ++k) {
+            for (int k = 0; k < TASK_STATE_COUNT; ++k)
+            {
                 task2->icon[k] = task->icon[k];
                 task2->icon_hover[k] = task->icon_hover[k];
                 task2->icon_press[k] = task->icon_press[k];
@@ -585,9 +581,8 @@ void on_change_task(void *obj)
                         PropModeReplace,
                         (unsigned char *)value,
                         4);
-    } else {
+    } else
         XDeleteProperty(server.display, task->win, server.atom [_NET_WM_ICON_GEOMETRY]);
-    }
 }
 
 Task *find_active_task(Task *current_task)
@@ -600,7 +595,8 @@ Task *find_active_task(Task *current_task)
     GList *l0 = taskbar->area.children;
     if (taskbarname_enabled)
         l0 = l0->next;
-    for (; l0; l0 = l0->next) {
+    for (; l0; l0 = l0->next)
+    {
         Task *task = (Task *)l0->data;
         if (task->win == active_task->win)
             return task;
@@ -620,7 +616,8 @@ Task *next_task(Task *task)
     if (taskbarname_enabled)
         l0 = l0->next;
     GList *lfirst_task = l0;
-    for (; l0; l0 = l0->next) {
+    for (; l0; l0 = l0->next)
+    {
         Task *task1 = l0->data;
         if (task1 == task) {
             l0 = l0->next ? l0->next : lfirst_task;
@@ -643,7 +640,8 @@ Task *prev_task(Task *task)
     if (taskbarname_enabled)
         l0 = l0->next;
     GList *lfirst_task = l0;
-    for (; l0; l0 = l0->next) {
+    for (; l0; l0 = l0->next)
+    {
         Task *task1 = l0->data;
         if (task1 == task) {
             if (l0 == lfirst_task) {
@@ -735,7 +733,8 @@ void set_task_state(Task *task, TaskState state)
     if (task->current_state != state || hide_task_diff_monitor || hide_task_diff_desktop) {
         GPtrArray *task_buttons = get_task_buttons(task->win);
         if (task_buttons) {
-            for (int i = 0; i < task_buttons->len; ++i) {
+            for (int i = 0; i < task_buttons->len; ++i)
+            {
                 Task *task1 = g_ptr_array_index(task_buttons, i);
                 task1->current_state = state;
                 task1->area.bg = panels[0].g_task.background[state];
@@ -822,61 +821,51 @@ void task_handle_mouse_event(Task *task, MouseAction action)
     if (!task)
         return;
     switch (action) {
-    case NONE:
-        break;
-    case CLOSE:
-        close_window(task->win);
-        break;
-    case TOGGLE:
-        activate_window(task->win);
-        break;
-    case ICONIFY:
-        XIconifyWindow(server.display, task->win, server.screen);
-        break;
-    case TOGGLE_ICONIFY:
-        if (active_task && task->win == active_task->win)
-            XIconifyWindow(server.display, task->win, server.screen);
-        else
-            activate_window(task->win);
-        break;
-    case SHADE:
-        toggle_window_shade(task->win);
-        break;
-    case MAXIMIZE_RESTORE:
-        toggle_window_maximized(task->win);
-        break;
-    case MAXIMIZE:
-        toggle_window_maximized(task->win);
-        break;
-    case RESTORE:
-        toggle_window_maximized(task->win);
-        break;
-    case DESKTOP_LEFT: {
-        if (task->desktop == 0)
-            break;
-        int desktop = task->desktop - 1;
-        change_window_desktop(task->win, desktop);
-        if (desktop == server.desktop)
-            activate_window(task->win);
-        break;
-    }
-    case DESKTOP_RIGHT: {
-        if (task->desktop == server.num_desktops)
-            break;
-        int desktop = task->desktop + 1;
-        change_window_desktop(task->win, desktop);
-        if (desktop == server.desktop)
-            activate_window(task->win);
-        break;
-    }
-    case NEXT_TASK: {
-        Task *task1 = next_task(find_active_task(task));
-        activate_window(task1->win);
-    } break;
-    case PREV_TASK: {
-        Task *task1 = prev_task(find_active_task(task));
-        activate_window(task1->win);
-    }
+        case NONE:          break;
+        case CLOSE:         close_window(task->win);
+                            break;
+        case TOGGLE:        activate_window(task->win);
+                            break;
+        case ICONIFY:       XIconifyWindow(server.display, task->win, server.screen);
+                            break;
+        case TOGGLE_ICONIFY:if (active_task && task->win == active_task->win)
+                                XIconifyWindow(server.display, task->win, server.screen);
+                            else
+                                activate_window(task->win);
+                            break;
+        case SHADE:         toggle_window_shade(task->win);
+                            break;
+        case MAXIMIZE_RESTORE:
+                            toggle_window_maximized(task->win);
+                            break;
+        case MAXIMIZE:      toggle_window_maximized(task->win);
+                            break;
+        case RESTORE:       toggle_window_maximized(task->win);
+                            break;
+        case DESKTOP_LEFT:{ if (task->desktop == 0)
+                                break;
+                            int desktop = task->desktop - 1;
+                            change_window_desktop(task->win, desktop);
+                            if (desktop == server.desktop)
+                                activate_window(task->win);
+                            break;
+        }
+        case DESKTOP_RIGHT:{if (task->desktop == server.num_desktops)
+                                break;
+                            int desktop = task->desktop + 1;
+                            change_window_desktop(task->win, desktop);
+                            if (desktop == server.desktop)
+                                activate_window(task->win);
+                            break;
+        }
+        case NEXT_TASK: {   Task *task1 = next_task(find_active_task(task));
+                            activate_window(task1->win);
+                            break;
+        }
+        case PREV_TASK: {   Task *task1 = prev_task(find_active_task(task));
+                            activate_window(task1->win);
+                            break;
+        }
     }
 }
 

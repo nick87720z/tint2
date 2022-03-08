@@ -134,9 +134,8 @@ void handle_mouse_move_event(XEvent *e)
         if (hide_task_diff_desktop)
             change_desktop(event_taskbar->desktop);
 
-        if (taskbar_sort_method != TASKBAR_NOSORT) {
+        if (taskbar_sort_method != TASKBAR_NOSORT)
             sort_tasks(event_taskbar);
-        }
 
         event_taskbar->area.resize_needed = TRUE;
         drag_taskbar->area.resize_needed = TRUE;

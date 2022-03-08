@@ -232,17 +232,17 @@ void create_default_elements()
 void load_default_task_icon()
 {
     const gchar *const *data_dirs = g_get_system_data_dirs();
-    for (int i = 0; data_dirs[i] != NULL; i++) {
+    for (int i = 0; data_dirs[i] != NULL; i++)
+    {
         gchar *path = g_build_filename(data_dirs[i], "tint2", "default_icon.png", NULL);
         if (g_file_test(path, G_FILE_TEST_EXISTS))
             default_icon = load_image(path, TRUE);
         g_free(path);
     }
-    if (!default_icon) {
+    if (!default_icon)
         default_icon = imlib_create_image_using_data(default_icon_width,
                                                      default_icon_height,
                                                      default_icon_data);
-    }
 }
 
 void init_post_config()

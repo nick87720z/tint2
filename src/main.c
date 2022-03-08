@@ -103,7 +103,6 @@ void handle_event_property_notify(XEvent *e)
             XSelectInput(server.display, server.root_win, PropertyChangeMask | StructureNotifyMask);
             server.got_root_win = TRUE;
         }
-
         // Change name of desktops
         else if (at == server.atom [_NET_DESKTOP_NAMES])
         {
@@ -128,9 +127,8 @@ void handle_event_property_notify(XEvent *e)
             server.desktop = get_current_desktop();
             if (old_num_desktops != server.num_desktops) // If desktops number changed
             {
-                if (server.num_desktops <= server.desktop) {
+                if (server.num_desktops <= server.desktop)
                     server.desktop = server.num_desktops - 1;
-                }
                 cleanup_taskbar();
                 init_taskbar();
                 for (int i = 0; i < num_panels; i++)
@@ -201,11 +199,9 @@ void handle_event_property_notify(XEvent *e)
                         {
                             Window task_win = *(Window *)key;
                             Task *task = get_task(task_win);
-                            if (task) {
-                                int desktop = get_window_desktop(task_win);
-                                if (desktop != task->desktop)
-                                    need_update = g_slist_prepend (need_update, task);
-                            }
+
+                            if (task && task->desktop != get_window_desktop(task_win))
+                                need_update = g_slist_prepend (need_update, task);
                         }
                         for (GSList *i = need_update; i; i = i->next)
                         {
@@ -238,9 +234,8 @@ void handle_event_property_notify(XEvent *e)
             if (debug)
                 fprintf(stderr, "tint2: %s %d: win = root, atom = _XROOTPMAP_ID\n", __func__, __LINE__);
             // change Wallpaper
-            for (int i = 0; i < num_panels; i++) {
+            for (int i = 0; i < num_panels; i++)
                 set_panel_background(&panels[i]);
-            }
             schedule_panel_redraw();
         }
     } else {
@@ -309,9 +304,8 @@ void handle_event_property_notify(XEvent *e)
                 }
                 XFree(atom_state);
             }
-            if (window_is_urgent(win)) {
+            if (window_is_urgent(win))
                 add_urgent(task);
-            }
             if (window_is_skip_taskbar(win)) {
                 remove_task(task);
                 schedule_panel_redraw();
@@ -337,16 +331,14 @@ void handle_event_property_notify(XEvent *e)
             int desktop = get_window_desktop(win);
             // fprintf(stderr, "tint2:   Window desktop changed %d, %d\n", task->desktop, desktop);
             // bug in windowmaker : send unecessary 'desktop changed' when focus changed
-            if (desktop != task->desktop) {
+            if (desktop != task->desktop)
                 task_update_desktop(task);
-            }
         }
         else if (at == server.atom [WM_HINTS])
         {
             XWMHints *wmhints = XGetWMHints(server.display, win);
-            if (wmhints && wmhints->flags & XUrgencyHint) {
+            if (wmhints && wmhints->flags & XUrgencyHint)
                 add_urgent(task);
-            }
             XFree(wmhints);
             task_update_icon(task);
             schedule_panel_redraw();
@@ -408,12 +400,8 @@ void handle_event_configure_notify(XEvent *e)
     if (server.viewports)
     {
         Task *task = get_task(win);
-        if (task)
-        {
-            int desktop = get_window_desktop(win);
-            if (task->desktop != desktop)
-                task_update_desktop(task);
-        }
+        if (task && task->desktop != get_window_desktop(win))
+            task_update_desktop(task);
     }
 
     sort_taskbar_for_win(win);
@@ -436,16 +424,15 @@ gboolean handle_x_event_autohide(XEvent *e)
                 hidden_panel_shown_for_dnd = TRUE;
                 autohide_show(panel);
             }
-            else {
-                // discard further processing of this event because the panel is not visible yet
+            else // discard further processing of this event because the panel is not visible yet
                 return TRUE;
+        } else
+            if (hidden_panel_shown_for_dnd && e->type == ClientMessage &&
+                e->xclient.message_type == server.atom [XdndLeave])
+            {
+                hidden_panel_shown_for_dnd = FALSE;
+                autohide_hide(panel);
             }
-        } else if (hidden_panel_shown_for_dnd && e->type == ClientMessage &&
-                   e->xclient.message_type == server.atom [XdndLeave])
-        {
-            hidden_panel_shown_for_dnd = FALSE;
-            autohide_hide(panel);
-        }
     }
     return FALSE;
 }
@@ -529,12 +516,10 @@ void handle_x_event(XEvent *e)
         TrayWindow *traywin = systray_find_icon(e->xreparent.window);
         if (traywin && traywin->win == e->xreparent.window)
         {
-            if (traywin->parent == e->xreparent.parent) {
+            if (traywin->parent == e->xreparent.parent)
                 embed_icon(traywin);
-            } else {
+            else
                 remove_icon(traywin);
-            }
-            break;
         }
         break;
     }
@@ -551,20 +536,16 @@ void handle_x_event(XEvent *e)
             break;
         for (GSList *it = systray.list_icons; it; it = it->next)
         {
-            if (((TrayWindow *)it->data)->win == e->xany.window) {
+            if (((TrayWindow *)it->data)->win == e->xany.window)
                 systray_destroy_event((TrayWindow *)it->data);
-                break;
-            }
         }
         break;
 
     case ClientMessage: {
         XClientMessageEvent *ev = &e->xclient;
         if (ev->data.l[1] == server.atom [_NET_WM_CM_S0])
-        {
             // Start or stop real_transparency
             emit_self_restart("compositor changed");
-        }
         if (e->xclient.message_type == server.atom [_NET_SYSTEM_TRAY_OPCODE] &&
             systray_enabled && e->xclient.format == 32 && e->xclient.window == net_sel_win)
         {
@@ -745,9 +726,8 @@ void handle_panel_refresh()
                 flush_ratio * 100);
 #ifdef HAVE_TRACING
         stop_tracing();
-        if (fps <= tracing_fps_threshold) {
+        if (fps <= tracing_fps_threshold)
             print_tracing_events();
-        }
 #endif
     }
     if (debug_frames)
@@ -865,8 +845,7 @@ int main(int argc, char **argv)
                 __FILE__, __LINE__);
     }
     gboolean restart;
-    do {
-        restart = FALSE;
+    do{ restart = FALSE;
         tint2(argc, argv, &restart);
     } while(restart);
     return 0;

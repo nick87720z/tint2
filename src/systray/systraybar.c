@@ -432,6 +432,14 @@ void start_net()
                     PropModeReplace,
                     (unsigned char *)&padding,
                     1);
+    long pid = getpid();
+    XChangeProperty(server.display, net_sel_win,
+                    server.atom [_NET_WM_PID],
+                    XA_CARDINAL,
+                    32,
+                    PropModeReplace,
+                    (unsigned char *)&pid,
+                    1);
 
     VisualID vid = XVisualIDFromVisual (systray_composited ? server.visual32 : server.visual);
 

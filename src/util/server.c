@@ -238,7 +238,7 @@ void *get_property(Window win, Atom at, Atom type, int *num_results)
     if (num_results)
         *num_results = (int)nitems_ret;
 
-    return (result == Success) ? prop_value : NULL;
+    return result == Success && (type == AnyPropertyType || type == type_ret) ? prop_value : NULL;
 }
 
 void get_root_pixmap()

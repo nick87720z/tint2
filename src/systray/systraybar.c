@@ -389,11 +389,11 @@ void start_net()
                                      &bytes_after,
                                      &prop);
 
-        fprintf(stderr, RED "tint2: another systray is running, cannot use systray" RESET);
+        fprintf( stderr, RED "tint2: another systray is running, cannot use systray");
         if (ret == Success && prop) {
             pid = prop[1] * 256;
             pid += prop[0];
-            fprintf(stderr, "tint2:  pid=%d", pid);
+            fprintf( stderr, ": pid=%d", pid);
         }
         fprintf(stderr, RESET "\n");
         return;

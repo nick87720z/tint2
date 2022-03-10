@@ -337,7 +337,10 @@ void on_change_systray(void *obj)
         if (!XGetGeometry(server.display, traywin->parent, &root, &xpos, &ypos, &width, &height, &border_width, &depth))
             fprintf(stderr, RED "tint2: Couldn't get geometry of window!" RESET "\n");
 
-        if (width != traywin->width || height != traywin->height || xpos != traywin->x || ypos != traywin->y) {
+        bool move   = xpos != traywin->x || ypos != traywin->y,
+             resize = width != traywin->width || height != traywin->height;
+
+        if (move && resize) {
             if (systray_profile)
                 fprintf(stderr,
                         "XMoveResizeWindow(server.display, traywin->parent = %ld, traywin->x = %d, traywin->y = %d, "
@@ -346,6 +349,21 @@ void on_change_systray(void *obj)
                         traywin->x,     traywin->y,
                         traywin->width, traywin->height);
             XMoveResizeWindow(server.display, traywin->parent, traywin->x, traywin->y, traywin->width, traywin->height);
+        } else if (move) {
+            if (systray_profile)
+                fprintf(stderr,
+                        "XMoveWindow(server.display, traywin->parent = %ld, traywin->x = %d, traywin->y = %d)\n",
+                        traywin->parent,
+                        traywin->x, traywin->y);
+            XMoveWindow(server.display, traywin->parent, traywin->x, traywin->y);
+        } else if (resize) {
+            if (systray_profile)
+                fprintf(stderr,
+                        "XResizeWindow(server.display, traywin->parent = %ld, "
+                        "traywin->width = %d, traywin->height = %d)\n",
+                        traywin->parent,
+                        traywin->width, traywin->height);
+            XResizeWindow(server.display, traywin->parent, traywin->width, traywin->height);
         }
         if (!traywin->reparented)
             reparent_icon(traywin);

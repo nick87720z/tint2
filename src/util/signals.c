@@ -26,6 +26,15 @@ void signal_handler(int sig)
     signal_pending = sig;
 }
 
+#ifdef BACKTRACE_ON_SIGNAL
+void crash_handler(int sig)
+{
+    handle_crash(signal_name(sig));
+    sigaction(sig, &(sigaction_t){.sa_handler = SIG_DFL}, NULL);
+    raise(sig);
+}
+#endif
+
 void reset_signals()
 {
     for (int sig = 1; sig < 32; sig++) {
@@ -63,15 +72,6 @@ void init_signals()
     sigaction(SIGSYS,   &sa_crash, NULL);
 #endif
 }
-
-#ifdef BACKTRACE_ON_SIGNAL
-void crash_handler(int sig)
-{
-    handle_crash(signal_name(sig));
-    sigaction(sig, &(sigaction_t){.sa_handler = SIG_DFL}, NULL);
-    raise(sig);
-}
-#endif
 
 int sigchild_pipe_valid = FALSE;
 int sigchild_pipe[2];

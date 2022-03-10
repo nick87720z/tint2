@@ -189,7 +189,13 @@ gboolean resize_systray(void *obj)
     int size;
     systray_compute_geometry(&size);
 
-    if (systray.icon_size > 0) {
+    gboolean result = refresh_systray;
+
+    if (net_sel_win == None) {
+        start_net();
+        result = TRUE;
+    }
+    else if (systray.icon_size > 0) {
         long icon_size = systray.icon_size;
         XChangeProperty(server.display, net_sel_win,
                         server.atom [_NET_SYSTEM_TRAY_ICON_SIZE],
@@ -198,12 +204,6 @@ gboolean resize_systray(void *obj)
                         PropModeReplace,
                         (unsigned char *)&icon_size,
                         1);
-    }
-
-    gboolean result = refresh_systray;
-    if (net_sel_win == None) {
-        start_net();
-        result = TRUE;
     }
 
     if (panel_horizontal) {

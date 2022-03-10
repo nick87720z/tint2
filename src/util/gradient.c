@@ -12,8 +12,8 @@ GradientType gradient_type_from_string(const char *str)
         case 0:     return GRADIENT_HORIZONTAL;
         case 1:     return GRADIENT_CENTERED;
         case -1:    fprintf(stderr, RED "tint2: Invalid gradient type: %s" RESET "\n", str);
-        case 2:     return GRADIENT_VERTICAL;
     }
+    return GRADIENT_VERTICAL;
 }
 
 void init_gradient(GradientClass *g, GradientType type)

@@ -203,9 +203,9 @@ void handle_event_property_notify(XEvent *e)
                             if (task && task->desktop != get_window_desktop(task_win))
                                 need_update = g_slist_prepend (need_update, task);
                         }
-                        for (GSList *i = need_update; i; i = i->next)
+                        for (GSList *it = need_update; it; it = it->next)
                         {
-                            Task *task = i->data;
+                            Task *task = it->data;
                             task_update_desktop(task);
                         }
                     }

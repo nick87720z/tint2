@@ -369,17 +369,16 @@ void start_net()
     // freedesktop systray specification
     if (win != None) {
         // search pid
-        Atom _NET_WM_PID, actual_type;
+        Atom actual_type;
         int actual_format;
         unsigned long nitems;
         unsigned long bytes_after;
         unsigned char *prop = 0;
         int pid;
 
-        _NET_WM_PID = XInternAtom(server.display, "_NET_WM_PID", True);
         int ret = XGetWindowProperty(server.display,
                                      win,
-                                     _NET_WM_PID,
+                                     server.atom [_NET_WM_PID],
                                      0,
                                      1024,
                                      False,

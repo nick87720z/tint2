@@ -141,37 +141,50 @@ void init_systray_panel(void *p)
 
 void systray_compute_geometry(int *size)
 {
-    Panel *panel = (Panel*)systray.area.panel;
-    systray.icon_size = panel_horizontal ? systray.area.height : systray.area.width;
-    systray.icon_size -=
-        MAX(left_right_border_width(&systray.area), top_bottom_border_width(&systray.area)) + 2 * systray.area.paddingy * panel->scale;
-    if (systray_max_icon_size > 0)
-        systray.icon_size = MIN(systray.icon_size, systray_max_icon_size * panel->scale);
+    Panel *panel = systray.area.panel;
+    double scale = panel->scale;
+    int col_icons, row_icons,
+        spacing   = systray.area.spacing,
+        icon_size = systray.icon_size
+                    = (panel_horizontal ? systray.area.height : systray.area.width)
+                    - MAX( left_right_border_width( & systray.area), top_bottom_border_width( & systray.area))
+                    - 2 * systray.area.paddingy * scale;
+    if (systray_max_icon_size)
+        icon_size = MIN( icon_size, systray_max_icon_size * scale);
 
     int count = 0;
     for (GSList *l = systray.list_icons; l; l = l->next)
         count++;
 
     if (panel_horizontal) {
-        int height = systray.area.height - top_bottom_border_width(&systray.area) - 2 * systray.area.paddingy * panel->scale;
-        // here icons_per_column always higher than 0
-        systray.icons_per_column = (height + systray.area.spacing * panel->scale) / (systray.icon_size + systray.area.spacing * panel->scale);
-        systray.margin =
-            height - (systray.icons_per_column - 1) * (systray.icon_size + systray.area.spacing * panel->scale) - systray.icon_size;
-        systray.icons_per_row = count / systray.icons_per_column + (count % systray.icons_per_column != 0);
-        *size = left_right_border_width(&systray.area) + 2 * systray.area.paddingx * panel->scale +
-                (systray.icon_size * systray.icons_per_row) + ((systray.icons_per_row - 1) * systray.area.spacing * panel->scale);
+        int height = systray.area.height - top_bottom_border_width( & systray.area) - 2 * systray.area.paddingy * scale;
+        // here col_icons always higher than 0
+        col_icons = (spacing * scale + height) /
+                    (spacing * scale + icon_size);
+        systray.margin  = height - icon_size
+                        - (col_icons - 1) * (icon_size + spacing * scale);
+        row_icons   = (count / col_icons)
+                    + (count % col_icons != 0);
+        *size = left_right_border_width( & systray.area)
+                + 2 * systray.area.paddingx * scale
+                + (row_icons      * icon_size)
+                + (row_icons - 1) * spacing * scale;
     } else {
-        int width = systray.area.width - left_right_border_width(&systray.area) - 2 * systray.area.paddingy * panel->scale;
-        // here icons_per_row always higher than 0
-        systray.icons_per_row = (width + systray.area.spacing * panel->scale) / (systray.icon_size + systray.area.spacing * panel->scale);
-        systray.margin =
-            width - (systray.icons_per_row - 1) * (systray.icon_size + systray.area.spacing * panel->scale) - systray.icon_size;
-        systray.icons_per_column = count / systray.icons_per_row + (count % systray.icons_per_row != 0);
-        *size = top_bottom_border_width(&systray.area) + (2 * systray.area.paddingx * panel->scale) +
-                (systray.icon_size * systray.icons_per_column) +
-                ((systray.icons_per_column - 1) * systray.area.spacing * panel->scale);
+        int width = systray.area.width - left_right_border_width( & systray.area) - 2 * systray.area.paddingy * scale;
+        // here row_icons always higher than 0
+        row_icons = (spacing * scale + width) /
+                    (spacing * scale + icon_size);
+        systray.margin  = width - icon_size
+                        - (row_icons - 1) * (icon_size + spacing * scale);
+        col_icons   = (count / row_icons)
+                    + (count % row_icons != 0);
+        *size = top_bottom_border_width( & systray.area)
+                + (2 * systray.area.paddingx * scale)
+                + (col_icons      * icon_size)
+                + (col_icons - 1) * spacing * scale;
     }
+    systray.icons_per_column = col_icons;
+    systray.icons_per_row    = row_icons;
 }
 
 int systray_compute_desired_size(void *obj)
@@ -276,13 +289,13 @@ void on_change_systray(void *obj)
     int posx, posy;
     int start;
     if (panel_horizontal) {
-        posy = start = top_border_width(&panel->area) + panel->area.paddingy * panel->scale + top_border_width(&systray.area) +
-                       systray.area.paddingy * panel->scale + systray.margin / 2;
-        posx = systray.area.posx + left_border_width(&systray.area) + systray.area.paddingx * panel->scale;
+        posy = start    = top_border_width( & panel->area)  + panel->area.paddingy  * panel->scale
+                        + top_border_width( & systray.area) + systray.area.paddingy * panel->scale + systray.margin / 2;
+        posx = systray.area.posx + left_border_width( & systray.area) + systray.area.paddingx * panel->scale;
     } else {
-        posx = start = left_border_width(&panel->area) + panel->area.paddingy * panel->scale + left_border_width(&systray.area) +
-                       systray.area.paddingy * panel->scale + systray.margin / 2;
-        posy = systray.area.posy + top_border_width(&systray.area) + systray.area.paddingx * panel->scale;
+        posx = start    = left_border_width( & panel->area)  + panel->area.paddingy  * panel->scale
+                        + left_border_width( & systray.area) + systray.area.paddingy * panel->scale + systray.margin / 2;
+        posy = systray.area.posy + top_border_width( & systray.area) + systray.area.paddingx * panel->scale;
     }
 
     TrayWindow *traywin;
@@ -305,20 +318,20 @@ void on_change_systray(void *obj)
                     posy);
         traywin->width = systray.icon_size;
         traywin->height = systray.icon_size;
-        if (panel_horizontal) {
+        int pos = systray.icon_size + systray.area.spacing * panel->scale;
+        if (panel_horizontal)
+        {
             if (i % systray.icons_per_column)
-                posy += systray.icon_size + systray.area.spacing * panel->scale;
-            else {
-                posy = start;
-                posx += (systray.icon_size + systray.area.spacing * panel->scale);
-            }
-        } else {
+                posy += pos;
+            else
+                posy = start, posx += pos;
+        }
+        else
+        {
             if (i % systray.icons_per_row)
-                posx += systray.icon_size + systray.area.spacing * panel->scale;
-            else {
-                posx = start;
-                posy += (systray.icon_size + systray.area.spacing * panel->scale);
-            }
+                posx += pos;
+            else
+                posx = start, posy += pos;
         }
 
         // position and size the icon window
@@ -368,33 +381,10 @@ void start_net()
 
     // freedesktop systray specification
     if (win != None) {
-        // search pid
-        Atom actual_type;
-        int actual_format;
-        unsigned long nitems;
-        unsigned long bytes_after;
-        unsigned char *prop = 0;
-        int pid;
-
-        int ret = XGetWindowProperty(server.display,
-                                     win,
-                                     server.atom [_NET_WM_PID],
-                                     0,
-                                     1024,
-                                     False,
-                                     AnyPropertyType,
-                                     &actual_type,
-                                     &actual_format,
-                                     &nitems,
-                                     &bytes_after,
-                                     &prop);
-
+        long *prop = get_property (win, server.atom [_NET_WM_PID], XA_CARDINAL, NULL);
         fprintf( stderr, RED "tint2: another systray is running, cannot use systray");
-        if (ret == Success && prop) {
-            pid = prop[1] * 256;
-            pid += prop[0];
-            fprintf( stderr, ": pid=%d", pid);
-        }
+        if (prop)
+            fprintf( stderr, ": pid=%li", *(long *)prop);
         fprintf(stderr, RESET "\n");
         return;
     }
@@ -460,16 +450,13 @@ void start_net()
     fprintf(stderr, GREEN "tint2: systray started" RESET "\n");
     if (systray_profile)
         fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
-    XClientMessageEvent ev;
-    ev.type = ClientMessage;
-    ev.window = server.root_win;
-    ev.message_type = server.atom [MANAGER];
-    ev.format = 32;
-    ev.data.l[0] = CurrentTime;
-    ev.data.l[1] = server.atom [_NET_SYSTEM_TRAY_SCREEN];
-    ev.data.l[2] = net_sel_win;
-    ev.data.l[3] = 0;
-    ev.data.l[4] = 0;
+    XClientMessageEvent ev = {
+        .type = ClientMessage,
+        .window = server.root_win,
+        .message_type = server.atom [MANAGER],
+        .format = 32,
+        .data.l = { CurrentTime, server.atom [_NET_SYSTEM_TRAY_SCREEN], net_sel_win, 0, 0 },
+    };
     XSendEvent(server.display, server.root_win, False, StructureNotifyMask, (XEvent *)&ev);
 }
 

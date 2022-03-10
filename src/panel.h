@@ -66,7 +66,7 @@ typedef enum StrutPolicy {
     STRUT_NONE,
 } StrutPolicy;
 
-typedef enum StrutType {
+enum StrutType {
     STRUT_LEFT,
     STRUT_RIGHT,
     STRUT_TOP,
@@ -81,7 +81,8 @@ typedef enum StrutType {
     STRUT_BOTTOM_X2,
     STRUT_COUNT,
     STRUT_COUNT_OLD = 4,
-} StrutType;
+};
+typedef long StrutType;
 
 extern TaskbarMode taskbar_mode;
 extern gboolean wm_menu;

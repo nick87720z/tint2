@@ -622,16 +622,12 @@ void draw_background(Area *a, cairo_t *c)
             bg_set = 1;                                                                  \
         }while(0)
 
-    // Border stich level (1)
-    cairo_push_group (c);
-
-    // Background composition level (2)
+    // Background composition level (1)
     if ((a->bg->fill_color.alpha > 0.0) ||
         (panel_config.mouse_effects && (a->has_mouse_over_effect || a->has_mouse_press_effect)))
     {
-        // Not sure about this
-        bg_compose;
         set_cairo_source_bg_color(a, c);
+        bg_compose;
         cairo_fill_preserve(c);
     }
     for (GList *l = a->gradient_instances_by_state[a->mouse_state]; l; l = l->next)
@@ -639,12 +635,16 @@ void draw_background(Area *a, cairo_t *c)
         GradientInstance *gi = (GradientInstance *)l->data;
         if (!gi->pattern)
             update_gradient(gi);
+
         cairo_set_source(c, gi->pattern);
         bg_compose;
         cairo_fill_preserve(c);
     }
 
-    // Clip entire composition - ultimate solution against remaining artifacts
+    // Finished background composition, time to clip
+    // FIXME: there could be different approach: compose right on main canvas with cliping done
+    // via mask multiplication, but very attempt to fill mask group (not even painting as source)
+    // produces strange wrong result on main canvas. Looks like reason for xrender tinkering.
     if (bg_set)
         cairo_new_path (c);
     draw_rect(c,
@@ -656,23 +656,22 @@ void draw_background(Area *a, cairo_t *c)
     }
 
     // At last - stich border (in additive - stich is not overlay)
-    if (a->bg->border.width > 0) {
-        cairo_set_line_width(c, a->bg->border.width);
-
+    if (a->bg->border.width > 0)
+    {
         // draw border inside (x, y, width, height)
-        set_cairo_source_border_color(a, c);
         cairo_new_sub_path (c);
         draw_rect_on_sides(c,
                            0, 0, a->width, a->height,
                            a->bg->border.radius + a->bg->border.width / 2.0,
                            a->bg->border.rmask);
 
+        set_cairo_source_border_color(a, c);
+        cairo_save (c);
         cairo_set_operator (c, CAIRO_OPERATOR_ADD);
         cairo_set_fill_rule (c, CAIRO_FILL_RULE_EVEN_ODD);
         cairo_fill(c);
+        cairo_restore (c);
     }
-    cairo_pop_group_to_source (c);
-    cairo_paint (c);
 
     #undef bg_compose
 }

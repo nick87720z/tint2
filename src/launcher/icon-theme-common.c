@@ -744,8 +744,6 @@ char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name,
         return NULL;
 
     load_icon_cache(wrapper);
-    
-    fprintf (stderr, "get_icon_path_from_cache: '%s' '%s'\n", wrapper->icon_theme_name, icon_name);
 
     gchar *key = strdup_printf( NULL, "%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
     const gchar *value = get_from_cache(&wrapper->_cache, key);

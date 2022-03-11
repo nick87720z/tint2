@@ -43,8 +43,8 @@ do{ BUF_0TERM (n);                                                              
 #define g_slist_append_tail(list, tail, data)                                            \
 /* Enhanced list grow, keeping track of tail */                                          \
 {                                                                                        \
-    void *d = (data);                                                                    \
-    tail = g_slist_append (tail, d);                                                     \
+    void *_d_ = (data);                                                                  \
+    tail = g_slist_append (tail, _d_);                                                   \
     if (list)   tail = tail->next;                                                       \
     else        list = tail;                                                             \
 }
@@ -61,15 +61,15 @@ do{ BUF_0TERM (n);                                                              
 #define g_slist_insert_after(list, tail, d)                                              \
 /* Grow list from start, keeping track of position */                                    \
 {                                                                                        \
-    void *_d = (d);                                                                      \
+    void *_d_ = (d);                                                                     \
     GSList *new_node;                                                                    \
     if (! tail)                                                                          \
-        tail = list = g_slist_prepend (list, _d);                                        \
+        tail = list = g_slist_prepend (list, _d_);                                       \
     else {                                                                               \
         new_node = g_slist_alloc ();                                                     \
         new_node->next = tail->next;                                                     \
         tail->next = new_node;                                                           \
-        new_node->data = _d;                                                             \
+        new_node->data = _d_;                                                            \
     }                                                                                    \
 }
 

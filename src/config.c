@@ -303,7 +303,7 @@ void add_entry(char *key, char *value)
         VALUE_DUP_IF_SET(cmd);            \
     } while(0)
 
-    char *values[3] = {NULL, NULL, NULL};
+    char *values[] = {NULL, NULL, NULL, NULL};
     cfg_key_t key_i = str_index(key, cfg_keys, DICT_KEYS_NUM);
 
     switch (key_i) {
@@ -336,7 +336,6 @@ void add_entry(char *key, char *value)
     case key_rounded_corners: {
         Background *bg = &g_array_index(backgrounds, Background, backgrounds->len - 1);
         bg->border.rmask = 0;
-        char *values[4];
         if (extract_values(value, values, 4))
             for (int i=0; i<4 && values[i]; i++) {
                 if (strcmp(values[i], "tl") == 0 || strcmp(values[i], "TL") == 0)

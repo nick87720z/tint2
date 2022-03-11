@@ -591,6 +591,8 @@ void handle_x_event(XEvent *e)
 
 void handle_x_events()
 {
+    // WARNING: this loop is probably not correct way for main loop implementation, but
+    // for not it's a way to prevent insane load in some cases, like enabled panel shrink.
     while (XPending(server.display) > 0)
     {
         XEvent e;

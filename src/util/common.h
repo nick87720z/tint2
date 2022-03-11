@@ -112,6 +112,8 @@ extern const char *user_config_dir;
 extern size_t home_dir_len;
 extern size_t user_config_dir_len;
 
+char *strdup_printf (size_t *len, const char *fmt,...);
+
 void fetch_home_dir (void);
 void fetch_user_config_dir (void);
 void write_string(int fd, const char *s);

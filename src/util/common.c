@@ -61,6 +61,25 @@ size_t home_dir_len = 0;
 const char *user_config_dir = NULL;
 size_t user_config_dir_len = 0;
 
+char *strdup_printf (size_t *len, const char *fmt,...)
+{
+    va_list ap1, ap2;
+    va_start( ap1, fmt);
+    va_copy( ap2, ap1);
+
+    size_t _len = vsnprintf( NULL, 0, fmt, ap1);
+    if (len)
+        *len = _len;
+
+    char *result = malloc( _len + 1);
+    vsprintf( result, fmt, ap2);
+
+    va_end( ap1);
+    va_end( ap2);
+
+    return result;
+}
+
 void fetch_home_dir (void) {
     if (! home_dir) {
         home_dir = g_get_home_dir();
@@ -1182,20 +1201,21 @@ void adjust_color(Color *color, int alpha, int saturation, int brightness)
     color->rgb[2] = b / 255.0;
 }
 
-void dump_image_data(const char *file_name, const char *name)
+void dump_image_data(const char *image_file, const char *name)
 {
-    Imlib_Image image = load_image(file_name, false);
+    Imlib_Image image = load_image(image_file, false);
     if (!image) {
         fprintf(stderr, "tint2: Could not load image from file\n");
         return;
     }
 
-    gchar *header_name = g_strdup_printf("%s.h", name);
-    gchar *guard = g_strdup_printf("%s_h", name);
-    FILE *header = fopen(header_name, "wt");
+    size_t name_len;
+
+    char *file_name = strdup_printf( &name_len, "%s.h", name);
+    FILE *header = fopen( file_name, "wt");
     fprintf(header,
-            "#ifndef %s\n"
-            "#define %s\n"
+            "#ifndef %s_h\n"
+            "#define %s_h\n"
             "\n"
             "#include <Imlib2.h>\n"
             "\n"
@@ -1204,21 +1224,17 @@ void dump_image_data(const char *file_name, const char *name)
             "extern DATA32 %s_data[];\n"
             "\n"
             "#endif\n",
-            guard,
-            guard,
-            name,
-            name,
-            name);
+            name, name,
+            name, name, name);
     fclose(header);
-    g_free(guard);
-    g_free(header_name);
 
     imlib_context_set_image(image);
 
     int height = imlib_image_get_height(),
         width = imlib_image_get_width();
-    gchar *source_name = g_strdup_printf("%s.c", name);
-    FILE *source = fopen(source_name, "wt");
+    file_name [name_len - 1] = 'c';
+    FILE *source = fopen( file_name, "wt");
+
     fprintf(source,
             "#include <%s.h>\n"
             "\n"
@@ -1226,10 +1242,8 @@ void dump_image_data(const char *file_name, const char *name)
             "int %s_height = %d;\n"
             "DATA32 %s_data[] = {\n",
             name,
-            name,
-            width,
-            name,
-            height,
+            name, width,
+            name, height,
             name);
 
     DATA32 *data = imlib_image_get_data_for_reading_only();
@@ -1258,7 +1272,7 @@ void dump_image_data(const char *file_name, const char *name)
     fprintf(source, "};\n");
     free (col_widths);
     fclose(source);
-    g_free(source_name);
+    free( file_name);
 
     imlib_free_image();
 }

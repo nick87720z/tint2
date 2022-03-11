@@ -40,9 +40,8 @@ static void load_specific_themes(char **paths, int count);
 
 gchar *get_home_config_path()
 // Returns ~/.config/tint2/tint2rc (or equivalent).
-// Needs gfree.
 {
-    return g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", "tint2rc", NULL);
+    return strdup_printf( NULL, "%s/tint2/tint2rc", (fetch_user_config_dir(), user_config_dir));
 }
 
 gchar *get_etc_config_path()
@@ -641,9 +640,9 @@ static void theme_selection_changed(GtkWidget *treeview, gpointer userdata)
         gchar *filepath;
         gtk_tree_model_get(model, &iter, COL_THEME_FILE, &filepath, -1);
         gboolean isdefault = theme_is_default(filepath);
-        gchar *text = isdefault ? g_strdup_printf("tint2") : g_strdup_printf("tint2 -c %s", filepath);
+        gchar *text = isdefault ? strdup_printf( NULL, "tint2") : strdup_printf( NULL, "tint2 -c %s", filepath);
         gtk_entry_set_text(GTK_ENTRY(tint_cmd), text);
-        g_free(text);
+        free( text);
         gboolean editable = theme_is_editable(filepath);
         g_free(filepath);
         g_simple_action_set_enabled(ThemeSaveAs,        TRUE);
@@ -735,7 +734,7 @@ static void make_selected_theme_default()
     gchar *default_path = get_home_config_path();
     if (g_str_equal(filepath, default_path)) {
         g_free(filepath);
-        g_free(default_path);
+        free( default_path);
         return;
     }
 
@@ -749,7 +748,7 @@ static void make_selected_theme_default()
     gtk_widget_destroy(w);
     if (response != GTK_RESPONSE_YES) {
         g_free(filepath);
-        g_free(default_path);
+        free( default_path);
         return;
     }
 
@@ -757,7 +756,7 @@ static void make_selected_theme_default()
     select_first_theme();
 
     g_free(filepath);
-    g_free(default_path);
+    free( default_path);
 }
 
 static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
@@ -770,19 +769,20 @@ static void viewRowActivated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeV
 static void ensure_default_theme_exists()
 {
     // Without a user tint2rc file, copy the default
-    gchar *path_home = g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", "tint2rc", NULL);
+    gchar *path_home = strdup_printf( NULL, "%s/tint2/tint2rc", (fetch_user_config_dir(), user_config_dir));
     if (!g_file_test(path_home, G_FILE_TEST_EXISTS)) {
         const gchar *const *system_dirs = g_get_system_config_dirs();
-        for (int i = 0; system_dirs[i]; i++) {
-            gchar *path = g_build_filename(system_dirs[i], "tint2", "tint2rc", NULL);
+        for (int i = 0; system_dirs[i]; i++)
+        {
+            gchar *path = strdup_printf( NULL, "%s/tint2/tint2rc", system_dirs[i]);
             if (g_file_test(path, G_FILE_TEST_EXISTS)) {
                 copy_file(path, path_home);
                 break;
             }
-            g_free(path);
+            free( path);
         }
     }
-    g_free(path_home);
+    free( path_home);
 }
 
 static int theme_file_valid (const char *file_name)
@@ -797,10 +797,10 @@ static int theme_file_valid (const char *file_name)
 static gboolean load_user_themes()
 {
     // Load configs from home directory
-    gchar *tint2_config_dir = g_build_filename((fetch_user_config_dir(), user_config_dir), "tint2", NULL);
+    gchar *tint2_config_dir = strdup_printf( NULL, "%s/tint2", (fetch_user_config_dir(), user_config_dir));
     GDir *dir = g_dir_open(tint2_config_dir, 0, NULL);
     if (dir == NULL) {
-        g_free(tint2_config_dir);
+        free( tint2_config_dir);
         return FALSE;
     }
     gboolean found_theme = FALSE;
@@ -810,13 +810,13 @@ static gboolean load_user_themes()
         if (theme_file_valid (file_name))
         {
             found_theme = TRUE;
-            gchar *path = g_build_filename(tint2_config_dir, file_name, NULL);
+            gchar *path = strdup_printf( NULL, "%s/%s", tint2_config_dir, file_name);
             theme_list_append(path);
-            g_free(path);
+            free( path);
         }
     }
     g_dir_close(dir);
-    g_free(tint2_config_dir);
+    free( tint2_config_dir);
 
     return found_theme;
 }
@@ -825,7 +825,7 @@ static gboolean load_themes_from_dirs(const gchar *const *dirs)
 {
     gboolean found_theme = FALSE;
     for (int i = 0; dirs[i]; i++) {
-        gchar *path_tint2 = g_build_filename(dirs[i], "tint2", NULL);
+        gchar *path_tint2 = strdup_printf( NULL, "%s/tint2", dirs[i]);
         GDir *dir = g_dir_open(path_tint2, 0, NULL);
         if (dir) {
             const gchar *file_name;
@@ -833,14 +833,14 @@ static gboolean load_themes_from_dirs(const gchar *const *dirs)
                 if (theme_file_valid (file_name))
                 {
                     found_theme = TRUE;
-                    gchar *path = g_build_filename(path_tint2, file_name, NULL);
+                    gchar *path = strdup_printf( NULL, "%s/%s", path_tint2, file_name);
                     theme_list_append(path);
-                    g_free(path);
+                    free( path);
                 }
             }
             g_dir_close(dir);
         }
-        g_free(path_tint2);
+        free( path_tint2);
     }
     return found_theme;
 }
@@ -858,11 +858,10 @@ static gboolean load_system_themes()
 static gchar *find_theme_in_dirs(const gchar *const *dirs, const gchar *given_name)
 {
     for (int i = 0; dirs[i]; i++) {
-        gchar *filepath = g_build_filename(dirs[i], "tint2", given_name, NULL);
-        if (g_file_test(filepath, G_FILE_TEST_EXISTS)) {
+        gchar *filepath = strdup_printf( NULL, "%s/tint2/%s", dirs[i], given_name);
+        if (g_file_test(filepath, G_FILE_TEST_EXISTS))
             return filepath;
-        }
-        g_free(filepath);
+        free( filepath);
     }
     return NULL;
 }

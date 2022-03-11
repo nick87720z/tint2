@@ -13,6 +13,7 @@
 #include "colors.h"
 #include "signals.h"
 #include "test.h"
+#include "common.h"
 
 typedef struct TestListItem {
     Test *test;
@@ -31,10 +32,7 @@ void register_test_(Test *test, const char *name)
 
 static char *test_log_name_from_test_name(const char *test_name)
 {
-    char *output_name = g_strdup_printf("test_%s.log", test_name);
-    char *result = strdup(output_name);
-    g_free(output_name);
-    return result;
+    return strdup_printf( NULL, "test_%s.log", test_name);
 }
 
 static void redirect_test_output(const char *test_name)

@@ -299,12 +299,12 @@ Imlib_Image task_get_icon(Window win, int icon_size)
                 int array_size = w * h;
                 // imlib needs the array in DATA32 type
                 // using malloc for the array to protect from stack overflow
-                DATA32 *icon_data = (DATA32*) g_try_malloc(sizeof(*icon_data) * array_size);
+                DATA32 *icon_data = malloc( sizeof(*icon_data) * array_size);
                 if (icon_data) {
                     for (int j = 0; j < array_size; ++j)
                         icon_data[j] = tmp_data[j];
                     img = imlib_create_image_using_copied_data(w, h, icon_data);
-                    g_free(icon_data);
+                    free( icon_data);
                 }
             }
         }

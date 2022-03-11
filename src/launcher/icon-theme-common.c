@@ -215,9 +215,9 @@ IconTheme *load_theme_from_index(const char *file_name, const char *name)
 
 void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
 {
-    gchar *file_name = g_build_filename(dir_name, "index.theme", NULL);
+    gchar *file_name = strdup_printf( NULL, "%s/index.theme", dir_name);
     if (g_file_test(file_name, G_FILE_TEST_EXISTS)) {
-        g_free(file_name);
+        free( file_name);
         return;
     }
 
@@ -228,7 +228,7 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
         const gchar *size_name;
         while ((size_name = g_dir_read_name(d)))
         {
-            gchar *full_size_name = g_build_filename(dir_name, size_name, NULL);
+            gchar *full_size_name = strdup_printf( NULL, "%s/%s", dir_name, size_name);
             if (g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
                 int size, size2;
                 if ((sscanf(size_name, "%dx%d", &size, &size2) == 2 && size == size2) ||
@@ -240,9 +240,7 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
                         {
                             IconThemeDir *dir = calloc(1, sizeof(IconThemeDir));
                             // value is like 48x48/apps
-                            gchar *value = g_build_filename(size_name, subdir_name, NULL);
-                            dir->name = strdup(value);
-                            g_free(value);
+                            dir->name = strdup_printf( NULL, "%s/%s", size_name, subdir_name);
                             dir->max_size = dir->min_size = dir->size = size;
                             dir->type = ICON_DIR_TYPE_FIXED;
                             g_slist_append_tail (theme->list_directories, d_tail, dir);
@@ -251,26 +249,26 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
                     }
                 }
             }
-            g_free(full_size_name);
+            free( full_size_name);
         }
         g_dir_close(d);
     }
-    g_free( file_name);
+    free( file_name);
 }
 
 IconTheme *load_theme_from_fs(const char *name, IconTheme *theme)
 {
     gchar *dir_name = NULL;
-    for (const GSList *location = get_icon_locations(); location; location = location->next) {
+    for (const GSList *location = get_icon_locations(); location; location = location->next)
+    {
         gchar *path = (gchar *)location->data;
-        dir_name = g_build_filename(path, name, NULL);
+        dir_name = strdup_printf( NULL, "%s/%s", path, name);
         if (g_file_test(dir_name, G_FILE_TEST_IS_DIR)) {
-            if (!theme) {
+            if (!theme)
                 theme = make_theme(name);
-            }
             load_theme_from_fs_dir(theme, dir_name);
         }
-        g_free(dir_name);
+        free( dir_name);
         dir_name = NULL;
     }
 
@@ -290,10 +288,10 @@ IconTheme *load_theme(const char *name)
     for (const GSList *location = get_icon_locations(); location; location = location->next)
     {
         gchar *path = (gchar *)location->data;
-        file_name = g_build_filename(path, name, "index.theme", NULL);
+        file_name = strdup_printf( NULL, "%s/%s/index.theme", path, name);
         if (g_file_test(file_name, G_FILE_TEST_EXISTS))
             break;
-        g_free (file_name);
+        free( file_name);
         file_name = NULL;
     }
 
@@ -301,7 +299,7 @@ IconTheme *load_theme(const char *name)
 
     if (file_name) {
         theme = load_theme_from_index(file_name, name);
-        g_free (file_name);
+        free( file_name);
     } else
         theme = NULL;
 
@@ -457,11 +455,11 @@ void load_fallbacks(IconThemeWrapper *wrapper)
         if (d) {
             const gchar *name;
             while ((name = g_dir_read_name(d))) {
-                gchar *file_name = g_build_filename(path, name, "index.theme", NULL);
+                gchar *file_name = strdup_printf( NULL, "%s/%s/index.theme", path, name);
                 if (g_file_test(file_name, G_FILE_TEST_EXISTS) && !g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
                     load_themes_helper(name, &wrapper->themes_fallback, &wrapper->_queued);
                 }
-                g_free(file_name);
+                free( file_name);
             }
             g_dir_close(d);
         }
@@ -746,10 +744,12 @@ char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name,
         return NULL;
 
     load_icon_cache(wrapper);
+    
+    fprintf (stderr, "get_icon_path_from_cache: '%s' '%s'\n", wrapper->icon_theme_name, icon_name);
 
-    gchar *key = g_strdup_printf("%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
+    gchar *key = strdup_printf( NULL, "%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
     const gchar *value = get_from_cache(&wrapper->_cache, key);
-    g_free(key);
+    free( key);
 
     if (!value) {
         fprintf(stderr,
@@ -783,9 +783,9 @@ void add_icon_path_to_cache(IconThemeWrapper *wrapper, const char *icon_name, in
 
     load_icon_cache(wrapper);
 
-    gchar *key = g_strdup_printf("%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
+    gchar *key = strdup_printf( NULL, "%s\t%s\t%d", wrapper->icon_theme_name, icon_name, size);
     add_to_cache(&wrapper->_cache, key, path);
-    g_free(key);
+    free( key);
 }
 
 char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size, gboolean use_fallbacks)

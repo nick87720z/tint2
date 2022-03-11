@@ -34,7 +34,7 @@ void init_cache(Cache *cache)
 {
     if (cache->_table)
         free_cache(cache);
-    cache->_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    cache->_table = g_hash_table_new_full(g_str_hash, g_str_equal, free, free);
     cache->dirty = FALSE;
     cache->loaded = FALSE;
 }
@@ -79,7 +79,7 @@ void load_cache(Cache *cache, const gchar *cache_path)
         line [line_len] = '\0';
 
         if (parse_line(line, &key, &value))
-            g_hash_table_insert(cache->_table, g_strdup(key), g_strdup(value));
+            g_hash_table_insert(cache->_table, strdup(key), strdup(value));
     }
     free(line);
     fclose(f);
@@ -147,6 +147,6 @@ void add_to_cache(Cache *cache, const gchar *key, const gchar *value)
     if (old_value && g_str_equal(old_value, value))
         return;
 
-    g_hash_table_insert(cache->_table, g_strdup(key), g_strdup(value));
+    g_hash_table_insert(cache->_table, strdup(key), strdup(value));
     cache->dirty = TRUE;
 }

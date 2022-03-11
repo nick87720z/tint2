@@ -502,14 +502,10 @@ void stop_net()
 {
     if (systray_profile)
         fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
-    if (systray.list_icons) {
-        // remove_icon change systray.list_icons
-        while (systray.list_icons)
-            remove_icon((TrayWindow *)systray.list_icons->data);
 
-        g_slist_free(systray.list_icons);
-        systray.list_icons = NULL;
-    }
+    // remove_icon change systray.list_icons
+    while (systray.list_icons)
+        remove_icon((TrayWindow *)systray.list_icons->data);
 
     if (net_sel_win != None) {
         XDestroyWindow(server.display, net_sel_win);
@@ -704,7 +700,7 @@ gboolean add_icon(Window win)
                                   &set_attr);
 
     // Add the icon to the list
-    TrayWindow *traywin = g_new0(TrayWindow, 1);
+    TrayWindow *traywin = calloc( 1, sizeof(TrayWindow));
     traywin->parent = parent;
     traywin->win = win;
     traywin->depth = attr.depth;
@@ -909,15 +905,10 @@ void remove_icon(TrayWindow *traywin)
         imlib_context_set_image(traywin->image);
         imlib_free_image_and_decache();
     }
-    g_free(traywin);
+    free( traywin);
 
     // check empty systray
-    int count = 0;
-    GSList *l;
-    for (l = systray.list_icons; l; l = l->next) {
-        count++;
-    }
-    if (count == 0)
+    if (systray.list_icons)
         hide(&systray.area);
 
     // Resize and redraw the systray

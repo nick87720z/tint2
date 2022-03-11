@@ -67,19 +67,16 @@ void init_taskbarname_panel(void *p)
 
         // use desktop number if name is missing
         if (l) {
-            taskbar->bar_name.name = g_strdup(l->data);
+            taskbar->bar_name.name = strdup(l->data);
             l = l->next;
         } else
-            taskbar->bar_name.name = g_strdup_printf("%d", j + 1);
+            taskbar->bar_name.name = strdup_printf( NULL, "%d", j + 1);
 
         // append the name at the beginning of taskbar
         taskbar->area.children = g_list_append(taskbar->area.children, &taskbar->bar_name);
         area_gradients_create(&taskbar->bar_name.area);
     }
-
-    for (l = list; l; l = l->next)
-        g_free(l->data);
-    g_slist_free(list);
+    g_slist_free_full( list, free);
 }
 
 void taskbarname_init_fonts()
@@ -117,8 +114,7 @@ void cleanup_taskbarname()
         for (int j = 0; j < panel->num_desktops; j++)
         {
             Taskbar *taskbar = &panel->taskbar[j];
-            g_free(taskbar->bar_name.name);
-            taskbar->bar_name.name = NULL;
+            free_and_null( taskbar->bar_name.name);
             free_area(&taskbar->bar_name.area);
             remove_area((Area *)&taskbar->bar_name);
         }
@@ -227,21 +223,20 @@ void update_desktop_names()
         {
             gchar *name;
             if (l) {
-                name = g_strdup(l->data);
+                name = strdup( l->data);
                 l = l->next;
             } else
-                name = g_strdup_printf("%d", j + 1);
+                name = strdup_printf( NULL, "%d", j + 1);
+
             Taskbar *taskbar = &panels[i].taskbar[j];
             if (strcmp(name, taskbar->bar_name.name) != 0) {
-                g_free(taskbar->bar_name.name);
+                free( taskbar->bar_name.name);
                 taskbar->bar_name.name = name;
                 taskbar->bar_name.area.resize_needed = TRUE;
             } else
-                g_free(name);
+                free( name);
         }
     }
-    for (GSList *l = list; l; l = l->next)
-        g_free(l->data);
-    g_slist_free(list);
+    g_slist_free_full( list, free);
     schedule_panel_redraw();
 }

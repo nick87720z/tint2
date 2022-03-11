@@ -132,18 +132,17 @@ static char *atom_names [NUM_ATOMS]
 
 void server_init_atoms()
 {
-    gchar * s_NET_SYSTEM_TRAY_SCREEN = g_strdup_printf("_NET_SYSTEM_TRAY_S%d", server.screen);
-    gchar * s_XSETTINGS_SCREEN       = g_strdup_printf("_XSETTINGS_S%d",       server.screen);
+    gchar * s_NET_SYSTEM_TRAY_SCREEN = strdup_printf( NULL, "_NET_SYSTEM_TRAY_S%d", server.screen);
+    gchar * s_XSETTINGS_SCREEN       = strdup_printf( NULL, "_XSETTINGS_S%d",       server.screen);
 
     atom_names [_NET_SYSTEM_TRAY_SCREEN] = s_NET_SYSTEM_TRAY_SCREEN;
     atom_names [_XSETTINGS_SCREEN]       = s_XSETTINGS_SCREEN;
-
     XInternAtoms(   server.display,
                     atom_names,
                     71, False, (Atom *)&server.atom);
 
-    g_free(s_NET_SYSTEM_TRAY_SCREEN);
-    g_free(s_XSETTINGS_SCREEN);
+    free( s_NET_SYSTEM_TRAY_SCREEN);
+    free( s_XSETTINGS_SCREEN);
 }
 
 const char *GetAtomName(Display *disp, Atom a)
@@ -482,7 +481,7 @@ GSList *get_desktop_names()
 
     if (server.viewports) {
         for (int j = 0; j < server.num_desktops; j++)
-            g_slist_append_tail (list, tail, g_strdup_printf("%d", j + 1));
+            g_slist_append_tail( list, tail, strdup_printf( NULL, "%d", j + 1));
         return list;
     }
 
@@ -493,9 +492,9 @@ GSList *get_desktop_names()
         gchar   *ptr  = data_ptr,
                 *eptr = data_ptr + count - 1;
 
-        tail = list = g_slist_append (NULL, g_strdup(data_ptr));
+        tail = list = g_slist_append( NULL, strdup( data_ptr));
         while (( ptr = memchr (ptr, '\0', eptr - ptr) ))
-            g_slist_append_tail (list, tail, g_strdup(++ptr));
+            g_slist_append_tail( list, tail, strdup( ++ptr));
         XFree(data_ptr);
     }
     return list;

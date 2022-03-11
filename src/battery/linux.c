@@ -98,7 +98,7 @@ static guint8 level_to_percent(gint level_now, gint level_full)
 
 static enum psy_type power_supply_get_type(const gchar *entryname)
 {
-    gchar *path_type = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "type", NULL);
+    gchar *path_type = strdup_printf( NULL, "%s/sys/class/power_supply/%s/type", battery_sys_prefix, entryname);
     GError *error = NULL;
     gchar *type;
     gsize typelen;
@@ -106,11 +106,11 @@ static enum psy_type power_supply_get_type(const gchar *entryname)
     g_file_get_contents(path_type, &type, &typelen, &error);
     if (error) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, path_type);
-        g_free(path_type);
+        free( path_type);
         g_error_free(error);
         return PSY_UNKNOWN;
     }
-    g_free(path_type);
+    free( path_type);
 
     if (!g_strcmp0(type, "Battery\n")) {
         g_free(type);
@@ -131,70 +131,53 @@ static gboolean init_linux_battery(struct psy_battery *bat)
 {
     const gchar *entryname = bat->name;
 
-    bat->path_present = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "present", NULL);
+    bat->path_present = strdup_printf( NULL, "%s/sys/class/power_supply/%s/present", battery_sys_prefix, entryname);
     if (!is_file_non_empty(bat->path_present)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_present);
-        goto err0;
+        return FALSE;
     }
 
-    bat->path_level_now =
-        g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "energy_now", NULL);
-    bat->path_level_full =
-        g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "energy_full", NULL);
-    bat->path_rate_now = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "power_now", NULL);
+    bat->path_level_now = strdup_printf( NULL, "%s/sys/class/power_supply/%s/energy_now", battery_sys_prefix, entryname);
+    bat->path_level_full = strdup_printf( NULL, "%s/sys/class/power_supply/%s/energy_full", battery_sys_prefix, entryname);
+    bat->path_rate_now = strdup_printf( NULL, "%s/sys/class/power_supply/%s/power_now", battery_sys_prefix, entryname);
     bat->unit = 'W';
 
     if (!is_file_non_empty(bat->path_level_now) ||
         !is_file_non_empty(bat->path_level_full))
     {
-        g_free(bat->path_level_now);
-        g_free(bat->path_level_full);
-        g_free(bat->path_rate_now);
-        bat->path_level_now =
-            g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "charge_now", NULL);
-        bat->path_level_full =
-            g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "charge_full", NULL);
-        bat->path_rate_now =
-            g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "current_now", NULL);
+        free( bat->path_level_now);
+        free( bat->path_level_full);
+        free( bat->path_rate_now);
+
+        bat->path_level_now = strdup_printf( NULL, "%s/sys/class/power_supply/%s/charge_now", battery_sys_prefix, entryname);
+        bat->path_level_full = strdup_printf( NULL, "%s/sys/class/power_supply/%s/charge_full", battery_sys_prefix, entryname);
+        bat->path_rate_now = strdup_printf( NULL, "%s/sys/class/power_supply/%s/current_now", battery_sys_prefix, entryname);
         bat->unit = 'A';
     }
     if (!is_file_non_empty(bat->path_level_now)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_now);
-        goto err1;
+        return FALSE;
     }
     if (!is_file_non_empty(bat->path_level_full)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_full);
-        goto err1;
+        return FALSE;
     }
 
-    bat->path_status = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "status", NULL);
+    bat->path_status = strdup_printf( NULL, "%s/sys/class/power_supply/%s/status", battery_sys_prefix, entryname);
     if (!is_file_non_empty(bat->path_status)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_status);
-        goto err2;
+        return FALSE;
     }
 
     return TRUE;
-
-err2:
-    g_free(bat->path_status);
-err1:
-    g_free(bat->path_level_now);
-    g_free(bat->path_level_full);
-    g_free(bat->path_rate_now);
-err0:
-    g_free(bat->path_present);
-
-    return FALSE;
 }
 
 static gboolean init_linux_mains(struct psy_mains *ac)
 {
     const gchar *entryname = ac->name;
-
-    ac->path_online = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", entryname, "online", NULL);
+    ac->path_online = strdup_printf( NULL, "%s/sys/class/power_supply/%s/online", battery_sys_prefix, entryname);
     if (!is_file_non_empty(ac->path_online)) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, ac->path_online);
-        g_free(ac->path_online);
         return FALSE;
     }
 
@@ -204,21 +187,21 @@ static gboolean init_linux_mains(struct psy_mains *ac)
 static void psy_battery_free(gpointer data)
 {
     struct psy_battery *bat = data;
-    g_free(bat->name);
-    g_free(bat->path_status);
-    g_free(bat->path_rate_now);
-    g_free(bat->path_level_full);
-    g_free(bat->path_level_now);
-    g_free(bat->path_present);
-    g_free(bat);
+    free( bat->name);
+    free( bat->path_status);
+    free( bat->path_rate_now);
+    free( bat->path_level_full);
+    free( bat->path_level_now);
+    free( bat->path_present);
+    free( bat);
 }
 
 static void psy_mains_free(gpointer data)
 {
     struct psy_mains *ac = data;
-    g_free(ac->name);
-    g_free(ac->path_online);
-    g_free(ac);
+    free( ac->name);
+    free( ac->path_online);
+    free( ac);
 }
 
 void battery_os_free()
@@ -234,28 +217,28 @@ void battery_os_free()
 
 static void add_battery(const char *entryname)
 {
-    struct psy_battery *bat = g_malloc0(sizeof(*bat));
-    bat->name = g_strdup(entryname);
+    struct psy_battery *bat = calloc( 1, sizeof(*bat));
+    bat->name = strdup( entryname);
 
     if (init_linux_battery(bat)) {
         batteries = g_list_append(batteries, bat);
         fprintf(stderr, GREEN "Found battery \"%s\"" RESET "\n", bat->name);
     } else {
-        g_free(bat);
+        psy_battery_free( bat);
         fprintf(stderr, RED "tint2: Failed to initialize battery \"%s\"" RESET "\n", entryname);
     }
 }
 
 static void add_mains(const char *entryname)
 {
-    struct psy_mains *ac = g_malloc0(sizeof(*ac));
-    ac->name = g_strdup(entryname);
+    struct psy_mains *ac = calloc( 1, sizeof(*ac));
+    ac->name = strdup( entryname);
 
     if (init_linux_mains(ac)) {
         mains = g_list_append(mains, ac);
         fprintf(stderr, GREEN "Found mains \"%s\"" RESET "\n", ac->name);
     } else {
-        g_free(ac);
+        psy_mains_free( ac);
         fprintf(stderr, RED "tint2: Failed to initialize mains \"%s\"" RESET "\n", entryname);
     }
 }
@@ -268,9 +251,9 @@ gboolean battery_os_init()
 
     battery_os_free();
 
-    gchar *dir_path = g_build_filename(battery_sys_prefix, "/sys/class/power_supply", NULL);
+    gchar *dir_path = strdup_printf( NULL, "%s/sys/class/power_supply", battery_sys_prefix);
     directory = g_dir_open(dir_path, 0, &error);
-    g_free(dir_path);
+    free( dir_path);
     RETURN_ON_ERROR(error);
 
     while ((entryname = g_dir_read_name(directory))) {
@@ -471,23 +454,24 @@ static gchar *level_human_readable(struct psy_battery *bat)
     gint now  = bat->level_now;
     gint full = bat->level_full;
 
-    if (full >= 1000000) {
-        return g_strdup_printf("%d.%d / %d.%d %ch",
+    if (full >= 1000000)
+        return strdup_printf(  NULL,
+                               "%d.%d / %d.%d %ch",
                                now / 1000000,
                                (now % 1000000) / 100000,
                                full / 1000000,
                                (full % 1000000) / 100000,
                                bat->unit);
-    } else if (full >= 1000) {
-        return g_strdup_printf("%d.%d / %d.%d m%ch",
+    else if (full >= 1000)
+        return strdup_printf(  NULL,
+                               "%d.%d / %d.%d m%ch",
                                now / 1000,
                                (now % 1000) / 100,
                                full / 1000,
                                (full % 1000) / 100,
                                bat->unit);
-    } else {
-        return g_strdup_printf("%d / %d µ%ch", now, full, bat->unit);
-    }
+    else
+        return strdup_printf( NULL, "%d / %d µ%ch", now, full, bat->unit);
 }
 
 static gchar *rate_human_readable(struct psy_battery *bat)
@@ -495,10 +479,10 @@ static gchar *rate_human_readable(struct psy_battery *bat)
     gint rate = bat->rate_now;
     gchar unit = bat->unit;
 
-    return  (rate >= 1000000) ? g_strdup_printf("%d.%d %c", rate / 1000000, (rate % 1000000) / 100000, unit) :
-            (rate >= 1000   ) ? g_strdup_printf("%d.%d m%c", rate / 1000, (rate % 1000) / 100, unit) :
-            (rate > 0)        ? g_strdup_printf("%d µ%c", rate, unit) :
-                                g_strdup_printf("0 %c", unit);
+    return  (rate >= 1000000) ? strdup_printf( NULL, "%d.%d %c", rate / 1000000, (rate % 1000000) / 100000, unit) :
+            (rate >= 1000   ) ? strdup_printf( NULL, "%d.%d m%c", rate / 1000, (rate % 1000) / 100, unit) :
+            (rate > 0)        ? strdup_printf( NULL, "%d µ%c", rate, unit) :
+                                strdup_printf( NULL, "0 %c", unit);
 }
 
 char *battery_os_tooltip()
@@ -528,8 +512,8 @@ char *battery_os_tooltip()
 
         g_string_append_printf(tooltip, "\t%s: %s (%u %%)\n\trate: %s", state, level, percentage, rate);
 
-        g_free(rate);
-        g_free(level);
+        free( rate);
+        free( level);
     }
 
     for (l = mains; l != NULL; l = l->next) {

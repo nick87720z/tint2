@@ -20,6 +20,7 @@
 #ifdef __linux__
 
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "common.h"
 #include "battery.h"
@@ -57,6 +58,66 @@ struct psy_mains {
     gboolean online;    /* values */
 };
 
+static int file_get_contents( char *pathname, char **content)
+// Returns number of loaded characters or -1 if error occured
+{
+    if (! pathname || !content)
+        return -1;
+
+    int result = -1;
+    int fd = open( pathname, O_RDONLY);
+    if (fd == -1) {
+        fprintf(stderr, RED "tint2: error opening file %s" RESET "\n", pathname);
+        return result;
+    }
+    int len = lseek( fd, 0, SEEK_END);
+    if (len == -1) {
+        switch (errno) {
+        case EOVERFLOW:
+            fprintf(stderr, RED "tint2: file %s is too large" RESET "\n", pathname);
+            break;
+        case ESPIPE:
+            fprintf(stderr, RED "tint2: %s is pipe, socket or FIFO" RESET "\n", pathname);
+            break;
+        }
+        goto end;
+    }
+    lseek( fd, 0, SEEK_SET);
+    char *data = malloc( len + 1);
+    if (! data) {
+        fprintf(stderr, RED "tint2: can't allocate memory for %s" RESET "\n", pathname);
+        goto end;
+    }
+    result = len;
+    char *p = data;
+    while (len)
+    {
+        int ret = read( fd, data, len);
+        if (ret == 0)
+            break;
+        if (ret == -1) {
+            if (errno == EINTR)
+                continue;
+            if (errno = EIO)
+                fprintf(stderr, RED "tint2: error reading %s: input / output error" RESET "\n", pathname);
+            else
+                fprintf(stderr, RED "tint2: error reading %s" RESET "\n", pathname);
+            free( data);
+            result = -1;
+            goto end;
+        }
+        len -= ret;
+        p += ret;
+    }
+    *content = data;
+    result -= len;
+    data[ result ] = '\0';
+
+end:
+    close( fd);
+    return result;
+}
+
 static gboolean is_file_non_empty(const char *path)
 {
     FILE *f = fopen(path, "r");
@@ -82,8 +143,7 @@ static void uevent_battery_plug()
 static struct uevent_notify psy_plug = {UEVENT_ADD | UEVENT_REMOVE, "power_supply", NULL, uevent_battery_plug};
 
 #define RETURN_ON_ERROR(err)                                                        \
-    if (err) {                                                                      \
-        g_error_free(err);                                                          \
+    if (err) {                                                                           \
         fprintf(stderr, RED "tint2: %s:%d: errror" RESET "\n", __FILE__, __LINE__); \
         return FALSE;                                                               \
     }
@@ -99,30 +159,27 @@ static guint8 level_to_percent(gint level_now, gint level_full)
 static enum psy_type power_supply_get_type(const gchar *entryname)
 {
     gchar *path_type = strdup_printf( NULL, "%s/sys/class/power_supply/%s/type", battery_sys_prefix, entryname);
-    GError *error = NULL;
     gchar *type;
     gsize typelen;
 
-    g_file_get_contents(path_type, &type, &typelen, &error);
-    if (error) {
+    if (file_get_contents( path_type, &type) == -1) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, path_type);
         free( path_type);
-        g_error_free(error);
         return PSY_UNKNOWN;
     }
     free( path_type);
 
     if (!g_strcmp0(type, "Battery\n")) {
-        g_free(type);
+        free( type);
         return PSY_BATTERY;
     }
 
     if (!g_strcmp0(type, "Mains\n")) {
-        g_free(type);
+        free( type);
         return PSY_MAINS;
     }
 
-    g_free(type);
+    free( type);
 
     return PSY_UNKNOWN;
 }
@@ -254,7 +311,8 @@ gboolean battery_os_init()
     gchar *dir_path = strdup_printf( NULL, "%s/sys/class/power_supply", battery_sys_prefix);
     directory = g_dir_open(dir_path, 0, &error);
     free( dir_path);
-    RETURN_ON_ERROR(error);
+    g_error_free( error);
+    RETURN_ON_ERROR( error);
 
     while ((entryname = g_dir_read_name(directory))) {
         fprintf(stderr, GREEN "tint2: Found power device %s" RESET "\n", entryname);
@@ -310,10 +368,9 @@ static gboolean update_linux_battery(struct psy_battery *bat)
     bat->timestamp = g_get_monotonic_time();
 
     /* present */
-    g_file_get_contents(bat->path_present, &data, &datalen, &error);
-    RETURN_ON_ERROR(error);
+    RETURN_ON_ERROR( file_get_contents( bat->path_present, &data) == -1);
     bat->present = (atoi(data) == 1);
-    g_free(data);
+    free( data);
 
     /* we are done, if battery is not present */
     if (!bat->present)
@@ -321,8 +378,8 @@ static gboolean update_linux_battery(struct psy_battery *bat)
 
     /* status */
     bat->status = BATTERY_UNKNOWN;
-    g_file_get_contents(bat->path_status, &data, &datalen, &error);
-    RETURN_ON_ERROR(error);
+    RETURN_ON_ERROR( file_get_contents( bat->path_status, &data) == -1);
+
     if (!g_strcmp0(data, "Charging\n")) {
         bat->status = BATTERY_CHARGING;
     } else if (!g_strcmp0(data, "Discharging\n")) {
@@ -330,19 +387,17 @@ static gboolean update_linux_battery(struct psy_battery *bat)
     } else if (!g_strcmp0(data, "Full\n")) {
         bat->status = BATTERY_FULL;
     }
-    g_free(data);
+    free( data);
 
     /* level now */
-    g_file_get_contents(bat->path_level_now, &data, &datalen, &error);
-    RETURN_ON_ERROR(error);
+    RETURN_ON_ERROR( file_get_contents( bat->path_level_now, &data) == -1);
     bat->level_now = atoi(data);
-    g_free(data);
+    free( data);
 
     /* level full */
-    g_file_get_contents(bat->path_level_full, &data, &datalen, &error);
-    RETURN_ON_ERROR(error);
+    RETURN_ON_ERROR( file_get_contents( bat->path_level_full, &data) == -1);
     bat->level_full = atoi(data);
-    g_free(data);
+    free( data);
 
     /* rate now */
     g_file_get_contents(bat->path_rate_now, &data, &datalen, &error);
@@ -369,16 +424,13 @@ static gboolean update_linux_battery(struct psy_battery *bat)
 
 static gboolean update_linux_mains(struct psy_mains *ac)
 {
-    GError *error = NULL;
     gchar *data;
-    gsize datalen;
     ac->online = FALSE;
 
     /* online */
-    g_file_get_contents(ac->path_online, &data, &datalen, &error);
-    RETURN_ON_ERROR(error);
+    RETURN_ON_ERROR( file_get_contents( ac->path_online, &data) == -1);
     ac->online = (atoi(data) == 1);
-    g_free(data);
+    free( data);
 
     return TRUE;
 }

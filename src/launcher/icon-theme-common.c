@@ -255,6 +255,7 @@ void load_theme_from_fs_dir(IconTheme *theme, const char *dir_name)
         }
         g_dir_close(d);
     }
+    g_free( file_name);
 }
 
 IconTheme *load_theme_from_fs(const char *name, IconTheme *theme)

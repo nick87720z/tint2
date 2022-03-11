@@ -160,7 +160,6 @@ static enum psy_type power_supply_get_type(const gchar *entryname)
 {
     gchar *path_type = strdup_printf( NULL, "%s/sys/class/power_supply/%s/type", battery_sys_prefix, entryname);
     gchar *type;
-    gsize typelen;
 
     if (file_get_contents( path_type, &type) == -1) {
         fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, path_type);

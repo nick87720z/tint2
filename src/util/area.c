@@ -454,10 +454,10 @@ void free_pixmaps(Area *a)
     a->pix = None;
     for (int i = 0; i < MOUSE_STATE_COUNT; i++)
     {
-        if (! a->pix_by_state[i])
-            continue;
-        XFreePixmap(server.display, a->pix_by_state[i]);
-        a->pix_by_state[i] = None;
+        if (a->pix_by_state[ i]) {
+            XFreePixmap( server.display, a->pix_by_state[i]);
+            a->pix_by_state[ i] = None;
+        }
     }
 }
 
@@ -469,10 +469,9 @@ void draw(Area *a)
 
     {   int pix_i = a->has_mouse_over_effect ? a->mouse_state : 0;
         if (! a->pix_by_state[pix_i])
-            a->pix_by_state[pix_i] = a->pix = XCreatePixmap(server.display, server.root_win,
-                                                            a->width, a->height, server.depth);
-        else
-            a->pix = a->pix_by_state[pix_i];
+            a->pix_by_state[pix_i] = XCreatePixmap( server.display, server.root_win,
+                                                    a->width, a->height, server.depth);
+        a->pix = a->pix_by_state[pix_i];
     }
 
     if (!a->_clear)

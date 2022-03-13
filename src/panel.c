@@ -144,13 +144,13 @@ void cleanup_panel()
         free_area(&p->area);
         if (p->temp_pmap)
             XFreePixmap(server.display, p->temp_pmap);
-        p->temp_pmap = 0;
+        p->temp_pmap = None;
         if (p->hidden_pixmap)
             XFreePixmap(server.display, p->hidden_pixmap);
-        p->hidden_pixmap = 0;
+        p->hidden_pixmap = None;
         if (p->main_win)
             XDestroyWindow(server.display, p->main_win);
-        p->main_win = 0;
+        p->main_win = None;
         destroy_timer(&p->autohide_timer);
         cleanup_freespace(p);
     }
@@ -922,17 +922,15 @@ void panel_clear_background(void *obj)
         Window dummy;
         int x, y;
         XTranslateCoordinates(server.display, p->main_win, server.root_win, 0, 0, &x, &y, &dummy);
-
-        if (panel_autohide && p->is_hidden) {
-            int xoff = 0, yoff = 0;
-            if (panel_horizontal && panel_position & BOTTOM)
-                yoff = p->area.height - p->hidden_height;
-            else if (!panel_horizontal && panel_position & RIGHT)
-                xoff = p->area.width - p->hidden_width;
-            x -= xoff;
-            y -= yoff;
+        if (panel_autohide && p->is_hidden)
+        {
+            if (panel_horizontal) {
+                if (panel_position & BOTTOM)
+                    y -= p->area.height - p->hidden_height;
+            } else
+                if (panel_position & RIGHT)
+                    x -= p->area.width - p->hidden_width;
         }
-
         XSetTSOrigin(server.display, server.gc, -x, -y);
         XFillRectangle(server.display, p->area.pix, server.gc, 0, 0, p->area.width, p->area.height);
     }
@@ -945,7 +943,7 @@ void set_panel_background(Panel *p)
 
     if (p->hidden_pixmap) {
         XFreePixmap(server.display, p->hidden_pixmap);
-        p->hidden_pixmap = 0;
+        p->hidden_pixmap = None;
     }
 }
 

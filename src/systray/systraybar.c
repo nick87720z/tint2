@@ -75,7 +75,7 @@ void default_systray()
 {
     systray_enabled = FALSE;
     memset(&systray, 0, sizeof(systray));
-    render_background = 0;
+    render_background = None;
     chrono = 0;
     systray.alpha = 100;
     systray.sort = SYSTRAY_SORT_LEFT2RIGHT;
@@ -98,7 +98,7 @@ void cleanup_systray()
     free_area(&systray.area);
     if (render_background) {
         XFreePixmap(server.display, render_background);
-        render_background = 0;
+        render_background = None;
     }
     if (systray_hide_name_regex) {
         regfree(systray_hide_name_regex);

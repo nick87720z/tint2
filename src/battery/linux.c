@@ -301,7 +301,8 @@ gboolean battery_os_init()
     gchar *dir_path = strdup_printf( NULL, "%s/sys/class/power_supply", battery_sys_prefix);
     directory = g_dir_open(dir_path, 0, &error);
     free( dir_path);
-    g_error_free( error);
+    if (error)
+        g_error_free( error);
     RETURN_ON_ERROR( error);
 
     while ((entryname = g_dir_read_name(directory))) {

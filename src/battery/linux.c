@@ -60,34 +60,26 @@ struct psy_mains {
 
 static int file_get_contents( char *pathname, char **content)
 // Returns number of loaded characters or -1 if error occured
+// Actual error code is written to errno
 {
+    errno = 0;
     if (! pathname || !content)
         return -1;
 
     int result = -1;
     int fd = open( pathname, O_RDONLY);
-    if (fd == -1) {
-        fprintf(stderr, RED "tint2: error opening file %s" RESET "\n", pathname);
+    if (fd == -1)
         return result;
-    }
+
     int len = lseek( fd, 0, SEEK_END);
-    if (len == -1) {
-        switch (errno) {
-        case EOVERFLOW:
-            fprintf(stderr, RED "tint2: file %s is too large" RESET "\n", pathname);
-            break;
-        case ESPIPE:
-            fprintf(stderr, RED "tint2: %s is pipe, socket or FIFO" RESET "\n", pathname);
-            break;
-        }
+    if (len == -1)
         goto end;
-    }
+
     lseek( fd, 0, SEEK_SET);
     char *data = malloc( len + 1);
-    if (! data) {
-        fprintf(stderr, RED "tint2: can't allocate memory for %s" RESET "\n", pathname);
+    if (! data)
         goto end;
-    }
+
     result = len;
     char *p = data;
     while (len)
@@ -95,13 +87,11 @@ static int file_get_contents( char *pathname, char **content)
         int ret = read( fd, data, len);
         if (ret == 0)
             break;
-        if (ret == -1) {
+        if (ret == -1)
+        {
             if (errno == EINTR)
                 continue;
-            if (errno = EIO)
-                fprintf(stderr, RED "tint2: error reading %s: input / output error" RESET "\n", pathname);
-            else
-                fprintf(stderr, RED "tint2: error reading %s" RESET "\n", pathname);
+
             free( data);
             result = -1;
             goto end;
@@ -350,9 +340,7 @@ static gint estimate_rate_usage(struct psy_battery *bat, gint old_level_now, gin
 
 static gboolean update_linux_battery(struct psy_battery *bat)
 {
-    GError *error = NULL;
     gchar *data;
-    gsize datalen;
 
     gint64 old_timestamp = bat->timestamp;
     int old_level_now = bat->level_now;
@@ -399,10 +387,12 @@ static gboolean update_linux_battery(struct psy_battery *bat)
     free( data);
 
     /* rate now */
-    g_file_get_contents(bat->path_rate_now, &data, &datalen, &error);
-    if (g_error_matches(error, G_FILE_ERROR, G_FILE_ERROR_NODEV)) {
+    if (file_get_contents( bat->path_rate_now, &data) == -1)
+    {
+        if (errno != ENODEV)
+            return FALSE;
+
         /* some hardware does not support reading current rate consumption */
-        g_error_free(error);
         bat->rate_now = estimate_rate_usage(bat, old_level_now, old_timestamp);
         if (bat->rate_now == 0 && bat->status != BATTERY_FULL) {
             /* If the hardware updates the level slower than our sampling period,
@@ -410,12 +400,9 @@ static gboolean update_linux_battery(struct psy_battery *bat)
             bat->rate_now = old_rate_now;
             bat->timestamp = old_timestamp;
         }
-    } else if (error) {
-        g_error_free(error);
-        return FALSE;
     } else {
         bat->rate_now = atoi(data);
-        g_free(data);
+        free( data);
     }
 
     return TRUE;

@@ -492,7 +492,7 @@ void draw_task(void *obj, cairo_t *c)
         pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
         pango_layout_set_alignment(layout, panel->g_task.centered ? PANGO_ALIGN_CENTER : PANGO_ALIGN_LEFT);
 
-        pango_layout_get_pixel_size(layout, &task->_text_width, &task->_text_height);
+        pango_layout_get_pixel_size(layout, &task->_text_width, &task->_text_height); // leak source
         task->_text_posy = (panel->g_task.area.height - task->_text_height) / 2.0;
 
         config_text = &panel->g_task.font[task->current_state];

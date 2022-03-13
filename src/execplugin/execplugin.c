@@ -128,6 +128,11 @@ void destroy_execp(void *obj)
     if (backend->cmd_pids)
         g_tree_destroy(backend->cmd_pids);
 
+    if (backend->icon) {
+        imlib_context_set_image( backend->icon);
+        imlib_free_image();
+    }
+
     pango_font_description_free(backend->font_desc);
     
     free(backend->buf_stdout);

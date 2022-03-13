@@ -321,7 +321,9 @@ void tooltip_update()
                                - cairo_image_surface_get_height(g_tooltip.image)
         );
         cairo_set_source_surface(c, g_tooltip.image, 0, 0);
-        cairo_paint(c);
+        //~ cairo_paint(c); // Leak source. Nothing to do against. DO NOT USE cairo_paint(), do not remove this warning.
+        cairo_rectangle( c, 0, 0, width, height);
+        cairo_fill( c);
     }
 
     cairo_destroy(c);

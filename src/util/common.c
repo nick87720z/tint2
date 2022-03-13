@@ -840,6 +840,8 @@ Imlib_Image load_image(const char *path, int cached)
                             *(DATA32 *)p = 0xFF000000 | ((DATA32)p[0] << 16) | ((DATA32)p[1] << 8) | (DATA32)p[2];
                         }
                     write_data (1, (const char *)data, dim[0] * dim[1] * 4);
+                    g_object_unref( svg);
+                    g_object_unref( pixbuf);
                 }
                 _exit(0);
             } else {
@@ -974,7 +976,7 @@ void get_text_size2(const PangoFontDescription *font,
                                                     available_height, available_width);
     cairo_t *c = cairo_create(cs);
 
-    PangoContext *context = pango_cairo_create_context(c);
+    PangoContext *context = pango_cairo_create_context(c); // Leak source, unref (below) is useless
     pango_cairo_context_set_resolution(context, 96 * scale);
     PangoLayout *layout = pango_layout_new(context);
     pango_layout_set_width(layout, available_width * PANGO_SCALE);
@@ -989,7 +991,7 @@ void get_text_size2(const PangoFontDescription *font,
     else
         pango_layout_set_markup(layout, text, text_len);
 
-    pango_layout_get_extents(layout, NULL, &rect);
+    pango_layout_get_extents(layout, NULL, &rect); // Leak source
     // Hope, this reduces chance of wrong pixel extents - if obscure extents_to_pixels() conversion was reason
     *width  = ceil((rect.x + rect.width ) / (double)PANGO_SCALE) - floor(rect.x / (double)PANGO_SCALE);
     *height = ceil((rect.y + rect.height) / (double)PANGO_SCALE) - floor(rect.y / (double)PANGO_SCALE);

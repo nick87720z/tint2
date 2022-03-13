@@ -334,11 +334,13 @@ static void read_settings(XSettingsClient *client)
                                     &data);
     XSetErrorHandler(old_handler);
 
-    if (result == Success && type == server.atom [_XSETTINGS_SETTINGS]) {
-        if (format != 8) {
-            fprintf(stderr, "tint2: Invalid format for XSETTINGS property %d", format);
-        } else
-            client->settings = parse_settings(data, n_items);
+    if (result == Success) {
+        if (type == server.atom [_XSETTINGS_SETTINGS]) {
+            if (format != 8) {
+                fprintf(stderr, "tint2: Invalid format for XSETTINGS property %d", format);
+            } else
+                client->settings = parse_settings(data, n_items);
+        }
         XFree(data);
     }
 

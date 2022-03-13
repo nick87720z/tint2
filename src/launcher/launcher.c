@@ -163,7 +163,7 @@ void cleanup_launcher_theme(Launcher *launcher)
             free(launcherIcon->icon_name);
             free(launcherIcon->icon_path);
             free(launcherIcon->cmd);
-            g_free(launcherIcon->icon_tooltip);
+            free(launcherIcon->icon_tooltip);
             free(launcherIcon->config_path);
         }
         free(launcherIcon);
@@ -512,12 +512,12 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
         launcherIcon->startup_notification = entry.startup_notification;
         launcherIcon->icon_name = strdup (entry.icon ? entry.icon : DEFAULT_ICON);
         if (entry.name)
-            launcherIcon->icon_tooltip = entry.generic_name ? g_strdup_printf("%s (%s)", entry.name, entry.generic_name)
-                                                            : g_strdup_printf("%s", entry.name);
+            launcherIcon->icon_tooltip = entry.generic_name ? strdup_printf( NULL, "%s (%s)", entry.name, entry.generic_name)
+                                                            : strdup_printf( NULL, "%s", entry.name);
         else if (entry.generic_name)
-            launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.generic_name);
+            launcherIcon->icon_tooltip = strdup_printf( NULL, "%s", entry.generic_name);
         else if (entry.exec)
-            launcherIcon->icon_tooltip = g_strdup_printf("%s", entry.exec);
+            launcherIcon->icon_tooltip = strdup_printf( NULL, "%s", entry.exec);
 
         launcher_reload_icon_image(launcher, launcherIcon);
         show(&launcherIcon->area);

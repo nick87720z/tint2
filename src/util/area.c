@@ -474,15 +474,15 @@ void draw(Area *a)
         a->pix = a->pix_by_state[pix_i];
     }
 
-    if (!a->_clear)
+    if (a->_clear)
+        a->_clear( a);
+    else
         // Add layer of root pixmap (or clear pixmap if real_transparency==true)
         XCopyArea(server.display,
                   ((Panel *)a->panel)->temp_pmap, a->pix, server.gc,
                   a->posx,  a->posy,
                   a->width, a->height,
                   0, 0);
-    else
-        a->_clear(a);
 
     cairo_surface_t *cs = cairo_xlib_surface_create(server.display, a->pix, server.visual, a->width, a->height);
     cairo_t *c = cairo_create(cs);

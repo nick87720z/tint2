@@ -970,8 +970,8 @@ void get_text_size2(const PangoFontDescription *font,
 
     Pixmap pmap = XCreatePixmap(server.display, server.root_win,
                                 available_height, available_width, server.depth);
-    cairo_surface_t *cs =
-        cairo_xlib_surface_create(server.display, pmap, server.visual, available_height, available_width);
+    cairo_surface_t *cs = cairo_xlib_surface_create(server.display, pmap, server.visual,
+                                                    available_height, available_width);
     cairo_t *c = cairo_create(cs);
 
     PangoContext *context = pango_cairo_create_context(c);

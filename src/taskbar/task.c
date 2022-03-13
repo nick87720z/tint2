@@ -677,19 +677,21 @@ void reset_active_task()
 
 void task_refresh_thumbnail(Task *task)
 {
-    if (!panel_config.g_task.thumbnail_enabled)
+    if (!panel_config.g_task.thumbnail_enabled ||
+        task->current_state == TASK_ICONIFIED)
         return;
-    if (task->current_state == TASK_ICONIFIED)
-        return;
+
     Panel *panel = (Panel*)task->area.panel;
     double now = get_time();
     if (now - task->thumbnail_last_update < 0.1)
         return;
+
     if (debug_thumbnails)
         fprintf(stderr, "tint2: thumbnail for window: %s" RESET "\n", task->title ? task->title : "");
     cairo_surface_t *thumbnail = get_window_thumbnail(task->win, panel_config.g_task.thumbnail_width * panel->scale);
     if (!thumbnail)
         return;
+
     if (task->thumbnail)
         cairo_surface_destroy(task->thumbnail);
     task->thumbnail = thumbnail;

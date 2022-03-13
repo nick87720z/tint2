@@ -776,13 +776,14 @@ void sort_taskbar_for_win(Window win)
     if (taskbar_sort_method == TASKBAR_NOSORT)
         return;
 
-    GPtrArray *task_buttons = get_task_buttons(win);
-    if (task_buttons) {
-        Task *task0 = g_ptr_array_index(task_buttons, 0);
-        if (task0) {
-            get_window_coordinates(win, &task0->win_x, &task0->win_y, &task0->win_w, &task0->win_h);
-        }
-        for (int i = 0; i < task_buttons->len; ++i) {
+    GPtrArray *task_buttons;
+    Task      *task0;
+    if ((task_buttons = get_task_buttons( win)) &&
+        (task0 = g_ptr_array_index( task_buttons, 0)))
+    {
+        get_window_coordinates(win, &task0->win_x, &task0->win_y, &task0->win_w, &task0->win_h);
+        for (int i = 0; i < task_buttons->len; ++i)
+        {
             Task *task = g_ptr_array_index(task_buttons, i);
             task->win_x = task0->win_x;
             task->win_y = task0->win_y;
@@ -798,10 +799,12 @@ void update_minimized_icon_positions(void *p)
     Panel *panel = (Panel *)p;
     for (int i = 0; i < panel->num_desktops; i++) {
         Taskbar *taskbar = &panel->taskbar[i];
+
         if (!taskbar->area.on_screen)
             continue;
         for (GList *c = taskbar->area.children; c; c = c->next) {
             Area *area = (Area *)c->data;
+
             if (area->_on_change_layout)
                 area->_on_change_layout(area);
         }
@@ -821,8 +824,10 @@ void taskbar_update_thumbnails(void *arg)
     double start_time = get_time();
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
+
         for (int j = 0; j < panel->num_desktops; j++) {
             Taskbar *taskbar = &panel->taskbar[j];
+
             for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
                                                                             : taskbar->area.children;
                  c;
@@ -836,25 +841,23 @@ void taskbar_update_thumbnails(void *arg)
                     task_refresh_thumbnail(t);
                     if (mode == THUMB_MODE_ALL)
                         g_list_append_tail (taskbar_thumbnail_jobs_done, jdone_tail, t);
-                    if (t->thumbnail && mode == THUMB_MODE_TOOLTIP_WINDOW) {
+                    if (t->thumbnail && mode == THUMB_MODE_TOOLTIP_WINDOW)
                         taskbar_start_thumbnail_timer(THUMB_MODE_TOOLTIP_WINDOW);
-                    }
                 }
-                if (mode == THUMB_MODE_ALL) {
-                    double now = get_time();
-                    if (now - start_time > 0.030) {
-                        change_timer(&thumbnail_update_timer_all, true, 50, 10 * 1000, taskbar_update_thumbnails, arg);
-                        return;
-                    }
+                if (mode == THUMB_MODE_ALL &&
+                    get_time() - start_time > 0.030)
+                {
+                    change_timer(&thumbnail_update_timer_all, true, 50, 10 * 1000, taskbar_update_thumbnails, arg);
+                    return;
                 }
             }
         }
     }
-    if (mode == THUMB_MODE_ALL) {
-        if (taskbar_thumbnail_jobs_done) {
-            g_list_free(taskbar_thumbnail_jobs_done);
-            taskbar_thumbnail_jobs_done = NULL;
-            change_timer(&thumbnail_update_timer_all, true, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, arg);
-        }
+    if (mode == THUMB_MODE_ALL &&
+        taskbar_thumbnail_jobs_done)
+    {
+        g_list_free(taskbar_thumbnail_jobs_done);
+        taskbar_thumbnail_jobs_done = NULL;
+        change_timer(&thumbnail_update_timer_all, true, 10 * 1000, 10 * 1000, taskbar_update_thumbnails, arg);
     }
 }

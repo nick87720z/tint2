@@ -610,13 +610,11 @@ err0:
 gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)
 {
     uint32_t *pixels = (uint32_t *)cairo_image_surface_get_data(image_surface);
-    gboolean empty = TRUE;
     int size = cairo_image_surface_get_width(image_surface) * cairo_image_surface_get_height(image_surface);
-    for (int i = 0; empty && i < size; i++) {
+    for (int i = 0; i < size; i++)
         if (pixels[i] & 0xffFFff)
-            empty = FALSE;
-    }
-    return empty;
+            return FALSE;
+    return TRUE;
 }
 
 gboolean thumb_use_shm = FALSE;

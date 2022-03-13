@@ -198,7 +198,8 @@ typedef struct Area {
     gboolean _redraw_needed;    // Set to non-zero if the Area has to be redrawn.
                                 // Do not set this directly; use schedule_redraw() instead.
     ChangeState _changed;       // Set to non-zero if the position/size has changed, thus _on_change_layout needs to be called
-    Pixmap pix;                 // This is the pixmap on which the Area is rendered. Render to it directly if needed.
+    Pixmap pix;                 // Pointer to pixmap for current state. All rendering goes there.
+                                // Render to it directly on need.
     Pixmap pix_by_state[MOUSE_STATE_COUNT];
     char name[32];
 

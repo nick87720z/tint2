@@ -564,9 +564,9 @@ void change_desktop(int desktop)
 }
 
 void get_desktops()
+// detect number of desktops
+// wait 15s to leave some time for window manager startup
 {
-    // detect number of desktops
-    // wait 15s to leave some time for window manager startup
     for (int i = 0; i < 15; i++)
     {
         server_get_number_of_desktops();
@@ -647,8 +647,8 @@ void server_init_xdamage()
     server.xdamage_event_error_type += XDamageNotify;
 }
 
-// Forward mouse click to the desktop window
 void forward_click(XEvent *e)
+// Forward mouse click to the desktop window
 {
     // forward the click to the desktop window (thanks conky)
     XUngrabPointer(server.display, e->xbutton.time);

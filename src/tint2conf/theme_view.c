@@ -22,7 +22,6 @@
 #include "strnatcmp.h"
 #include "theme_view.h"
 #include "common.h"
-#include "strlcat.h"
 #include "md4.h"
 
 // The data columns that we export via the tree model interface
@@ -170,12 +169,9 @@ void theme_list_append(const gchar *path)
 
 gboolean update_snapshot(gpointer ignored)
 {
-    {
-        gchar *tint2_cache_dir = g_build_filename(g_get_user_cache_dir(), "tint2", NULL);
-        if (!g_file_test(tint2_cache_dir, G_FILE_TEST_IS_DIR))
-            g_mkdir_with_parents(tint2_cache_dir, 0700);
-        g_free(tint2_cache_dir);
-    }
+    gchar *tint2_cache_dir = g_build_filename(g_get_user_cache_dir(), "tint2", NULL);
+    if (!g_file_test(tint2_cache_dir, G_FILE_TEST_IS_DIR))
+        g_mkdir_with_parents(tint2_cache_dir, 0700);
 
     const gint PADDING = 20;
 
@@ -186,6 +182,8 @@ gboolean update_snapshot(gpointer ignored)
 
     int num_updates = 0;
     gboolean need_pls_wait = FALSE;
+
+    gchar *snap = NULL, *snap_name;
 
     have_iter = gtk_tree_model_get_iter_first(model, &iter);
     while (have_iter) {
@@ -201,11 +199,20 @@ gboolean update_snapshot(gpointer ignored)
         gboolean force_refresh;
         gtk_tree_model_get(model, &iter, COL_THEME_FILE, &path, COL_FORCE_REFRESH, &force_refresh, -1);
 
-        char hash[MD4_HEX_SIZE + 4];
-        md4hexf(path, hash);
-        strlcat(hash, ".png", sizeof(hash));
+        if (!snap) {
+            size_t cache_dir_len = strlen (tint2_cache_dir);
+            size_t snap_len = cache_dir_len + MD4_HEX_SIZE + strlen_const(".png") + 2;
+            snap = g_malloc (snap_len);
 
-        gchar *snap = g_build_filename(g_get_user_cache_dir(), "tint2", hash, NULL);
+            gchar *p = snap;
+            memcpy (p, tint2_cache_dir, cache_dir_len);
+            p += cache_dir_len,         p++[0] = '/';
+            snap_name = p;
+        }
+
+        md4hexf(path, snap_name);
+        strcpy_static (snap_name + MD4_HEX_SIZE - 1, ".png");
+
         pixbuf = force_refresh ? NULL : gdk_pixbuf_new_from_file(snap, NULL);
         if (!pixbuf) {
             gchar *cmd = g_strdup_printf("tint2 -c \'%s\' -s \'%s\' 1>/dev/null 2>/dev/null", path, snap);
@@ -221,7 +228,6 @@ gboolean update_snapshot(gpointer ignored)
             g_free(cmd);
         }
 
-        g_free(snap);
         g_free(path);
 
         gtk_list_store_set(theme_list_store, &iter,
@@ -238,6 +244,8 @@ gboolean update_snapshot(gpointer ignored)
 
         have_iter = gtk_tree_model_iter_next(model, &iter);
     }
+    g_free(snap);
+    g_free(tint2_cache_dir);
 
     if (need_pls_wait)
         destroy_please_wait();

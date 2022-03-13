@@ -20,7 +20,6 @@
 #include "gui.h"
 #include "background_gui.h"
 #include "gradient_gui.h"
-#include "strlcat.h"
 #include "../util/common.h"
 
 #include <stddef.h>

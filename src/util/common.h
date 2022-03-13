@@ -300,9 +300,12 @@ void dump_image_data(const char *file_name, const char *name);
     len == strlen_const(s2) && memcmp (s1, s2, sizeof(s2)) == 0                          \
 )
 
+#define strcpy_static(dst, src)                                                          \
+    memcpy(dst, src, sizeof(src))
+
 #define strdup_static(dst, src) do {                                                     \
     dst = malloc(sizeof(src));                                                           \
-    memcpy(dst, src, sizeof(src));                                                       \
+    strcpy_static(dst, src);                                                             \
 } while (0)
 
 #define startswith_static(s1, s2)                                                        \

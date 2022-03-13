@@ -692,7 +692,6 @@ void render_image(Drawable d, int x, int y)
     imlib_context_set_blend(1);
     imlib_context_set_drawable(d);
     imlib_render_image_on_drawable(x, y);
-    return;
 }
 
 gboolean is_color_attribute(PangoAttribute *attr, gpointer user_data)

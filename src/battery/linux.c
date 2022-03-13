@@ -199,14 +199,15 @@ static gboolean init_linux_battery(struct psy_battery *bat)
         bat->path_level_full = strdup_printf( NULL, "%s/sys/class/power_supply/%s/charge_full", battery_sys_prefix, entryname);
         bat->path_rate_now = strdup_printf( NULL, "%s/sys/class/power_supply/%s/current_now", battery_sys_prefix, entryname);
         bat->unit = 'A';
-    }
-    if (!is_file_non_empty(bat->path_level_now)) {
-        fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_now);
-        return FALSE;
-    }
-    if (!is_file_non_empty(bat->path_level_full)) {
-        fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_full);
-        return FALSE;
+
+        if (!is_file_non_empty(bat->path_level_now)) {
+            fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_now);
+            return FALSE;
+        }
+        if (!is_file_non_empty(bat->path_level_full)) {
+            fprintf(stderr, RED "tint2: %s:%d: read failed for %s" RESET "\n", __FILE__, __LINE__, bat->path_level_full);
+            return FALSE;
+        }
     }
 
     bat->path_status = strdup_printf( NULL, "%s/sys/class/power_supply/%s/status", battery_sys_prefix, entryname);

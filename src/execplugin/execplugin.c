@@ -594,11 +594,9 @@ void draw_execp(void *obj, cairo_t *c)
     PangoLayout *layout = create_execp_text_layout(execp, context);
     PangoLayout *shadow_layout = NULL;
 
-    if (backend->has_icon && backend->icon) {
-        imlib_context_set_image(backend->icon);
+    if (backend->has_icon && backend->icon)
         // Render icon
-        render_image(execp->area.pix, frontend->iconx, frontend->icony);
-    }
+        render_image( backend->icon, execp->area.pix, frontend->iconx, frontend->icony);
 
     // draw layout
     if (!backend->has_markup)

@@ -234,7 +234,7 @@ void        adjust_color (Color      *color,    int alpha, int saturation, int b
 
 void create_heuristic_mask(DATA32 *data, int w, int h);
 
-void render_image(Drawable d, int x, int y);
+void render_image( Imlib_Image image, Drawable d, int x, int y);
 // Renders the current Imlib image to a drawable. Wrapper around imlib_render_image_on_drawable.
 
 void get_text_size2(const PangoFontDescription *font,

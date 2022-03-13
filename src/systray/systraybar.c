@@ -1126,13 +1126,12 @@ void systray_render_icon_from_image(TrayWindow *traywin)
 {
     if (!traywin->image)
         return;
-    imlib_context_set_image(traywin->image);
     XCopyArea(server.display,
               render_background, systray.area.pix, server.gc,
               traywin->x - systray.area.posx,   traywin->y - systray.area.posy,
               traywin->width,                   traywin->height,
               traywin->x - systray.area.posx,   traywin->y - systray.area.posy);
-    render_image(systray.area.pix, traywin->x - systray.area.posx, traywin->y - systray.area.posy);
+    render_image( traywin->image, systray.area.pix, traywin->x - systray.area.posx, traywin->y - systray.area.posy);
 }
 
 void systray_render_icon_composited(void *t)

@@ -382,8 +382,7 @@ void draw_launcher_icon(void *obj, cairo_t *c)
     default:
     im_default:         image = launcherIcon->image;
     }
-    imlib_context_set_image(image);
-    render_image(launcherIcon->area.pix, 0, 0);
+    render_image( image, launcherIcon->area.pix, 0, 0);
 }
 
 void launcher_icon_dump_geometry(void *obj, int indent)

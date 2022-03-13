@@ -463,9 +463,8 @@ void draw_task_icon(Task *task, int text_width)
         image = task->icon[task->current_state];
     }
 
-    imlib_context_set_image(image);
     task->_icon_y = (task->area.height - panel->g_task.icon_size1) / 2;
-    render_image(task->area.pix, task->_icon_x, task->_icon_y);
+    render_image( image, task->area.pix, task->_icon_x, task->_icon_y);
 }
 
 void draw_task(void *obj, cairo_t *c)

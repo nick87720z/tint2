@@ -685,13 +685,14 @@ void create_heuristic_mask(DATA32 *data, int w, int h)
     }
 }
 
-void render_image(Drawable d, int x, int y)
+void render_image( Imlib_Image image, Drawable d, int x, int y)
 {
     // Contrary to what name guesses,
     // IMLIB_OP_COPY does alpha blending in same way as cairo/xrender OVER operation
-    imlib_context_set_blend(1);
-    imlib_context_set_drawable(d);
-    imlib_render_image_on_drawable(x, y);
+    imlib_context_set_blend( 1);
+    imlib_context_set_image( image);
+    imlib_context_set_drawable( d);
+    imlib_render_image_on_drawable( x, y);
 }
 
 gboolean is_color_attribute(PangoAttribute *attr, gpointer user_data)

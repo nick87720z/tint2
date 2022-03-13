@@ -499,9 +499,7 @@ void draw_button(void *obj, cairo_t *c)
                             break;
         default: nofx:      image = frontend->icon;
         }
-
-        imlib_context_set_image(image);
-        render_image(area->pix, frontend->iconx, frontend->icony);
+        render_image( image, area->pix, frontend->iconx, frontend->icony);
     }
 
     // Render text

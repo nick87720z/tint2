@@ -695,7 +695,7 @@ void task_refresh_thumbnail(Task *task)
     if (task->thumbnail)
         cairo_surface_destroy(task->thumbnail);
     task->thumbnail = thumbnail;
-    task->thumbnail_last_update = get_time();
+    task->thumbnail_last_update = now;
     if (debug_thumbnails)
         fprintf(stderr,
                 YELLOW "tint2: %s took %f ms (window: %s)" RESET "\n",

@@ -687,42 +687,12 @@ void create_heuristic_mask(DATA32 *data, int w, int h)
 
 void render_image(Drawable d, int x, int y)
 {
-    if (!server.real_transparency) {
-        imlib_context_set_blend(1);
-        imlib_context_set_drawable(d);
-        imlib_render_image_on_drawable(x, y);
-        return;
-    }
-
-    int w = imlib_image_get_width() ,
-        h = imlib_image_get_height();
-
-    Pixmap pixmap = XCreatePixmap(server.display, server.root_win, w, h, 32);
-    imlib_context_set_drawable(pixmap);
-    imlib_context_set_blend(0);
-    imlib_render_image_on_drawable(0, 0);
-
-    Pixmap mask = XCreatePixmap(server.display, server.root_win, w, h, 32);
-    imlib_context_set_drawable(mask);
-    imlib_context_set_blend(0);
-    imlib_render_image_on_drawable(0, 0);
-
-    Picture pict = XRenderCreatePicture(server.display, pixmap,
-                                        XRenderFindStandardFormat(server.display, PictStandardARGB32),
-                                        0, 0);
-    Picture pict_drawable = XRenderCreatePicture (server.display, d,
-                                                  XRenderFindVisualFormat(server.display, server.visual),
-                                                  0, 0);
-    Picture pict_mask = XRenderCreatePicture (server.display, mask,
-                                              XRenderFindStandardFormat(server.display, PictStandardARGB32),
-                                              0, 0);
-    XRenderComposite(server.display, PictOpOver, pict, pict_mask, pict_drawable, 0, 0, 0, 0, x, y, w, h);
-
-    XRenderFreePicture(server.display, pict_mask);
-    XRenderFreePicture(server.display, pict_drawable);
-    XRenderFreePicture(server.display, pict);
-    XFreePixmap(server.display, mask);
-    XFreePixmap(server.display, pixmap);
+    // Contrary to what name guesses,
+    // IMLIB_OP_COPY does alpha blending in same way as cairo/xrender OVER operation
+    imlib_context_set_blend(1);
+    imlib_context_set_drawable(d);
+    imlib_render_image_on_drawable(x, y);
+    return;
 }
 
 gboolean is_color_attribute(PangoAttribute *attr, gpointer user_data)

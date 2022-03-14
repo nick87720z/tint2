@@ -73,24 +73,24 @@ gboolean window_is_hidden(Window win)
     int count;
 
     Atom *at = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
+    {
         if (at[i] == server.atom [_NET_WM_STATE_SKIP_TASKBAR]) {
             XFree(at);
             return TRUE;
         }
         // do not add transient_for windows if the transient window is already in the taskbar
         window = win;
-        while (XGetTransientForHint(server.display, window, &window)) {
+        while (XGetTransientForHint(server.display, window, &window))
             if (get_task_buttons(window)) {
                 XFree(at);
                 return TRUE;
             }
-        }
     }
     XFree(at);
 
     at = get_property(win, server.atom [_NET_WM_WINDOW_TYPE], XA_ATOM, &count);
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
         if (at[i] == server.atom [_NET_WM_WINDOW_TYPE_DOCK] || at[i] == server.atom [_NET_WM_WINDOW_TYPE_DESKTOP] ||
             at[i] == server.atom [_NET_WM_WINDOW_TYPE_TOOLBAR] || at[i] == server.atom [_NET_WM_WINDOW_TYPE_MENU] ||
             at[i] == server.atom [_NET_WM_WINDOW_TYPE_SPLASH])
@@ -98,14 +98,11 @@ gboolean window_is_hidden(Window win)
             XFree(at);
             return TRUE;
         }
-    }
     XFree(at);
 
-    for (int i = 0; i < num_panels; i++) {
-        if (panels[i].main_win == win) {
+    for (int i = 0; i < num_panels; i++)
+        if (panels[i].main_win == win)
             return TRUE;
-        }
-    }
 
     // specification
     // Windows with neither _NET_WM_WINDOW_TYPE nor WM_TRANSIENT_FOR set
@@ -130,8 +127,7 @@ int get_window_desktop(Window win)
     y += server.viewports[desktop].y;
 
     if (x < 0 || y < 0) {
-        long *x_screen_size =
-            get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
+        long *x_screen_size = get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
         if (!x_screen_size)
             return 0;
         int x_screen_width = x_screen_size[0];
@@ -226,12 +222,11 @@ gboolean window_is_iconified(Window win)
     // WM_STATE is not accurate for shaded window and in multi_desktop mode.
     int count;
     Atom *at = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
         if (at[i] == server.atom [_NET_WM_STATE_HIDDEN]) {
             XFree(at);
             return TRUE;
         }
-    }
     XFree(at);
     return FALSE;
 }
@@ -241,12 +236,11 @@ gboolean window_is_urgent(Window win)
     int count;
 
     Atom *at = get_property(win, server.atom [_NET_WM_STATE], XA_ATOM, &count);
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++)
         if (at[i] == server.atom [_NET_WM_STATE_DEMANDS_ATTENTION]) {
             XFree(at);
             return TRUE;
         }
-    }
     XFree(at);
     return FALSE;
 }

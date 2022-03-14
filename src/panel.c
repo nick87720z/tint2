@@ -142,28 +142,26 @@ void cleanup_panel()
         Panel *p = &panels[i];
 
         free_area(&p->area);
-        if (p->temp_pmap)
+        if (p->temp_pmap) {
             XFreePixmap(server.display, p->temp_pmap);
-        p->temp_pmap = None;
-        if (p->hidden_pixmap)
+            p->temp_pmap = None;
+        }
+        if (p->hidden_pixmap) {
             XFreePixmap(server.display, p->hidden_pixmap);
-        p->hidden_pixmap = None;
-        if (p->main_win)
+            p->hidden_pixmap = None;
+        }
+        if (p->main_win) {
             XDestroyWindow(server.display, p->main_win);
-        p->main_win = None;
+            p->main_win = None;
+        }
         destroy_timer(&p->autohide_timer);
         cleanup_freespace(p);
     }
 
     free_icon_themes();
-
-    free(panel_items_order);
-    panel_items_order = NULL;
-    free(panel_window_name);
-    panel_window_name = NULL;
-    free(panels);
-    panels = NULL;
-
+    free_and_null( panel_items_order);
+    free_and_null( panel_window_name);
+    free_and_null( panels);
     free_area(&panel_config.area);
 
     g_array_free(backgrounds, TRUE);

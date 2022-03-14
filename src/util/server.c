@@ -531,8 +531,7 @@ int get_current_desktop()
     XFree(viewport);
 
     /*******************************/
-    long *x_screen_size =
-        get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
+    long *x_screen_size = get_property(server.root_win, server.atom [_NET_DESKTOP_GEOMETRY], XA_CARDINAL, NULL);
     if (!x_screen_size)
         return 0;
     int x_screen_width = x_screen_size[0];

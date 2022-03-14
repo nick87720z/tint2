@@ -474,10 +474,10 @@ void draw(Area *a)
         a->pix = a->pix_by_state[pix_i];
     }
 
+    // Add layer of root pixmap (or clear pixmap if real_transparency==true)
     if (a->_clear)
         a->_clear( a);
     else
-        // Add layer of root pixmap (or clear pixmap if real_transparency==true)
         XCopyArea(server.display,
                   ((Panel *)a->panel)->temp_pmap, a->pix, server.gc,
                   a->posx,  a->posy,

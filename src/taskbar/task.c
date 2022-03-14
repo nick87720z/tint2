@@ -276,14 +276,13 @@ gboolean task_update_title(Task *task)
         XFree( name);
 
     GPtrArray *task_buttons = get_task_buttons(task->win);
-    if (task_buttons) {
+    if (task_buttons)
         for (int i = 0; i < task_buttons->len; ++i)
         {
             Task *task2 = g_ptr_array_index(task_buttons, i);
             task2->title = task->title;
             schedule_redraw(&task2->area);
         }
-    }
     return TRUE;
 }
 

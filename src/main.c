@@ -355,7 +355,7 @@ void handle_event_expose(XEvent *e)
     panel = get_panel(e->xany.window);
     if (!panel)
         return;
-    // TODO : one panel_refresh per panel ?
+    // TODO : one panel_redraw per panel ?
     schedule_panel_redraw();
 }
 
@@ -636,12 +636,12 @@ void handle_panel_refresh()
 {
     if (debug_fps)
         ts_event_processed = get_time();
-    panel_refresh = FALSE;
+    panel_redraw = FALSE;
 
     for (int i = 0; i < num_panels; i++)
     {
         Panel *panel = &panels[i];
-        if (!first_render)
+        if (!first_render && panel_shrink)
             shrink_panel(panel);
 
         if (!panel->is_hidden || panel->area.resize_needed)
@@ -675,7 +675,9 @@ void handle_panel_refresh()
                       panel->hidden_width,  panel->hidden_height,
                       0, 0);
             XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->hidden_pixmap);
-        } else {
+        }
+        else
+        {
             XCopyArea(server.display,
                       panel->temp_pmap,
                       panel->main_win,
@@ -753,7 +755,7 @@ void run_tint2_event_loop()
 
     while (!get_signal_pending())
     {
-        if (panel_refresh)
+        if (panel_redraw)
             handle_panel_refresh();
 
         fd_set fds;

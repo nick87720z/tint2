@@ -555,16 +555,18 @@ int taskbar_get_desired_size(void *obj)
     Taskbar *taskbar = (Taskbar *)obj;
     Panel *panel = (Panel *)taskbar->area.panel;
 
-    if (taskbar_mode == MULTI_DESKTOP && !taskbar_distribute_size)
+    if (taskbar_mode != MULTI_DESKTOP || taskbar_distribute_size)
+        return container_get_desired_size( & taskbar->area);
+
+    int result = 0;
+    for (int i = 0; i < panel->num_desktops; i++)
     {
-        int result = 0;
-        for (int i = 0; i < panel->num_desktops; i++) {
-            Taskbar *t = &panel->taskbar[i];
-            result = MAX(result, container_get_desired_size(&t->area));
-        }
-        return result;
+        Taskbar *t = &panel->taskbar[i];
+        int size = container_get_desired_size( & t->area);
+        if (size > result)
+            result = size;
     }
-    return container_get_desired_size(&taskbar->area);
+    return result;
 }
 
 gboolean resize_taskbar(void *obj)
@@ -604,11 +606,9 @@ gboolean taskbar_is_empty(Taskbar *taskbar)
     GList *l = taskbar->area.children;
     if (taskbarname_enabled)
         l = l->next;
-    for (; l != NULL; l = l->next) {
-        if (((Task *)l->data)->area.on_screen) {
+    for (; l != NULL; l = l->next)
+        if (((Task *)l->data)->area.on_screen)
             return FALSE;
-        }
-    }
     return TRUE;
 }
 
@@ -627,9 +627,9 @@ void update_all_taskbars_visibility()
 {
     for (int i = 0; i < num_panels; i++) {
         Panel *panel = &panels[i];
-        for (int j = 0; j < panel->num_desktops; j++) {
+
+        for (int j = 0; j < panel->num_desktops; j++)
             update_taskbar_visibility(&panel->taskbar[j]);
-        }
     }
 }
 
@@ -652,22 +652,20 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
         if (taskbarname_enabled) {
             schedule_redraw(&taskbar->bar_name.area);
         }
-        if (taskbar_mode == MULTI_DESKTOP &&
-            panels[0].g_taskbar.background[TASKBAR_NORMAL] != panels[0].g_taskbar.background[TASKBAR_ACTIVE])
-        {
-            GList *l = taskbar->area.children;
-            if (taskbarname_enabled)
-                l = l->next;
-            for (; l; l = l->next)
-                schedule_redraw((Area *)l->data);
-        }
-        if (taskbar_mode == MULTI_DESKTOP && hide_task_diff_desktop) {
-            GList *l = taskbar->area.children;
-            if (taskbarname_enabled)
-                l = l->next;
-            for (; l; l = l->next) {
-                Task *task = (Task *)l->data;
-                set_task_state(task, task->current_state);
+        if (taskbar_mode == MULTI_DESKTOP) {
+            if (panels[0].g_taskbar.background[TASKBAR_NORMAL] != panels[0].g_taskbar.background[TASKBAR_ACTIVE])
+            {
+                GList *l = taskbarname_enabled ? taskbar->area.children->next : taskbar->area.children;
+                for (; l; l = l->next)
+                    schedule_redraw((Area *)l->data);
+            }
+            if (hide_task_diff_desktop)
+            {
+                GList *l = taskbarname_enabled ? taskbar->area.children->next : taskbar->area.children;
+                for (; l; l = l->next) {
+                    Task *task = (Task *)l->data;
+                    set_task_state(task, task->current_state);
+                }
             }
         }
     }

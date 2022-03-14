@@ -92,7 +92,7 @@ extern Layer panel_layer;
 extern char *panel_window_name;
 extern PanelPosition panel_position;
 extern gboolean panel_horizontal;
-extern gboolean panel_refresh;
+extern gboolean panel_redraw;
 extern gboolean task_dragged;
 extern gboolean panel_autohide;
 extern int panel_autohide_show_timeout;

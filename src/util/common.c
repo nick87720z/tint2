@@ -884,11 +884,6 @@ Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int bri
 
 void draw_rect(cairo_t *c, double x, double y, double w, double h, double r, int corner_mask)
 {
-    draw_rect_on_sides(c, x, y, w, h, r, corner_mask);
-}
-
-void draw_rect_on_sides(cairo_t *c, double x, double y, double w, double h, double r, int corner_mask)
-{
     double c1;
     r = MIN(MIN(w, h) / 2, r);
     c1 = 0.5522847498 * r;

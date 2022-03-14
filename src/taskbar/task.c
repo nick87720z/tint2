@@ -709,22 +709,20 @@ void set_task_state(Task *task, TaskState state)
 
     if (!task->thumbnail)
         task_refresh_thumbnail(task);
-    if (state == TASK_ACTIVE) {
+    if (state == TASK_ACTIVE)
         // For active windows, we get the thumbnail twice with a small delay in between.
         // This is because they sometimes redraw their windows slowly.
         taskbar_start_thumbnail_timer(THUMB_MODE_ACTIVE_WINDOW);
-    }
 
     if (state == TASK_ACTIVE && task->current_state != state) {
         clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);
         if (taskbar_sort_method == TASKBAR_SORT_LRU || taskbar_sort_method == TASKBAR_SORT_MRU) {
             GPtrArray *task_buttons = get_task_buttons(task->win);
-            if (task_buttons) {
-                for (int i = 0; i < task_buttons->len; ++i) {
-                    Task *task1 = g_ptr_array_index(task_buttons, i);
-                    Taskbar *taskbar = (Taskbar *)task1->area.parent;
-                    sort_tasks(taskbar);
-                }
+            if (task_buttons)
+            for (int i = 0; i < task_buttons->len; ++i) {
+                Task *task1 = g_ptr_array_index(task_buttons, i);
+                Taskbar *taskbar = (Taskbar *)task1->area.parent;
+                sort_tasks(taskbar);
             }
         }
     }
@@ -775,10 +773,9 @@ void blink_urgent(void *arg)
          urgent_task; urgent_task = urgent_task->next)
     {
         Task *t = urgent_task->data;
-        if (t->urgent_tick <= max_tick_urgent) {
+        if (t->urgent_tick <= max_tick_urgent)
             set_task_state(t,   ++t->urgent_tick % 2        ? TASK_URGENT
                             :   window_is_iconified(t->win) ? TASK_ICONIFIED : TASK_NORMAL);
-        }
     }
     schedule_panel_redraw();
 }

@@ -54,7 +54,7 @@ gboolean panel_pivot_struts;
 Layer panel_layer;
 PanelPosition panel_position;
 gboolean panel_horizontal;
-gboolean panel_refresh;
+gboolean panel_redraw;
 gboolean task_dragged;
 char *panel_window_name = NULL;
 gboolean debug_geometry;
@@ -1098,8 +1098,6 @@ void autohide_trigger_hide(Panel *p, bool forced)
 
 void shrink_panel(Panel *panel)
 {
-    if (!panel_shrink)
-        return;
     int size = MIN(get_desired_size(&panel->area), panel->max_size);
     gboolean update = FALSE;
     if (panel_horizontal) {
@@ -1168,7 +1166,7 @@ void default_font_changed()
 
 void _schedule_panel_redraw(const char *file, const char *function, const int line)
 {
-    panel_refresh = TRUE;
+    panel_redraw = TRUE;
     if (debug_fps) {
         fprintf(stderr, YELLOW "tint2: %s %s %d: triggering panel redraw" RESET "\n", file, function, line);
     }

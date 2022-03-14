@@ -78,7 +78,7 @@ void relayout_fixed(Area *a)
         relayout_fixed(l->data);
 
     // Recalculate size
-    a->_changed = UNCHANGED;
+    a->_changed = CHANGE_NONE;
     if (a->resize_needed && a->size_mode == LAYOUT_FIXED) {
         a->resize_needed = FALSE;
 
@@ -86,7 +86,7 @@ void relayout_fixed(Area *a)
             // The size has changed => resize needed for the parent
             if (a->parent)
                 ((Area *)a->parent)->resize_needed = TRUE;
-            a->_changed |= CHANGED_SIZE;
+            a->_changed |= CHANGE_RESIZE;
         }
     }
 }
@@ -102,7 +102,7 @@ void relayout_dynamic(Area *a, int level)
 
         if (a->_resize) {
             if (a->_resize(a))
-                a->_changed |= CHANGED_SIZE;
+                a->_changed |= CHANGE_RESIZE;
             // resize children with LAYOUT_DYNAMIC
             for_children(a, l, GList *)
             {
@@ -130,13 +130,13 @@ void relayout_dynamic(Area *a, int level)
                     if (pos != child->posx) {
                         // pos changed => redraw
                         child->posx = pos;
-                        child->_changed |= CHANGED_MOVE;
+                        child->_changed |= CHANGE_MOVE;
                     }
                 } else {
                     if (pos != child->posy) {
                         // pos changed => redraw
                         child->posy = pos;
-                        child->_changed |= CHANGED_MOVE;
+                        child->_changed |= CHANGE_MOVE;
                     }
                 }
 
@@ -161,13 +161,13 @@ void relayout_dynamic(Area *a, int level)
                     if (pos != child->posx) {
                         // pos changed => redraw
                         child->posx = pos;
-                        child->_changed |= CHANGED_MOVE;
+                        child->_changed |= CHANGE_MOVE;
                     }
                 } else {
                     if (pos != child->posy) {
                         // pos changed => redraw
                         child->posy = pos;
-                        child->_changed |= CHANGED_MOVE;
+                        child->_changed |= CHANGE_MOVE;
                     }
                 }
 
@@ -203,13 +203,13 @@ void relayout_dynamic(Area *a, int level)
                     if (pos != child->posx) {
                         // pos changed => redraw
                         child->posx = pos;
-                        child->_changed |= CHANGED_MOVE;
+                        child->_changed |= CHANGE_MOVE;
                     }
                 } else {
                     if (pos != child->posy) {
                         // pos changed => redraw
                         child->posy = pos;
-                        child->_changed |= CHANGED_MOVE;
+                        child->_changed |= CHANGE_MOVE;
                     }
                 }
 
@@ -310,7 +310,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
                     modulo--;
                 }
                 if (child->width != old_width)
-                    child->_changed |= CHANGED_SIZE;
+                    child->_changed |= CHANGE_RESIZE;
             }
         }
     } else {
@@ -352,7 +352,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
                     modulo--;
                 }
                 if (child->height != old_height)
-                    child->_changed |= CHANGED_SIZE;
+                    child->_changed |= CHANGE_RESIZE;
             }
         }
     }
@@ -435,7 +435,7 @@ void update_dependent_gradients(Area *a)
     if (!a->on_screen)
         return;
 
-    if (a->_changed & CHANGED_SIZE) {
+    if (a->_changed & CHANGE_RESIZE)
         for (GList *l = a->dependent_gradients; l; l = l->next)
         {
             GradientInstance *gi = (GradientInstance *)l->data;
@@ -444,7 +444,6 @@ void update_dependent_gradients(Area *a)
             if (gi->area != a)
                 schedule_redraw(gi->area);
         }
-    }
     for_children(a, l, GList *)
         update_dependent_gradients((Area *)l->data);
 }
@@ -661,10 +660,10 @@ void draw_background(Area *a, cairo_t *c)
         // draw border inside (x, y, width, height)
         set_cairo_source_border_color(a, c);
         cairo_new_sub_path (c);
-        draw_rect_on_sides(c,
-                           0, 0, a->width, a->height,
-                           a->bg->border.radius + a->bg->border.width / 2.0,
-                           a->bg->border.rmask);
+        draw_rect(c,
+                  0, 0, a->width, a->height,
+                  a->bg->border.radius + a->bg->border.width / 2.0,
+                  a->bg->border.rmask);
 
         cairo_set_operator (c, CAIRO_OPERATOR_ADD);
         cairo_set_fill_rule (c, CAIRO_FILL_RULE_EVEN_ODD);

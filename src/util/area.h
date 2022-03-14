@@ -167,9 +167,9 @@ typedef enum Alignment {
 } Alignment;
 
 typedef enum ChangeState {
-    UNCHANGED,
-    CHANGED_MOVE = 1 << 0,
-    CHANGED_SIZE = 1 << 1,
+    CHANGE_NONE,
+    CHANGE_MOVE   = 1 << 0,
+    CHANGE_RESIZE = 1 << 1,
 } ChangeState;
 
 struct Panel;

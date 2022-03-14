@@ -396,6 +396,7 @@ void start_net()
         if (prop)
             fprintf( stderr, ": pid=%li", *(long *)prop);
         fprintf(stderr, RESET "\n");
+        XFree( prop);
         return;
     }
 

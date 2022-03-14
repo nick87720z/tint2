@@ -319,6 +319,7 @@ void init_panel()
 }
 
 void panel_get_size(Panel *panel)
+// FIXME: width and height terms are somehow messed in this code
 {
     Monitor *mon = server.monitors + panel->monitor;
     if (panel_horizontal)

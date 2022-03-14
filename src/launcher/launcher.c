@@ -219,7 +219,7 @@ void launcher_compute_geometry(Launcher *launcher,
         if (!count) {
             *size = 0;
         } else {
-            int width = launcher->area.width - top_bottom_border_width(&launcher->area) - 2 * launcher->area.paddingy * panel->scale;
+            int width = launcher->area.width - left_right_border_width(&launcher->area) - 2 * launcher->area.paddingy * panel->scale;
             // here icons_per_row always higher than 0
             *icons_per_row = (width + launcher->area.spacing * panel->scale) / (*icon_size + launcher->area.spacing * panel->scale);
             *margin = width - (*icons_per_row - 1) * (*icon_size + launcher->area.spacing * panel->scale) - *icon_size;

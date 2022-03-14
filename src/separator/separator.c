@@ -128,13 +128,13 @@ gboolean resize_separator(void *obj)
     if (!separator->area.on_screen)
         return FALSE;
 
-    int sep_width = separator->thickness + 2 * separator->area.paddingx * panel->scale + left_right_border_width(&separator->area);
+    int sep_width = separator->thickness + 2 * separator->area.paddingx * panel->scale;
     if (panel_horizontal) {
-        separator->area.width = sep_width;
+        separator->area.width = sep_width + left_right_border_width( & separator->area);
         separator->length = separator->area.height - top_bottom_border_width(&separator->area);
     } else {
         separator->length = separator->area.width - left_right_border_width(&separator->area);
-        separator->area.height = sep_width;
+        separator->area.height = sep_width + top_bottom_border_width( & separator->area);
     }
     separator->length -= 2 * separator->area.paddingy * panel->scale;
 

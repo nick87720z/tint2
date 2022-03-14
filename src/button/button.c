@@ -388,7 +388,7 @@ gboolean resize_button(void *obj)
     int available_w, available_h;
     if (panel_horizontal) {
         available_w = panel->area.width;
-        available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
+        available_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
     } else {
         int x1 = icon_w ? icon_w + interior_padding : 0;
         available_w = (!icon_w || x1 < 0 ? area->width : area->width - x1)

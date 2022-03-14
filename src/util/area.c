@@ -946,7 +946,7 @@ void area_compute_available_size(Area *area,
     Panel *panel = (Panel *)area->panel;
     if (panel_horizontal) {
         *available_w = panel->area.width;
-        *available_h = area->height - 2 * area->paddingy - left_right_border_width(area);
+        *available_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
     } else {
         *available_w = area->width - 2 * area->paddingx - left_right_border_width(area);
         *available_h = panel->area.height;

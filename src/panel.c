@@ -374,9 +374,9 @@ void panel_get_size(Panel *panel)
             panel->area.bg->border.radius = panel->area.width / 2;
         }
         ////////////////////////////////
-        if (!panel->fractional_width)
-            panel->area.height *= panel->scale;
         if (!panel->fractional_height)
+            panel->area.height *= panel->scale;
+        if (!panel->fractional_width)
             panel->area.width *= panel->scale;
     }
 

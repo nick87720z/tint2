@@ -218,10 +218,9 @@ void handle_mouse_release_event(XEvent *e)
 
     if (e->xbutton.button == 1 && click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
         LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
-        if (icon) {
+        if (icon)
             launcher_action(icon,e, e->xbutton.x - icon->area.posx,
                                     e->xbutton.y - icon->area.posy);
-        }
         task_drag = NULL;
         return;
     }

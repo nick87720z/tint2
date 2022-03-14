@@ -320,7 +320,7 @@ void init_panel()
     update_all_taskbars_visibility();
 }
 
-void panel_compute_size(Panel *panel)
+void panel_get_size(Panel *panel)
 {
     Monitor *mon = server.monitors + panel->monitor;
     if (panel_horizontal)
@@ -390,7 +390,7 @@ void panel_compute_size(Panel *panel)
     panel->max_size = panel_horizontal ? panel->area.width : panel->area.height;
 }
 
-void panel_compute_position(Panel *panel)
+void panel_get_position(Panel *panel)
 {
     Monitor *mon = server.monitors + panel->monitor;
     // panel position determined here
@@ -419,8 +419,8 @@ void panel_compute_position(Panel *panel)
 
 void init_panel_geometry(Panel *panel)
 {
-    panel_compute_size(panel);
-    panel_compute_position(panel);
+    panel_get_size(panel);
+    panel_get_position(panel);
 }
 
 gboolean resize_panel(void *obj)
@@ -1101,7 +1101,7 @@ void shrink_panel(Panel *panel)
 {
     if (!panel_shrink)
         return;
-    int size = MIN(compute_desired_size(&panel->area), panel->max_size);
+    int size = MIN(get_desired_size(&panel->area), panel->max_size);
     gboolean update = FALSE;
     if (panel_horizontal) {
         if (panel->area.width != size) {
@@ -1115,7 +1115,7 @@ void shrink_panel(Panel *panel)
         }
     }
     if (update) {
-        panel_compute_position(panel);
+        panel_get_position(panel);
         set_panel_window_geometry(panel);
         set_panel_background(panel);
         panel->area.resize_needed = TRUE;

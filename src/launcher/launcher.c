@@ -62,7 +62,7 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon);
 void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon);
 void launcher_reload_hidden_icons(Launcher *launcher);
 void launcher_icon_on_change_layout(void *obj);
-int launcher_compute_desired_size(void *obj);
+int launcher_get_desired_size(void *obj);
 
 void relayout_launcher();
 
@@ -98,7 +98,7 @@ void init_launcher_panel(void *p)
     launcher->area.size_mode = LAYOUT_FIXED;
     launcher->area._resize = resize_launcher;
     launcher->area._on_change_layout = relayout_launcher;
-    launcher->area._compute_desired_size = launcher_compute_desired_size;
+    launcher->area._get_desired_size = launcher_get_desired_size;
     launcher->area.resize_needed = TRUE;
     schedule_redraw(&launcher->area);
     if (!launcher->area.bg)
@@ -172,7 +172,7 @@ void cleanup_launcher_theme(Launcher *launcher)
     launcher->list_icons = NULL;
 }
 
-int launcher_compute_icon_size(Launcher *launcher)
+int launcher_get_icon_size(Launcher *launcher)
 {
     Panel *panel = launcher->area.panel;
     int icon_size = panel_horizontal ? launcher->area.height : launcher->area.width;
@@ -184,7 +184,7 @@ int launcher_compute_icon_size(Launcher *launcher)
     return icon_size;
 }
 
-void launcher_compute_geometry(Launcher *launcher,
+void launcher_get_geometry(Launcher *launcher,
                                int *size,
                                int *icon_size,
                                int *icons_per_column,
@@ -199,7 +199,7 @@ void launcher_compute_geometry(Launcher *launcher,
             count++;
     }
 
-    *icon_size = launcher_compute_icon_size(launcher);
+    *icon_size = launcher_get_icon_size(launcher);
     *icons_per_column = 1;
     *icons_per_row = 1;
     *margin = 0;
@@ -230,12 +230,12 @@ void launcher_compute_geometry(Launcher *launcher,
     }
 }
 
-int launcher_compute_desired_size(void *obj)
+int launcher_get_desired_size(void *obj)
 {
     Launcher *launcher = (Launcher *)obj;
 
     int size, icon_size, icons_per_column, icons_per_row, margin;
-    launcher_compute_geometry(launcher, &size, &icon_size, &icons_per_column, &icons_per_row, &margin);
+    launcher_get_geometry(launcher, &size, &icon_size, &icons_per_column, &icons_per_row, &margin);
     return size;
 }
 
@@ -245,7 +245,7 @@ gboolean resize_launcher(void *obj)
     Panel *panel = (Panel*)launcher->area.panel;
 
     int size, icons_per_column, icons_per_row, margin;
-    launcher_compute_geometry(launcher, &size, &launcher->icon_size, &icons_per_column, &icons_per_row, &margin);
+    launcher_get_geometry(launcher, &size, &launcher->icon_size, &icons_per_column, &icons_per_row, &margin);
 
     // Resize icons if necessary
     for (GSList *l = launcher->list_icons; l; l = l->next) {
@@ -354,7 +354,7 @@ void launcher_icon_on_change_layout(void *obj)
     launcherIcon->area.height = launcherIcon->icon_size;
 }
 
-int launcher_icon_compute_desired_size(void *obj)
+int launcher_icon_get_desired_size(void *obj)
 {
     LauncherIcon *icon = (LauncherIcon *)obj;
     return icon->icon_size;
@@ -473,7 +473,7 @@ void launcher_load_icons(Launcher *launcher)
         launcherIcon->area._draw_foreground = draw_launcher_icon;
         launcherIcon->area.size_mode = LAYOUT_FIXED;
         launcherIcon->area._resize = NULL;
-        launcherIcon->area._compute_desired_size = launcher_icon_compute_desired_size;
+        launcherIcon->area._get_desired_size = launcher_icon_get_desired_size;
         snprintf(launcherIcon->area.name, strlen_const(launcherIcon->area.name), "LauncherIcon %d", index);
         launcherIcon->area.resize_needed = FALSE;
         launcherIcon->area.has_mouse_over_effect = panel_config.mouse_effects;

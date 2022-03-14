@@ -229,18 +229,18 @@ void relayout_dynamic(Area *a, int level)
     }
 }
 
-int compute_desired_size(Area *a)
+int get_desired_size(Area *a)
 {
     if (!a->on_screen)
         return 0;
-    if (a->_compute_desired_size)
-        return a->_compute_desired_size(a);
+    if (a->_get_desired_size)
+        return a->_get_desired_size(a);
     if (a->size_mode == LAYOUT_FIXED)
         fprintf(stderr, YELLOW "tint2: Area %s does not set desired size!" RESET "\n", a->name);
-    return container_compute_desired_size(a);
+    return container_get_desired_size(a);
 }
 
-int container_compute_desired_size(Area *a)
+int container_get_desired_size(Area *a)
 {
     if (!a->on_screen)
         return 0;
@@ -251,7 +251,7 @@ int container_compute_desired_size(Area *a)
     {
         Area *child = (Area *)l->data;
         if (child->on_screen) {
-            result += compute_desired_size(child);
+            result += get_desired_size(child);
             children_count++;
         }
     }
@@ -913,7 +913,7 @@ void area_dump_geometry(Area *area, int indent)
             area->posy,
             area->width,
             area->height,
-            compute_desired_size(area));
+            get_desired_size(area));
     fprintf(stderr,
             "tint2: %*sBorder: left = %d, right = %d, top = %d, bottom = %d\n",
             indent,
@@ -939,7 +939,7 @@ void area_dump_geometry(Area *area, int indent)
     }
 }
 
-void area_compute_available_size(Area *area,
+void area_get_available_size(Area *area,
                              int *available_w,
                              int *available_h)
 {
@@ -953,7 +953,7 @@ void area_compute_available_size(Area *area,
     }
 }
 
-void area_compute_inner_size(Area *area,
+void area_get_inner_size(Area *area,
                              int *inner_w,
                              int *inner_h)
 {
@@ -961,7 +961,7 @@ void area_compute_inner_size(Area *area,
     *inner_h = area->height - top_bottom_border_width (area) - 2 * area->paddingy;
 }
 
-void area_compute_text_geometry(Area *area,
+void area_get_text_geometry(Area *area,
                                 const char *line1,
                                 const char *line2,
                                 PangoFontDescription *line1_font_desc,
@@ -972,7 +972,7 @@ void area_compute_text_geometry(Area *area,
                                 int *line2_width)
 {
     int available_w, available_h;
-    area_compute_available_size(area, &available_w, &available_h);
+    area_get_available_size(area, &available_w, &available_h);
 
     if (line1 && line1[0])
         get_text_size2(line1_font_desc,
@@ -1007,14 +1007,14 @@ void area_compute_text_geometry(Area *area,
         *line2_width = *line2_height = 0;
 }
 
-int text_area_compute_desired_size(Area *area,
+int text_area_get_desired_size(Area *area,
                                    const char *line1,
                                    const char *line2,
                                    PangoFontDescription *line1_font_desc,
                                    PangoFontDescription *line2_font_desc)
 {
     int line1_height, line1_width, line2_height, line2_width;
-    area_compute_text_geometry(area,
+    area_get_text_geometry(area,
                                line1,
                                line2,
                                line1_font_desc,
@@ -1042,7 +1042,7 @@ gboolean resize_text_area(Area *area,
 
     int line1_height, line1_width;
     int line2_height, line2_width;
-    area_compute_text_geometry(area,
+    area_get_text_geometry(area,
                                line1,
                                line2,
                                line1_font_desc,
@@ -1052,7 +1052,7 @@ gboolean resize_text_area(Area *area,
                                &line2_height,
                                &line2_width);
 
-    int new_size = text_area_compute_desired_size(area,
+    int new_size = text_area_get_desired_size(area,
                                                   line1,
                                                   line2,
                                                   line1_font_desc,
@@ -1100,7 +1100,7 @@ void draw_text_area(Area *area,
                     double scale)
 {
     int inner_w, inner_h;
-    area_compute_inner_size(area, &inner_w, &inner_h);
+    area_get_inner_size(area, &inner_w, &inner_h);
 
     PangoContext *context = pango_cairo_create_context(c);
     pango_cairo_context_set_resolution(context, 96 * scale);
@@ -1197,7 +1197,7 @@ void area_gradients_free(Area *area)
     g_assert_null(area->dependent_gradients);
 }
 
-double compute_control_point_offset(Area *area, Offset *offset)
+double get_control_point_offset(Area *area, Offset *offset)
 {
     if (CONST_OFFSET(offset))
         return offset->constant_value;
@@ -1221,11 +1221,11 @@ double compute_control_point_offset(Area *area, Offset *offset)
     }
 }
 
-void compute_control_point(GradientInstance *gi, ControlPoint *control, double *x, double *y, double *r)
+void get_control_point(GradientInstance *gi, ControlPoint *control, double *x, double *y, double *r)
 {
-    *x = control->offsets_x ? compute_control_point_offset(gi->area, control->offsets_x) : 0;
-    *y = control->offsets_y ? compute_control_point_offset(gi->area, control->offsets_y) : 0;
-    *r = control->offsets_r ? compute_control_point_offset(gi->area, control->offsets_r) : 0;
+    *x = control->offsets_x ? get_control_point_offset(gi->area, control->offsets_x) : 0;
+    *y = control->offsets_y ? get_control_point_offset(gi->area, control->offsets_y) : 0;
+    *r = control->offsets_r ? get_control_point_offset(gi->area, control->offsets_r) : 0;
 }
 
 void update_gradient(GradientInstance *gi)
@@ -1235,8 +1235,8 @@ void update_gradient(GradientInstance *gi)
 
     double from_x, from_y, from_r,
            to_x,   to_y,   to_r;
-    compute_control_point(gi, &gi->gradient_class->from, &from_x, &from_y, &from_r);
-    compute_control_point(gi, &gi->gradient_class->to,   &to_x,   &to_y,   &to_r);
+    get_control_point(gi, &gi->gradient_class->from, &from_x, &from_y, &from_r);
+    get_control_point(gi, &gi->gradient_class->to,   &to_x,   &to_y,   &to_r);
     
     switch (gi->gradient_class->type) {
     case GRADIENT_VERTICAL:

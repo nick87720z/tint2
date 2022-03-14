@@ -61,7 +61,7 @@ static Timer clock_timer;
 
 void clock_init_fonts();
 char *clock_get_tooltip(void *obj);
-int clock_compute_desired_size(void *obj);
+int clock_get_desired_size(void *obj);
 void clock_dump_geometry(void *obj, int indent);
 
 void default_clock()
@@ -198,7 +198,7 @@ void init_clock_panel(void *p)
     clock->area._draw_foreground = draw_clock;
     clock->area.size_mode = LAYOUT_FIXED;
     clock->area._resize = resize_clock;
-    clock->area._compute_desired_size = clock_compute_desired_size;
+    clock->area._get_desired_size = clock_get_desired_size;
     clock->area._dump_geometry = clock_dump_geometry;
     // check consistency
     if (!time1_format)
@@ -256,13 +256,13 @@ void clock_default_font_changed()
     schedule_panel_redraw();
 }
 
-void clock_compute_text_geometry(Clock *clock,
+void clock_get_text_geometry(Clock *clock,
                                  int *time_height,
                                  int *time_width,
                                  int *date_height,
                                  int *date_width)
 {
-    area_compute_text_geometry(&clock->area,
+    area_get_text_geometry(&clock->area,
                                buf_time,
                                time2_format ? buf_date : NULL,
                                time1_font_desc,
@@ -273,10 +273,10 @@ void clock_compute_text_geometry(Clock *clock,
                                date_width);
 }
 
-int clock_compute_desired_size(void *obj)
+int clock_get_desired_size(void *obj)
 {
     Clock *clock = (Clock *)obj;
-    return text_area_compute_desired_size(&clock->area,
+    return text_area_get_desired_size(&clock->area,
                                           buf_time,
                                           time2_format ? buf_date : NULL,
                                           time1_font_desc,

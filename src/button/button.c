@@ -20,7 +20,7 @@
 
 char *button_get_tooltip(void *obj);
 void button_init_fonts();
-int button_compute_desired_size(void *obj);
+int button_get_desired_size(void *obj);
 void button_dump_geometry(void *obj, int indent);
 
 void default_button()
@@ -153,7 +153,7 @@ void init_button_panel(void *p)
         area->parent = panel;
         area->panel = panel;
         area->_dump_geometry = button_dump_geometry;
-        area->_compute_desired_size = button_compute_desired_size;
+        area->_get_desired_size = button_get_desired_size;
         snprintf(area->name, strlen_const(area->name), "Button");
         area->_draw_foreground = draw_button;
         area->size_mode = LAYOUT_FIXED;
@@ -287,9 +287,8 @@ int button_icon_desired_size(Button *button)
     ButtonBackend *backend = button->backend;
     if (backend->icon_name) {
         int max_icon_size = backend->max_icon_size;
-        size = ( panel_horizontal ?
-            area->height - top_bottom_border_width(area) : 
-            area->width  - left_right_border_width(area) ) - 2 * area->paddingy;
+        size = ( panel_horizontal ? area->height - top_bottom_border_width(area) : 
+                                    area->width  - left_right_border_width(area) ) - 2 * area->paddingy;
         if (max_icon_size)
             size = MIN(size, max_icon_size * ((Panel *)area->panel)->scale);
     } else
@@ -298,7 +297,7 @@ int button_icon_desired_size(Button *button)
     return size;
 }
 
-int button_compute_desired_size(void *obj)
+int button_get_desired_size(void *obj)
 {
     Button *button = obj;
     ButtonBackend *backend = button->backend;
@@ -334,7 +333,7 @@ int button_compute_desired_size(void *obj)
                            &txt_width,
                            panel->area.height,
                            (!icon_w || x1 < 0 ? area->width : area->width - x1)
-                                - 2 * horiz_padding - left_right_border_width(area),
+                                - left_right_border_width(area) - 2 * horiz_padding,
                            backend->text,
                            strlen(backend->text),
                            PANGO_WRAP_WORD_CHAR,

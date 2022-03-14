@@ -37,7 +37,7 @@ Color taskbarname_font;
 Color taskbarname_active_font;
 
 void taskbarname_init_fonts();
-int taskbarname_compute_desired_size(void *obj);
+int taskbarname_get_desired_size(void *obj);
 
 void default_taskbarname()
 {
@@ -62,7 +62,7 @@ void init_taskbarname_panel(void *p)
         taskbar->bar_name.area.parent = taskbar;
         taskbar->bar_name.area.has_mouse_over_effect = panel_config.mouse_effects;
         taskbar->bar_name.area.has_mouse_press_effect = panel_config.mouse_effects;
-        taskbar->bar_name.area._compute_desired_size = taskbarname_compute_desired_size;
+        taskbar->bar_name.area._get_desired_size = taskbarname_get_desired_size;
         taskbar->bar_name.area.bg = panel->g_taskbar.background_name [j == server.desktop ? TASKBAR_ACTIVE : TASKBAR_NORMAL];
 
         // use desktop number if name is missing
@@ -121,7 +121,7 @@ void cleanup_taskbarname()
     }
 }
 
-int taskbarname_compute_desired_size(void *obj)
+int taskbarname_get_desired_size(void *obj)
 {
     TaskbarName *taskbar_name = (TaskbarName *)obj;
     Panel *panel = (Panel *)taskbar_name->area.panel;
@@ -166,7 +166,7 @@ gboolean resize_taskbarname(void *obj)
                    panel->scale);
 
     gboolean result = FALSE;
-    int new_size = taskbarname_compute_desired_size(obj);
+    int new_size = taskbarname_get_desired_size(obj);
     if (panel_horizontal) {
         if (new_size != taskbar_name->area.width) {
             taskbar_name->area.width = new_size;

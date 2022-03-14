@@ -39,7 +39,7 @@ Timer urgent_timer;
 GSList *urgent_list;
 
 void task_dump_geometry(void *obj, int indent);
-int task_compute_desired_size(void *obj);
+int task_get_desired_size(void *obj);
 void task_refresh_thumbnail(Task *task);
 void task_get_content_color(void *obj, Color *color);
 
@@ -131,7 +131,7 @@ Task *add_task(Window win)
         task_instance->area.has_mouse_press_effect = panel_config.mouse_effects;
         task_instance->area._dump_geometry = task_dump_geometry;
         task_instance->area._is_under_mouse = full_width_area_is_under_mouse;
-        task_instance->area._compute_desired_size = task_compute_desired_size;
+        task_instance->area._get_desired_size = task_get_desired_size;
         task_instance->area._get_content_color = task_get_content_color;
         task_instance->win = task_template.win;
         task_instance->desktop = task_template.desktop;
@@ -452,12 +452,10 @@ void draw_task_icon(Task *task, int text_width)
     if (panel_config.mouse_effects)
         goto nofx;
     switch (task->area.mouse_state) {
-    case MOUSE_OVER:
-        image = task->icon_hover[task->current_state];
-        break;
-    case MOUSE_DOWN:
-        image = task->icon_press[task->current_state];
-        break;
+    case MOUSE_OVER:    image = task->icon_hover[task->current_state];
+                        break;
+    case MOUSE_DOWN:    image = task->icon_press[task->current_state];
+                        break;
     default:
     nofx:
         image = task->icon[task->current_state];
@@ -541,12 +539,10 @@ void task_get_content_color(void *obj, Color *color)
     if (!panel_config.mouse_effects)
         goto nofx;
     switch (task->area.mouse_state) {
-    case MOUSE_OVER:
-        content_color = &task->icon_color_hover;
-        break;
-    case MOUSE_DOWN:
-        content_color = &task->icon_color_press;
-        break;
+    case MOUSE_OVER:    content_color = &task->icon_color_hover;
+                        break;
+    case MOUSE_DOWN:    content_color = &task->icon_color_press;
+                        break;
     default:
     nofx:
         content_color = &task->icon_color;
@@ -555,7 +551,7 @@ void task_get_content_color(void *obj, Color *color)
         *color = *content_color;
 }
 
-int task_compute_desired_size(void *obj)
+int task_get_desired_size(void *obj)
 {
     Task *task = (Task *)obj;
     Panel *panel = (Panel *)task->area.panel;

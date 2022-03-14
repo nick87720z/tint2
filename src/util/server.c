@@ -302,7 +302,7 @@ void sort_monitors()
     qsort(server.monitors, server.num_monitors, sizeof(Monitor), compare_monitor_pos);
 }
 
-int compute_dpi(XRRCrtcInfo *crtc, XRROutputInfo *output)
+int get_dpi(XRRCrtcInfo *crtc, XRROutputInfo *output)
 {
     double width = output->mm_width;
     double height = output->mm_height;
@@ -353,7 +353,7 @@ void get_monitors()
                     XRROutputInfo *output_info = XRRGetOutputInfo(server.display, res, crtc_info->outputs[j]);
                     mon->names[j] = g_strdup(output_info->name);
                     mon->primary = crtc_info->outputs[j] == primary_output;
-                    int dpi = compute_dpi(crtc_info, output_info);
+                    int dpi = get_dpi(crtc_info, output_info);
                     if (dpi)
                         mon->dpi = dpi;
                     fprintf(stderr,

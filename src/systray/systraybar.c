@@ -68,7 +68,7 @@ const int slow_resize_period = 5000;
 const int min_bad_resize_events = 3;
 const int max_bad_resize_events = 10;
 
-int systray_compute_desired_size(void *obj);
+int systray_get_desired_size(void *obj);
 void systray_dump_geometry(void *obj, int indent);
 
 void default_systray()
@@ -129,7 +129,7 @@ void init_systray_panel(void *p)
     systray.area.parent = panel;
     systray.area.panel = panel;
     systray.area._dump_geometry = systray_dump_geometry;
-    systray.area._compute_desired_size = systray_compute_desired_size;
+    systray.area._get_desired_size = systray_get_desired_size;
     snprintf (systray.area.name, strlen_const(systray.area.name), "Systray");
     if (!systray.area.bg)
         systray.area.bg = &g_array_index(backgrounds, Background, 0);
@@ -139,7 +139,7 @@ void init_systray_panel(void *p)
     area_gradients_create(&systray.area);
 }
 
-void systray_compute_geometry(int *size)
+void systray_get_geometry(int *size)
 {
     Panel *panel = systray.area.panel;
     double scale = panel->scale;
@@ -187,20 +187,20 @@ void systray_compute_geometry(int *size)
     systray.icons_per_row    = row_icons;
 }
 
-int systray_compute_desired_size(void *obj)
+int systray_get_desired_size(void *obj)
 {
     int size;
-    systray_compute_geometry(&size);
+    systray_get_geometry(&size);
     return size;
 }
 
 gboolean resize_systray(void *obj)
 {
     if (systray_profile)
-        fprintf(stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
+        fprintf( stderr, "tint2: [%f] %s:%d\n", profiling_get_time(), __func__, __LINE__);
 
     int size;
-    systray_compute_geometry(&size);
+    systray_get_geometry( & size);
 
     gboolean result = refresh_systray;
 

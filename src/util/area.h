@@ -215,7 +215,7 @@ typedef struct Area {
     // Called on resize, obj = pointer to the Area
     // Returns 1 if the new size is different than the previous size.
 
-    int (*_compute_desired_size)(void *obj);
+    int (*_get_desired_size)(void *obj);
     // Called before resize, obj = pointer to the Area
     // Returns the desired size of the Area
 
@@ -256,10 +256,10 @@ int relayout_with_constraint(Area *a, int maximum_size);
 // Distributes the Area's size to its children, repositioning them as needed.
 // If maximum_size > 0, it is an upper limit for the child size.
 
-int compute_desired_size(Area *a);
-int container_compute_desired_size(Area *a);
+int get_desired_size(Area *a);
+int container_get_desired_size(Area *a);
 
-void area_compute_text_geometry(Area *area,
+void area_get_text_geometry(Area *area,
                                 const char *line1,
                                 const char *line2,
                                 PangoFontDescription *line1_font_desc,
@@ -268,7 +268,7 @@ void area_compute_text_geometry(Area *area,
                                 int *line1_width,
                                 int *line2_height,
                                 int *line2_width);
-int text_area_compute_desired_size(Area *area,
+int text_area_get_desired_size(Area *area,
                                    const char *line1,
                                    const char *line2,
                                    PangoFontDescription *line1_font_desc,

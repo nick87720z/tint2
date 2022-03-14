@@ -536,8 +536,9 @@ void handle_x_event(XEvent *e)
             break;
         for (GSList *it = systray.list_icons; it; it = it->next)
         {
-            if (((TrayWindow *)it->data)->win == e->xany.window)
+            if (((TrayWindow *)it->data)->win == e->xany.window) {
                 systray_destroy_event((TrayWindow *)it->data);
+            }
         }
         break;
 
@@ -712,7 +713,7 @@ void handle_panel_refresh()
         double render_ratio = (ts_render_finished - ts_event_processed) / period;
         double flush_ratio  = (ts_flush_finished  - ts_render_finished) / period;
         double fps_low, fps_median, fps_high, fps_samples;
-        fps_compute_stats(&fps_low, &fps_median, &fps_high, &fps_samples);
+        fps_get_stats(&fps_low, &fps_median, &fps_high, &fps_samples);
         fprintf(stderr,
                 BLUE "frame %d: fps = %.0f (low %.0f, med %.0f, high %.0f, samples %.0f) : processing %.0f%%, "
                      "rendering %.0f%%, "

@@ -4,6 +4,6 @@
 void init_fps_distribution();
 void cleanup_fps_distribution();
 void sample_fps(double fps);
-void fps_compute_stats(double *low, double *median, double *high, double *samples);
+void fps_get_stats(double *low, double *median, double *high, double *samples);
 
 #endif

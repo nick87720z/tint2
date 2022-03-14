@@ -56,7 +56,7 @@ void sample_fps(double fps)
     fps_distribution[0] += 1.;
 }
 
-void fps_compute_stats(double *low, double *median, double *high, double *samples)
+void fps_get_stats(double *low, double *median, double *high, double *samples)
 {
     *median = *low = *high = *samples = -1;
     if (!fps_distribution || fps_distribution[0] < 1)

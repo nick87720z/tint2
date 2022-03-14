@@ -24,7 +24,7 @@ bool debug_executors = false;
 void execp_timer_callback(void *arg);
 char *execp_get_tooltip(void *obj);
 void execp_init_fonts();
-int execp_compute_desired_size(void *obj);
+int execp_get_desired_size(void *obj);
 void execp_dump_geometry(void *obj, int indent);
 
 void default_execp()
@@ -211,7 +211,7 @@ void init_execp_panel(void *p)
         execp->area.parent = panel;
         execp->area.panel = panel;
         execp->area._dump_geometry = execp_dump_geometry;
-        execp->area._compute_desired_size = execp_compute_desired_size;
+        execp->area._get_desired_size = execp_get_desired_size;
         snprintf(execp->area.name,
                  strlen_const(execp->area.name),
                  "Execp %s",
@@ -337,7 +337,7 @@ gboolean reload_icon(Execp *execp)
     return FALSE;
 }
 
-void execp_compute_icon_text_geometry(Execp *execp,
+void execp_get_icon_text_geometry(Execp *execp,
                                       int *horiz_padding,
                                       int *vert_padding,
                                       int *interior_padding,
@@ -442,7 +442,7 @@ void execp_compute_icon_text_geometry(Execp *execp,
     *resized = _resized;
 }
 
-int execp_compute_desired_size(void *obj)
+int execp_get_desired_size(void *obj)
 {
     Execp *execp = (Execp *)obj;
     int horiz_padding, vert_padding, interior_padding;
@@ -451,7 +451,7 @@ int execp_compute_desired_size(void *obj)
     int txt_height, txt_width;
     int new_size;
     gboolean resized;
-    execp_compute_icon_text_geometry(execp,
+    execp_get_icon_text_geometry(execp,
                                      &horiz_padding,
                                      &vert_padding,
                                      &interior_padding,
@@ -478,7 +478,7 @@ gboolean resize_execp(void *obj)
     int txt_height, txt_width;
     int new_size;
     gboolean resized;
-    execp_compute_icon_text_geometry(execp,
+    execp_get_icon_text_geometry(execp,
                                      &horiz_padding,
                                      &vert_padding,
                                      &interior_padding,

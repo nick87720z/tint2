@@ -258,20 +258,23 @@ gboolean task_update_title(Task *task)
             name = get_property(task->win, server.atom [WM_NAME], XA_STRING, NULL);
     }
 
-    char *title = strdup(name && strlen(name) ? name : "Untitled");
-    if (name)
-        XFree(name);
+    char *title = name && strlen( name) ? name : "Untitled";
 
     if (task->title) {
         // check unecessary title change
-        if (strcmp(task->title, title) == 0) {
-            free(title);
+        if (strcmp( task->title, title) == 0)
+        {
+            if (name)
+                XFree( name);
             return FALSE;
-        } else
-            free(task->title);
+        }
+        free( task->title);
     }
 
-    task->title = title;
+    task->title = strdup( title);
+    if (name)
+        XFree( name);
+
     GPtrArray *task_buttons = get_task_buttons(task->win);
     if (task_buttons) {
         for (int i = 0; i < task_buttons->len; ++i)

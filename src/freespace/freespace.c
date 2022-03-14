@@ -30,7 +30,7 @@
 #include "freespace.h"
 #include "common.h"
 
-int freespace_area_get_desired_size(void *obj);
+int freespace_get_desired_size(void *obj);
 
 void init_freespace_panel(void *p)
 {
@@ -55,7 +55,7 @@ void init_freespace_panel(void *p)
             freespace->area.resize_needed = TRUE;
             freespace->area.on_screen = TRUE;
             freespace->area._resize = resize_freespace;
-            freespace->area._get_desired_size = freespace_area_get_desired_size;
+            freespace->area._get_desired_size = freespace_get_desired_size;
         }
     }
 }
@@ -93,7 +93,7 @@ int freespace_get_max_size(Panel *panel)
     return size / spacers;
 }
 
-int freespace_area_get_desired_size(void *obj)
+int freespace_get_desired_size(void *obj)
 {
     FreeSpace *freespace = (FreeSpace *)obj;
     return freespace_get_max_size((Panel *)freespace->area.panel);

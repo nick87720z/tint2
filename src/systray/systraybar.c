@@ -911,7 +911,7 @@ void remove_icon(TrayWindow *traywin)
     free( traywin);
 
     // check empty systray
-    if (systray.list_icons)
+    if (!systray.list_icons)
         hide(&systray.area);
 
     // Resize and redraw the systray

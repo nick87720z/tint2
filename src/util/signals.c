@@ -19,6 +19,7 @@
 #include "signals.h"
 
 static sig_atomic_t signal_pending;
+sigset_t select_sigset;
 
 void signal_handler(int sig)
 {
@@ -43,6 +44,7 @@ void reset_signals()
     sigset_t signal_set;
     sigemptyset(&signal_set);
     sigprocmask(SIG_SETMASK, &signal_set, NULL);
+    sigemptyset( & select_sigset);
 }
 
 #ifndef TINT2CONF
@@ -52,6 +54,12 @@ void init_signals()
     signal_pending = 0;
 
     reset_signals();
+    // Handler for these signals looks enough light to permit during select() call
+    sigaddset( & select_sigset, SIGUSR1);
+    sigaddset( & select_sigset, SIGUSR2);
+    sigaddset( & select_sigset, SIGINT);
+    sigaddset( & select_sigset, SIGTERM);
+    sigaddset( & select_sigset, SIGHUP);
 
     sigaction(SIGCHLD, &(sigaction_t){.sa_handler = SIG_IGN}, NULL);
 

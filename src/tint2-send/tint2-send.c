@@ -39,17 +39,15 @@ char *get_property(Window window, Atom xa_prop_type, Atom *prop)
     if (XGetWindowProperty(display, window, *prop, 0, 1024,
                            False, xa_prop_type, &xa_ret_type, &ret_format,
                            &ret_nitems, &ret_bytes_after, &ret_prop) != Success)
-        goto err0;
+        goto e0;
 
     if (xa_ret_type != xa_prop_type)
-        goto err1;
+        goto e1;
 
     return ret_prop;
 
-err1:
-    XFree (ret_prop);
-err0:
-    return NULL;
+e1: XFree (ret_prop);
+e0: return NULL;
 }
 
 int is_tint2(Window window)

@@ -92,7 +92,7 @@ void handle_event_property_notify(XEvent *e)
         Panel *p = &panels[i];
         if (win == p->main_win)
         {
-            if (at == server.atom [_NET_WM_DESKTOP] && get_window_desktop(p->main_win) != ALL_DESKTOPS)
+            if (at == server.atom [_NET_WM_DESKTOP] && get_window_desktop( win) != ALL_DESKTOPS)
                 replace_panel_all_desktops(p);
             return;
         }
@@ -121,8 +121,10 @@ void handle_event_property_notify(XEvent *e)
                 fprintf(stderr, "tint2: %s %d: win = root, atom = ?? desktops changed\n", __func__, __LINE__);
             if (!taskbar_enabled)
                 return;
-            int old_num_desktops = server.num_desktops;
-            int old_desktop = server.desktop;
+
+            int old_num_desktops = server.num_desktops,
+                old_desktop      = server.desktop;
+
             server_get_number_of_desktops();
             server.desktop = get_current_desktop();
             if (old_num_desktops != server.num_desktops) // If desktops number changed

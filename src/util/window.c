@@ -340,34 +340,27 @@ gulong *get_best_icon(gulong *data, int icon_count, int num, int *iw, int *ih, i
 // Thanks zcodes!
 char *get_window_name(Window win)
 {
-    char *name;
+    char *name = NULL;
     XTextProperty text_property;
     Status status = XGetWMName(server.display, win, &text_property);
-    if (!status || !text_property.value || !text_property.nitems) {
-        strdup_static(name, "");
-        return name;
-    }
+    if (!status || !text_property.value || !text_property.nitems)
+        goto e0;
 
     char **name_list;
     int count;
     status = Xutf8TextPropertyToTextList(server.display, &text_property, &name_list, &count);
-    if (status < Success || !count) {
-        XFree(text_property.value);
-        strdup_static(name, "");
-        return name;
-    }
+    if (status < Success || !count)
+        goto e1;
 
-    if (!name_list[0]) {
-        XFreeStringList(name_list);
-        XFree(text_property.value);
-        strdup_static(name, "");
-        return name;
-    }
+    if (!name_list[0])
+        goto e2;
 
-    char *result = strdup(name_list[0]);
-    XFreeStringList(name_list);
-    XFree(text_property.value);
-    return result;
+    name = strdup( name_list[0]);
+e2: XFreeStringList( name_list);
+e1: XFree( text_property.value);
+e0: if (!name)
+        strdup_static( name, "");
+    return name;
 }
 
 void smooth_thumbnail(cairo_surface_t *image_surface)
@@ -410,21 +403,21 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
             fprintf(stderr, "tint2: could not get thumbnail, invalid geometry %d x %d\n",
                     wa.width, wa.height);
         }
-        goto err0;
+        goto e0;
     }
 
     if (wa.map_state != IsViewable) {
         if (debug_thumbnails) {
             fprintf(stderr, "tint2: could not get thumbnail, window not viewable\n");
         }
-        goto err0;
+        goto e0;
     }
 
     if (window_is_iconified(win)) {
         if (debug_thumbnails) {
             fprintf(stderr, "tint2: could not get thumbnail, minimized window\n");
         }
-        goto err0;
+        goto e0;
     }
 
     if (debug_thumbnails) {
@@ -457,7 +450,7 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
                     "%zu x %zu => %zu x %zu, %zu\n",
                     w, h, tw, th, fw);
         }
-        goto err0;
+        goto e0;
     }
 
     XShmSegmentInfo shminfo;
@@ -477,31 +470,31 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
                             AllPlanes, ZPixmap );
     if (!ximg) {
         fprintf(stderr, RED "tint2: !ximg" RESET "\n");
-        goto err0;
+        goto e0;
     }
     if (ximg->bits_per_pixel != 24 && ximg->bits_per_pixel != 32) {
         fprintf(stderr, RED "tint2: unusual bits_per_pixel" RESET "\n");
-        goto err1;
+        goto e1;
     }
     if (use_shm) {
         shminfo.shmid = shmget(IPC_PRIVATE, (size_t)(ximg->bytes_per_line * ximg->height), IPC_CREAT | 0777);
         if (shminfo.shmid < 0) {
             fprintf(stderr, RED "tint2: !shmget" RESET "\n");
-            goto err1;
+            goto e1;
         }
         shminfo.shmaddr = ximg->data = (char *)shmat(shminfo.shmid, 0, 0);
         if (shminfo.shmaddr == (void*)-1) {
             fprintf(stderr, RED "tint2: !shmat" RESET "\n");
-            goto err2;
+            goto e2;
         }
         shminfo.readOnly = False;
         if (!XShmAttach(server.display, &shminfo)) {
             fprintf(stderr, RED "tint2: !xshmattach" RESET "\n");
-            goto err3;
+            goto e3;
         }
         if (!XShmGetImage(server.display, win, ximg, 0, 0, AllPlanes)) {
             fprintf(stderr, RED "tint2: !xshmgetimage" RESET "\n");
-            goto err4;
+            goto e4;
         }
     }
 
@@ -585,20 +578,15 @@ cairo_surface_t *get_window_thumbnail_ximage(Window win, size_t size, gboolean u
         XDestroyImage(ximg);
         ximg = NULL;
     }
-err4:
-    if (use_shm)
+e4: if (use_shm)
         XShmDetach(server.display, &shminfo);
-err3:
-    if (use_shm)
+e3: if (use_shm)
         shmdt(shminfo.shmaddr);
-err2:
-    if (use_shm)
+e2: if (use_shm)
         shmctl(shminfo.shmid, IPC_RMID, NULL);
-err1:
-    if (ximg)
+e1: if (ximg)
         XDestroyImage(ximg);
-err0:    
-    return result;
+e0: return result;
 }
 
 gboolean cairo_surface_is_blank(cairo_surface_t *image_surface)

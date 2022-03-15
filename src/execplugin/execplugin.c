@@ -750,7 +750,7 @@ void execp_timer_callback(void *arg)
     if (pipe(pipe_fd_stdout)) {
         // TODO maybe write this in tooltip, but if this happens we're screwed anyways
         fprintf(stderr, "tint2: Execp: Creating output pipe failed!\n");
-        goto err0;
+        goto e0;
     }
     fcntl(pipe_fd_stdout[0], F_SETFL, O_NONBLOCK | fcntl(pipe_fd_stdout[0], F_GETFL));
 
@@ -758,7 +758,7 @@ void execp_timer_callback(void *arg)
     if (pipe(pipe_fd_stderr)) {
         // TODO maybe write this in tooltip, but if this happens we're screwed anyways
         fprintf(stderr, "tint2: Execp: Creating error pipe failed!\n");
-        goto err1;
+        goto e1;
     }
     fcntl(pipe_fd_stderr[0], F_SETFL, O_NONBLOCK | fcntl(pipe_fd_stderr[0], F_GETFL));
 
@@ -768,7 +768,7 @@ void execp_timer_callback(void *arg)
     switch (child) {
         case -1:// TODO maybe write this in tooltip, but if this happens we're screwed anyways
                 fprintf (stderr, "tint2: Fork failed.\n");
-                goto err2;
+                goto e2;
         case  0:// We are in the child
                 if (debug_executors)
                     fprintf(stderr, "tint2: Executing: %s\n", backend->command);
@@ -808,16 +808,14 @@ void execp_timer_callback(void *arg)
     backend->buf_stderr[backend->buf_stderr_length = 0] = '\0';
     backend->last_update_start_time = time(NULL);
     return;
-err2:
-    close (pipe_fd_stderr[1]);
-    close (pipe_fd_stderr[0]);
-err1:
-    close(pipe_fd_stdout[1]);
-    close(pipe_fd_stdout[0]);
-err0:
-    if (have_stdin)
-        close(pipe_fd_stdin[1]),
-        close(pipe_fd_stdin[0]);
+
+e2: close( pipe_fd_stderr[1]);
+    close( pipe_fd_stderr[0]);
+e1: close( pipe_fd_stdout[1]);
+    close( pipe_fd_stdout[0]);
+e0: if (have_stdin)
+        close( pipe_fd_stdin[1]),
+        close( pipe_fd_stdin[0]);
 }
 
 int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffer_capacity, gboolean *eof)

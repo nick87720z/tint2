@@ -795,6 +795,10 @@ void run_tint2_event_loop()
         }
 
         handle_expired_timers();
+
+#ifdef HAVE_TRACING
+        stop_tracing();
+#endif
     }
 }
 

@@ -14,6 +14,4 @@ void handle_sigchld_events();
 extern int sigchild_pipe_valid;
 extern int sigchild_pipe[2];
 
-extern sigset_t select_sigset; // Signals for select() call, initialized by init_signals()
-
 #endif

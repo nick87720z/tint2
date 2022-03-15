@@ -1172,12 +1172,12 @@ void handle_execp_events( fd_set *fds, int *fdn)
 
         int _fdn = 0, fd;
         fd = execp->backend->child_pipe_stdout;
-        if (FD_ISSET( fd, fds)) {
+        if (fd >= 0 && FD_ISSET( fd, fds)) {
             FD_CLR( fd, fds);
             _fdn++, (*fdn)--;
         }
         fd = execp->backend->child_pipe_stderr;
-        if (FD_ISSET( fd, fds)) {
+        if (fd >= 0 && FD_ISSET( fd, fds)) {
             FD_CLR( fd, fds);
             _fdn++, (*fdn)--;
         }

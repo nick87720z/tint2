@@ -112,12 +112,11 @@ void sigchld_handler_async()
 
 void handle_sigchld_events( fd_set *fds, int *fdn)
 {
-    if (! FD_ISSET( sigchild_pipe[0], fds))
-        return;
-    FD_CLR( sigchild_pipe[0], fds);
-    (*fdn)--;
+    if (sigchild_pipe_valid && FD_ISSET( sigchild_pipe[0], fds))
+    {
+        FD_CLR( sigchild_pipe[0], fds);
+        (*fdn)--;
 
-    if (sigchild_pipe_valid) {
         char buffer[1];
         while (read( sigchild_pipe[0], buffer, sizeof(buffer)) > 0)
             sigchld_handler_async();

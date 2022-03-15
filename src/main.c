@@ -767,9 +767,6 @@ void run_tint2_event_loop()
 
         // Wait for an event and handle it
         ts_event_read = 0;
-        if (XPending( server.display) > 0)
-            handle_x_events();
-
         if (( fdn = pselect( max_fd + 1, &fds, NULL, NULL, get_duration_to_next_timer_expiration(), NULL)) > 0)
         {
 #ifdef HAVE_TRACING

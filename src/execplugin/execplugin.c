@@ -1170,18 +1170,8 @@ void handle_execp_events( fd_set *fds, int *fdn)
     for (GList *l = panel_config.execp_list; (*fdn > 0) && l; l = l->next) {
         Execp *execp = (Execp *)l->data;
 
-        int _fdn = 0, fd;
-        fd = execp->backend->child_pipe_stdout;
-        if (fd >= 0 && FD_ISSET( fd, fds)) {
-            FD_CLR( fd, fds);
-            _fdn++, (*fdn)--;
-        }
-        fd = execp->backend->child_pipe_stderr;
-        if (fd >= 0 && FD_ISSET( fd, fds)) {
-            FD_CLR( fd, fds);
-            _fdn++, (*fdn)--;
-        }
-        if (!_fdn)
+        if (!fd_set_unset_fd( fds, *fdn, execp->backend->child_pipe_stdout) &&
+            !fd_set_unset_fd( fds, *fdn, execp->backend->child_pipe_stderr))
             continue;
 
         if (read_execp(execp))

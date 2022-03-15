@@ -315,6 +315,11 @@ void dump_image_data(const char *file_name, const char *name);
     p = NULL;                                                                            \
 } while (0)
 
+#define fd_set_unset_fd( fds, fdn, fd)                                                   \
+/* Tries to clear fd from fds. On success - also decrements fdn.                         \
+ * Returns 0 if fd is negative or not in fds. */                                         \
+    (fd >= 0 && FD_ISSET( fd, fds) ? (FD_CLR( fd, fds), (fdn)--, 1) : 0)
+
 #if !GLIB_CHECK_VERSION(2, 33, 4)
 GList *g_list_copy_deep(GList *list, GCopyFunc func, gpointer user_data);
 #endif

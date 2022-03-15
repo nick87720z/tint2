@@ -132,13 +132,8 @@ void uevent_unregister_notifier(struct uevent_notify *nb)
 
 void uevent_handler( fd_set *fds, int *fdn)
 {
-    if (uevent_fd < 0)
+    if (!fd_set_unset_fd( fds, *fdn, uevent_fd))
         return;
-
-    if (! FD_ISSET( uevent_fd, fds))
-        return;
-    FD_CLR( uevent_fd, fds);
-    (*fdn)--;
 
     char buf[512];
     int len = recv(uevent_fd, buf, sizeof(buf), MSG_DONTWAIT);

@@ -55,7 +55,7 @@ extern int uevent_fd;
 #if ENABLE_UEVENT
 int uevent_init();
 void uevent_cleanup();
-void uevent_handler();
+void uevent_handler( fd_set *fds, int *fdn);
 
 void uevent_register_notifier(struct uevent_notify *nb);
 void uevent_unregister_notifier(struct uevent_notify *nb);
@@ -69,7 +69,7 @@ static inline void uevent_cleanup()
 {
 }
 
-static inline void uevent_handler()
+static inline void uevent_handler( fd_set *fds, int *fdn)
 {
 }
 

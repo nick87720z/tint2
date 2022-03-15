@@ -760,22 +760,29 @@ void run_tint2_event_loop()
         if (panel_redraw)
             handle_panel_refresh();
 
+        int    fdn;
         fd_set fds;
         int max_fd;
         prepare_fd_set(&fds, &max_fd);
 
         // Wait for an event and handle it
         ts_event_read = 0;
-        if (XPending(server.display) > 0 ||
-            pselect( max_fd + 1, &fds, NULL, NULL, get_duration_to_next_timer_expiration(), NULL) > 0)
+        if (XPending( server.display) > 0)
+            handle_x_events();
+
+        if (( fdn = pselect( max_fd + 1, &fds, NULL, NULL, get_duration_to_next_timer_expiration(), NULL)) > 0)
         {
 #ifdef HAVE_TRACING
             start_tracing((void*)run_tint2_event_loop);
 #endif
-            uevent_handler();
-            handle_sigchld_events();
-            handle_execp_events();
-            handle_x_events();
+            if (fdn)
+                uevent_handler( &fds, &fdn);
+            if (fdn)
+                handle_sigchld_events( &fds, &fdn);
+            if (fdn)
+                handle_execp_events( &fds, &fdn);
+            if (fdn) // Last remaining variant, no need for FD_ISSET
+                handle_x_events();
         }
 
         if (server.err_n) {

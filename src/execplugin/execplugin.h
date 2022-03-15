@@ -153,7 +153,7 @@ void execp_update_post_read(Execp *execp);
 
 void execp_default_font_changed();
 
-void handle_execp_events( fd_set *fds, int *fdn);
+void handle_execp_events();
 
 void execp_force_update(Execp *execp);
 

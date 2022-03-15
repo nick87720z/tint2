@@ -1165,24 +1165,10 @@ void execp_update_post_read(Execp *execp)
     tooltip_update_for_area(&execp->area);
 }
 
-void handle_execp_events( fd_set *fds, int *fdn)
+void handle_execp_events()
 {
-    for (GList *l = panel_config.execp_list; (*fdn > 0) && l; l = l->next) {
+    for (GList *l = panel_config.execp_list; l; l = l->next) {
         Execp *execp = (Execp *)l->data;
-
-        int _fdn = 0, fd;
-        fd = execp->backend->child_pipe_stdout;
-        if (FD_ISSET( fd, fds)) {
-            FD_CLR( fd, fds);
-            _fdn++, (*fdn)--;
-        }
-        fd = execp->backend->child_pipe_stderr;
-        if (FD_ISSET( fd, fds)) {
-            FD_CLR( fd, fds);
-            _fdn++, (*fdn)--;
-        }
-        if (!_fdn)
-            continue;
 
         if (read_execp(execp))
             for (GList *l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next)

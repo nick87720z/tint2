@@ -1134,9 +1134,9 @@ void draw_text_area(Area *area,
 
 gboolean gradient_point_area_dependent(ControlPoint *control)
 {
-    return (!CONST_OFFSET(control->offsets_x) ||
-            !CONST_OFFSET(control->offsets_y) ||
-            !CONST_OFFSET(control->offsets_r));
+    return ((control->offsets_x && !CONST_OFFSET( control->offsets_x)) ||
+            (control->offsets_y && !CONST_OFFSET( control->offsets_y)) ||
+            (control->offsets_r && !CONST_OFFSET( control->offsets_r)));
 }
 
 void gradient_init(Area *area, GradientClass *g, GradientInstance *gi)

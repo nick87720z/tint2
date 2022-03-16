@@ -913,6 +913,9 @@ void set_panel_properties(Panel *p)
 void panel_clear_background(void *obj)
 {
     Panel *p = obj;
+    if (! p->area.pix)
+        return;
+
     if (server.real_transparency)
         clear_pixmap(p->area.pix, 0, 0, p->area.width, p->area.height);
     else {

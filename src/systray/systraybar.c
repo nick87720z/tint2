@@ -506,7 +506,7 @@ void stop_net()
 
     // remove_icon change systray.list_icons
     while (systray.list_icons)
-        remove_icon((TrayWindow *)systray.list_icons->data);
+        remove_icon((TrayWindow *)systray.list_icons->data, false);
 
     if (net_sel_win != None) {
         XDestroyWindow(server.display, net_sel_win);
@@ -514,12 +514,12 @@ void stop_net()
     }
 }
 
-gboolean error;
+unsigned char error;
 int window_error_handler(Display *d, XErrorEvent *e)
 {
     if (systray_profile)
         fprintf(stderr, RED "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __func__, __LINE__);
-    error = TRUE;
+    error = e->error_code;
     if (e->error_code != BadWindow)
         fprintf(stderr, RED "tint2: systray: error code %d" RESET "\n", e->error_code);
     return 0;
@@ -603,7 +603,7 @@ gboolean add_icon(Window win)
 
     // Dangerous actions begin
     XSync(server.display, False);
-    error = FALSE;
+    error = 0;
     XErrorHandler old = XSetErrorHandler(window_error_handler);
 
     XSelectInput(server.display, win, StructureNotifyMask | PropertyChangeMask | ResizeRedirectMask);
@@ -756,7 +756,7 @@ gboolean reparent_icon(TrayWindow *traywin)
 
     // Watch for the icon trying to resize itself / closing again
     XSync(server.display, False);
-    error = FALSE;
+    error = 0;
     XErrorHandler old = XSetErrorHandler(window_error_handler);
     XWithdrawWindow(server.display, traywin->win, server.screen);
     XReparentWindow(server.display, traywin->win, traywin->parent, 0, 0);
@@ -786,14 +786,14 @@ gboolean reparent_icon(TrayWindow *traywin)
 
     XSync(server.display, False);
     XSetErrorHandler(old);
-    if (error != FALSE)
+    if (error)
     {
         fprintf(stderr,
                 RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d" RESET "\n",
                 __LINE__,
                 traywin->win, traywin->name, traywin->parent,
                 traywin->pid);
-        remove_icon(traywin);
+        remove_icon(traywin, error == BadWindow);
         return FALSE;
     }
 
@@ -823,7 +823,7 @@ gboolean embed_icon(TrayWindow *traywin)
     Panel *panel = systray.area.panel;
 
     XSync(server.display, False);
-    error = FALSE;
+    error = 0;
     XErrorHandler old = XSetErrorHandler(window_error_handler);
 
     // Redirect rendering when using compositing
@@ -852,13 +852,13 @@ gboolean embed_icon(TrayWindow *traywin)
         fprintf(stderr, "tint2: XSync(server.display, False)\n");
     XSync(server.display, False);
     XSetErrorHandler(old);
-    if (error != FALSE) {
+    if (error) {
         fprintf(stderr,
                 RED "systray %d: cannot embed icon for window %lu (%s) parent %lu pid %d" RESET "\n",
                 __LINE__,
                 traywin->win, traywin->name, traywin->parent,
                 traywin->pid);
-        remove_icon(traywin);
+        remove_icon(traywin, error == BadWindow);
         return FALSE;
     }
 
@@ -874,7 +874,7 @@ gboolean embed_icon(TrayWindow *traywin)
     return TRUE;
 }
 
-void remove_icon(TrayWindow *traywin)
+void remove_icon(TrayWindow *traywin, bool destroyed)
 {
     if (systray_profile)
         fprintf(stderr,
@@ -888,16 +888,19 @@ void remove_icon(TrayWindow *traywin)
     systray.list_icons = g_slist_remove(systray.list_icons, traywin);
     fprintf(stderr, YELLOW "tint2: remove_icon: %lu (%s)" RESET "\n", traywin->win, traywin->name);
 
-    XSelectInput(server.display, traywin->win, NoEventMask);
+    if (! destroyed)
+        XSelectInput(server.display, traywin->win, NoEventMask);
     if (traywin->damage)
         XDamageDestroy(server.display, traywin->damage);
 
     // reparent to root
     XSync(server.display, False);
-    error = FALSE;
+    error = 0;
     XErrorHandler old = XSetErrorHandler(window_error_handler);
-    XUnmapWindow(server.display, traywin->win);
-    XReparentWindow(server.display, traywin->win, server.root_win, 0, 0);
+    if (! destroyed) {
+        XUnmapWindow(server.display, traywin->win);
+        XReparentWindow(server.display, traywin->win, server.root_win, 0, 0);
+    }
     XDestroyWindow(server.display, traywin->parent);
     XSync(server.display, False);
     XSetErrorHandler(old);
@@ -1120,7 +1123,7 @@ void systray_destroy_event(TrayWindow *traywin)
                 profiling_get_time(),
                 __func__, __LINE__,
                 traywin->win, traywin->name);
-    remove_icon(traywin);
+    remove_icon(traywin, true);
 }
 
 void systray_render_icon_from_image(TrayWindow *traywin)
@@ -1215,7 +1218,7 @@ void systray_render_icon_composited(void *t)
     }
 
     XSync(server.display, False);
-    error = FALSE;
+    error = 0;
     XErrorHandler old = XSetErrorHandler(window_error_handler);
 
     // if (server.real_transparency)
@@ -1351,7 +1354,7 @@ void systray_render_icon(void *t)
 
     if (systray_composited) {
         XSync(server.display, False);
-        error = FALSE;
+        error = 0;
         XErrorHandler old = XSetErrorHandler(window_error_handler);
 
         unsigned int border_width;

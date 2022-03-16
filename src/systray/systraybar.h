@@ -93,7 +93,7 @@ void handle_systray_event(XClientMessageEvent *e);
 gboolean add_icon(Window id);
 gboolean reparent_icon(TrayWindow *traywin);
 gboolean embed_icon(TrayWindow *traywin);
-void remove_icon(TrayWindow *traywin);
+void remove_icon(TrayWindow *traywin, bool destroyed);
 
 void refresh_systray_icons();
 void systray_render_icon(void *t);

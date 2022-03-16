@@ -521,7 +521,7 @@ void handle_x_event(XEvent *e)
             if (traywin->parent == e->xreparent.parent)
                 embed_icon(traywin);
             else
-                remove_icon(traywin);
+                remove_icon(traywin, false);
         }
         break;
     }

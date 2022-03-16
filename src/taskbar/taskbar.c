@@ -765,9 +765,7 @@ void sort_tasks(Taskbar *taskbar)
         return;
 
     taskbar->area.children = g_list_sort_with_data(taskbar->area.children, (GCompareDataFunc)compare_tasks, taskbar);
-    taskbar->area.resize_needed = TRUE;
     schedule_panel_redraw();
-    ((Panel *)taskbar->area.panel)->area.resize_needed = TRUE;
 }
 
 void sort_taskbar_for_win(Window win)

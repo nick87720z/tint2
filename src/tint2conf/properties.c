@@ -1886,22 +1886,27 @@ void load_desktop_entries(const char *path, GList **entries)
         g_dir_close(d);
     }
 
+    GList *l, *p;
+
     subdirs = g_list_sort(subdirs, compare_strings);
-    GList *l;
-    for (l = subdirs; l; l = l->next) {
+    for (l = subdirs;
+         l;
+         l = (p = l)->next, g_list_free_1( p))
+    {
         gchar *dir = (gchar *)l->data;
         load_desktop_entries(dir, entries);
         g_free(dir);
     }
-    g_list_free(subdirs);
 
     files = g_list_sort(files, compare_strings);
-    for (l = files; l; l = l->next) {
+    for (l = files;
+         l;
+         l = (p = l)->next, g_list_free_1( p))
+    {
         gchar *file = (gchar *)l->data;
         load_desktop_entry(file, entries);
         g_free(file);
     }
-    g_list_free(files);
 }
 
 static gint compare_themes(gconstpointer a, gconstpointer b)
@@ -2455,10 +2460,12 @@ void init_launcher_page (GtkWidget *parent, GtkWindow *window)
                            -1);
     }
 
-    for (GList *l = themes; l; l = l->next) {
+    for (GList *l = themes, *p;
+         l;
+         l = (p = l)->next, g_list_free_1( p))
+    {
         free_icon_theme((IconTheme *)l->data);
     }
-    g_list_free(themes);
     fprintf(stderr, "tint2: Icon themes loaded\n");
 
     fprintf(stderr, "tint2: Loading .desktop files\n");
@@ -2470,10 +2477,12 @@ void init_launcher_page (GtkWidget *parent, GtkWindow *window)
     entries = g_list_sort(entries, compare_entries);
     populate_from_entries(entries, FALSE);
 
-    for (GList *l = entries; l; l = l->next) {
+    for (GList *l = entries, *p;
+         l;
+         l = (p = l)->next, g_list_free_1( p))
+    {
         free_desktop_entry((DesktopEntry *)l->data);
     }
-    g_list_free(entries);
 
     icon_theme_changed(window);
     load_icons(launcher_apps);

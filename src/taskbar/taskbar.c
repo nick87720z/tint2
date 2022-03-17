@@ -98,10 +98,12 @@ void taskbar_clear_orderings()
 {
     if (!taskbar_task_orderings)
         return;
-    for (GList *order = taskbar_task_orderings; order; order = order->next) {
+    for (GList *order = taskbar_task_orderings, *p;
+         order;
+         order = (p = order)->next, g_list_free_1( p))
+    {
         g_list_free_full((GList *)order->data, free);
     }
-    g_list_free(taskbar_task_orderings);
     taskbar_task_orderings = NULL;
 }
 
@@ -526,7 +528,9 @@ void taskbar_refresh_tasklist()
     }
 
     GList *win_list = g_hash_table_get_keys(win_to_task);
-    for (GList *it = win_list; it; it = it->next)
+    for (GList *it = win_list, *p;
+         it;
+         it = (p = it)->next, g_list_free_1( p))
     {
         int i;
         for (i = 0; i < num_results; i++)
@@ -535,7 +539,6 @@ void taskbar_refresh_tasklist()
         if (i == num_results)
             taskbar_remove_task(it->data);
     }
-    g_list_free(win_list);
 
     // Add any new
     for (int i = 0; i < num_results; i++)

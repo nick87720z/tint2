@@ -136,10 +136,7 @@ void cleanup_launcher()
         cleanup_launcher_theme(launcher);
     }
 
-    for (GSList *l = panel_config.launcher.list_apps; l; l = l->next) {
-        free(l->data);
-    }
-    g_slist_free(panel_config.launcher.list_apps);
+    g_slist_free_full( panel_config.launcher.list_apps, free);
     panel_config.launcher.list_apps = NULL;
 
     free(icon_theme_name_config);
@@ -154,7 +151,10 @@ void cleanup_launcher()
 void cleanup_launcher_theme(Launcher *launcher)
 {
     free_area(&launcher->area);
-    for (GSList *l = launcher->list_icons; l; l = l->next) {
+    for (GSList *l = launcher->list_icons, *p;
+         l;
+         l = (p = l)->next, g_slist_free_1( p))
+    {
         LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
         if (launcherIcon) {
             free_icon(launcherIcon->image);
@@ -165,10 +165,9 @@ void cleanup_launcher_theme(Launcher *launcher)
             free(launcherIcon->cmd);
             free(launcherIcon->icon_tooltip);
             free(launcherIcon->config_path);
+            free(launcherIcon);
         }
-        free(launcherIcon);
     }
-    g_slist_free(launcher->list_icons);
     launcher->list_icons = NULL;
 }
 

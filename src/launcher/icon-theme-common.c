@@ -310,21 +310,18 @@ void free_icon_theme(IconTheme *theme)
 {
     if (!theme)
         return;
-    free(theme->name);
-    theme->name = NULL;
-    free(theme->description);
-    theme->description = NULL;
-    for (GSList *l_inherits = theme->list_inherits; l_inherits; l_inherits = l_inherits->next) {
-        free(l_inherits->data);
-    }
-    g_slist_free(theme->list_inherits);
-    theme->list_inherits = NULL;
-    for (GSList *l_dir = theme->list_directories; l_dir; l_dir = l_dir->next) {
+    g_slist_free_full( theme->list_inherits, free);
+    for (GSList *l_dir = theme->list_directories, *p;
+         l_dir;
+         l_dir = (p = l_dir)->next, g_slist_free_1( p))
+    {
         IconThemeDir *dir = (IconThemeDir *)l_dir->data;
         free(dir->name);
         free(l_dir->data);
     }
-    g_slist_free(theme->list_directories);
+    free_and_null( theme->name);
+    free_and_null( theme->description);
+    theme->list_inherits = NULL;
     theme->list_directories = NULL;
 }
 
@@ -332,21 +329,25 @@ void free_themes(IconThemeWrapper *wrapper)
 {
     if (!wrapper)
         return;
-    free(wrapper->icon_theme_name);
-    for (GSList *l = wrapper->themes; l; l = l->next) {
+    for (GSList *l = wrapper->themes, *p;
+         l;
+         l = (p = l)->next, g_slist_free_1( p))
+    {
         IconTheme *theme = (IconTheme *)l->data;
         free_icon_theme(theme);
         free(theme);
     }
-    g_slist_free(wrapper->themes);
-    for (GSList *l = wrapper->themes_fallback; l; l = l->next) {
+    for (GSList *l = wrapper->themes_fallback, *p;
+         l;
+         l = (p = l)->next, g_slist_free_1( p))
+    {
         IconTheme *theme = (IconTheme *)l->data;
         free_icon_theme(theme);
         free(theme);
     }
-    g_slist_free(wrapper->themes_fallback);
     g_slist_free_full(wrapper->_queued, free);
     free_cache(&wrapper->_cache);
+    free(wrapper->icon_theme_name);
     free(wrapper);
 }
 

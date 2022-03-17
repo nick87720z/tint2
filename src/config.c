@@ -228,21 +228,23 @@ void load_launcher_app_dir(const char *path)
     }
 
     subdirs = g_list_sort(subdirs, compare_strings);
-    for (GList *l = subdirs; l; l = l->next)
+    for (GList *l = subdirs, *p;
+         l;
+         l = (p = l)->next, g_list_free_1( p))
     {
         gchar *dir = (gchar *)l->data;
         load_launcher_app_dir(dir);
         free( dir);
     }
-    g_list_free(subdirs);
 
     files = g_list_sort(files, compare_strings);
-    for (GList *l = files; l; l = l->next)
+    for (GList *l = files, *p;
+         l;
+         l = (p = l)->next, g_list_free_1( p))
     {
         gchar *file = (gchar *)l->data;
         panel_config.launcher.list_apps = g_slist_append( panel_config.launcher.list_apps, file);
     }
-    g_list_free(files);
 }
 
 Separator *get_or_create_last_separator()

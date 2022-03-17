@@ -301,12 +301,13 @@ Imlib_Image task_get_icon(Window win, int icon_size)
                 int array_size = w * h;
                 // imlib needs the array in DATA32 type
                 // using malloc for the array to protect from stack overflow
-                DATA32 *icon_data = malloc( sizeof(*icon_data) * array_size);
-                if (icon_data) {
+                if (( img = imlib_create_image( w, h) ))
+                {
+                    imlib_context_set_image( img);
+                    DATA32 *icon_data = imlib_image_get_data();
                     for (int j = 0; j < array_size; ++j)
                         icon_data[j] = tmp_data[j];
-                    img = imlib_create_image_using_copied_data(w, h, icon_data);
-                    free( icon_data);
+                    imlib_image_put_back_data( icon_data);
                 }
             }
         }

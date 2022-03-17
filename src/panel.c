@@ -970,17 +970,13 @@ Taskbar *click_taskbar(Panel *panel, int x, int y)
 Task *click_task(Panel *panel, int x, int y)
 {
     Taskbar *taskbar = click_taskbar(panel, x, y);
-    if (taskbar) {
-        GList *l = taskbar->area.children;
-        if (taskbarname_enabled)
-            l = l->next;
-        for (; l; l = l->next)
+    if (taskbar)
+        for_taskbar_tasks( taskbar, l)
         {
             Task *task = (Task *)l->data;
             if (area_is_under_mouse(task, x, y))
                 return task;
         }
-    }
     return NULL;
 }
 

@@ -349,6 +349,7 @@ gboolean full_width_area_is_under_mouse(void *obj, int x, int y);
 
 void area_gradients_create(Area *area);
 void area_gradients_free(Area *area);
+void area_gradients_reset( Area *area);
 
 void area_dump_geometry(Area *area, int indent);
 

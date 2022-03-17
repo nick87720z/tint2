@@ -159,10 +159,7 @@ void handle_event_property_notify(XEvent *e)
                     if (server.num_desktops > old_desktop)
                     {
                         taskbar = &panel->taskbar[old_desktop];
-                        GList *l = taskbar->area.children;
-                        if (taskbarname_enabled)
-                            l = l->next;
-                        for (; l; l = l->next)
+                        for_taskbar_tasks( taskbar, l)
                         {
                             Task *task = l->data;
                             if (task->desktop == ALL_DESKTOPS)
@@ -176,10 +173,7 @@ void handle_event_property_notify(XEvent *e)
                         }
                     }
                     taskbar = &panel->taskbar[server.desktop];
-                    GList *l = taskbar->area.children;
-                    if (taskbarname_enabled)
-                        l = l->next;
-                    for (; l; l = l->next)
+                    for_taskbar_tasks( taskbar, l)
                     {
                         Task *task = l->data;
                         if (task->desktop == ALL_DESKTOPS) {
@@ -466,8 +460,8 @@ void handle_x_event(XEvent *e)
         break;
     }
     case MotionNotify: {
-        unsigned int button_mask = Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask;
-        if (e->xmotion.state & button_mask)
+        unsigned int e_buttons = e->xmotion.state & (Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask);
+        if (e_buttons)
             handle_mouse_move_event(e);
 
         Area *area = find_area_under_mouse(panel, e->xmotion.x, e->xmotion.y);
@@ -476,7 +470,7 @@ void handle_x_event(XEvent *e)
         else
             tooltip_trigger_hide();
         if (panel_config.mouse_effects)
-            mouse_over(area, e->xmotion.state & button_mask);
+            mouse_over(area, e_buttons);
         break;
     }
     case LeaveNotify: {
@@ -538,9 +532,8 @@ void handle_x_event(XEvent *e)
             break;
         for (GSList *it = systray.list_icons; it; it = it->next)
         {
-            if (((TrayWindow *)it->data)->win == e->xany.window) {
+            if (((TrayWindow *)it->data)->win == e->xany.window)
                 systray_destroy_event((TrayWindow *)it->data);
-            }
         }
         break;
 
@@ -660,11 +653,14 @@ void handle_panel_refresh()
             {
                 panel->hidden_pixmap = XCreatePixmap(server.display,        server.root_win,
                                                      panel->hidden_width,   panel->hidden_height, server.depth);
-                int xoff = 0, yoff = 0;
-                if (panel_horizontal && panel_position & BOTTOM)
-                    yoff = panel->area.height - panel->hidden_height;
-                else if (!panel_horizontal && panel_position & RIGHT)
-                    xoff = panel->area.width - panel->hidden_width;
+                int xoff, yoff;
+                if (panel_horizontal) {
+                    xoff = 0;
+                    yoff = panel_position & BOTTOM ? panel->area.height - panel->hidden_height : 0;
+                } else {
+                    xoff = panel_position & RIGHT ? panel->area.width - panel->hidden_width : 0;
+                    yoff = 0;
+                }
                 XCopyArea(server.display,
                           panel->area.pix, panel->hidden_pixmap, server.gc,
                           xoff,                 yoff,

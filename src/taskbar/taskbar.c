@@ -115,10 +115,7 @@ void taskbar_save_orderings()
             Taskbar *taskbar = &panel->taskbar[j];
             GList   *task_order = NULL,
                     *to_tail = NULL;
-            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
-                                                                            : taskbar->area.children;
-                 c;
-                 c = c->next)
+            for_taskbar_tasks( taskbar, c)
             {
                 Task *t = (Task *)c->data;
                 Window *window = calloc(1, sizeof(Window));
@@ -377,8 +374,7 @@ void init_taskbar_panel(void *p)
         taskbar->area = panel->g_taskbar.area;
         taskbar->desktop = j;
         taskbar->area.bg = panel->g_taskbar.background[j == server.desktop ? TASKBAR_ACTIVE : TASKBAR_NORMAL];
-        area_gradients_free  (&taskbar->area);
-        area_gradients_create(&taskbar->area);
+        area_gradients_reset( & taskbar->area);
     }
     init_taskbarname_panel(panel);
     taskbar_start_thumbnail_timer(THUMB_MODE_ALL);
@@ -578,10 +574,7 @@ gboolean resize_taskbar(void *obj)
         relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width);
 
         int text_width = panel->g_task.maximum_width;
-        GList *l = taskbar->area.children;
-        if (taskbarname_enabled)
-            l = l->next;
-        for (; l != NULL; l = l->next)
+        for_taskbar_tasks( taskbar, l)
             if (((Task *)l->data)->area.on_screen)
             {
                 text_width = ((Task *)l->data)->area.width;
@@ -603,10 +596,7 @@ gboolean resize_taskbar(void *obj)
 
 gboolean taskbar_is_empty(Taskbar *taskbar)
 {
-    GList *l = taskbar->area.children;
-    if (taskbarname_enabled)
-        l = l->next;
-    for (; l != NULL; l = l->next)
+    for_taskbar_tasks( taskbar, l)
         if (((Task *)l->data)->area.on_screen)
             return FALSE;
     return TRUE;
@@ -615,9 +605,7 @@ gboolean taskbar_is_empty(Taskbar *taskbar)
 void update_taskbar_visibility(Taskbar *taskbar)
 {
     (   taskbar->desktop == server.desktop || (
-            taskbar_mode == MULTI_DESKTOP && (
-                !hide_taskbar_if_empty || !taskbar_is_empty(taskbar)
-            )
+            taskbar_mode == MULTI_DESKTOP && !(hide_taskbar_if_empty && taskbar_is_empty(taskbar))
         ) ?
         show : hide
     )(&taskbar->area);
@@ -635,34 +623,32 @@ void update_all_taskbars_visibility()
 
 void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
 {
-    taskbar->area.bg = panels[0].g_taskbar.background[state];
-    area_gradients_free(&taskbar->area);
-    area_gradients_create(&taskbar->area);
-
-    if (taskbarname_enabled) {
-        taskbar->bar_name.area.bg = panels[0].g_taskbar.background_name[state];
-        area_gradients_free(&taskbar->bar_name.area);
-        area_gradients_create(&taskbar->bar_name.area);
-    }
-
     update_taskbar_visibility(taskbar);
+    if (taskbarname_enabled)
+    {
+        taskbar->bar_name.area.bg = panels[0].g_taskbar.background_name[state];
+        area_gradients_reset( & taskbar->bar_name.area);
 
-    if (taskbar->area.on_screen) {
-        schedule_redraw(&taskbar->area);
-        if (taskbarname_enabled) {
-            schedule_redraw(&taskbar->bar_name.area);
-        }
+        if (taskbar->area.on_screen)
+            schedule_redraw( & taskbar->bar_name.area);
+    }
+    taskbar->area.bg = panels[0].g_taskbar.background[state];
+    area_gradients_reset( & taskbar->area);
+    if (taskbar->area.on_screen)
+    {
+        schedule_redraw( & taskbar->area);
         if (taskbar_mode == MULTI_DESKTOP) {
-            if (panels[0].g_taskbar.background[TASKBAR_NORMAL] != panels[0].g_taskbar.background[TASKBAR_ACTIVE])
+            GList *lfirst = taskbarname_enabled ? taskbar->area.children->next : taskbar->area.children;
+
+            Background **bg = panels[0].g_taskbar.background;
+            if (bg[TASKBAR_NORMAL] != bg[TASKBAR_ACTIVE])
             {
-                GList *l = taskbarname_enabled ? taskbar->area.children->next : taskbar->area.children;
-                for (; l; l = l->next)
+                for (GList *l = lfirst; l; l = l->next)
                     schedule_redraw((Area *)l->data);
             }
             if (hide_task_diff_desktop)
             {
-                GList *l = taskbarname_enabled ? taskbar->area.children->next : taskbar->area.children;
-                for (; l; l = l->next) {
+                for (GList *l = lfirst; l; l = l->next) {
                     Task *task = (Task *)l->data;
                     set_task_state(task, task->current_state);
                 }
@@ -825,11 +811,7 @@ void taskbar_update_thumbnails(void *arg)
 
         for (int j = 0; j < panel->num_desktops; j++) {
             Taskbar *taskbar = &panel->taskbar[j];
-
-            for (GList *c = (taskbar->area.children && taskbarname_enabled) ? taskbar->area.children->next
-                                                                            : taskbar->area.children;
-                 c;
-                 c = c->next)
+            for_taskbar_tasks( taskbar, c)
             {
                 Task *t = (Task *)c->data;
                 if ((mode == THUMB_MODE_ALL && t->current_state == TASK_ACTIVE && !g_list_find(taskbar_thumbnail_jobs_done, t)) ||

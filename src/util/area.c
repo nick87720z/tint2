@@ -736,8 +736,7 @@ void mouse_over(Area *area, gboolean pressed)
         return;
     }
 
-    new_state = (pressed && area->has_mouse_press_effect) ? MOUSE_DOWN
-                : area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
+    new_state = area->has_mouse_press_effect ? (pressed ? MOUSE_DOWN : MOUSE_OVER) : MOUSE_NORMAL;
 
     if (mouse_over_area == area && mouse_over_area->mouse_state == new_state)
         return;
@@ -1196,6 +1195,12 @@ void area_gradients_free(Area *area)
         area->gradient_instances_by_state[i] = NULL;
     }
     g_assert_null(area->dependent_gradients);
+}
+
+void area_gradients_reset( Area *area)
+{
+    area_gradients_free( area);
+    area_gradients_create( area);
 }
 
 double get_control_point_offset(Area *area, Offset *offset)

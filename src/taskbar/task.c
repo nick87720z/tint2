@@ -588,13 +588,9 @@ Task *find_active_task(Task *current_task)
         return current_task;
 
     Taskbar *taskbar = (Taskbar *)current_task->area.parent;
-
-    GList *l0 = taskbar->area.children;
-    if (taskbarname_enabled)
-        l0 = l0->next;
-    for (; l0; l0 = l0->next)
+    for_taskbar_tasks( taskbar, l)
     {
-        Task *task = (Task *)l0->data;
+        Task *task = (Task *)l->data;
         if (task->win == active_task->win)
             return task;
     }
@@ -609,16 +605,13 @@ Task *next_task(Task *task)
 
     Taskbar *taskbar = task->area.parent;
 
-    GList *l0 = taskbar->area.children;
-    if (taskbarname_enabled)
-        l0 = l0->next;
-    GList *lfirst_task = l0;
-    for (; l0; l0 = l0->next)
+    GList *lfirst_task = taskbarname_enabled ? taskbar->area.children->next : taskbar->area.children;
+    for (GList *l = lfirst_task; l; l = l->next)
     {
-        Task *task1 = l0->data;
+        Task *task1 = l->data;
         if (task1 == task) {
-            l0 = l0->next ? l0->next : lfirst_task;
-            return l0->data;
+            l = l->next ? l->next : lfirst_task;
+            return l->data;
         }
     }
 
@@ -633,17 +626,14 @@ Task *prev_task(Task *task)
     Taskbar *taskbar = task->area.parent;
 
     Task *task2 = NULL;
-    GList *l0 = taskbar->area.children;
-    if (taskbarname_enabled)
-        l0 = l0->next;
-    GList *lfirst_task = l0;
-    for (; l0; l0 = l0->next)
+    GList *lfirst_task = taskbarname_enabled ? taskbar->area.children->next : taskbar->area.children;
+    for (GList *l = lfirst_task; l; l = l->next)
     {
-        Task *task1 = l0->data;
+        Task *task1 = l->data;
         if (task1 == task) {
-            if (l0 == lfirst_task) {
-                l0 = g_list_last(l0);
-                task2 = l0->data;
+            if (l == lfirst_task) {
+                l = g_list_last(l);
+                task2 = l->data;
             }
             return task2;
         }
@@ -707,45 +697,52 @@ void set_task_state(Task *task, TaskState state)
     if (!task || state == TASK_UNDEFINED || state >= TASK_STATE_COUNT)
         return;
 
+    GPtrArray *task_buttons = NULL;
+
     if (!task->thumbnail)
         task_refresh_thumbnail(task);
     if (state == TASK_ACTIVE)
+    {
         // For active windows, we get the thumbnail twice with a small delay in between.
         // This is because they sometimes redraw their windows slowly.
         taskbar_start_thumbnail_timer(THUMB_MODE_ACTIVE_WINDOW);
-
-    if (state == TASK_ACTIVE && task->current_state != state) {
-        clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);
-        if (taskbar_sort_method == TASKBAR_SORT_LRU || taskbar_sort_method == TASKBAR_SORT_MRU) {
-            GPtrArray *task_buttons = get_task_buttons(task->win);
-            if (task_buttons)
-            for (int i = 0; i < task_buttons->len; ++i) {
-                Task *task1 = g_ptr_array_index(task_buttons, i);
-                Taskbar *taskbar = (Taskbar *)task1->area.parent;
-                sort_tasks(taskbar);
+        if (task->current_state != state)
+        {
+            clock_gettime(CLOCK_MONOTONIC, &task->last_activation_time);
+            if (taskbar_sort_method == TASKBAR_SORT_LRU || taskbar_sort_method == TASKBAR_SORT_MRU)
+            {
+                task_buttons = get_task_buttons(task->win);
+                if (task_buttons)
+                for (int i = 0; i < task_buttons->len; ++i)
+                {
+                    Task *task1 = g_ptr_array_index(task_buttons, i);
+                    Taskbar *taskbar = (Taskbar *)task1->area.parent;
+                    sort_tasks(taskbar);
+                }
             }
         }
     }
+    if (task->current_state != state || hide_task_diff_monitor || hide_task_diff_desktop)
+    {
+        if (!task_buttons)
+            task_buttons = get_task_buttons(task->win);
 
-    if (task->current_state != state || hide_task_diff_monitor || hide_task_diff_desktop) {
-        GPtrArray *task_buttons = get_task_buttons(task->win);
         if (task_buttons) {
             for (int i = 0; i < task_buttons->len; ++i)
             {
                 Task *task1 = g_ptr_array_index(task_buttons, i);
                 task1->current_state = state;
                 task1->area.bg = panels[0].g_task.background[state];
-                area_gradients_free(&task1->area);
-                area_gradients_create(&task1->area);
+                area_gradients_reset( & task1->area);
                 schedule_redraw(&task1->area);
                 if (state == TASK_ACTIVE && g_slist_find(urgent_list, task1))
                     del_urgent(task1);
                 gboolean hide = FALSE;
                 Taskbar *taskbar = (Taskbar *)task1->area.parent;
-                if (task->desktop == ALL_DESKTOPS && server.desktop != taskbar->desktop) {
+                if (task->desktop == ALL_DESKTOPS && server.desktop != taskbar->desktop)
                     // Hide ALL_DESKTOPS task on non-current desktop
                     hide = !always_show_all_desktop_tasks;
-                }
+
                 if ((hide_inactive_tasks    && state != TASK_ACTIVE)               ||
                     (hide_task_diff_desktop && taskbar->desktop != server.desktop) ||
                     ((hide_task_diff_monitor || num_panels > 1) &&
@@ -753,7 +750,7 @@ void set_task_state(Task *task, TaskState state)
 
                     hide = TRUE;
                 
-                if ((!hide) != task1->area.on_screen) {
+                if (hide == task1->area.on_screen) {
                     task1->area.on_screen = !hide;
                     schedule_redraw(&task1->area);
                     Panel *p = (Panel *)task->area.panel;

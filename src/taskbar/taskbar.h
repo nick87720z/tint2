@@ -72,6 +72,11 @@ extern GHashTable *win_to_task;
 extern Task *active_task;
 extern Task *task_drag;
 
+#define for_taskbar_tasks( tb, tl)                                                       \
+    for (GList *tl = (tb->area.children && taskbarname_enabled)                          \
+         ? tb->area.children->next                                                       \
+         : tb->area.children; tl; tl = tl->next)
+
 void default_taskbar();
 void cleanup_taskbar();
 void init_taskbar();

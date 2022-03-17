@@ -183,7 +183,7 @@ gboolean update_snapshot(gpointer ignored)
     int num_updates = 0;
     gboolean need_pls_wait = FALSE;
 
-    gchar *snap = NULL, *snap_name;
+    gchar *snap = NULL, *snap_name = NULL;
 
     have_iter = gtk_tree_model_get_iter_first(model, &iter);
     while (have_iter) {

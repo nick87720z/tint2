@@ -1185,12 +1185,12 @@ void area_gradients_free(Area *area)
     if (debug_gradients)
         fprintf(stderr, "tint2: Freeing gradients for area %s\n", area->name);
     for (int i = 0; i < MOUSE_STATE_COUNT; i++) {
-        for (GList *l = area->gradient_instances_by_state[i], *p; l;)
+        for (GList *l = area->gradient_instances_by_state[i], *p;
+             l;
+             l = (p = l)->next, g_list_free_1( p))
         {
             gradient_destroy(l->data);
             free(l->data);
-            l = (p = l)->next;
-            g_list_free_1( p);
         }
         area->gradient_instances_by_state[i] = NULL;
     }

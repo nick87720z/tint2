@@ -166,9 +166,10 @@ void handle_event_property_notify(XEvent *e)
                             {
                                 task->area.on_screen = always_show_all_desktop_tasks;
                                 taskbar->area.resize_needed = TRUE;
-                                schedule_panel_redraw();
                                 if (taskbar_mode == MULTI_DESKTOP)
                                     panel->area.resize_needed = TRUE;
+
+                                schedule_panel_redraw();
                             }
                         }
                     }
@@ -176,7 +177,8 @@ void handle_event_property_notify(XEvent *e)
                     for_taskbar_tasks( taskbar, l)
                     {
                         Task *task = l->data;
-                        if (task->desktop == ALL_DESKTOPS) {
+                        if (task->desktop == ALL_DESKTOPS)
+                        {
                             task->area.on_screen = TRUE;
                             taskbar->area.resize_needed = TRUE;
                             if (taskbar_mode == MULTI_DESKTOP)

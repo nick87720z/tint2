@@ -779,7 +779,8 @@ void sort_taskbar_for_win(Window win)
         (task0 = g_ptr_array_index( task_buttons, 0)))
     {
         get_window_coordinates(win, &task0->win_x, &task0->win_y, &task0->win_w, &task0->win_h);
-        for (int i = 0; i < task_buttons->len; ++i)
+        sort_tasks( task0->area.parent);
+        for (int i = 1; i < task_buttons->len; ++i)
         {
             Task *task = g_ptr_array_index(task_buttons, i);
             task->win_x = task0->win_x;

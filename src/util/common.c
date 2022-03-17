@@ -281,11 +281,12 @@ int parse_line(const char *line, char **key, char **value)
         if (b[-1] == '\n')
             b--;
         while (g_ascii_isspace(* --b));
-        b[1] = '\0';
+        *(++b) = '\0';
+        if (b != a)
+            result |= PARSED_VALUE;
     }
 
-    return a != b   ? result | PARSED_VALUE
-                    : result;
+    return result;
 }
 
 extern char *config_path;

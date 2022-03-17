@@ -194,7 +194,7 @@ void handle_event_property_notify(XEvent *e)
                         while (g_hash_table_iter_next(&iter, &key, &value))
                         {
                             Window task_win = *(Window *)key;
-                            Task *task = get_task(task_win);
+                            Task *task = value ? g_ptr_array_index((GPtrArray *)value, 0) : NULL;
 
                             if (task && task->desktop != get_window_desktop(task_win))
                                 need_update = g_slist_prepend (need_update, task);

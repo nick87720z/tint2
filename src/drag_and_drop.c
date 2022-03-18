@@ -344,9 +344,8 @@ void handle_dnd_selection_notify(XSelectionEvent *e)
                         if (c == '\n') {
                             if (must_unescape) {
                                 char *raw = g_uri_unescape_string(url->str, NULL);
-                                if (raw) {
+                                if (raw)
                                     g_string_assign(url, raw);
-                                }
                                 free(raw);
                             }
                             // Many programs cannot handle this prefix

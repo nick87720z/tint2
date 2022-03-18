@@ -268,8 +268,7 @@ IconTheme *load_theme_from_fs(const char *name, IconTheme *theme)
                 theme = make_theme(name);
             load_theme_from_fs_dir(theme, dir_name);
         }
-        free( dir_name);
-        dir_name = NULL;
+        free_and_null( dir_name);
     }
 
     return theme;
@@ -291,8 +290,7 @@ IconTheme *load_theme(const char *name)
         file_name = strdup_printf( NULL, "%s/%s/index.theme", path, name);
         if (g_file_test(file_name, G_FILE_TEST_EXISTS))
             break;
-        free( file_name);
-        file_name = NULL;
+        free_and_null( file_name);
     }
 
     IconTheme *theme;
@@ -455,11 +453,11 @@ void load_fallbacks(IconThemeWrapper *wrapper)
         GDir *d = g_dir_open(path, 0, NULL);
         if (d) {
             const gchar *name;
-            while ((name = g_dir_read_name(d))) {
+            while ((name = g_dir_read_name(d)))
+            {
                 gchar *file_name = strdup_printf( NULL, "%s/%s/index.theme", path, name);
-                if (g_file_test(file_name, G_FILE_TEST_EXISTS) && !g_file_test(file_name, G_FILE_TEST_IS_DIR)) {
+                if (g_file_test(file_name, G_FILE_TEST_EXISTS) && !g_file_test(file_name, G_FILE_TEST_IS_DIR))
                     load_themes_helper(name, &wrapper->themes_fallback, &wrapper->_queued);
-                }
                 free( file_name);
             }
             g_dir_close(d);
@@ -481,12 +479,11 @@ gchar *get_icon_cache_path()
 void icon_theme_common_cleanup()
 {
     if (icon_locations)
-        g_slist_free_full (icon_locations, free);;
+        g_slist_free_full (icon_locations, free);
     icon_locations = NULL;
 
     if (icon_cache_path)
-        free (icon_cache_path);
-    icon_cache_path = NULL;
+        free_and_null (icon_cache_path);
 }
 
 void load_icon_cache(IconThemeWrapper *wrapper)
@@ -661,10 +658,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                         if ((!best_theme || t_iter == best_theme) &&
                             dir_size_dist < min_size )
                         {
-                            if (best_name) {
+                            if (best_name)
                                 free (best_name);
-                                best_name = NULL;
-                            }
                             best_name = strdup (file_name);
                             min_size = dir_size_dist;
                             best_theme = t_iter;
@@ -677,10 +672,8 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                             (next_size == -1 || dir->size < next_size) &&
                             (!next_theme || t_iter == next_theme))
                         {
-                            if (next_name) {
+                            if (next_name)
                                 free (next_name);
-                                next_name = NULL;
-                            }
                             next_name = strdup (file_name);
                             next_size = dir->size;
                             next_theme = t_iter;
@@ -693,8 +686,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
             }
         }
     }
-    free (file_name);
-    file_name = NULL;
+    free_and_null (file_name);
     if (next_name)
     {
         free (best_name);
@@ -728,10 +720,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
                     return file_name;
                 }
                 else
-                {
-                    free (file_name);
-                    file_name = NULL;
-                }
+                    free_and_null (file_name);
             }
         }
     }

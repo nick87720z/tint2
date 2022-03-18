@@ -232,29 +232,31 @@ void button_reload_icon(Button *button)
         return;
 
     char *new_icon_path = get_icon_path(icon_theme_wrapper, icon_name, frontend->iconw, TRUE);
-    if (new_icon_path)
+    if (new_icon_path) {
         frontend->icon = load_image(new_icon_path, TRUE);
-    free(new_icon_path);
+        free( new_icon_path);
+    }
     // On loading error, fallback to default
     if (!frontend->icon) {
         new_icon_path = get_icon_path(icon_theme_wrapper, DEFAULT_ICON, frontend->iconw, TRUE);
-        if (new_icon_path)
+        if (new_icon_path) {
             frontend->icon = load_image(new_icon_path, TRUE);
-        free(new_icon_path);
+            free( new_icon_path);
+        }
     }
     Imlib_Image original = frontend->icon;
-    frontend->icon = scale_icon(frontend->icon, frontend->iconw);
+    frontend->icon = scale_adjust_icon( frontend->icon, frontend->iconw);
     free_icon(original);
 
     if (panel_config.mouse_effects) {
-        frontend->icon_hover = adjust_icon(frontend->icon,
+        frontend->icon_hover = adjust_img( frontend->icon,
                                            panel_config.mouse_over_alpha,
                                            panel_config.mouse_over_saturation,
-                                           panel_config.mouse_over_brightness);
-        frontend->icon_pressed = adjust_icon(frontend->icon,
+                                           panel_config.mouse_over_brightness );
+        frontend->icon_pressed = adjust_img( frontend->icon,
                                              panel_config.mouse_pressed_alpha,
                                              panel_config.mouse_pressed_saturation,
-                                             panel_config.mouse_pressed_brightness);
+                                             panel_config.mouse_pressed_brightness );
     }
     schedule_redraw(&button->area);
 }

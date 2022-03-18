@@ -862,7 +862,7 @@ Imlib_Image load_image(const char *path, int cached)
     return image;
 }
 
-Imlib_Image adjust_icon(Imlib_Image original, int alpha, int saturation, int brightness)
+Imlib_Image adjust_img( Imlib_Image original, int alpha, int saturation, int brightness)
 {
     if (!original)
         return NULL;

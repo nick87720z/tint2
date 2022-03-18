@@ -228,6 +228,7 @@ void remove_task(Task *task)
     GPtrArray *task_buttons = g_hash_table_lookup(win_to_task, &win);
     for (int i = 0; i < task_buttons->len; ++i) {
         Task *task2 = g_ptr_array_index(task_buttons, i);
+
         if (task2 == active_task)
             active_task = NULL;
         if (task2 == task_drag)
@@ -237,6 +238,7 @@ void remove_task(Task *task)
         if (g_tooltip.area == &task2->area)
             tooltip_hide(NULL);
         remove_area((Area *)task2);
+
         free(task2);
     }
     g_hash_table_remove(win_to_task, &win);
@@ -300,7 +302,6 @@ Imlib_Image task_get_icon(Window win, int icon_size)
             if (tmp_data) {
                 int array_size = w * h;
                 // imlib needs the array in DATA32 type
-                // using malloc for the array to protect from stack overflow
                 if (( img = imlib_create_image( w, h) ))
                 {
                     imlib_context_set_image( img);
@@ -317,7 +318,8 @@ Imlib_Image task_get_icon(Window win, int icon_size)
     {
         XWMHints *hints = XGetWMHints(server.display, win);
         if (hints) {
-            if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0) {
+            if (hints->flags & IconPixmapHint && hints->icon_pixmap != 0)
+            {
                 // get width, height and depth for the pixmap
                 Window root;
                 int icon_x, icon_y;
@@ -361,12 +363,14 @@ void task_set_icon_color(Task *task, Imlib_Image icon)
 void task_update_icon(Task *task)
 {
     Panel *panel = task->area.panel;
+
+    Imlib_Image img_src = task_get_icon( task->win, panel->g_task.icon_size1);
+    task_set_icon_color( task, img_src);
+
     if (!panel->g_task.has_icon) {
         if (panel_config.g_task.has_content_tint)
         {
-            Imlib_Image img = task_get_icon(task->win, panel->g_task.icon_size1);
-            task_set_icon_color(task, img);
-            imlib_context_set_image(img);
+            imlib_context_set_image( img_src);
             imlib_free_image();
         }
         return;
@@ -374,43 +378,39 @@ void task_update_icon(Task *task)
 
     task_remove_icon(task);
 
-    Imlib_Image img = task_get_icon(task->win, panel->g_task.icon_size1);
-    task_set_icon_color(task, img);
-
     // transform icons
-    imlib_context_set_image(img);
+    task->icon_width = task->icon_height = panel->g_task.icon_size1;
+    imlib_context_set_image( img_src);
     imlib_image_set_has_alpha(1);
     int w = imlib_image_get_width();
     int h = imlib_image_get_height();
-    Imlib_Image orig_image =
-        imlib_create_cropped_scaled_image(0, 0, w, h, panel->g_task.icon_size1, panel->g_task.icon_size1);
+    Imlib_Image img_crop = imlib_create_cropped_scaled_image( 0, 0, w, h, task->icon_width,
+                                                                            task->icon_height );
     imlib_free_image();
 
-    imlib_context_set_image(orig_image);
-    task->icon_width = imlib_image_get_width();
-    task->icon_height = imlib_image_get_height();
+    imlib_context_set_image( img_crop);
     for (int k = 0; k < TASK_STATE_COUNT; ++k)
     {
-        task->icon[k] = adjust_icon(orig_image,
+        task->icon[k] = adjust_img( img_crop,
                                     panel->g_task.alpha[k],
                                     panel->g_task.saturation[k],
                                     panel->g_task.brightness[k]);
         if (panel_config.mouse_effects) {
-            task->icon_hover[k] = adjust_icon(task->icon[k],
+            task->icon_hover[k] = adjust_img( task->icon[k],
                                               panel_config.mouse_over_alpha,
                                               panel_config.mouse_over_saturation,
                                               panel_config.mouse_over_brightness);
-            task->icon_press[k] = adjust_icon(task->icon[k],
+            task->icon_press[k] = adjust_img( task->icon[k],
                                               panel_config.mouse_pressed_alpha,
                                               panel_config.mouse_pressed_saturation,
                                               panel_config.mouse_pressed_brightness);
         }
     }
-    imlib_context_set_image(orig_image);
+    imlib_context_set_image( img_crop);
     imlib_free_image();
 
     GPtrArray *task_buttons = get_task_buttons(task->win);
-    if (task_buttons) {
+    if (task_buttons)
         for (int i = 0; i < task_buttons->len; ++i)
         {
             Task *task2 = (Task *)g_ptr_array_index(task_buttons, i);
@@ -427,7 +427,6 @@ void task_update_icon(Task *task)
             }
             schedule_redraw(&task2->area);
         }
-    }
 }
 
 // TODO icons look too large when the panel is large

@@ -228,7 +228,7 @@ void default_icon_theme_changed();
 void default_font_changed();
 
 void free_icon(Imlib_Image icon);
-Imlib_Image scale_icon(Imlib_Image original, int icon_size);
+Imlib_Image scale_adjust_icon( Imlib_Image original, int icon_size);
 
 void save_screenshot(const char *path);
 void save_panel_screenshot(const Panel *panel, const char *path);

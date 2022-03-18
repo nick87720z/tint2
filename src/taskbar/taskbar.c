@@ -158,10 +158,8 @@ void cleanup_taskbar()
             // remove taskbar from the panel
             remove_area((Area *)taskbar);
         }
-        if (panel->taskbar) {
-            free(panel->taskbar);
-            panel->taskbar = NULL;
-        }
+        if (panel->taskbar)
+            free_and_null( panel->taskbar);
     }
 
     g_slist_free(urgent_list);
@@ -186,9 +184,8 @@ void init_taskbar()
     INIT_TIMER(thumbnail_update_timer_active);
     INIT_TIMER(thumbnail_update_timer_tooltip);
 
-    if (!panel_config.g_task.has_text && !panel_config.g_task.has_icon) {
+    if (!panel_config.g_task.has_text && !panel_config.g_task.has_icon)
         panel_config.g_task.has_text = panel_config.g_task.has_icon = TRUE;
-    }
 
     if (panel_config.g_task.thumbnail_width < 8)
         panel_config.g_task.thumbnail_width = 210;
@@ -485,9 +482,8 @@ int compare_windows(const void *a, const void *b)
             if (win == winb)
                 posb = pos;
         }
-        if (posa >= 0 && posb >= 0) {
+        if (posa >= 0 && posb >= 0)
             return posa - posb;
-        }
     }
 
     return ia - ib;

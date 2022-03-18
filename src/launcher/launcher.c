@@ -55,7 +55,7 @@ GList *launcher_icon_gradients;
 
 IconThemeWrapper *icon_theme_wrapper;
 
-Imlib_Image scale_icon(Imlib_Image original, int icon_size);
+Imlib_Image scale_adjust_icon( Imlib_Image original, int icon_size);
 void free_icon(Imlib_Image icon);
 void launcher_icon_dump_geometry(void *obj, int indent);
 void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon);
@@ -139,11 +139,8 @@ void cleanup_launcher()
     g_slist_free_full( panel_config.launcher.list_apps, free);
     panel_config.launcher.list_apps = NULL;
 
-    free(icon_theme_name_config);
-    icon_theme_name_config = NULL;
-
-    free(icon_theme_name_xsettings);
-    icon_theme_name_xsettings = NULL;
+    free_and_null( icon_theme_name_config);
+    free_and_null( icon_theme_name_xsettings);
 
     launcher_enabled = FALSE;
 }
@@ -395,20 +392,17 @@ void launcher_icon_dump_geometry(void *obj, int indent)
             launcherIcon->icon_name);
 }
 
-Imlib_Image scale_icon(Imlib_Image original, int icon_size)
+Imlib_Image scale_adjust_icon( Imlib_Image original, int icon_size)
 {
     Imlib_Image icon_scaled;
-    if (!icon_size) {
-        icon_scaled = imlib_create_image(1, 1);
-        imlib_context_set_image(icon_scaled);
-        imlib_context_set_color(255, 255, 255, 255);
-        imlib_image_fill_rectangle(0, 0, icon_size, icon_size);
-    } else if (original) {
+    if (!icon_size)
+        icon_size = 1;
+    if (original) {
         imlib_context_set_image(original);
         icon_scaled = imlib_create_cropped_scaled_image(0, 0,
-                                                        imlib_image_get_width(), imlib_image_get_height(),
+                                                        imlib_image_get_width(),
+                                                        imlib_image_get_height(),
                                                         icon_size, icon_size);
-
         imlib_context_set_image(icon_scaled);
         imlib_image_set_has_alpha(1);
         DATA32 *data = imlib_image_get_data();
@@ -552,18 +546,18 @@ void launcher_reload_icon_image(Launcher *launcher, LauncherIcon *launcherIcon)
             launcherIcon->image = load_image(new_icon_path, TRUE);
     }
     Imlib_Image original = launcherIcon->image;
-    launcherIcon->image = scale_icon(launcherIcon->image, launcherIcon->icon_size);
+    launcherIcon->image = scale_adjust_icon( launcherIcon->image, launcherIcon->icon_size);
     free_icon(original);
     free(launcherIcon->icon_path);
     launcherIcon->icon_path = new_icon_path;
     // fprintf(stderr, "tint2: launcher.c %d: Using icon %s\n", __LINE__, launcherIcon->icon_path);
 
     if (panel_config.mouse_effects) {
-        launcherIcon->image_hover = adjust_icon(launcherIcon->image,
+        launcherIcon->image_hover = adjust_img( launcherIcon->image,
                                                 panel_config.mouse_over_alpha,
                                                 panel_config.mouse_over_saturation,
                                                 panel_config.mouse_over_brightness);
-        launcherIcon->image_pressed = adjust_icon(launcherIcon->image,
+        launcherIcon->image_pressed = adjust_img( launcherIcon->image,
                                                   panel_config.mouse_pressed_alpha,
                                                   panel_config.mouse_pressed_saturation,
                                                   panel_config.mouse_pressed_brightness);

@@ -164,8 +164,7 @@ void cleanup_server()
             g_strfreev(server.monitors[i].names);
             server.monitors[i].names = NULL;
         }
-        free(server.monitors);
-        server.monitors = NULL;
+        free_and_null( server.monitors);
     }
     if (server.gc)
         XFreeGC(server.display, server.gc);

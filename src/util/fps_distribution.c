@@ -18,6 +18,7 @@
 #include <stdlib.h>
 
 #include "fps_distribution.h"
+#include "common.h"
 
 static float *fps_distribution = NULL;
 
@@ -36,8 +37,7 @@ void init_fps_distribution()
 
 void cleanup_fps_distribution()
 {
-    free(fps_distribution);
-    fps_distribution = NULL;
+    free_and_null( fps_distribution);
 }
 
 void sample_fps(double fps)

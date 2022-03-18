@@ -228,7 +228,7 @@ void adjust_asb (   DATA32 *data, int w, int h,
                                             // -1 = black
                                             //  0 = no adjustment
                                             //  1 = white
-Imlib_Image adjust_icon  (Imlib_Image original, int alpha, int saturation, int brightness);
+Imlib_Image adjust_img   (Imlib_Image original, int alpha, int saturation, int brightness);
 void        adjust_color (Color      *color,    int alpha, int saturation, int brightness);
 // Ditto
 

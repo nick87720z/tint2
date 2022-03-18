@@ -1848,12 +1848,12 @@ void load_desktop_entry(const char *file, GList **entries)
     process_events();
 
     DesktopEntry *entry = calloc(1, sizeof(DesktopEntry));
-    if (!read_desktop_file(file, entry))
+    if (!read_desktop_file( file, entry)) {
         fprintf(stderr, "tint2: Could not load %s\n", file);
-    if (entry->hidden_from_menus) {
-        free(entry);
-        return;
+        goto error;
     }
+    if (entry->hidden_from_menus)
+        goto error;
     if (!entry->name)
         entry->name = strdup(file);
     if (!entry->icon)
@@ -1861,6 +1861,11 @@ void load_desktop_entry(const char *file, GList **entries)
 
     // Don't worry about order, it has to be sorter later anyway
     *entries = g_list_prepend(*entries, entry);
+    return;
+
+error:
+    free_desktop_entry( entry);
+    free(entry);
 }
 
 void load_desktop_entries(const char *path, GList **entries)

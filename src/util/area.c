@@ -462,8 +462,8 @@ void free_pixmaps(Area *a)
 
 void draw(Area *a)
 {
-    if (a->_changed)
-        // On resize/move, invalidate cached pixmaps
+    if (a->_changed & CHANGE_RESIZE)
+        // On resize - invalidate cached pixmaps
         free_pixmaps (a);
 
     {   int pix_i = a->has_mouse_over_effect ? a->mouse_state : 0;

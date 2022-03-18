@@ -102,7 +102,10 @@ void taskbar_clear_orderings()
          order;
          order = (p = order)->next, g_list_free_1( p))
     {
-        g_list_free_full((GList *)order->data, free);
+        if (sizeof(Window) <= sizeof(gpointer))
+            g_list_free( (GList *)order->data );
+        else
+            g_list_free_full( (GList *)order->data, free);
     }
     taskbar_task_orderings = NULL;
 }
@@ -119,10 +122,12 @@ void taskbar_save_orderings()
                     *to_tail = NULL;
             for_taskbar_tasks( taskbar, c)
             {
-                Task *t = (Task *)c->data;
-                Window *window = calloc(1, sizeof(Window));
-                *window = t->win;
-                g_list_append_tail (task_order, to_tail, window);
+                if (sizeof(Window) > sizeof(gpointer)) {
+                    Window *window = calloc( 1, sizeof(Window));
+                    *window = ((Task *)c->data)->win;
+                    g_list_append_tail( task_order, to_tail, window );
+                } else
+                    g_list_append_tail( task_order, to_tail, (gpointer)((Task *)c->data)->win );
             }
             g_list_append_tail (taskbar_task_orderings, tbto_tail, task_order);
         }
@@ -457,18 +462,10 @@ GPtrArray *get_task_buttons(Window win)
             g_hash_table_lookup(win_to_task, &win) : NULL;
 }
 
-static Window *sort_windows = NULL;
-
 int compare_windows(const void *a, const void *b)
 {
-    if (!sort_windows)
-        return 0;
-
-    int ia = *(int *)a;
-    int ib = *(int *)b;
-
-    Window wina = sort_windows[ia];
-    Window winb = sort_windows[ib];
+    Window wina = *(Window *)a;
+    Window winb = *(Window *)b;
 
     for (GList *order = taskbar_task_orderings; order; order = order->next) {
         int posa = -1;
@@ -476,7 +473,7 @@ int compare_windows(const void *a, const void *b)
         int pos = 0;
         for (GList *item = (GList *)order->data; item; item = item->next, pos++)
         {
-            Window win = *(Window *)item->data;
+            Window win = sizeof(Window) <= sizeof(gpointer) ? (Window)(item->data) : *(Window *)item->data;
             if (win == wina)
                 posa = pos;
             if (win == winb)
@@ -486,23 +483,17 @@ int compare_windows(const void *a, const void *b)
             return posa - posb;
     }
 
-    return ia - ib;
+    return (char *)a - (char *)b;
 }
 
 void sort_win_list(Window *windows, int count)
 {
-    int *indices = (int *)calloc(count, sizeof(int));
-    for (int i = 0; i < count; i++)
-        indices[i] = i;
-    sort_windows = windows;
-    qsort(indices, count, sizeof(int), compare_windows);
-    Window *result = (Window *)calloc(count, sizeof(Window));
-    for (int i = 0; i < count; i++)
-        result[i] = windows[indices[i]];
+    Window *result = malloc( count * sizeof(Window));
+    memcpy( result, windows, count * sizeof(Window));
+    qsort( windows, count, sizeof(Window), compare_windows);
+
     memcpy(windows, result, count * sizeof(Window));
     free(result);
-    free(indices);
-    sort_windows = NULL;
 }
 
 void taskbar_refresh_tasklist()

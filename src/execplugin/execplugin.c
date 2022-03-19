@@ -855,6 +855,36 @@ int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffe
 
 #if 1
 char *strrstr(char *s, char *sub)
+// Case specific implementation.
+{
+    char *result = NULL,
+         *p;
+
+    char tmp;
+    char *ep = strchr(s, '\0');
+    char *d = ep;
+
+    int sub_len = strlen( sub);
+
+    while (! result) {
+        tmp = *d;
+        *d = '\0';
+
+        p = strrchr( s, sub[0]);
+        if (p == NULL)
+            return NULL;
+        if (memcmp( p, sub, sub_len) == 0)
+            result = p;
+
+        *d = tmp;
+        d = p;
+    }
+
+    return result;
+}
+
+#elif 1
+char *strrstr(char *s, char *sub)
 // On my PC this function was 2x faster than below one.
 // Could be compiler or platform specific, so preserving both.
 {

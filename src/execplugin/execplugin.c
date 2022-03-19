@@ -837,25 +837,19 @@ int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffe
             // Successful read
             total += count;
             *buffer_length += count;
-            (*buffer)[*buffer_length] = '\0';
             continue;
-        } else if (count == 0) {
-            // End of file
-            *eof = TRUE;
-            break;
-        } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            // No more data available at the moment
-            break;
-        } else if (errno == EINTR) {
-            // Harmless interruption by signal
-            continue;
-        } else {
-            // Error
-            *eof = TRUE;
-            break;
         }
+        else if (count == 0)
+            *eof = TRUE;            // End of file
+        else if (errno == EAGAIN || errno == EWOULDBLOCK)
+            break;                  // No more data available at the moment
+        else if (errno == EINTR)
+            continue;               // Harmless interruption by signal
+        else
+            *eof = TRUE;            // Error
         break;
     }
+    (*buffer)[*buffer_length] = '\0';
     return total;
 }
 
@@ -953,21 +947,24 @@ gboolean read_execp(void *obj)
             change_timer(&backend->timer, true, backend->interval * 1000, 0, execp_timer_callback, execp);
     }
 
-    char *ansi_clear_screen = (char*)"\x1b[2J";
-    if (backend->continuous) {
+    char ansi_clear_screen[] = "\x1b[2J";
+    if (backend->continuous)
+    {
         // Handle stderr
         if (!backend->has_user_tooltip) {
-            free_and_null(backend->tooltip);
-            char *start = strrstr(backend->buf_stderr, ansi_clear_screen);
-            if (start) {
-                start += strlen(ansi_clear_screen);
-                memmove(backend->buf_stderr, start, strlen(start) + 1);
-                backend->buf_stderr_length = (ssize_t)strlen(backend->buf_stderr);
-            }
-            backend->tooltip = strdup(backend->buf_stderr);
-            rstrip(backend->tooltip);
             if (count > 0)
+            {
+                char *start = strrstr( backend->buf_stderr, ansi_clear_screen);
+                if (start) {
+                    start += strlen_const( ansi_clear_screen);
+                    backend->buf_stderr_length -= start - backend->buf_stderr;
+                    memmove( backend->buf_stderr, start, backend->buf_stderr_length + 1);
+                }
+                free_and_null( backend->tooltip);
+                backend->tooltip = strdup( backend->buf_stderr);
+                rstrip( backend->tooltip);
                 result = TRUE;
+            }
         } else {
             backend->buf_stderr_length = 0;
             backend->buf_stderr[backend->buf_stderr_length] = '\0';
@@ -976,13 +973,12 @@ gboolean read_execp(void *obj)
         // Count lines in buffer
         int num_lines = 0;
         char *end = NULL;
-        for (char *c = backend->buf_stdout; *c; c++)
+        for (char *c = backend->buf_stdout; (c = strchr(c, '\n')); )
         {
-            if (*c == '\n') {
-                num_lines++;
-                if (num_lines == backend->continuous)
-                    end = c;
-            }
+            num_lines++;
+            if (num_lines == backend->continuous)
+                end = c;
+            c++;
         }
         if (num_lines >= backend->continuous) {
             if (end)
@@ -1047,7 +1043,7 @@ gboolean read_execp(void *obj)
         if (!backend->has_user_tooltip) {
             free_and_null(backend->tooltip);
             char *start = strrstr(backend->buf_stderr, ansi_clear_screen);
-            start = start   ? start + strlen(ansi_clear_screen)
+            start = start   ? start + strlen_const( ansi_clear_screen)
                             : backend->buf_stderr;
             if (*start) {
                 backend->tooltip = strdup(start);

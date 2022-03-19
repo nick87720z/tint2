@@ -386,7 +386,7 @@ void init_taskbar_panel(void *p)
     init_taskbarname_panel(panel);
     taskbar_start_thumbnail_timer(THUMB_MODE_ALL);
 }
-#undef task_config_asb_mask_copy_if_unset
+#undef TaskConfig_AsbMask_Copy_if_unset
 #undef TaskConfig_FontMask_Copy_if_unset
 #undef TaskConfig_BgMask_Copy_if_unset
 

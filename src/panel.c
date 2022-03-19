@@ -424,7 +424,7 @@ void init_panel_geometry(Panel *panel)
 
 gboolean resize_panel(void *obj)
 {
-    Panel *panel = (Panel *)obj;
+    Panel *panel = obj;
     relayout_with_constraint(&panel->area, 0);
 
     // fprintf(stderr, "tint2: resize_panel\n");
@@ -484,7 +484,7 @@ gboolean resize_panel(void *obj)
             gboolean first_child = TRUE;
             for (GList *l = taskbar->area.children; l; l = l->next)
             {
-                Area *child = (Area *)l->data;
+                Area *child = l->data;
                 if (!child->on_screen)
                     continue;
                 if (!first_child) {
@@ -506,7 +506,7 @@ gboolean resize_panel(void *obj)
             if (!taskbar->area.on_screen)
                 continue;
             for (GList *l = taskbar->area.children; l; l = l->next) {
-                Area *child = (Area *)l->data;
+                Area *child = l->data;
                 if (!child->on_screen || (taskbarname_enabled && l == taskbar->area.children))
                     continue;
                 num_tasks++;
@@ -525,7 +525,7 @@ gboolean resize_panel(void *obj)
                     continue;
                 for (GList *l = taskbar->area.children; l; l = l->next)
                 {
-                    Area *child = (Area *)l->data;
+                    Area *child = l->data;
                     if (! child->on_screen || (taskbarname_enabled && l == taskbar->area.children) )
                         continue;
 
@@ -717,22 +717,22 @@ void set_panel_items_order(Panel *p)
         case 'F': { GList *item = g_list_nth(p->freespace_list, i_freespace);
                     i_freespace++;
                     if (item)
-                        ADD_CHILD ((Area *)item->data);
+                        ADD_CHILD (item->data);
                     break; }
         case ':': { GList *item = g_list_nth(p->separator_list, i_separator);
                     i_separator++;
                     if (item)
-                        ADD_CHILD ((Area *)item->data);
+                        ADD_CHILD (item->data);
                     break; }
         case 'E': { GList *item = g_list_nth(p->execp_list, i_execp);
                     i_execp++;
                     if (item)
-                        ADD_CHILD ((Area *)item->data);
+                        ADD_CHILD (item->data);
                     break; }
         case 'P': { GList *item = g_list_nth(p->button_list, i_button);
                     i_button++;
                     if (item)
-                        ADD_CHILD ((Area *)item->data);
+                        ADD_CHILD (item->data);
                     break; }
         }
     }
@@ -973,7 +973,7 @@ Task *click_task(Panel *panel, int x, int y)
     if (taskbar)
         for_taskbar_tasks( taskbar, l)
         {
-            Task *task = (Task *)l->data;
+            Task *task = l->data;
             if (area_is_under_mouse(task, x, y))
                 return task;
         }
@@ -991,7 +991,7 @@ LauncherIcon *click_launcher_icon(Panel *panel, int x, int y)
     Launcher *launcher = click_launcher(panel, x, y);
     if (launcher)
         for (GSList *l = launcher->list_icons; l; l = l->next) {
-            LauncherIcon *icon = (LauncherIcon *)l->data;
+            LauncherIcon *icon = l->data;
             if (area_is_under_mouse(icon, x, y))
                 return icon;
         }
@@ -1015,7 +1015,7 @@ Battery *click_battery(Panel *panel, int x, int y)
 Execp *click_execp(Panel *panel, int x, int y)
 {
     for (GList *l = panel->execp_list; l; l = l->next) {
-        Execp *execp = (Execp *)l->data;
+        Execp *execp = l->data;
         if (area_is_under_mouse(execp, x, y))
             return execp;
     }
@@ -1025,7 +1025,7 @@ Execp *click_execp(Panel *panel, int x, int y)
 Button *click_button(Panel *panel, int x, int y)
 {
     for (GList *l = panel->button_list; l; l = l->next) {
-        Button *button = (Button *)l->data;
+        Button *button = l->data;
         if (area_is_under_mouse(button, x, y))
             return button;
     }
@@ -1039,7 +1039,7 @@ void stop_autohide_timer(Panel *p)
 
 void autohide_show(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
     stop_autohide_timer(panel);
     panel->is_hidden = FALSE;
     XMapSubwindows(server.display, panel->main_win); // systray windows
@@ -1051,7 +1051,7 @@ void autohide_show(void *p)
 
 void autohide_hide(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
     stop_autohide_timer(panel);
     set_panel_layer(panel, panel_layer);
     panel->is_hidden = TRUE;
@@ -1181,7 +1181,7 @@ void save_panel_screenshot(const Panel *panel, const char *path)
                                     0, 0, panel->area.width, panel->area.height,
                                     AllPlanes, ZPixmap);
         if (ximg) {
-            DATA32 *pixels = (DATA32 *)calloc(panel->area.width * panel->area.height, sizeof(DATA32));
+            DATA32 *pixels = calloc(panel->area.width * panel->area.height, sizeof(DATA32));
             for (int x = 0; x < panel->area.width; x++)
                 for (int y = 0; y < panel->area.height; y++)
                 {

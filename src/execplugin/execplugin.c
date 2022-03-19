@@ -33,7 +33,7 @@ void default_execp()
 
 Execp *create_execp()
 {
-    Execp *execp = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpBackend));
+    Execp *execp = calloc(1, sizeof(Execp) + sizeof(ExecpBackend));
     ExecpBackend *backend = execp->backend = (gpointer)(execp + 1);
 
     backend->child_pipe_stdin = -1;
@@ -78,7 +78,7 @@ gpointer create_execp_frontend(gconstpointer arg, gpointer data)
                backend->command,
                backend->monitor, panel->monitor);
         execp_frontend = create_execp();
-        execp_frontend->frontend = (ExecpFrontend *)calloc(1, sizeof(ExecpFrontend));
+        execp_frontend->frontend = calloc(1, sizeof(ExecpFrontend));
         execp_frontend->backend->instances = g_list_append(execp_frontend->backend->instances, execp_frontend);
         execp_frontend->dummy = true;
     }
@@ -88,7 +88,7 @@ gpointer create_execp_frontend(gconstpointer arg, gpointer data)
                backend->command,
                backend->monitor, panel->monitor);
         
-        execp_frontend = (Execp *)calloc(1, sizeof(Execp) + sizeof(ExecpFrontend));
+        execp_frontend = calloc(1, sizeof(Execp) + sizeof(ExecpFrontend));
         execp_frontend->frontend = (gpointer)(execp_frontend + 1);
         execp_frontend->backend = backend;
         backend->instances = g_list_append(backend->instances, execp_frontend);
@@ -98,7 +98,7 @@ gpointer create_execp_frontend(gconstpointer arg, gpointer data)
 
 void destroy_execp(void *obj)
 {
-    Execp *execp = (Execp *)obj;
+    Execp *execp = obj;
     ExecpBackend *backend = execp->backend;
     
     if (execp->frontend) {
@@ -190,7 +190,7 @@ void init_execp()
 
 void init_execp_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
 
     // Make sure this is only done once if there are multiple items
     if (panel->execp_list && ((Execp *)panel->execp_list->data)->frontend)
@@ -352,7 +352,7 @@ void execp_get_icon_text_geometry(Execp *execp,
     int _icon_w, _icon_h, _vpad, _hpad, _inpad, _txt_width, _txt_height, _new_size, border_lr;
     gboolean _text_next_line, _resized;
     ExecpBackend * backend = execp->backend;
-    Panel *panel = (Panel *)execp->area.panel;
+    Panel *panel = execp->area.panel;
     Area *area = &execp->area;
     
     if (panel_horizontal) _hpad = area->paddingx, _vpad = area->paddingy;
@@ -444,7 +444,7 @@ void execp_get_icon_text_geometry(Execp *execp,
 
 int execp_get_desired_size(void *obj)
 {
-    Execp *execp = (Execp *)obj;
+    Execp *execp = obj;
     int horiz_padding, vert_padding, interior_padding;
     int icon_w, icon_h;
     gboolean text_next_line;
@@ -468,7 +468,7 @@ int execp_get_desired_size(void *obj)
 
 gboolean resize_execp(void *obj)
 {
-    Execp *execp = (Execp *)obj;
+    Execp *execp = obj;
     ExecpBackend * backend = execp->backend;
     ExecpFrontend * frontend = execp->frontend;
     
@@ -584,8 +584,8 @@ PangoLayout *create_execp_text_layout(Execp *execp, PangoContext *context)
 
 void draw_execp(void *obj, cairo_t *c)
 {
-    Execp *execp = (Execp *)obj;
-    Panel *panel = (Panel *)execp->area.panel;
+    Execp *execp = obj;
+    Panel *panel = execp->area.panel;
     ExecpBackend * backend = execp->backend;
     ExecpFrontend * frontend = execp->frontend;
 
@@ -626,7 +626,7 @@ void draw_execp(void *obj, cairo_t *c)
 
 void execp_dump_geometry(void *obj, int indent)
 {
-    Execp *execp = (Execp *)obj;
+    Execp *execp = obj;
     ExecpBackend * backend = execp->backend;
     ExecpFrontend * frontend = execp->frontend;
 
@@ -668,7 +668,7 @@ void execp_force_update(Execp *execp)
 
 void execp_action(void *obj, int button, int x, int y, Time time)
 {
-    Execp *execp = (Execp *)obj;
+    Execp *execp = obj;
     ExecpBackend * backend = execp->backend;
     
     char *command = NULL;
@@ -720,7 +720,7 @@ void execp_cmd_completed(Execp *execp, pid_t pid)
 
 void execp_timer_callback(void *arg)
 {
-    Execp *execp = (Execp *)arg;
+    Execp *execp = arg;
     ExecpBackend * backend = execp->backend;
 
     if (!backend->command)
@@ -921,7 +921,7 @@ void rstrip(char *s)
 
 gboolean read_execp(void *obj)
 {
-    Execp *execp = (Execp *)obj;
+    Execp *execp = obj;
     ExecpBackend * backend = execp->backend;
 
     if (backend->child_pipe_stdout < 0)
@@ -1089,7 +1089,7 @@ const char *time_to_string(int s, char *buffer, size_t buffer_size)
 char *execp_get_tooltip(void *obj)
 // FIXME: strdup each time? Needs refactoring.
 {
-    Execp *execp = (Execp *)obj;
+    Execp *execp = obj;
     ExecpBackend * backend = execp->backend;
 
     if (backend->tooltip)
@@ -1168,7 +1168,7 @@ void execp_update_post_read(Execp *execp)
 void handle_execp_events( fd_set *fds, int *fdn)
 {
     for (GList *l = panel_config.execp_list; (*fdn > 0) && l; l = l->next) {
-        Execp *execp = (Execp *)l->data;
+        Execp *execp = l->data;
 
         if (!fd_set_unset_fd( fds, *fdn, execp->backend->child_pipe_stdout) &&
             !fd_set_unset_fd( fds, *fdn, execp->backend->child_pipe_stderr))

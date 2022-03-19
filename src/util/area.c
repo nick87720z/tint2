@@ -48,10 +48,10 @@ void init_background(Background *bg)
 void initialize_positions(void *obj)
 /* Set traversal coordinates, which usually don't change since start */
 {
-    Area *a = (Area *)obj;
+    Area *a = obj;
     for_children(a, l, GList *)
     {
-        Area *child = ((Area *)l->data);
+        Area *child = l->data;
         if (panel_horizontal) {
             child->posy = a->posy + top_border_width(a) + a->paddingy;
             child->height = a->height - top_bottom_border_width(a) - 2 * a->paddingy;
@@ -106,7 +106,7 @@ void relayout_dynamic(Area *a, int level)
             // resize children with LAYOUT_DYNAMIC
             for_children(a, l, GList *)
             {
-                Area *child = ((Area *)l->data);
+                Area *child = l->data;
                 if (child->size_mode == LAYOUT_DYNAMIC && child->children)
                     child->resize_needed = TRUE;
             }
@@ -122,7 +122,7 @@ void relayout_dynamic(Area *a, int level)
 
             for_children(a, l, GList *)
             {
-                Area *child = ((Area *)l->data);
+                Area *child = l->data;
                 if (!child->on_screen)
                     continue;
 
@@ -151,7 +151,7 @@ void relayout_dynamic(Area *a, int level)
 
             for_children_rev(a, l, GList *)
             {
-                Area *child = ((Area *)l->data);
+                Area *child = l->data;
                 if (!child->on_screen)
                     continue;
 
@@ -182,7 +182,7 @@ void relayout_dynamic(Area *a, int level)
 
                 for_children(a, l, GList *)
                 {
-                    Area *child = ((Area *)l->data);
+                    Area *child = l->data;
                     if (!child->on_screen)
                         continue;
 
@@ -195,7 +195,7 @@ void relayout_dynamic(Area *a, int level)
             }
             for_children(a, l, GList *)
             {
-                Area *child = ((Area *)l->data);
+                Area *child = l->data;
                 if (!child->on_screen)
                     continue;
 
@@ -249,7 +249,7 @@ int container_get_desired_size(Area *a)
     int children_count = 0;
     for_children(a, l, GList *)
     {
-        Area *child = (Area *)l->data;
+        Area *child = l->data;
         if (child->on_screen) {
             result += get_desired_size(child);
             children_count++;
@@ -276,7 +276,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         int size = a->width - 2 * a->paddingx - left_right_border_width(a);
         for_children(a, l, GList *)
         {
-            Area *child = (Area *)l->data;
+            Area *child = l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
                 size -= child->width;
                 fixed_children_count++;
@@ -301,7 +301,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         // Resize LAYOUT_DYNAMIC objects
         for_children(a, l, GList *)
         {
-            Area *child = (Area *)l->data;
+            Area *child = l->data;
             if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
                 int old_width = child->width;
                 child->width = width;
@@ -318,7 +318,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         int size = a->height - 2 * a->paddingx - top_bottom_border_width(a);
         for_children(a, l, GList *)
         {
-            Area *child = (Area *)l->data;
+            Area *child = l->data;
             if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
                 size -= child->height;
                 fixed_children_count++;
@@ -343,7 +343,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         // Resize LAYOUT_DYNAMIC objects
         for_children(a, l, GList *)
         {
-            Area *child = (Area *)l->data;
+            Area *child = l->data;
             if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
                 int old_height = child->height;
                 child->height = height;
@@ -364,7 +364,7 @@ void schedule_redraw(Area *a)
     a->_redraw_needed = TRUE;
 
     for_children(a, l, GList *)
-        schedule_redraw((Area *)l->data);
+        schedule_redraw(l->data);
     schedule_panel_redraw();
 }
 
@@ -388,7 +388,7 @@ void draw_tree(Area *a)
         fprintf(stderr, RED "tint2: %s %d: area %s has no pixmap!!!" RESET "\n", __FILE__, __LINE__, a->name);
 
     for_children(a, l, GList *)
-        draw_tree((Area *)l->data);
+        draw_tree(l->data);
 }
 
 void free_pixmaps(Area *a)
@@ -451,14 +451,14 @@ void update_dependent_gradients(Area *a)
     if (a->_changed & CHANGE_RESIZE)
         for (GList *l = a->dependent_gradients; l; l = l->next)
         {
-            GradientInstance *gi = (GradientInstance *)l->data;
+            GradientInstance *gi = l->data;
             gradient_pattern_destroy(gi);
             update_gradient(gi);
             if (gi->area != a)
                 schedule_redraw(gi->area);
         }
     for_children(a, l, GList *)
-        update_dependent_gradients((Area *)l->data);
+        update_dependent_gradients(l->data);
 }
 
 void draw(Area *a)
@@ -635,7 +635,7 @@ void draw_background(Area *a, cairo_t *c)
     }
     for (GList *l = a->gradient_instances_by_state[a->mouse_state]; l; l = l->next)
     {
-        GradientInstance *gi = (GradientInstance *)l->data;
+        GradientInstance *gi = l->data;
         if (!gi->pattern)
             update_gradient(gi);
         cairo_set_source(c, gi->pattern);
@@ -823,7 +823,7 @@ Area *find_area_under_mouse(void *root, int x, int y)
 deeper:
     for (GList *it = result->children; it; it = it->next)
     {
-        Area *a = (Area *)it->data;
+        Area *a = it->data;
         if (area_is_under_mouse(a, x, y)) {
             result = a;
             goto deeper;
@@ -935,7 +935,7 @@ void area_dump_geometry(Area *area, int indent)
         fprintf(stderr, "tint2: %*sChildren:\n", indent, "");
         indent += 2;
         for_children(area, l, GList *)
-            area_dump_geometry((Area *)l->data, indent);
+            area_dump_geometry(l->data, indent);
     }
 }
 
@@ -1175,7 +1175,7 @@ void area_gradients_create(Area *area)
         GradientClass *g = area->bg->gradients[i];
         if (!g)
             continue;
-        GradientInstance *gi = (GradientInstance *)calloc(1, sizeof(GradientInstance));
+        GradientInstance *gi = calloc(1, sizeof(GradientInstance));
         gradient_init(area, g, gi);
         area->gradient_instances_by_state[i] = g_list_append(area->gradient_instances_by_state[i], gi);
     }
@@ -1283,7 +1283,7 @@ void update_gradient(GradientInstance *gi)
                                       gi->gradient_class->start_color.rgb[2],
                                       gi->gradient_class->start_color.alpha);
     for (GList *l = gi->gradient_class->extra_color_stops; l; l = l->next) {
-        ColorStop *color_stop = (ColorStop *)l->data;
+        ColorStop *color_stop = l->data;
         if (debug_gradients)
             fprintf(stderr,
                     "Adding color stop at offset %f: %f %f %f %f\n",

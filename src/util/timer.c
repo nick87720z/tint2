@@ -149,7 +149,7 @@ struct timespec *get_duration_to_next_timer_expiration()
     {
         GList *it = timers;
         for (; it; it = it->next) {
-            Timer *timer = (Timer *)it->data;
+            Timer *timer = it->data;
 
             if (timer->enabled_)
             {
@@ -160,7 +160,7 @@ struct timespec *get_duration_to_next_timer_expiration()
             }
         }
         for (; it; it = it->next) {
-            Timer *timer = (Timer *)it->data;
+            Timer *timer = it->data;
 
             if (timer->enabled_ &&
                 timer->expiration_time_ms_ < min_expiration_time)
@@ -206,7 +206,7 @@ void handle_expired_timers()
     for (it = timers; it; it = it->next) {
         if (!it) return;
 
-        Timer *timer = (Timer *)it->data;
+        Timer *timer = it->data;
         if (timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
             break;
     }
@@ -215,7 +215,7 @@ void handle_expired_timers()
 
     for (; it; it = it->next)
     {
-        Timer *timer = (Timer *)it->data;
+        Timer *timer = it->data;
         if (!timer->destroy_ && timer->enabled_ && timer->callback_ && timer->expiration_time_ms_ <= now)
         {
             if (timer->period_ms_ == 0) {
@@ -242,7 +242,7 @@ void handle_expired_timers()
     }
     for (it = timers; it; )
     {
-        Timer *timer = (Timer *)it->data;
+        Timer *timer = it->data;
         GList *it_next = it->next;
 
         if (timer->destroy_) {
@@ -348,8 +348,7 @@ static int64_t timeval_to_ms(struct timespec *v)
 
 static void trigger_callback(void *arg)
 {
-    int *triggered = (int *)arg;
-    *triggered += 1;
+    (*(int *)arg)++;
 }
 
 typedef struct {
@@ -375,7 +374,7 @@ TimeoutContainer;
 
 static void container_callback(void *arg)
 {
-    TimeoutContainer *container = (TimeoutContainer *)arg;
+    TimeoutContainer *container = arg;
     container->triggered += 1;
 
     if (container->stop)

@@ -261,7 +261,7 @@ IconTheme *load_theme_from_fs(const char *name, IconTheme *theme)
     gchar *dir_name = NULL;
     for (const GSList *location = get_icon_locations(); location; location = location->next)
     {
-        gchar *path = (gchar *)location->data;
+        gchar *path = location->data;
         dir_name = strdup_printf( NULL, "%s/%s", path, name);
         if (g_file_test(dir_name, G_FILE_TEST_IS_DIR)) {
             if (!theme)
@@ -286,7 +286,7 @@ IconTheme *load_theme(const char *name)
     gchar *file_name = NULL;
     for (const GSList *location = get_icon_locations(); location; location = location->next)
     {
-        gchar *path = (gchar *)location->data;
+        gchar *path = location->data;
         file_name = strdup_printf( NULL, "%s/%s/index.theme", path, name);
         if (g_file_test(file_name, G_FILE_TEST_EXISTS))
             break;
@@ -331,7 +331,7 @@ void free_themes(IconThemeWrapper *wrapper)
          l;
          l = (p = l)->next, g_slist_free_1( p))
     {
-        IconTheme *theme = (IconTheme *)l->data;
+        IconTheme *theme = l->data;
         free_icon_theme(theme);
         free(theme);
     }
@@ -339,7 +339,7 @@ void free_themes(IconThemeWrapper *wrapper)
          l;
          l = (p = l)->next, g_slist_free_1( p))
     {
-        IconTheme *theme = (IconTheme *)l->data;
+        IconTheme *theme = l->data;
         free_icon_theme(theme);
         free(theme);
     }
@@ -449,7 +449,7 @@ void load_fallbacks(IconThemeWrapper *wrapper)
     // Load wrapper->themes_fallback
     const GSList *location;
     for (location = get_icon_locations(); location; location = location->next) {
-        gchar *path = (gchar *)location->data;
+        gchar *path = location->data;
         GDir *d = g_dir_open(path, 0, NULL);
         if (d) {
             const gchar *name;
@@ -546,8 +546,8 @@ gint compare_theme_directories(gconstpointer a, gconstpointer b, gpointer size_q
 // Compares size_query distance to theme's distances
 {
     int size = GPOINTER_TO_INT(size_query);
-    const IconThemeDir *da = (const IconThemeDir *)a;
-    const IconThemeDir *db = (const IconThemeDir *)b;
+    const IconThemeDir *da = a;
+    const IconThemeDir *db = b;
     return abs(da->size - size) - abs(db->size - size);
 }
 
@@ -632,7 +632,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
             const GSList *base;
             for (base = basenames; base; base = base->next)
             {
-                char *base_name = (char *)base->data;
+                char *base_name = base->data;
                 size_t base_name_len = strlen (base_name);
                 for (char **ext = icon_extensions; *ext; ext++)
                 {
@@ -703,7 +703,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
         for (const GSList *base = basenames; base; base = base->next) {
             for (char **ext = icon_extensions; *ext; ext++)
             {
-                char *base_name = (char *)base->data;
+                char *base_name = base->data;
                 char *extension = *ext;
                 size_t file_name_size2 = strlen (base_name) + strlen (icon_name) + strlen (extension) + 100;
                 file_name = calloc (file_name_size2, 1);

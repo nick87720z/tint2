@@ -66,7 +66,7 @@ static int bt_full_callback(void *data, uintptr_t pc,
                             const char *filename, int lineno,
                             const char *function)
 {
-    struct backtrace *bt = (struct backtrace *)data;
+    struct backtrace *bt = data;
     bt_add_frame(bt, function);
     return 0;
 }

@@ -103,7 +103,7 @@ void sigchld_handler_async()
         }
 #endif
         for (GList *l = panel_config.execp_list; l; l = l->next) {
-            Execp *execp = (Execp *)l->data;
+            Execp *execp = l->data;
             if (g_tree_lookup(execp->backend->cmd_pids, GINT_TO_POINTER(pid)))
                 execp_cmd_completed(execp, pid);
         }

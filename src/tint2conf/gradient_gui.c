@@ -202,7 +202,7 @@ void gradient_create_new(GradientConfigType t)
 {
     int index = get_model_length(GTK_TREE_MODEL(gradient_ids));
 
-    GradientConfig *g = (GradientConfig *)calloc(1, sizeof(GradientConfig));
+    GradientConfig *g = calloc(1, sizeof(GradientConfig));
     g->type = t;
     gradients = g_list_append(gradients, g);
     GtkTreeIter iter;
@@ -221,7 +221,7 @@ void gradient_create_new(GradientConfigType t)
 
 gpointer copy_GradientConfigColorStop(gconstpointer arg, gpointer data)
 {
-    GradientConfigColorStop *copy = (GradientConfigColorStop *)calloc(1, sizeof(GradientConfigColorStop));
+    GradientConfigColorStop *copy = calloc(1, sizeof(GradientConfigColorStop));
     *copy = *(GradientConfigColorStop *)arg;
     return copy;
 }
@@ -234,11 +234,11 @@ void gradient_duplicate(GtkWidget *widget, gpointer data)
         return;
     }
 
-    GradientConfig *g_old = (GradientConfig *)g_list_nth(gradients, (guint)old_index)->data;
+    GradientConfig *g_old = g_list_nth(gradients, (guint)old_index)->data;
 
     int index = get_model_length(GTK_TREE_MODEL(gradient_ids));
 
-    GradientConfig *g = (GradientConfig *)calloc(1, sizeof(GradientConfig));
+    GradientConfig *g = calloc(1, sizeof(GradientConfig));
     g->type = g_old->type;
     g->start_color = g_old->start_color;
     g->end_color = g_old->end_color;
@@ -295,7 +295,7 @@ void gradient_draw(cairo_t *c, GradientConfig *g, int w, int h, gboolean preserv
                                       g->start_color.color.rgb[2],
                                       g->start_color.color.alpha);
     for (GList *l = g->extra_color_stops; l; l = l->next) {
-        GradientConfigColorStop *stop = (GradientConfigColorStop *)l->data;
+        GradientConfigColorStop *stop = l->data;
         cairo_pattern_add_color_stop_rgba(gpat,
                                           stop->offset,
                                           stop->color.rgb[0],
@@ -319,7 +319,7 @@ void gradient_draw(cairo_t *c, GradientConfig *g, int w, int h, gboolean preserv
 
 void gradient_update_image(int index)
 {
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)index)->data;
+    GradientConfig *g = g_list_nth(gradients, (guint)index)->data;
 
     int w = 70;
     int h = 30;
@@ -369,7 +369,7 @@ void gradient_update(GtkWidget *widget, gpointer data)
     gtk_tree_model_get_iter(GTK_TREE_MODEL(gradient_ids), &iter, path);
     gtk_tree_path_free(path);
 
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)index)->data;
+    GradientConfig *g = g_list_nth(gradients, (guint)index)->data;
 
     g->type = (GradientConfigType)MAX(0, gtk_combo_box_get_active(GTK_COMBO_BOX(gradient_combo_type)));
 
@@ -401,7 +401,7 @@ void current_gradient_changed(GtkWidget *widget, gpointer data)
 
     gradient_updates_disabled = TRUE;
 
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)index)->data;
+    GradientConfig *g = g_list_nth(gradients, (guint)index)->data;
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(gradient_combo_type), g->type);
 
@@ -450,8 +450,8 @@ void gradient_stop_create_new()
     if (g_index < 0)
         return;
 
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)g_index)->data;
-    GradientConfigColorStop *stop = (GradientConfigColorStop *)calloc(1, sizeof(GradientConfigColorStop));
+    GradientConfig *g = g_list_nth(gradients, (guint)g_index)->data;
+    GradientConfigColorStop *stop = calloc(1, sizeof(GradientConfigColorStop));
     *stop = g->extra_color_stops ? *(GradientConfigColorStop *) g_list_last(g->extra_color_stops)->data
                                 : g->start_color;
     g->extra_color_stops = g_list_append(g->extra_color_stops, stop);
@@ -478,7 +478,7 @@ void gradient_stop_delete(GtkWidget *widget, gpointer data)
     if (g_index < 0)
         return;
 
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)g_index)->data;
+    GradientConfig *g = g_list_nth(gradients, (guint)g_index)->data;
     if (!g->extra_color_stops)
         return;
 
@@ -509,8 +509,8 @@ void gradient_stop_update_image(int index)
     int g_index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient));
     if (g_index < 0)
         return;
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)g_index)->data;
-    GradientConfigColorStop *stop = (GradientConfigColorStop *)g_list_nth(g->extra_color_stops, (guint)index)->data;
+    GradientConfig *g = g_list_nth(gradients, (guint)g_index)->data;
+    GradientConfigColorStop *stop = g_list_nth(g->extra_color_stops, (guint)index)->data;
 
     int w = 70;
     int h = 30;
@@ -540,13 +540,13 @@ void current_gradient_stop_changed(GtkWidget *widget, gpointer data)
     int g_index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient));
     if (g_index < 0)
         return;
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)g_index)->data;
+    GradientConfig *g = g_list_nth(gradients, (guint)g_index)->data;
 
     int index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient_stop));
     if (index < 0)
         return;
 
-    GradientConfigColorStop *stop = (GradientConfigColorStop *)g_list_nth(g->extra_color_stops, (guint)index)->data;
+    GradientConfigColorStop *stop = g_list_nth(g->extra_color_stops, (guint)index)->data;
 
     gradient_updates_disabled = TRUE;
 
@@ -568,13 +568,13 @@ void gradient_stop_update(GtkWidget *widget, gpointer data)
     int g_index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient));
     if (g_index < 0)
         return;
-    GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)g_index)->data;
+    GradientConfig *g = g_list_nth(gradients, (guint)g_index)->data;
 
     int index = gtk_combo_box_get_active(GTK_COMBO_BOX(current_gradient_stop));
     if (index < 0)
         return;
 
-    GradientConfigColorStop *stop = (GradientConfigColorStop *)g_list_nth(g->extra_color_stops, (guint)index)->data;
+    GradientConfigColorStop *stop = g_list_nth(g->extra_color_stops, (guint)index)->data;
 
     GdkRGBA color;
 

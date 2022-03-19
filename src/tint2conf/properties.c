@@ -194,7 +194,7 @@ void applyClicked(GtkWidget *widget, gpointer data)
 
 void cancelClicked(GtkWidget *widget, gpointer data)
 {
-    GtkWidget *view = (GtkWidget *)data;
+    GtkWidget *view = data;
     gtk_widget_destroy(view);
 }
 
@@ -1822,7 +1822,7 @@ void load_desktop_file(const char *file, gboolean selected)
 void populate_from_entries(GList *entries, gboolean selected)
 {
     for (GList *l = entries; l; l = l->next) {
-        DesktopEntry *entry = (DesktopEntry *)l->data;
+        DesktopEntry *entry = l->data;
         GdkPixbuf *pixbuf = load_icon(entry->icon);
         GtkTreeIter iter;
         gtk_list_store_append(selected ? launcher_apps : all_apps, &iter);
@@ -1898,7 +1898,7 @@ void load_desktop_entries(const char *path, GList **entries)
          l;
          l = (p = l)->next, g_list_free_1( p))
     {
-        gchar *dir = (gchar *)l->data;
+        gchar *dir = l->data;
         load_desktop_entries(dir, entries);
         g_free(dir);
     }
@@ -1908,7 +1908,7 @@ void load_desktop_entries(const char *path, GList **entries)
          l;
          l = (p = l)->next, g_list_free_1( p))
     {
-        gchar *file = (gchar *)l->data;
+        gchar *file = l->data;
         load_desktop_entry(file, entries);
         g_free(file);
     }
@@ -2430,7 +2430,7 @@ void init_launcher_page (GtkWidget *parent, GtkWindow *window)
     GList *themes = NULL;
     const GSList *location;
     for (location = get_icon_locations(); location; location = location->next) {
-        const gchar *path = (gchar *)location->data;
+        const gchar *path = location->data;
         load_icon_themes(path, NULL, &themes);
     }
     if (themes) {
@@ -2456,7 +2456,7 @@ void init_launcher_page (GtkWidget *parent, GtkWindow *window)
     gtk_list_store_append(icon_themes, &iter);
     gtk_list_store_set(icon_themes, &iter, 0, "", -1);
     for (GList *l = themes; l; l = l->next) {
-        IconTheme *theme = (IconTheme *)l->data;
+        IconTheme *theme = l->data;
         GtkTreeIter iter;
         gtk_list_store_append(icon_themes, &iter);
         gtk_list_store_set(icon_themes, &iter,
@@ -2469,14 +2469,14 @@ void init_launcher_page (GtkWidget *parent, GtkWindow *window)
          l;
          l = (p = l)->next, g_list_free_1( p))
     {
-        free_icon_theme((IconTheme *)l->data);
+        free_icon_theme(l->data);
     }
     fprintf(stderr, "tint2: Icon themes loaded\n");
 
     fprintf(stderr, "tint2: Loading .desktop files\n");
     GList *entries = NULL;
     for (location = get_apps_locations(); location; location = location->next) {
-        const gchar *path = (gchar *)location->data;
+        const gchar *path = location->data;
         load_desktop_entries(path, &entries);
     }
     entries = g_list_sort(entries, compare_entries);
@@ -2486,7 +2486,7 @@ void init_launcher_page (GtkWidget *parent, GtkWindow *window)
          l;
          l = (p = l)->next, g_list_free_1( p))
     {
-        free_desktop_entry((DesktopEntry *)l->data);
+        free_desktop_entry(l->data);
     }
 
     icon_theme_changed(window);

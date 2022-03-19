@@ -18,9 +18,9 @@ GradientType gradient_type_from_string(const char *str)
 
 void init_gradient(GradientClass *g, GradientType type)
 {
-    #define add_gradient_offset(offset,...) do {      \
-        offset = (Offset *)calloc(1, sizeof(Offset)); \
-        *offset = (Offset){ __VA_ARGS__ };            \
+    #define add_gradient_offset(offset,...) do {                                         \
+        offset = calloc(1, sizeof(Offset));                                              \
+        *offset = (Offset){ __VA_ARGS__ };                                               \
     } while(0)
 
     memset(g, 0, sizeof(*g));

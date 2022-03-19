@@ -58,7 +58,7 @@ char *addr2name(void *func)
 
 void add_tracing_event(void *func, void *caller, gboolean enter)
 {
-    TracingEvent *entry = (TracingEvent *)calloc(sizeof(TracingEvent), 1);
+    TracingEvent *entry = calloc(sizeof(TracingEvent), 1);
     entry->address = func;
     entry->caller = caller;
     entry->time = get_time();
@@ -97,7 +97,7 @@ void print_tracing_events()
     int depth = 0;
     double now = get_time();
     for (GList *i = tracing_events; i; i = i->next) {
-        TracingEvent *e = (TracingEvent *)i->data;
+        TracingEvent *e = i->data;
         if (e->enter) {
             // Push a new function on the stack
             for (int d = 0; d < depth; d++)
@@ -113,7 +113,7 @@ void print_tracing_events()
         } else {
             // Pop a function from the stack, if matching, and print
             if (stack) {
-                TracingEvent *old = (TracingEvent *)g_list_last(stack)->data;
+                TracingEvent *old = g_list_last(stack)->data;
                 if (old->address == e->address) {
                     depth--;
                     for (int d = 0; d < depth; d++)
@@ -139,7 +139,7 @@ void print_tracing_events()
         }
     }
     while (stack) {
-        TracingEvent *old = (TracingEvent *)g_list_last(stack)->data;
+        TracingEvent *old = g_list_last(stack)->data;
         depth--;
         for (int d = 0; d < depth; d++)
             fprintf(stderr, "tint2:  ");

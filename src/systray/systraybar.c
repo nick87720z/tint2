@@ -125,7 +125,7 @@ void init_systray()
 
 void init_systray_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
     systray.area.parent = panel;
     systray.area.panel = panel;
     systray.area._dump_geometry = systray_dump_geometry;
@@ -258,13 +258,13 @@ void draw_systray(void *obj, cairo_t *c)
 
 void systray_dump_geometry(void *obj, int indent)
 {
-    Systray *tray = (Systray *)obj;
+    Systray *tray = obj;
 
     fprintf(stderr, "tint2: %*sIcons:\n", indent, "");
     indent += 2;
     for (GSList *l = tray->list_icons; l; l = l->next)
     {
-        TrayWindow *traywin = (TrayWindow *)l->data;
+        TrayWindow *traywin = l->data;
         fprintf(stderr,
                 "tint2: %*sIcon: x = %d, y = %d, w = %d, h = %d, name = %s\n",
                 indent, "",
@@ -300,7 +300,7 @@ void on_change_systray(void *obj)
     GSList *l;
     int i;
     for (i = 1, l = systray.list_icons; l; i++, l = l->next) {
-        traywin = (TrayWindow *)l->data;
+        traywin = l->data;
 
         traywin->y = posy;
         traywin->x = posx;
@@ -527,8 +527,8 @@ int window_error_handler(Display *d, XErrorEvent *e)
 
 static gint compare_traywindows(gconstpointer a, gconstpointer b)
 {
-    const TrayWindow *traywin_a = (const TrayWindow *)a;
-    const TrayWindow *traywin_b = (const TrayWindow *)b;
+    const TrayWindow *traywin_a = a;
+    const TrayWindow *traywin_b = b;
 
 #if 0
     // This breaks pygtk2 StatusIcon with blinking activated
@@ -570,7 +570,7 @@ gboolean reject_icon(Window win)
 {
     if (systray_hide_name_filter && strlen(systray_hide_name_filter)) {
         if (!systray_hide_name_regex) {
-            systray_hide_name_regex = (regex_t *)calloc(1, sizeof(*systray_hide_name_regex));
+            systray_hide_name_regex = calloc(1, sizeof(*systray_hide_name_regex));
             if (regcomp(systray_hide_name_regex, systray_hide_name_filter, 0) != 0) {
                 fprintf(stderr, RED "tint2: Could not compile regex %s" RESET "\n", systray_hide_name_filter);
                 free_and_null(systray_hide_name_regex);
@@ -590,7 +590,7 @@ gboolean add_icon(Window win)
 {
     // Avoid duplicates
     for (GSList *l = systray.list_icons; l; l = l->next) {
-        TrayWindow *other = (TrayWindow *)l->data;
+        TrayWindow *other = l->data;
 
         if (other->win == win)
             return FALSE;
@@ -1412,7 +1412,7 @@ void refresh_systray_icons()
     GSList *l;
     for (l = systray.list_icons; l; l = l->next)
     {
-        traywin = (TrayWindow *)l->data;
+        traywin = l->data;
         systray_render_icon(traywin);
     }
 }
@@ -1426,7 +1426,7 @@ TrayWindow *systray_find_icon(Window win)
 {
     for (GSList *l = systray.list_icons; l; l = l->next)
     {
-        TrayWindow *traywin = (TrayWindow *)l->data;
+        TrayWindow *traywin = l->data;
         if (traywin->win == win || traywin->parent == win)
             return traywin;
     }

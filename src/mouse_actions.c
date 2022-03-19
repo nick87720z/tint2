@@ -115,7 +115,7 @@ void handle_mouse_move_event(XEvent *e)
         if (task_drag->desktop == ALL_DESKTOPS || taskbar_mode != MULTI_DESKTOP)
             return;
 
-        Taskbar *drag_taskbar = (Taskbar *)task_drag->area.parent;
+        Taskbar *drag_taskbar = task_drag->area.parent;
         remove_area((Area *)task_drag);
 
         event_taskbar->area.children =  (event_taskbar->area.posx > drag_taskbar->area.posx ||

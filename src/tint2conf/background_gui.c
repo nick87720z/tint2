@@ -32,7 +32,7 @@ GtkWidget *create_background_combo(const char *label)
 
 void background_combo_changed(GtkWidget *widget, gpointer data)
 {
-    gchar *combo_text = (gchar *)data;
+    gchar *combo_text = data;
     if (!combo_text || g_str_equal(combo_text, ""))
         return;
     int selected_index = gtk_combo_box_get_active(GTK_COMBO_BOX(widget));
@@ -632,7 +632,7 @@ void background_update_image(int index)
     cairo_set_source_rgba(cr, fillColor->red, fillColor->green, fillColor->blue, fillColor->alpha);
     cairo_fill_preserve(cr);
     if (index >= 1 && gradient_id >= 1) {
-        GradientConfig *g = (GradientConfig *)g_list_nth(gradients, (guint)gradient_id)->data;
+        GradientConfig *g = g_list_nth(gradients, (guint)gradient_id)->data;
         gradient_draw(cr, g, w, h, TRUE);
     }
     // Clip & draw complete mix

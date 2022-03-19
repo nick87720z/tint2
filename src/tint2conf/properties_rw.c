@@ -130,7 +130,7 @@ void config_write_gradients(FILE *fp)
     int index = 1;
 
     for (GList *gl = gradients ? gradients->next : NULL; gl; gl = gl->next, index++) {
-        GradientConfig *g = (GradientConfig *)gl->data;
+        GradientConfig *g = gl->data;
         GdkRGBA color;
 
         fprintf(fp, "# Gradient %d\n", index);
@@ -146,7 +146,7 @@ void config_write_gradients(FILE *fp)
         config_write_color(fp, "end_color", &color);
 
         for (GList *l = g->extra_color_stops; l; l = l->next) {
-            GradientConfigColorStop *stop = (GradientConfigColorStop *)l->data;
+            GradientConfigColorStop *stop = l->data;
             // color_stop = percentage #rrggbb opacity
             cairoColor2GdkRGBA(&stop->color, &color);
             fprintf(fp,
@@ -1138,9 +1138,9 @@ void add_entry(char *key, char *value)
         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(gradient_end_color), &col);
         break; }
     case key_color_stop: {
-        GradientConfig *g = (GradientConfig *)g_list_last(gradients)->data;
+        GradientConfig *g = g_list_last(gradients)->data;
         extract_values(value, values, 3);
-        GradientConfigColorStop *color_stop = (GradientConfigColorStop *)calloc(1, sizeof(GradientConfigColorStop));
+        GradientConfigColorStop *color_stop = calloc(1, sizeof(GradientConfigColorStop));
         color_stop->offset = atof(values[0]) / 100.0;
         get_color(values[1], color_stop->color.rgb);
         if (values[2])

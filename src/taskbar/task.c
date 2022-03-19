@@ -45,7 +45,7 @@ void task_get_content_color(void *obj, Color *color);
 
 char *task_get_tooltip(void *obj)
 {
-    Task *t = (Task *)obj;
+    Task *t = obj;
     return strdup(t->title);
 }
 
@@ -53,7 +53,7 @@ cairo_surface_t *task_get_thumbnail(void *obj)
 {
     if (!panel_config.g_task.thumbnail_enabled)
         return NULL;
-    Task *t = (Task *)obj;
+    Task *t = obj;
     if (!t->thumbnail)
         task_refresh_thumbnail(t);
     taskbar_start_thumbnail_timer(THUMB_MODE_TOOLTIP_WINDOW);
@@ -173,7 +173,7 @@ Task *add_task(Window win)
     sort_taskbar_for_win(win);
 
     if (taskbar_mode == MULTI_DESKTOP) {
-        Panel *panel = (Panel *)task_template.area.panel;
+        Panel *panel = task_template.area.panel;
         panel->area.resize_needed = TRUE;
     }
 
@@ -436,7 +436,7 @@ void draw_task_icon(Task *task, int text_width)
         return;
 
     // Find pos
-    Panel *panel = (Panel *)task->area.panel;
+    Panel *panel = task->area.panel;
     if (!panel->g_task.centered)
         task->_icon_x = left_border_width(&task->area) + task->area.paddingx * panel->scale;
     else {
@@ -474,8 +474,8 @@ void draw_task(void *obj, cairo_t *c)
     PangoLayout *layout;
     Color *config_text;
 
-    Task *task = (Task *)obj;
-    Panel *panel = (Panel *)task->area.panel;
+    Task *task = obj;
+    Panel *panel = task->area.panel;
 
     task->_text_width = 0;
     if (panel->g_task.has_text) {
@@ -512,8 +512,8 @@ void draw_task(void *obj, cairo_t *c)
 
 void task_dump_geometry(void *obj, int indent)
 {
-    Task *task = (Task *)obj;
-    Panel *panel = (Panel *)task->area.panel;
+    Task *task = obj;
+    Panel *panel = task->area.panel;
 
     fprintf(stderr,
             "tint2: %*sText: x = %d, y = %d, w = %d, h = %d, align = %s, text = %s\n",
@@ -536,7 +536,7 @@ void task_dump_geometry(void *obj, int indent)
 
 void task_get_content_color(void *obj, Color *color)
 {
-    Task *task = (Task *)obj;
+    Task *task = obj;
     Color *content_color = NULL;
     if (!panel_config.mouse_effects)
         goto nofx;
@@ -555,16 +555,16 @@ void task_get_content_color(void *obj, Color *color)
 
 int task_get_desired_size(void *obj)
 {
-    Task *task = (Task *)obj;
-    Panel *panel = (Panel *)task->area.panel;
+    Task *task = obj;
+    Panel *panel = task->area.panel;
     int size = (panel_horizontal ? panel->g_task.maximum_width : panel->g_task.maximum_height) * panel->scale;
     return size;
 }
 
 void on_change_task(void *obj)
 {
-    Task *task = (Task *)obj;
-    Panel *panel = (Panel *)task->area.panel;
+    Task *task = obj;
+    Panel *panel = task->area.panel;
 
     if (task->area.on_screen) {
         long value[] = {panel->posx + task->area.posx,
@@ -587,10 +587,10 @@ Task *find_active_task(Task *current_task)
     if (active_task == NULL)
         return current_task;
 
-    Taskbar *taskbar = (Taskbar *)current_task->area.parent;
+    Taskbar *taskbar = current_task->area.parent;
     for_taskbar_tasks( taskbar, l)
     {
-        Task *task = (Task *)l->data;
+        Task *task = l->data;
         if (task->win == active_task->win)
             return task;
     }
@@ -668,7 +668,7 @@ void task_refresh_thumbnail(Task *task)
         task->current_state == TASK_ICONIFIED)
         return;
 
-    Panel *panel = (Panel*)task->area.panel;
+    Panel *panel = task->area.panel;
     double now = get_time();
     if (now - task->thumbnail_last_update < 0.1)
         return;
@@ -716,7 +716,7 @@ void set_task_state(Task *task, TaskState state)
                 for (int i = 0; i < task_buttons->len; ++i)
                 {
                     Task *task1 = g_ptr_array_index(task_buttons, i);
-                    Taskbar *taskbar = (Taskbar *)task1->area.parent;
+                    Taskbar *taskbar = task1->area.parent;
                     sort_tasks(taskbar);
                 }
             }
@@ -738,7 +738,7 @@ void set_task_state(Task *task, TaskState state)
                 if (state == TASK_ACTIVE && g_slist_find(urgent_list, task1))
                     del_urgent(task1);
                 gboolean hide = FALSE;
-                Taskbar *taskbar = (Taskbar *)task1->area.parent;
+                Taskbar *taskbar = task1->area.parent;
                 if (task->desktop == ALL_DESKTOPS && server.desktop != taskbar->desktop)
                     // Hide ALL_DESKTOPS task on non-current desktop
                     hide = !always_show_all_desktop_tasks;
@@ -753,7 +753,7 @@ void set_task_state(Task *task, TaskState state)
                 if (hide == task1->area.on_screen) {
                     task1->area.on_screen = !hide;
                     schedule_redraw(&task1->area);
-                    Panel *p = (Panel *)task->area.panel;
+                    Panel *p = task->area.panel;
                     task->area.resize_needed = TRUE;
                     p->taskbar->area.resize_needed = TRUE;
                     p->area.resize_needed = TRUE;

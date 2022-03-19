@@ -247,7 +247,7 @@ void reinit_battery()
 
 void init_battery_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
     Battery *battery = &panel->battery;
 
     if (!battery_enabled)
@@ -441,13 +441,13 @@ int update_battery()
 
 int battery_get_desired_size(void *obj)
 {
-    Battery *battery = (Battery *)obj;
+    Battery *battery = obj;
     return text_area_get_desired_size(&battery->area, buf_bat_line1, buf_bat_line2, bat1_font_desc, bat2_font_desc);
 }
 
 gboolean resize_battery(void *obj)
 {
-    Battery *battery = (Battery *)obj;
+    Battery *battery = obj;
     return resize_text_area(&battery->area,
                             buf_bat_line1,
                             buf_bat_line2,
@@ -459,8 +459,8 @@ gboolean resize_battery(void *obj)
 
 void draw_battery(void *obj, cairo_t *c)
 {
-    Battery *battery = (Battery *)obj;
-    Panel *panel = (Panel *)battery->area.panel;
+    Battery *battery = obj;
+    Panel *panel = battery->area.panel;
     draw_text_area(&battery->area,
                    c,
                    buf_bat_line1,
@@ -481,7 +481,7 @@ void draw_battery(void *obj, cairo_t *c)
 
 void battery_dump_geometry(void *obj, int indent)
 {
-    Battery *battery = (Battery *)obj;
+    Battery *battery = obj;
     fprintf(stderr, "tint2: %*sText 1: y = %d, text = %s\n", indent, "", battery->bat1_posy, buf_bat_line1);
     fprintf(stderr, "tint2: %*sText 2: y = %d, text = %s\n", indent, "", battery->bat2_posy, buf_bat_line2);
 }

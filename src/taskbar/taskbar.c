@@ -103,9 +103,9 @@ void taskbar_clear_orderings()
          order = (p = order)->next, g_list_free_1( p))
     {
         if (sizeof(Window) <= sizeof(gpointer))
-            g_list_free( (GList *)order->data );
+            g_list_free( order->data );
         else
-            g_list_free_full( (GList *)order->data, free);
+            g_list_free_full( order->data, free);
     }
     taskbar_task_orderings = NULL;
 }
@@ -222,7 +222,7 @@ if ((panel->g_task.config_background_mask & ( 1 << (d) )) == 0)                 
 
 void init_taskbar_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
 
     if (!panel->g_taskbar.background[TASKBAR_NORMAL])
     {
@@ -474,7 +474,7 @@ int compare_windows(const void *a, const void *b)
         int posa = -1;
         int posb = -1;
         int pos = 0;
-        for (GList *item = (GList *)order->data; item; item = item->next, pos++)
+        for (GList *item = order->data; item; item = item->next, pos++)
         {
             Window win = sizeof(Window) <= sizeof(gpointer) ? (Window)(item->data) : *(Window *)item->data;
             if (win == wina)
@@ -509,7 +509,7 @@ void taskbar_refresh_tasklist()
     if (!win)
         return;
 
-    Window *sorted = (Window *)calloc(num_results, sizeof(Window));
+    Window *sorted = calloc(num_results, sizeof(Window));
     memcpy(sorted, win, num_results * sizeof(Window));
     if (taskbar_task_orderings)
     {
@@ -524,7 +524,7 @@ void taskbar_refresh_tasklist()
     {
         int i;
         for (i = 0; i < num_results; i++)
-            if (*((Window *)it->data) == sorted[i])
+            if (*(Window *)it->data == sorted[i])
                 break;
         if (i == num_results)
             taskbar_remove_task(it->data);
@@ -541,8 +541,8 @@ void taskbar_refresh_tasklist()
 
 int taskbar_get_desired_size(void *obj)
 {
-    Taskbar *taskbar = (Taskbar *)obj;
-    Panel *panel = (Panel *)taskbar->area.panel;
+    Taskbar *taskbar = obj;
+    Panel *panel = taskbar->area.panel;
 
     if (taskbar_mode != MULTI_DESKTOP || taskbar_distribute_size)
         return container_get_desired_size( & taskbar->area);
@@ -560,8 +560,8 @@ int taskbar_get_desired_size(void *obj)
 
 gboolean resize_taskbar(void *obj)
 {
-    Taskbar *taskbar = (Taskbar *)obj;
-    Panel *panel = (Panel *)taskbar->area.panel;
+    Taskbar *taskbar = obj;
+    Panel *panel = taskbar->area.panel;
 
     if (panel_horizontal) {
         relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width);
@@ -637,12 +637,12 @@ void set_taskbar_state(Taskbar *taskbar, TaskbarState state)
             if (bg[TASKBAR_NORMAL] != bg[TASKBAR_ACTIVE])
             {
                 for (GList *l = lfirst; l; l = l->next)
-                    schedule_redraw((Area *)l->data);
+                    schedule_redraw(l->data);
             }
             if (hide_task_diff_desktop)
             {
                 for (GList *l = lfirst; l; l = l->next) {
-                    Task *task = (Task *)l->data;
+                    Task *task = l->data;
                     set_task_state(task, task->current_state);
                 }
             }
@@ -773,14 +773,14 @@ void sort_taskbar_for_win(Window win)
 
 void update_minimized_icon_positions(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
     for (int i = 0; i < panel->num_desktops; i++) {
         Taskbar *taskbar = &panel->taskbar[i];
 
         if (!taskbar->area.on_screen)
             continue;
         for (GList *c = taskbar->area.children; c; c = c->next) {
-            Area *area = (Area *)c->data;
+            Area *area = c->data;
 
             if (area->_on_change_layout)
                 area->_on_change_layout(area);
@@ -806,7 +806,7 @@ void taskbar_update_thumbnails(void *arg)
             Taskbar *taskbar = &panel->taskbar[j];
             for_taskbar_tasks( taskbar, c)
             {
-                Task *t = (Task *)c->data;
+                Task *t = c->data;
                 if ((mode == THUMB_MODE_ALL && t->current_state == TASK_ACTIVE && !g_list_find(taskbar_thumbnail_jobs_done, t)) ||
                     (mode == THUMB_MODE_ACTIVE_WINDOW && t->current_state == TASK_ACTIVE) ||
                     (mode == THUMB_MODE_TOOLTIP_WINDOW && g_tooltip.mapped && g_tooltip.area == &t->area))

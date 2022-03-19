@@ -19,7 +19,7 @@ int separator_get_desired_size(void *obj);
 
 Separator *create_separator()
 {
-    Separator *separator = (Separator *)calloc(1, sizeof(Separator));
+    Separator *separator = calloc(1, sizeof(Separator));
     separator->color.rgb[0] = 0.5;
     separator->color.rgb[1] = 0.5;
     separator->color.rgb[2] = 0.5;
@@ -33,7 +33,7 @@ Separator *create_separator()
 
 void destroy_separator(void *obj)
 {
-    Separator *separator = (Separator *)obj;
+    Separator *separator = obj;
     remove_area(&separator->area);
     free_area(&separator->area);
     free_and_null(separator);
@@ -70,7 +70,7 @@ void init_separator()
 
 void init_separator_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
 
     // Make sure this is only done once if there are multiple items
     if (panel->separator_list)
@@ -81,7 +81,7 @@ void init_separator_panel(void *p)
     panel->separator_list = g_list_copy_deep(panel_config.separator_list, copy_separator, NULL);
 
     for (GList *l = panel->separator_list; l; l = l->next) {
-        Separator *separator = (Separator *)l->data;
+        Separator *separator = l->data;
         if (!separator->area.bg)
             separator->area.bg = &g_array_index(backgrounds, Background, 0);
         separator->area.parent = p;
@@ -112,8 +112,8 @@ void cleanup_separator()
 
 int separator_get_desired_size(void *obj)
 {
-    Separator *separator = (Separator *)obj;
-    Panel *panel = (Panel*)separator->area.panel;
+    Separator *separator = obj;
+    Panel *panel = separator->area.panel;
     if (!separator->area.on_screen)
         return 0;
 
@@ -123,8 +123,8 @@ int separator_get_desired_size(void *obj)
 
 gboolean resize_separator(void *obj)
 {
-    Separator *separator = (Separator *)obj;
-    Panel *panel = (Panel*)separator->area.panel;
+    Separator *separator = obj;
+    Panel *panel = separator->area.panel;
     if (!separator->area.on_screen)
         return FALSE;
 
@@ -148,7 +148,7 @@ void draw_separator_dots(void *obj, cairo_t *c);
 
 void draw_separator(void *obj, cairo_t *c)
 {
-    Separator *separator = (Separator *)obj;
+    Separator *separator = obj;
 
     switch (separator->style) {
     case SEPARATOR_LINE: draw_separator_line(separator, c);
@@ -160,7 +160,7 @@ void draw_separator(void *obj, cairo_t *c)
 
 void draw_separator_line(void *obj, cairo_t *c)
 {
-    Separator *separator = (Separator *)obj;
+    Separator *separator = obj;
 
     if (separator->thickness <= 0)
         return;
@@ -184,7 +184,7 @@ void draw_separator_line(void *obj, cairo_t *c)
 
 void draw_separator_dots(void *obj, cairo_t *c)
 {
-    Separator *separator = (Separator *)obj;
+    Separator *separator = obj;
     if (separator->thickness <= 0)
         return;
 

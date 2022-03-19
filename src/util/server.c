@@ -276,8 +276,8 @@ void get_root_pixmap()
 
 int compare_monitor_pos(const void *monitor1, const void *monitor2)
 {
-    const Monitor *m1 = (const Monitor *)monitor1;
-    const Monitor *m2 = (const Monitor *)monitor2;
+    const Monitor *m1 = monitor1;
+    const Monitor *m2 = monitor2;
     return  m1->x < m2->x ? -1
         :   m1->x > m2->x ? 1
         :   m1->y < m2->y ? -1
@@ -286,8 +286,8 @@ int compare_monitor_pos(const void *monitor1, const void *monitor2)
 
 int monitors_inside_monitor (const void *least, const void *greater)
 {
-    const Monitor *m1 = (const Monitor *)least;
-    const Monitor *m2 = (const Monitor *)greater;
+    const Monitor *m1 = least;
+    const Monitor *m2 = greater;
     
     // test if m1 inside m2
     return (m1->x >= m2->x     && m1->y >= m2->y    &&

@@ -49,7 +49,7 @@ void init_taskbarname_panel(void *p)
     if (!taskbarname_enabled)
         return;
 
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
 
     taskbarname_init_fonts();
 
@@ -123,8 +123,8 @@ void cleanup_taskbarname()
 
 int taskbarname_get_desired_size(void *obj)
 {
-    TaskbarName *taskbar_name = (TaskbarName *)obj;
-    Panel *panel = (Panel *)taskbar_name->area.panel;
+    TaskbarName *taskbar_name = obj;
+    Panel *panel = taskbar_name->area.panel;
     int name_height, name_width;
     get_text_size2(panel_config.taskbarname_font_desc,
                    &name_height,
@@ -146,8 +146,8 @@ int taskbarname_get_desired_size(void *obj)
 
 gboolean resize_taskbarname(void *obj)
 {
-    TaskbarName *taskbar_name = (TaskbarName *)obj;
-    Panel *panel = (Panel *)taskbar_name->area.panel;
+    TaskbarName *taskbar_name = obj;
+    Panel *panel = taskbar_name->area.panel;
 
     schedule_redraw(&taskbar_name->area);
 
@@ -186,7 +186,7 @@ gboolean resize_taskbarname(void *obj)
 void draw_taskbarname(void *obj, cairo_t *c)
 {
     TaskbarName *taskbar_name = obj;
-    Panel *panel = (Panel *)taskbar_name->area.panel;
+    Panel *panel = taskbar_name->area.panel;
     Taskbar *taskbar = taskbar_name->area.parent;
     Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font_color : &taskbarname_font_color;
 

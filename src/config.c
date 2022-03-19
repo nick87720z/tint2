@@ -232,7 +232,7 @@ void load_launcher_app_dir(const char *path)
          l;
          l = (p = l)->next, g_list_free_1( p))
     {
-        gchar *dir = (gchar *)l->data;
+        gchar *dir = l->data;
         load_launcher_app_dir(dir);
         free( dir);
     }
@@ -242,7 +242,7 @@ void load_launcher_app_dir(const char *path)
          l;
          l = (p = l)->next, g_list_free_1( p))
     {
-        gchar *file = (gchar *)l->data;
+        gchar *file = l->data;
         panel_config.launcher.list_apps = g_slist_append( panel_config.launcher.list_apps, file);
     }
 }
@@ -253,7 +253,7 @@ Separator *get_or_create_last_separator()
         fprintf(stderr, "tint2: Warning: separator items should shart with 'separator = new'\n");
         panel_config.separator_list = g_list_append(panel_config.separator_list, create_separator());
     }
-    return (Separator *)g_list_last(panel_config.separator_list)->data;
+    return g_list_last(panel_config.separator_list)->data;
 }
 
 Execp *get_or_create_last_execp()
@@ -262,7 +262,7 @@ Execp *get_or_create_last_execp()
         fprintf(stderr, "tint2: Warning: execp items should start with 'execp = new'\n");
         panel_config.execp_list = g_list_append(panel_config.execp_list, create_execp());
     }
-    return (Execp *)g_list_last(panel_config.execp_list)->data;
+    return g_list_last(panel_config.execp_list)->data;
 }
 
 Button *get_or_create_last_button()
@@ -271,7 +271,7 @@ Button *get_or_create_last_button()
         fprintf(stderr, "tint2: Warning: button items should start with 'button = new'\n");
         panel_config.button_list = g_list_append(panel_config.button_list, create_button());
     }
-    return (Button *)g_list_last(panel_config.button_list)->data;
+    return g_list_last(panel_config.button_list)->data;
 }
 
 void add_entry(char *key, char *value)
@@ -443,7 +443,7 @@ void add_entry(char *key, char *value)
         break;
     case key_color_stop: {
         GradientClass *g = &g_array_index(gradients, GradientClass, gradients->len - 1);
-        ColorStop *color_stop = (ColorStop *)calloc(1, sizeof(ColorStop));
+        ColorStop *color_stop = calloc(1, sizeof(ColorStop));
         VALUES_TO_COLOR (color_stop->color, 1);
         color_stop->offset = atof(values[0]) / 100.0;
         g->extra_color_stops = g_list_append(g->extra_color_stops, color_stop);

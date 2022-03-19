@@ -34,7 +34,7 @@ int freespace_get_desired_size(void *obj);
 
 void init_freespace_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
 
     // Make sure this is only done once if there are multiple items
     if (panel->freespace_list)
@@ -44,7 +44,7 @@ void init_freespace_panel(void *p)
     for_panel_items_order ()
     {
         if (panel_items_order[k] == 'F') {
-            FreeSpace *freespace = (FreeSpace *)calloc(1, sizeof(FreeSpace));
+            FreeSpace *freespace = calloc(1, sizeof(FreeSpace));
             g_list_append_tail (panel->freespace_list, fs_tail, freespace);
             if (!freespace->area.bg)
                 freespace->area.bg = &g_array_index(backgrounds, Background, 0);
@@ -76,7 +76,7 @@ int freespace_get_max_size(Panel *panel)
     int size = 0;
     int spacers = 0;
     for (GList *walk = panel->area.children; walk; walk = walk->next) {
-        Area *a = (Area *)walk->data;
+        Area *a = walk->data;
         if (a->on_screen)
         {
             if (a->_resize == resize_freespace)
@@ -94,14 +94,14 @@ int freespace_get_max_size(Panel *panel)
 
 int freespace_get_desired_size(void *obj)
 {
-    FreeSpace *freespace = (FreeSpace *)obj;
-    return freespace_get_max_size((Panel *)freespace->area.panel);
+    FreeSpace *freespace = obj;
+    return freespace_get_max_size(freespace->area.panel);
 }
 
 gboolean resize_freespace(void *obj)
 {
-    FreeSpace *freespace = (FreeSpace *)obj;
-    Panel *panel = (Panel *)freespace->area.panel;
+    FreeSpace *freespace = obj;
+    Panel *panel = freespace->area.panel;
     if (!freespace->area.on_screen)
         return FALSE;
 

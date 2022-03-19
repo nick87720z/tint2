@@ -24,7 +24,7 @@ static GList *all_tests = NULL;
 
 void register_test_(Test *test, const char *name)
 {
-    TestListItem *item = (TestListItem *)calloc(sizeof(TestListItem), 1);
+    TestListItem *item = calloc(sizeof(TestListItem), 1);
     item->test = test;
     item->name = name;
     all_tests = g_list_append(all_tests, item);
@@ -133,7 +133,7 @@ void run_all_tests(bool verbose)
     fprintf(stdout, BLUE "tint2: Running %d tests..." RESET "\n", g_list_length(all_tests));
     size_t count = 0, succeeded = 0, failed = 0;
     for (GList *l = all_tests; l; l = l->next) {
-        TestListItem *item = (TestListItem *)l->data;
+        TestListItem *item = l->data;
         Status status = run_test(item);
         count++;
         fprintf(stdout, BLUE "tint2: Test " YELLOW "%s" BLUE ": ", item->name);

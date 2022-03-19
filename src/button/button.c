@@ -303,7 +303,7 @@ int button_get_desired_size(void *obj)
 {
     Button *button = obj;
     ButtonBackend *backend = button->backend;
-    Panel *panel = (Panel *)button->area.panel;
+    Panel *panel = button->area.panel;
     Area *area = &button->area;
     
     int horiz_padding = (panel_horizontal ? area->paddingx : area->paddingy) * panel->scale;
@@ -371,7 +371,7 @@ gboolean resize_button(void *obj)
     Button *button = obj;
     ButtonBackend *backend = button->backend;
     ButtonFrontend *frontend = button->frontend;
-    Panel *panel = (Panel *)button->area.panel;
+    Panel *panel = button->area.panel;
     Area *area = &button->area;
     
     int horiz_padding = (panel_horizontal ? area->paddingx : area->paddingy) * panel->scale;
@@ -481,7 +481,7 @@ void draw_button(void *obj, cairo_t *c)
     Button *button = obj;
     ButtonBackend *backend = button->backend;
     ButtonFrontend *frontend = button->frontend;
-    Panel *panel = (Panel *)button->area.panel;
+    Panel *panel = button->area.panel;
     Area *area = &button->area;
 
     if (frontend->icon) {
@@ -562,8 +562,7 @@ void button_dump_geometry(void *obj, int indent)
 
 void button_action(void *obj, int mouse_button, int x, int y, Time time)
 {
-    Button *button = (Button *)obj;
-    ButtonBackend *backend = button->backend;
+    ButtonBackend *backend = (Button *)obj)->backend;
     char *command = NULL;
     int cmd_sink = -1;
     switch (mouse_button) {

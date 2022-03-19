@@ -510,7 +510,7 @@ void handle_x_event(XEvent *e)
     case ReparentNotify: {
         if (!systray_enabled)
             break;
-        Panel *systray_panel = (Panel *)systray.area.panel;
+        Panel *systray_panel = systray.area.panel;
         if (e->xany.window == systray_panel->main_win) // don't care
             break;
         TrayWindow *traywin = systray_find_icon(e->xreparent.window);
@@ -537,7 +537,7 @@ void handle_x_event(XEvent *e)
         for (GSList *it = systray.list_icons; it; it = it->next)
         {
             if (((TrayWindow *)it->data)->win == e->xany.window)
-                systray_destroy_event((TrayWindow *)it->data);
+                systray_destroy_event(it->data);
         }
         break;
 
@@ -564,7 +564,7 @@ void handle_x_event(XEvent *e)
             memcpy(name, e->xclient.data.b, sizeof(e->xclient.data.b));
             for (GList *l = panel_config.execp_list; l; l = l->next)
             {
-                Execp *execp = (Execp *)l->data;
+                Execp *execp = l->data;
                 if (strncmp(name, execp->backend->name, strlen_const(execp->backend->name)) == 0)
                 {
                     fprintf(stderr, "tint2: Refreshing executor: %s\n", name);
@@ -622,7 +622,7 @@ void prepare_fd_set(fd_set *set, int *max_fd)
     }
     for (GList *l = panel_config.execp_list; l; l = l->next)
     {
-        Execp *execp = (Execp *)l->data;
+        Execp *execp = l->data;
         fd_add_if_set_ (execp->backend->child_pipe_stdout);
         fd_add_if_set_ (execp->backend->child_pipe_stderr);
     }
@@ -687,7 +687,7 @@ void handle_panel_refresh()
                       0, 0,
                       panel->area.width,    panel->area.height,
                       0, 0);
-            if (panel == (Panel *)systray.area.panel &&
+            if (panel == systray.area.panel &&
                 refresh_systray && panel && !panel->is_hidden)
             {
                 refresh_systray = FALSE;

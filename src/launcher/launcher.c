@@ -88,7 +88,7 @@ void init_launcher()
 
 void init_launcher_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
     Launcher *launcher = &panel->launcher;
 
     launcher->area.parent = p;
@@ -152,7 +152,7 @@ void cleanup_launcher_theme(Launcher *launcher)
          l;
          l = (p = l)->next, g_slist_free_1( p))
     {
-        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        LauncherIcon *launcherIcon = l->data;
         if (launcherIcon) {
             free_icon(launcherIcon->image);
             free_icon(launcherIcon->image_hover);
@@ -187,10 +187,10 @@ void launcher_get_geometry(Launcher *launcher,
                                int *icons_per_row,
                                int *margin)
 {
-    Panel *panel = (Panel*)launcher->area.panel;
+    Panel *panel = launcher->area.panel;
     int count = 0;
     for (GSList *l = launcher->list_icons; l; l = l->next) {
-        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        LauncherIcon *launcherIcon = l->data;
         if (launcherIcon->area.on_screen)
             count++;
     }
@@ -228,7 +228,7 @@ void launcher_get_geometry(Launcher *launcher,
 
 int launcher_get_desired_size(void *obj)
 {
-    Launcher *launcher = (Launcher *)obj;
+    Launcher *launcher = obj;
 
     int size, icon_size, icons_per_column, icons_per_row, margin;
     launcher_get_geometry(launcher, &size, &icon_size, &icons_per_column, &icons_per_row, &margin);
@@ -237,15 +237,15 @@ int launcher_get_desired_size(void *obj)
 
 gboolean resize_launcher(void *obj)
 {
-    Launcher *launcher = (Launcher *)obj;
-    Panel *panel = (Panel*)launcher->area.panel;
+    Launcher *launcher = obj;
+    Panel *panel = launcher->area.panel;
 
     int size, icons_per_column, icons_per_row, margin;
     launcher_get_geometry(launcher, &size, &launcher->icon_size, &icons_per_column, &icons_per_row, &margin);
 
     // Resize icons if necessary
     for (GSList *l = launcher->list_icons; l; l = l->next) {
-        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        LauncherIcon *launcherIcon = l->data;
         if (launcherIcon->icon_size != launcher->icon_size || !launcherIcon->image) {
             launcherIcon->icon_size = launcher->icon_size;
             launcherIcon->area.width = launcherIcon->icon_size;
@@ -258,7 +258,7 @@ gboolean resize_launcher(void *obj)
     int count = 0;
     gboolean needs_repositioning = FALSE;
     for (GSList *l = launcher->list_icons; l; l = l->next) {
-        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        LauncherIcon *launcherIcon = l->data;
         if (launcherIcon->area.on_screen) {
             count++;
             if (launcherIcon->area.posx < 0 || launcherIcon->area.posy < 0)
@@ -290,7 +290,7 @@ gboolean resize_launcher(void *obj)
 
     int i = 0;
     for (GSList *l = launcher->list_icons; l; l = l->next) {
-        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        LauncherIcon *launcherIcon = l->data;
         if (!launcherIcon->area.on_screen)
             continue;
         i++;
@@ -330,9 +330,9 @@ gboolean resize_launcher(void *obj)
 
 void relayout_launcher(void *obj)
 {
-    Launcher *launcher = (Launcher *)obj;
+    Launcher *launcher = obj;
     for (GSList *l = launcher->list_icons; l; l = l->next) {
-        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        LauncherIcon *launcherIcon = l->data;
         if (!launcherIcon->area.on_screen)
             continue;
         launcher_icon_on_change_layout(launcherIcon);
@@ -343,7 +343,7 @@ void relayout_launcher(void *obj)
 // in a stack; we need to layout them in a kind of table
 void launcher_icon_on_change_layout(void *obj)
 {
-    LauncherIcon *launcherIcon = (LauncherIcon *)obj;
+    LauncherIcon *launcherIcon = obj;
     launcherIcon->area.posy = ((Area *)launcherIcon->area.parent)->posy + launcherIcon->y;
     launcherIcon->area.posx = ((Area *)launcherIcon->area.parent)->posx + launcherIcon->x;
     launcherIcon->area.width = launcherIcon->icon_size;
@@ -352,19 +352,19 @@ void launcher_icon_on_change_layout(void *obj)
 
 int launcher_icon_get_desired_size(void *obj)
 {
-    LauncherIcon *icon = (LauncherIcon *)obj;
+    LauncherIcon *icon = obj;
     return icon->icon_size;
 }
 
 char *launcher_icon_get_tooltip_text(void *obj)
 {
-    LauncherIcon *launcherIcon = (LauncherIcon *)obj;
+    LauncherIcon *launcherIcon = obj;
     return strdup(launcherIcon->icon_tooltip);
 }
 
 void draw_launcher_icon(void *obj, cairo_t *c)
 {
-    LauncherIcon *launcherIcon = (LauncherIcon *)obj;
+    LauncherIcon *launcherIcon = obj;
 
     Imlib_Image image;
     // Render
@@ -383,7 +383,7 @@ void draw_launcher_icon(void *obj, cairo_t *c)
 
 void launcher_icon_dump_geometry(void *obj, int indent)
 {
-    LauncherIcon *launcherIcon = (LauncherIcon *)obj;
+    LauncherIcon *launcherIcon = obj;
     fprintf(stderr,
             "tint2: %*sIcon: w = h = %d, name = %s\n",
             indent,
@@ -433,8 +433,8 @@ void free_icon(Imlib_Image icon)
 
 void launcher_action(LauncherIcon *icon, XEvent *evt, int x, int y)
 {
-    launcher_reload_icon((Launcher *)icon->area.parent, icon);
-    launcher_reload_hidden_icons((Launcher *)icon->area.parent);
+    launcher_reload_icon(icon->area.parent, icon);
+    launcher_reload_hidden_icons(icon->area.parent);
 
     if (evt->type == ButtonPress || evt->type == ButtonRelease) {
         GString *cmd = g_string_new(icon->cmd);
@@ -461,7 +461,7 @@ void launcher_load_icons(Launcher *launcher)
     for (GSList *app = launcher->list_apps; app; app = app->next)
     {
         index++;
-        LauncherIcon *launcherIcon = (LauncherIcon *)calloc(1, sizeof(LauncherIcon));
+        LauncherIcon *launcherIcon = calloc(1, sizeof(LauncherIcon));
         launcherIcon->area.panel = launcher->area.panel;
         launcherIcon->area._draw_foreground = draw_launcher_icon;
         launcherIcon->area.size_mode = LAYOUT_FIXED;
@@ -522,7 +522,7 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
 void launcher_reload_hidden_icons(Launcher *launcher)
 {
     for (GSList *l = launcher->list_icons; l; l = l->next) {
-        LauncherIcon *launcherIcon = (LauncherIcon *)l->data;
+        LauncherIcon *launcherIcon = l->data;
         if (!launcherIcon->area.on_screen)
             launcher_reload_icon(launcher, launcherIcon);
     }

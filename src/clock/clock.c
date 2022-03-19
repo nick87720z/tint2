@@ -171,7 +171,7 @@ void init_clock()
 
 void init_clock_panel(void *p)
 {
-    Panel *panel = (Panel *)p;
+    Panel *panel = p;
     Clock *clock = &panel->clock;
 
     if (!clock->area.bg)
@@ -264,7 +264,7 @@ void clock_get_text_geometry(Clock *clock,
 
 int clock_get_desired_size(void *obj)
 {
-    Clock *clock = (Clock *)obj;
+    Clock *clock = obj;
     return text_area_get_desired_size(&clock->area,
                                           buf_time,
                                           time2_format ? buf_date : NULL,
@@ -274,7 +274,7 @@ int clock_get_desired_size(void *obj)
 
 gboolean resize_clock(void *obj)
 {
-    Clock *clock = (Clock *)obj;
+    Clock *clock = obj;
     return resize_text_area(&clock->area,
                             buf_time,
                             time2_format ? buf_date : NULL,
@@ -286,8 +286,8 @@ gboolean resize_clock(void *obj)
 
 void draw_clock(void *obj, cairo_t *c)
 {
-    Clock *clock = (Clock *)obj;
-    Panel *panel = (Panel *)clock->area.panel;
+    Clock *clock = obj;
+    Panel *panel = clock->area.panel;
     draw_text_area(&clock->area,
                    c,
                    buf_time,
@@ -302,7 +302,7 @@ void draw_clock(void *obj, cairo_t *c)
 
 void clock_dump_geometry(void *obj, int indent)
 {
-    Clock *clock = (Clock *)obj;
+    Clock *clock = obj;
     fprintf(stderr, "tint2: %*sText 1: y = %d, text = %s\n", indent, "", clock->time1_posy, buf_time);
     if (time2_format)
         fprintf(stderr, "tint2: %*sText 2: y = %d, text = %s\n", indent, "", clock->time2_posy, buf_date);

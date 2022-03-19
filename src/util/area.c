@@ -391,6 +391,18 @@ void draw_tree(Area *a)
         draw_tree((Area *)l->data);
 }
 
+void free_pixmaps(Area *a)
+{
+    a->pix = None;
+    for (int i = 0; i < MOUSE_STATE_COUNT; i++)
+    {
+        if (a->pix_by_state[ i]) {
+            XFreePixmap( server.display, a->pix_by_state[i]);
+            a->pix_by_state[ i] = None;
+        }
+    }
+}
+
 void hide(Area *a)
 {
     if (!a->on_screen)
@@ -401,6 +413,7 @@ void hide(Area *a)
         a->width = 0;
     else
         a->height = 0;
+    free_pixmaps( a);
 
     Area *parent = a->parent;
     if (parent)
@@ -446,18 +459,6 @@ void update_dependent_gradients(Area *a)
         }
     for_children(a, l, GList *)
         update_dependent_gradients((Area *)l->data);
-}
-
-void free_pixmaps(Area *a)
-{
-    a->pix = None;
-    for (int i = 0; i < MOUSE_STATE_COUNT; i++)
-    {
-        if (a->pix_by_state[ i]) {
-            XFreePixmap( server.display, a->pix_by_state[i]);
-            a->pix_by_state[ i] = None;
-        }
-    }
 }
 
 void draw(Area *a)

@@ -140,7 +140,11 @@ void destroy_execp(void *obj)
     free(backend->text);
     free(backend->icon_path);
     free(backend->command);
-    free(backend->tooltip);
+    if (backend->tooltip < backend->buf_stderr &&
+        backend->tooltip - backend->buf_stderr >= backend->buf_stdout_capacity)
+    {
+        free( backend->tooltip);
+    }
     free(backend->lclick_command);
     free(backend->mclick_command);
     free(backend->rclick_command);
@@ -1071,14 +1075,11 @@ gboolean read_execp(void *obj)
         backend->buf_stdout[backend->buf_stdout_length] = '\0';
         // Handle stderr
         if (!backend->has_user_tooltip) {
-            free_and_null(backend->tooltip);
             char *start = strrstr(backend->buf_stderr, ansi_clear_screen);
             start = start   ? start + strlen_const( ansi_clear_screen)
                             : backend->buf_stderr;
-            if (*start) {
-                backend->tooltip = strdup(start);
-                rstrip(backend->tooltip);
-            }
+
+            backend->tooltip = *start ? start : NULL;
         }
         backend->buf_stderr_length = 0;
         backend->buf_stderr[backend->buf_stderr_length] = '\0';

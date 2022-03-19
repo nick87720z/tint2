@@ -1197,9 +1197,8 @@ void handle_execp_events( fd_set *fds, int *fdn)
     for (GList *l = panel_config.execp_list; (*fdn > 0) && l; l = l->next) {
         Execp *execp = l->data;
 
-        if (!fd_set_unset_fd( fds, *fdn, execp->backend->child_pipe_stdout) &&
-            !fd_set_unset_fd( fds, *fdn, execp->backend->child_pipe_stderr))
-            continue;
+        fd_set_unset_fd( fds, fdn, execp->backend->child_pipe_stdout) << (1 - 1);
+        fd_set_unset_fd( fds, fdn, execp->backend->child_pipe_stderr) << (2 - 1);
 
         if (read_execp(execp))
             for (GList *l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next)

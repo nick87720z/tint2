@@ -33,8 +33,8 @@
 #include "taskbarname.h"
 
 gboolean taskbarname_enabled;
-Color taskbarname_font;
-Color taskbarname_active_font;
+Color taskbarname_font_color;
+Color taskbarname_active_font_color;
 
 void taskbarname_init_fonts();
 int taskbarname_get_desired_size(void *obj);
@@ -188,7 +188,7 @@ void draw_taskbarname(void *obj, cairo_t *c)
     TaskbarName *taskbar_name = obj;
     Panel *panel = (Panel *)taskbar_name->area.panel;
     Taskbar *taskbar = taskbar_name->area.parent;
-    Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font : &taskbarname_font;
+    Color *config_text = (taskbar->desktop == server.desktop) ? &taskbarname_active_font_color : &taskbarname_font_color;
 
     // draw content
     PangoContext *context = pango_cairo_create_context(c);

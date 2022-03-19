@@ -114,9 +114,11 @@ void taskbar_save_orderings()
 {
     taskbar_clear_orderings();
     GList   *tbto_tail = NULL;
-    for (int i = 0; i < num_panels; i++) {
+    for (int i = 0; i < num_panels; i++)
+    {
         Panel *panel = &panels[i];
-        for (int j = 0; j < panel->num_desktops; j++) {
+        for (int j = 0; j < panel->num_desktops; j++)
+        {
             Taskbar *taskbar = &panel->taskbar[j];
             GList   *task_order = NULL,
                     *to_tail = NULL;
@@ -129,7 +131,7 @@ void taskbar_save_orderings()
                 } else
                     g_list_append_tail( task_order, to_tail, (gpointer)((Task *)c->data)->win );
             }
-            g_list_append_tail (taskbar_task_orderings, tbto_tail, task_order);
+            g_list_append_tail( taskbar_task_orderings, tbto_tail, task_order);
         }
     }
 }
@@ -147,17 +149,18 @@ void cleanup_taskbar()
             gpointer key, value;
 
             g_hash_table_iter_init(&iter, win_to_task);
-            if (g_hash_table_iter_next(&iter, &key, &value)) {
+            if (g_hash_table_iter_next(&iter, &key, &value))
                 taskbar_remove_task(key);
-            }
         }
         g_hash_table_destroy(win_to_task);
         win_to_task = NULL;
     }
     cleanup_taskbarname();
-    for (int i = 0; i < num_panels; i++) {
+    for (int i = 0; i < num_panels; i++)
+    {
         Panel *panel = &panels[i];
-        for (int j = 0; j < panel->num_desktops; j++) {
+        for (int j = 0; j < panel->num_desktops; j++)
+        {
             Taskbar *taskbar = &panel->taskbar[j];
             free_area(&taskbar->area);
             // remove taskbar from the panel
@@ -253,7 +256,7 @@ void init_taskbar_panel(void *p)
     panel->g_taskbar.area.size_mode             = LAYOUT_DYNAMIC;
     panel->g_taskbar.area.alignment             = taskbar_alignment;
     panel->g_taskbar.area._resize               = resize_taskbar;
-    panel->g_taskbar.area._get_desired_size = taskbar_get_desired_size;
+    panel->g_taskbar.area._get_desired_size     = taskbar_get_desired_size;
     panel->g_taskbar.area._is_under_mouse       = full_width_area_is_under_mouse;
     panel->g_taskbar.area.resize_needed         = TRUE;
     panel->g_taskbar.area.on_screen             = TRUE;

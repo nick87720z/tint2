@@ -384,7 +384,7 @@ void task_update_icon(Task *task)
     imlib_image_set_has_alpha(1);
     int w = imlib_image_get_width();
     int h = imlib_image_get_height();
-    Imlib_Image img_crop = imlib_create_cropped_scaled_image( 0, 0, w, h, task->icon_width,
+    Imlib_Image img_crop = imlib_create_cropped_scaled_image( 0, 0, w, h,   task->icon_width,
                                                                             task->icon_height );
     imlib_free_image();
 

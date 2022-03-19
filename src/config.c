@@ -1025,10 +1025,10 @@ void add_entry(char *key, char *value)
         panel_config.taskbarname_has_font = TRUE;
         break;
     case key_taskbar_name_font_color:
-        VALUES_TO_COLOR (taskbarname_font, 0);
+        VALUES_TO_COLOR( taskbarname_font_color, 0);
         break;
     case key_taskbar_name_active_font_color:
-        VALUES_TO_COLOR (taskbarname_active_font, 0);
+        VALUES_TO_COLOR( taskbarname_active_font_color, 0);
         break;
     case key_taskbar_hide_inactive_tasks:
         hide_inactive_tasks = ATOB(value);

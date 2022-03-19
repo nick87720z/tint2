@@ -9,8 +9,8 @@
 #include "area.h"
 
 extern gboolean taskbarname_enabled;
-extern Color taskbarname_font;
-extern Color taskbarname_active_font;
+extern Color taskbarname_font_color;
+extern Color taskbarname_active_font_color;
 
 void default_taskbarname();
 void cleanup_taskbarname();

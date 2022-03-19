@@ -562,7 +562,7 @@ void button_dump_geometry(void *obj, int indent)
 
 void button_action(void *obj, int mouse_button, int x, int y, Time time)
 {
-    ButtonBackend *backend = (Button *)obj)->backend;
+    ButtonBackend *backend = ((Button *)obj)->backend;
     char *command = NULL;
     int cmd_sink = -1;
     switch (mouse_button) {

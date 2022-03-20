@@ -774,9 +774,9 @@ Imlib_Image load_image(const char *path, int cached)
 
         if (pipe (pipe_fd_stdout))
             fprintf (stderr, "tint2: load_image: Creating output pipe for SVG loader failed!\n");
-        else {
+        else if ((pid = fork()) >= 0)
+        {
             // We fork here because librsvg allocates memory like crazy
-            pid_t pid = fork();
             if (pid == 0) {
                 // Child
                 close (pipe_fd_stdout[0]);
@@ -856,6 +856,10 @@ Imlib_Image load_image(const char *path, int cached)
                     imlib_save_image (tmp_filename);
                 close (pipe_fd_stdout[0]);
             }
+        } else {
+            close( pipe_fd_stdout[0]);
+            close( pipe_fd_stdout[1]);
+            fprintf( stderr, RED "tint2: %s: %i: Fork failed, can not load svg file\n" RESET, __func__, __LINE__);
         }
     }
 #endif

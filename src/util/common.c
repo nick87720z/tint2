@@ -780,6 +780,8 @@ Imlib_Image load_image(const char *path, int cached)
             if (pid == 0) {
                 // Child
                 close (pipe_fd_stdout[0]);
+
+                fcntl (pipe_fd_stdout[1], F_SETFL, O_NONBLOCK | fcntl(pipe_fd_stdout[1], F_GETFL));
                 dup2  (pipe_fd_stdout[1], 1); // 1 is stdout
                 close (pipe_fd_stdout[1]);
 
@@ -822,15 +824,28 @@ Imlib_Image load_image(const char *path, int cached)
 
                 // Parent
                 int dim[2], size, ret;
+                char *p;
 
-                ret = read (pipe_fd_stdout[0], dim, sizeof(dim));
+                size = sizeof(dim);
+                p = (char *)dim;
+                while (size)
+                {
+                    ret = read (pipe_fd_stdout[0], dim, sizeof(dim));
+                    if (ret > 0) {
+                        size -= ret;
+                        p += ret;
+                    }
+                    else if (ret == 0 || (ret == -1 && errno != EINTR))
+                        break;
+                }
+
                 image = imlib_create_image (dim[0], dim[1]);
                 imlib_context_set_image (image);
                 imlib_image_set_has_alpha (1);
 
                 DATA32 *data = imlib_image_get_data ();
                 size = dim[0] * dim[1] * sizeof(DATA32);
-                char *p = (char *)data;
+                p = (char *)data;
                 while (size)
                 {
                     ret = read (pipe_fd_stdout[0], p, size);

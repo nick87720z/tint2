@@ -776,10 +776,17 @@ void run_tint2_event_loop()
                 uevent_handler( &fds, &fdn);
             if (fdn)
                 handle_sigchld_events( &fds, &fdn);
-            if (fdn)
-                handle_execp_events( &fds, &fdn);
-            if (fdn) // Last remaining variant, no need for FD_ISSET
-                handle_x_events();
+            if (fdn == 1) {
+                if (FD_ISSET( server.x11_fd, &fds))
+                    handle_x_events();
+                else
+                    handle_execp_events( &fds, &fdn);
+            } else {
+                if (fdn)
+                    handle_execp_events( &fds, &fdn);
+                if (fdn) // Last remaining variant, no need for FD_ISSET
+                    handle_x_events();
+            }
         }
 
         if (server.err_n) {

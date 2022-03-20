@@ -503,14 +503,19 @@ void launcher_reload_icon(Launcher *launcher, LauncherIcon *launcherIcon)
         launcherIcon->start_in_terminal = entry.start_in_terminal;
         launcherIcon->startup_notification = entry.startup_notification;
         launcherIcon->icon_name = strdup (entry.icon ? entry.icon : DEFAULT_ICON);
+        char *icon_tooltip = NULL;
         if (entry.name)
-            launcherIcon->icon_tooltip = entry.generic_name ? strdup_printf( NULL, "%s (%s)", entry.name, entry.generic_name)
-                                                            : strdup_printf( NULL, "%s", entry.name);
+            icon_tooltip = entry.generic_name   ? strdup_printf( NULL, "%s (%s)", entry.name, entry.generic_name)
+                                                : strdup_printf( NULL, "%s", entry.name);
         else if (entry.generic_name)
-            launcherIcon->icon_tooltip = strdup_printf( NULL, "%s", entry.generic_name);
+            icon_tooltip = strdup_printf( NULL, "%s", entry.generic_name);
         else if (entry.exec)
-            launcherIcon->icon_tooltip = strdup_printf( NULL, "%s", entry.exec);
+            icon_tooltip = strdup_printf( NULL, "%s", entry.exec);
 
+        if (icon_tooltip) {
+            free( launcherIcon->icon_tooltip);
+            launcherIcon->icon_tooltip = icon_tooltip;
+        }
         launcher_reload_icon_image(launcher, launcherIcon);
         show(&launcherIcon->area);
     } else {

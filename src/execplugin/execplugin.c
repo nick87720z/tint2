@@ -937,14 +937,14 @@ char *strrstr(char *s, char *sub)
 }
 #endif
 
-void rstrip(char *s)
+char * printed_end(char *s)
 {
     char *p = strchr(s, '\0') - 1;
     while (
         p != s - 1 &&
-        (*p == ' ' || *p == '\n')
+        (*p == ' ' || *p == '\t' || *p == '\n')
     ) p--;
-    p[1] = 0;
+    return p + 1;
 }
 
 gboolean read_execp(void *obj)
@@ -994,9 +994,14 @@ gboolean read_execp(void *obj)
                     backend->buf_stderr_length -= start - backend->buf_stderr;
                     memmove( backend->buf_stderr, start, backend->buf_stderr_length + 1);
                 }
-                free_and_null( backend->tooltip);
-                backend->tooltip = strdup( backend->buf_stderr);
-                rstrip( backend->tooltip);
+                int tooltip_len = printed_end( backend->buf_stderr) - backend->buf_stderr;
+                if (backend->tooltip_len < tooltip_len) {
+                    backend->tooltip_len = tooltip_len;
+                    free( backend->tooltip);
+                    backend->tooltip = malloc( backend->tooltip_len + 1);
+                }
+                memcpy( backend->tooltip, backend->buf_stderr, tooltip_len);
+                backend->tooltip[ tooltip_len] = '\0';
                 result = TRUE;
             }
         } else {
@@ -1083,7 +1088,7 @@ gboolean read_execp(void *obj)
                             : backend->buf_stderr;
             if (*start) {
                 backend->tooltip = start;
-                rstrip( backend->tooltip);
+                printed_end( backend->tooltip )[0] = '\0';
             } else
                 backend->tooltip = NULL;
         }

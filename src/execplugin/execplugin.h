@@ -30,6 +30,7 @@ typedef struct ExecpBackend {
     int icon_h;
     gboolean has_user_tooltip;
     char *tooltip;
+    size_t tooltip_len;
     gboolean centered;
     gboolean has_font;
     PangoFontDescription *font_desc;

@@ -57,8 +57,7 @@ gchar *get_etc_config_path()
         g_free(path);
         path = NULL;
     }
-    strdup_static(path, "/dev/null");
-    return path;
+    return strdup_static(path, "/dev/null");
 }
 
 gboolean startswith(const char *str, const char *prefix)

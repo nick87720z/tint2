@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "common.h"
 
 #ifdef HAVE_TRACING
 
@@ -16,7 +17,8 @@
 #define BLUE "\033[1;34m"
 #define RESET "\033[0m"
 
-static GList *tracing_events = NULL;
+static GSList   *tracing_events = NULL,
+                *tracing_events_tail = NULL;
 static sig_atomic_t tracing = FALSE;
 
 typedef struct TracingEvent {
@@ -34,7 +36,7 @@ void __attribute__ ((constructor)) init_tracing()
 
 void cleanup_tracing()
 {
-    g_list_free_full(tracing_events, free);
+    g_slist_free_full( tracing_events, free);
     tracing_events = NULL;
     tracing = FALSE;
 }
@@ -45,15 +47,14 @@ char *addr2name(void *func)
     void *array[1];
     array[0] = func;
     char **strings = backtrace_symbols(array, 1);
-    char *result = strdup(strings[0] ? strings[0] : "??");
+    char *result = strings[0] ? strdup( strings[0]) : strdup_static( result, "??");
     free(strings);
-    return result;
 #else
     const size_t buf_size = 32;
-    char *result = (char*) calloc(buf_size, 1);
+    char *result = calloc( buf_size, 1);
     snprintf(result, buf_size-1, "%p", func);
-    return result;
 #endif
+    return result;
 }
 
 void add_tracing_event(void *func, void *caller, gboolean enter)
@@ -63,7 +64,7 @@ void add_tracing_event(void *func, void *caller, gboolean enter)
     entry->caller = caller;
     entry->time = get_time();
     entry->enter = enter;
-    tracing_events = g_list_append(tracing_events, entry);
+    g_slist_append_tail( tracing_events, tracing_events_tail, entry);
 }
 
 void start_tracing(void *root)
@@ -93,12 +94,14 @@ void __cyg_profile_func_exit(void *func, void *caller)
 
 void print_tracing_events()
 {
-    GList *stack = NULL;
+    GSList *stack = NULL;
     int depth = 0;
     double now = get_time();
-    for (GList *i = tracing_events; i; i = i->next) {
+    for (GSList *i = tracing_events; i; i = i->next)
+    {
         TracingEvent *e = i->data;
-        if (e->enter) {
+        if (e->enter)
+        {
             // Push a new function on the stack
             for (int d = 0; d < depth; d++)
                 fprintf(stderr, "tint2:  ");
@@ -108,12 +111,14 @@ void print_tracing_events()
                     "%s called from %s\n",
                     name,
                     caller);
-            stack = g_list_append(stack, e);
+            stack = g_slist_prepend( stack, e);
             depth++;
-        } else {
+        }
+        else
+        {
             // Pop a function from the stack, if matching, and print
             if (stack) {
-                TracingEvent *old = g_list_last(stack)->data;
+                TracingEvent *old = stack->data;
                 if (old->address == e->address) {
                     depth--;
                     for (int d = 0; d < depth; d++)
@@ -126,20 +131,20 @@ void print_tracing_events()
                             duration);
                     if (duration >= 1.0) {
                         fprintf(stderr, YELLOW "tint2:  ");
-                        for (int d = 0; d < duration; d++) {
+                        for (int d = 0; d < duration; d++)
                             fprintf(stderr, "tint2: #");
-                        }
                         fprintf(stderr, RESET);
                     }
                     fprintf(stderr, "tint2: \n");
                     free(name);
-                    stack = g_list_delete_link(stack, g_list_last(stack));
+                    stack = g_slist_delete_link( stack, stack);
                 }
             }
         }
     }
-    while (stack) {
-        TracingEvent *old = g_list_last(stack)->data;
+    while (stack)
+    {
+        TracingEvent *old = stack->data;
         depth--;
         for (int d = 0; d < depth; d++)
             fprintf(stderr, "tint2:  ");
@@ -151,14 +156,13 @@ void print_tracing_events()
                 duration);
         if (duration >= 1.0) {
             fprintf(stderr, YELLOW "tint2:  ");
-            for (int d = 0; d < duration; d++) {
+            for (int d = 0; d < duration; d++)
                 fprintf(stderr, "tint2: #");
-            }
             fprintf(stderr, RESET);
         }
         fprintf(stderr, "tint2: \n");
         free(name);
-        stack = g_list_delete_link(stack, g_list_last(stack));
+        stack = g_slist_delete_link( stack, stack);
     }
 }
 

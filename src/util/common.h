@@ -310,10 +310,11 @@ void dump_image_data(const char *file_name, const char *name);
 #define strcpy_static(dst, src)                                                          \
     memcpy(dst, src, sizeof(src))
 
-#define strdup_static(dst, src) do {                                                     \
-    dst = malloc(sizeof(src));                                                           \
-    strcpy_static(dst, src);                                                             \
-} while (0)
+#define strdup_static( dst, src) (                                                       \
+    dst = malloc( sizeof( src)),                                                         \
+    strcpy_static( dst, src),                                                            \
+    src                                                                                  \
+)
 
 #define startswith_static(s1, s2)                                                        \
 (strncmp ((s1), (s2), strlen_const(s2)) == 0)

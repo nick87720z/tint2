@@ -112,7 +112,7 @@ void sigchld_handler_async()
 
 void handle_sigchld_events( fd_set *fds, int *fdn)
 {
-    if (sigchild_pipe_valid && fd_set_unset_fd( fds, *fdn, sigchild_pipe[0]))
+    if (sigchild_pipe_valid && fd_set_unset_fd( fds, fdn, sigchild_pipe[0]))
     {
         char buffer[1];
         while (read( sigchild_pipe[0], buffer, sizeof(buffer)) > 0)

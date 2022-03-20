@@ -132,7 +132,7 @@ void uevent_unregister_notifier(struct uevent_notify *nb)
 
 void uevent_handler( fd_set *fds, int *fdn)
 {
-    if (!fd_set_unset_fd( fds, *fdn, uevent_fd))
+    if (!fd_set_unset_fd( fds, fdn, uevent_fd))
         return;
 
     char buf[512];

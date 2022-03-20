@@ -212,8 +212,9 @@ void load_launcher_app_dir(const char *path)
                 file = realloc( file, (buf_len = _buf_len));
                 file [buf_len-1] = '\0';
             }
+            int tmpval;
             snprintf (file, buf_len - 1, "%s/%s", path, name);
-            if (!g_file_test(file, G_FILE_TEST_IS_DIR) && g_str_has_suffix(file, ".desktop")) {
+            if (!g_file_test(file, G_FILE_TEST_IS_DIR) && str_has_const_suffix( file, ".desktop", tmpval)) {
                 files = g_list_prepend(files, file);
                 file = NULL;
             } else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {

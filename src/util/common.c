@@ -767,8 +767,10 @@ Imlib_Image load_image(const char *path, int cached)
         fprintf(stderr, "tint2: loading icon %s\n", path);
     image = imlib_load_image(path);
 #ifdef HAVE_RSVG
-    if (!image && g_str_has_suffix(path, ".svg")) {
+    int tmpval;
+    if (!image && str_has_const_suffix( path, ".svg", tmpval)) {
         int pipe_fd_stdout[2];
+        pid_t pid;
 
         if (pipe (pipe_fd_stdout))
             fprintf (stderr, "tint2: load_image: Creating output pipe for SVG loader failed!\n");

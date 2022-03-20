@@ -25,6 +25,14 @@
 
 #define strlen_const(s) (ARRAY_SIZE(s) - 1)
 
+#define str_has_const_suffix( str, suf, tmpint)                                          \
+/* args: string, const substring, temporary integer */                                   \
+(                                                                                        \
+    tmpint = strlen( str),                                                               \
+    tmpint >= strlen_const( suf)                                                         \
+    && memcmp( str + tmpint - strlen_const( suf), suf, strlen_const( suf)) == 0          \
+)
+
 #define BUF_0TERM(s)                                                                     \
 /** Write null byte to the end of static buffer */                                       \
 ( s[ strlen_const (s) ]='\0' )

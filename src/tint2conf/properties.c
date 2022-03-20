@@ -1879,8 +1879,9 @@ void load_desktop_entries(const char *path, GList **entries)
     if (d) {
         const gchar *name;
         while ((name = g_dir_read_name(d))) {
+            int tmpval;
             gchar *file = g_build_filename(path, name, NULL);
-            if (!g_file_test(file, G_FILE_TEST_IS_DIR) && g_str_has_suffix(file, ".desktop")) {
+            if (!g_file_test(file, G_FILE_TEST_IS_DIR) && str_has_const_suffix(file, ".desktop", tmpval)) {
                 files = g_list_prepend(files, file);
             } else if (g_file_test(file, G_FILE_TEST_IS_DIR)) {
                 subdirs = g_list_prepend(subdirs, file);

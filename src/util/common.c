@@ -102,7 +102,7 @@ void write_data(int fd, const char *s, int len)
         if (count >= 0) {
             s += count;
             len -= count;
-        } else
+        } else if (errno != EAGAIN && errno != EWOULDBLOCK)
             break;
     }
 }

@@ -818,25 +818,15 @@ Imlib_Image load_image(const char *path, int cached)
                 }
                 _exit(0);
             } else {
-                // Parent
-                static unsigned long counter = 0;
-                char tmp_filename[128];
-                STRBUF_AUTO_PRINTF (tmp_filename, "/tmp/tint2-%d-%lu.png", (int)getpid(), counter++);
-                int fd = open(tmp_filename, O_CREAT | O_EXCL, 0600);
-                if (fd >= 0)
-                    close (fd);
+                close( pipe_fd_stdout[1]);
 
+                // Parent
                 int dim[2], size, ret;
-                close (pipe_fd_stdout[1]);
 
                 ret = read (pipe_fd_stdout[0], dim, sizeof(dim));
                 image = imlib_create_image (dim[0], dim[1]);
                 imlib_context_set_image (image);
                 imlib_image_set_has_alpha (1);
-                if (fd >= 0)
-                    imlib_image_set_format ("png");
-                else
-                    imlib_image_set_irrelevant_format (1);
 
                 DATA32 *data = imlib_image_get_data ();
                 size = dim[0] * dim[1] * sizeof(DATA32);
@@ -851,10 +841,19 @@ Imlib_Image load_image(const char *path, int cached)
                     else if (ret == 0 || (ret == -1 && errno != EINTR))
                         break;
                 }
-                imlib_image_put_back_data (data);
-                if (fd >= 0)
-                    imlib_save_image (tmp_filename);
                 close (pipe_fd_stdout[0]);
+                imlib_image_put_back_data (data);
+
+                static unsigned long counter = 0;
+                char tmp_filename[128];
+                STRBUF_AUTO_PRINTF (tmp_filename, "/tmp/tint2-%d-%lu.png", (int)getpid(), counter++);
+                int fd = open(tmp_filename, O_CREAT | O_EXCL, 0600);
+                if (fd >= 0) {
+                    imlib_image_set_format ("png");
+                    imlib_save_image (tmp_filename);
+                    close (fd);
+                } else
+                    imlib_image_set_irrelevant_format (1);
             }
         } else {
             close( pipe_fd_stdout[0]);

@@ -339,9 +339,9 @@ void relayout_launcher(void *obj)
     }
 }
 
+void launcher_icon_on_change_layout(void *obj)
 // Here we override the default layout of the icons; normally Area layouts its children
 // in a stack; we need to layout them in a kind of table
-void launcher_icon_on_change_layout(void *obj)
 {
     LauncherIcon *launcherIcon = obj;
     launcherIcon->area.posy = ((Area *)launcherIcon->area.parent)->posy + launcherIcon->y;
@@ -452,8 +452,8 @@ void launcher_action(LauncherIcon *icon, XEvent *evt, int x, int y)
     }
 }
 
-// Populates the list_icons list from the list_apps list
 void launcher_load_icons(Launcher *launcher)
+// Populates the list_icons list from the list_apps list
 {
     // Load apps (.desktop style launcher items)
     GSList *tail = launcher->list_icons;

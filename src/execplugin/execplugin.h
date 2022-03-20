@@ -69,7 +69,7 @@ typedef struct ExecpBackend {
     char *text;         // Text extracted from the output buffer
     char *icon_path;    // Icon path extracted from the output buffer
     Imlib_Image icon;
-    gchar tooltip_text[512];
+    gchar tooltip_text[512]; // Default tooltip when user tooltip is disabled
 
     time_t last_update_start_time;  // The time the last command was started
     time_t last_update_finish_time; // The time the last output was obtained

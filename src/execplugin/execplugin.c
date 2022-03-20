@@ -1081,8 +1081,11 @@ gboolean read_execp(void *obj)
             char *start = strrstr(backend->buf_stderr, ansi_clear_screen);
             start = start   ? start + strlen_const( ansi_clear_screen)
                             : backend->buf_stderr;
-
-            backend->tooltip = *start ? start : NULL;
+            if (*start) {
+                backend->tooltip = start;
+                rstrip( backend->tooltip);
+            } else
+                backend->tooltip = NULL;
         }
         backend->buf_stderr_length = 0;
         backend->buf_stderr[backend->buf_stderr_length] = '\0';

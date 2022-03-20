@@ -309,7 +309,7 @@ pid_t tint_exec(const char *command,
                 gboolean terminal,
                 gboolean startup_notification)
 {
-    if (!command || strlen(command) == 0)
+    if (!command || !command[0])
         return -1;
 
     if (area) {

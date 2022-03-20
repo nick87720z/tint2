@@ -568,7 +568,7 @@ void print_icons()
 
 gboolean reject_icon(Window win)
 {
-    if (systray_hide_name_filter && strlen(systray_hide_name_filter)) {
+    if (systray_hide_name_filter && systray_hide_name_filter[0]) {
         if (!systray_hide_name_regex) {
             systray_hide_name_regex = calloc(1, sizeof(*systray_hide_name_regex));
             if (regcomp(systray_hide_name_regex, systray_hide_name_filter, 0) != 0) {

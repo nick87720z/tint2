@@ -730,7 +730,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 
 char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name, int size)
 {
-    if (!wrapper || !icon_name || strlen(icon_name) == 0)
+    if (!wrapper || !icon_name || !icon_name[0])
         return NULL;
 
     load_icon_cache(wrapper);
@@ -759,7 +759,7 @@ char *get_icon_path_from_cache(IconThemeWrapper *wrapper, const char *icon_name,
 
 void add_icon_path_to_cache(IconThemeWrapper *wrapper, const char *icon_name, int size, const char *path)
 {
-    if (!wrapper || !icon_name || strlen(icon_name) == 0 || !path || strlen(path) == 0)
+    if (!wrapper || !icon_name || !icon_name[0] || !path || !path[0])
         return;
 
     fprintf(stderr,
@@ -791,7 +791,7 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size, 
         return NULL;
     }
 
-    if (!icon_name || strlen(icon_name) == 0)
+    if (!icon_name || !icon_name[0])
         goto notfound;
 
     char *path = get_icon_path_from_cache(wrapper, icon_name, size);

@@ -580,7 +580,7 @@ char *button_get_tooltip(void *obj)
     Button *button = obj;
     ButtonBackend *backend = button->backend;
 
-    return  backend->tooltip && strlen(backend->tooltip) > 0
+    return  backend->tooltip && backend->tooltip[0]
             ? strdup(backend->tooltip)
             : NULL;
 }

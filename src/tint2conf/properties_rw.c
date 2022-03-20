@@ -717,7 +717,7 @@ void config_write_launcher(FILE *fp)
     for (index = 0; app_dirs[index]; index++) {
         gchar *dir = app_dirs[index];
         g_strstrip(dir);
-        if (strlen(dir) > 0) {
+        if (dir[0]) {
             char *contracted = contract_tilde(dir);
             fprintf(fp, "launcher_apps_dir = %s\n", contracted);
             free(contracted);
@@ -869,7 +869,7 @@ void config_write_execp(FILE *fp)
             fprintf(fp, "execp_tooltip = \n");
         } else {
             const gchar *text = gtk_entry_get_text(GTK_ENTRY(executor->tooltip));
-            if (strlen(text) > 0)
+            if (text[0])
                 fprintf(fp, "execp_tooltip = %s\n", text);
         }
 
@@ -919,11 +919,11 @@ void config_write_button(FILE *fp)
         Button *button = &g_array_index(buttons, Button, i);
 
         fprintf(fp, "button = new\n");
-        if (strlen(gtk_entry_get_text(GTK_ENTRY(button->icon))))
+        if (gtk_entry_get_text(GTK_ENTRY(button->icon))[0])
             fprintf(fp, "button_icon = %s\n", gtk_entry_get_text(GTK_ENTRY(button->icon)));
         if (gtk_entry_get_text(GTK_ENTRY(button->text)))
             fprintf(fp, "button_text = %s\n", gtk_entry_get_text(GTK_ENTRY(button->text)));
-        if (strlen(gtk_entry_get_text(GTK_ENTRY(button->tooltip))))
+        if (gtk_entry_get_text(GTK_ENTRY(button->tooltip))[0])
             fprintf(fp, "button_tooltip = %s\n", gtk_entry_get_text(GTK_ENTRY(button->tooltip)));
 
         fprintf(fp, "button_lclick_command = %s\n", gtk_entry_get_text(GTK_ENTRY(button->cmd_lclick)));
@@ -1517,7 +1517,7 @@ void add_entry(char *key, char *value)
     /* Clock */
     case key_time1_format:
         gtk_entry_set_text(GTK_ENTRY(clock_format_line1), value);
-        no_items_clock_enabled = strlen(value) > 0;
+        no_items_clock_enabled = value[0] != '\0';
         break;
     case key_time2_format:
         gtk_entry_set_text(GTK_ENTRY(clock_format_line2), value);
@@ -1955,7 +1955,7 @@ void add_entry(char *key, char *value)
         );
         break;
     case key_execp_tooltip:
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->show_tooltip), strlen(value) > 0);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(execp_get_last()->show_tooltip), value[0] != '\0');
         gtk_entry_set_text(GTK_ENTRY(execp_get_last()->tooltip), value);
         break;
     case key_execp_lclick_command:

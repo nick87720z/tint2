@@ -516,7 +516,7 @@ gboolean resize_execp(void *obj)
             } else {
                 int dy, pad, iy, ty;
                 dy = icon_h + interior_padding;
-                if (strlen(execp->backend->text)) {
+                if (execp->backend->text[0]) {
                     iy = dy < 0 ? -dy : 0;
                     ty = iy + dy;
                     pad = (execp->area.height - MAX(iy + icon_h, ty + txt_height)) / 2;
@@ -546,7 +546,7 @@ gboolean resize_execp(void *obj)
             } else {
                 int dy, pad, iy, ty;
                 dy = icon_h + interior_padding;
-                if (strlen(execp->backend->text)) {
+                if (execp->backend->text[0]) {
                     iy = dy < 0 ? -dy : 0;
                     ty = iy + dy;
                     pad = (execp->area.height - MAX(iy + icon_h, ty + txt_height)) / 2;
@@ -1131,7 +1131,7 @@ char *execp_get_tooltip(void *obj)
     ExecpBackend * backend = execp->backend;
 
     if (backend->tooltip)
-        return strlen(backend->tooltip) > 0 ? strdup(backend->tooltip) : NULL;
+        return backend->tooltip[0] ? strdup(backend->tooltip) : NULL;
 
     time_t now = time(NULL);
 

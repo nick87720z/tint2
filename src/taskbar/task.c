@@ -254,13 +254,13 @@ gboolean task_update_title(Task *task)
         return FALSE;
 
     char *name = get_property(task->win, server.atom [_NET_WM_VISIBLE_NAME], server.atom [UTF8_STRING], NULL);
-    if (!name || !strlen(name)) {
+    if (!name || !name[0]) {
         name = get_property(task->win, server.atom [_NET_WM_NAME], server.atom [UTF8_STRING], NULL);
-        if (!name || !strlen(name))
+        if (!name || !name[0])
             name = get_property(task->win, server.atom [WM_NAME], XA_STRING, NULL);
     }
 
-    char *title = name && strlen( name) ? name : "Untitled";
+    char *title = name && name[0] ? name : "Untitled";
 
     if (task->title) {
         // check unecessary title change

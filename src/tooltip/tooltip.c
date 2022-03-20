@@ -332,7 +332,7 @@ void tooltip_update()
 
 void tooltip_update_for_area(Area *area)
 {
-    if (g_tooltip.mapped && (g_tooltip.area == area)) {
+    if (g_tooltip.mapped && g_tooltip.area == area) {
         tooltip_set_area(area);
         tooltip_update();
     }
@@ -380,18 +380,24 @@ void tooltip_update_contents_timeout(void *arg)
 
 void tooltip_set_area(Area *area)
 {
-    free_and_null(g_tooltip.tooltip_text);
+    free_and_null( g_tooltip.tooltip_text);
     if (g_tooltip.image)
-        cairo_surface_destroy(g_tooltip.image);
-    g_tooltip.image = NULL;
-    if (area && area->_get_tooltip_text)
-        g_tooltip.tooltip_text = area->_get_tooltip_text(area);
-    if (area && area->_get_tooltip_image) {
-        g_tooltip.image = area->_get_tooltip_image(area);
-        if (g_tooltip.image)
-            cairo_surface_reference(g_tooltip.image);
-        else
-            change_timer(&g_tooltip.update_timer, true, 300, 0, tooltip_update_contents_timeout, NULL);
+    {
+        cairo_surface_destroy( g_tooltip.image);
+        g_tooltip.image = NULL;
+    }
+    if (area)
+    {
+        if (area->_get_tooltip_text)
+            g_tooltip.tooltip_text = area->_get_tooltip_text( area);
+        if (area->_get_tooltip_image)
+        {
+            g_tooltip.image = area->_get_tooltip_image( area);
+            if (g_tooltip.image)
+                cairo_surface_reference( g_tooltip.image);
+            else
+                change_timer( & g_tooltip.update_timer, true, 300, 0, tooltip_update_contents_timeout, NULL);
+        }
     }
     g_tooltip.area = area;
 }

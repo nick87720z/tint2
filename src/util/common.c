@@ -760,6 +760,23 @@ void draw_text(PangoLayout *layout, cairo_t *c, int posx, int posy, Color *color
     pango_cairo_show_layout(c, layout);
 }
 
+#define read_data_blocked( fd, data, size)                                               \
+/* Read 'size' bytes from 'fd' descriptor to 'data' buffer in blocking mode */           \
+do{                                                                                      \
+    int _size = (size);                                                                  \
+    char *_p = (char *)( data);                                                          \
+    while (_size)                                                                        \
+    {                                                                                    \
+        int _ret = read( (fd), _p, _size);                                               \
+        if (_ret > 0) {                                                                  \
+            _size -= _ret;                                                               \
+            _p += _ret;                                                                  \
+        }                                                                                \
+        else if (_ret == 0 || (_ret == -1 && errno != EINTR))                            \
+            break;                                                                       \
+    }                                                                                    \
+} while(0)
+
 Imlib_Image load_image(const char *path, int cached)
 {
     Imlib_Image image;
@@ -823,39 +840,14 @@ Imlib_Image load_image(const char *path, int cached)
                 close( pipe_fd_stdout[1]);
 
                 // Parent
-                int dim[2], size, ret;
-                char *p;
-
-                size = sizeof(dim);
-                p = (char *)dim;
-                while (size)
-                {
-                    ret = read (pipe_fd_stdout[0], dim, sizeof(dim));
-                    if (ret > 0) {
-                        size -= ret;
-                        p += ret;
-                    }
-                    else if (ret == 0 || (ret == -1 && errno != EINTR))
-                        break;
-                }
-
+                int dim[2];
+                read_data_blocked( pipe_fd_stdout[0], dim, sizeof(dim));
                 image = imlib_create_image (dim[0], dim[1]);
                 imlib_context_set_image (image);
                 imlib_image_set_has_alpha (1);
 
                 DATA32 *data = imlib_image_get_data ();
-                size = dim[0] * dim[1] * sizeof(DATA32);
-                p = (char *)data;
-                while (size)
-                {
-                    ret = read (pipe_fd_stdout[0], p, size);
-                    if (ret > 0) {
-                        size -= ret;
-                        p += ret;
-                    }
-                    else if (ret == 0 || (ret == -1 && errno != EINTR))
-                        break;
-                }
+                read_data_blocked( pipe_fd_stdout[0], data, dim[0] * dim[1] * sizeof(DATA32));
                 close (pipe_fd_stdout[0]);
                 imlib_image_put_back_data (data);
 

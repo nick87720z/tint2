@@ -832,7 +832,7 @@ int read_from_pipe(int fd, char **buffer, ssize_t *buffer_length, ssize_t *buffe
         if (*buffer_capacity < req_cap) {
             do    *buffer_capacity *= 2;
             while (*buffer_capacity < req_cap);
-            *buffer = (char *)realloc(*buffer, *buffer_capacity);
+            *buffer = realloc(*buffer, *buffer_capacity);
         }
         ssize_t count = read(fd,
                              *buffer + *buffer_length,
@@ -972,10 +972,10 @@ gboolean read_execp(void *obj)
     gboolean result = FALSE;
 
     if (command_finished) {
-        backend->child = 0;
         close(backend->child_pipe_stdout);
-        backend->child_pipe_stdout = -1;
         close(backend->child_pipe_stderr);
+        backend->child = 0;
+        backend->child_pipe_stdout = -1;
         backend->child_pipe_stderr = -1;
         if (backend->interval)
             change_timer(&backend->timer, true, backend->interval * 1000, 0, execp_timer_callback, execp);
@@ -1014,7 +1014,8 @@ gboolean read_execp(void *obj)
                 end = c;
             c++;
         }
-        if (num_lines >= backend->continuous) {
+        if (num_lines >= backend->continuous)
+        {
             if (end)
                 *end = '\0';
             free_and_null(backend->text);
@@ -1053,7 +1054,9 @@ gboolean read_execp(void *obj)
                 backend->last_update_finish_time - backend->last_update_start_time;
             result = TRUE;
         }
-    } else if (command_finished) {
+    }
+    else if (command_finished)
+    {
         // Handle stdout
         free_and_null(backend->text);
         free_and_null(backend->icon_path);
@@ -1205,7 +1208,7 @@ void handle_execp_events( fd_set *fds, int *fdn)
         if (read_execp(execp))
             for (GList *l_instance = execp->backend->instances; l_instance; l_instance = l_instance->next)
             {
-                Execp *instance = (Execp *)l_instance->data;
+                Execp *instance = l_instance->data;
                 execp_update_post_read(instance);
             }
     }

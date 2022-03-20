@@ -140,7 +140,7 @@ void destroy_execp(void *obj)
     free(backend->text);
     free(backend->icon_path);
     free(backend->command);
-    if (backend->tooltip < backend->buf_stderr &&
+    if (backend->tooltip < backend->buf_stderr ||
         backend->tooltip - backend->buf_stderr >= backend->buf_stdout_capacity)
     {
         free( backend->tooltip);

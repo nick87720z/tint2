@@ -253,7 +253,8 @@ void relayout(Area *a);
 // Relayouts the Area and its children. Normally called on the root of the tree (i.e. the Panel).
 
 int relayout_with_constraint(Area *a, int maximum_size);
-// Distributes the Area's size to its children, repositioning them as needed.
+// Even distribution of space, not occupied by areas with LAYOUT_FIXED,
+// between areas with LAYOUT_DYNAMIC, repositioning them as needed.
 // If maximum_size > 0, it is an upper limit for the child size.
 
 int get_desired_size(Area *a);

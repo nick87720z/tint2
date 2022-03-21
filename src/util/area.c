@@ -91,7 +91,7 @@ void relayout_fixed(Area *a)
     }
 }
 
-void relayout_dynamic(Area *a, int level)
+void relayout_dynamic(Area *a)
 {
     if (!a->on_screen)
         return;
@@ -140,7 +140,7 @@ void relayout_dynamic(Area *a, int level)
                     }
                 }
 
-                relayout_dynamic(child, level + 1);
+                relayout_dynamic( child);
 
                 pos += (panel_horizontal ? child->width : child->height) + a->spacing;
             }
@@ -171,7 +171,7 @@ void relayout_dynamic(Area *a, int level)
                     }
                 }
 
-                relayout_dynamic(child, level + 1);
+                relayout_dynamic( child);
 
                 pos -= a->spacing;
             }
@@ -213,7 +213,7 @@ void relayout_dynamic(Area *a, int level)
                     }
                 }
 
-                relayout_dynamic(child, level + 1);
+                relayout_dynamic( child);
 
                 pos += (panel_horizontal ? child->width : child->height) + a->spacing;
             }
@@ -263,12 +263,10 @@ int container_get_desired_size(Area *a)
 void relayout(Area *a)
 {
     relayout_fixed(a);
-    relayout_dynamic(a, 1);
+    relayout_dynamic(a);
 }
 
 int relayout_with_constraint(Area *a, int maximum_size)
-// Even distribution of space, not occupied by areas with LAYOUT_FIXED,
-// between areas with LAYOUT_DYNAMIC
 {
     int fixed_children_count = 0;
     int dynamic_children_count = 0;

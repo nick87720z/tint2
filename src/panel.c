@@ -435,6 +435,8 @@ gboolean resize_panel(void *obj)
         int height = panel->taskbar[server.desktop].area.height;
         for (int i = 0; i < panel->num_desktops; i++)
         {
+            if (i == server.desktop)
+                continue;
             panel->taskbar[i].area.resize_needed =  panel->taskbar[i].area.width != width ||
                                                     panel->taskbar[i].area.height != height;
             panel->taskbar[i].area.width = width;

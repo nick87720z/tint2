@@ -573,8 +573,8 @@ gboolean resize_taskbar(void *obj)
                 text_width = ((Task *)l->data)->area.width;
                 break;
             }
-        taskbar->text_width = text_width - panel->g_task.text_posx - right_border_width(&panel->g_task.area) -
-                              panel->g_task.area.paddingx * panel->scale;
+        taskbar->text_width = text_width - panel->g_task.text_posx - right_border_width(&panel->g_task.area)
+                            - panel->g_task.area.paddingx * panel->scale;
     } else {
         relayout_with_constraint(&taskbar->area, panel->g_task.maximum_height * panel->scale);
 

@@ -271,85 +271,99 @@ int relayout_with_constraint(Area *a, int maximum_size)
     int fixed_children_count = 0;
     int dynamic_children_count = 0;
 
+    assert( maximum_size >= 0);
+
     if (panel_horizontal) {
-        // detect free size for LAYOUT_DYNAMIC Areas
-        int size = a->width - 2 * a->paddingx - left_right_border_width(a);
-        for_children(a, l, GList *)
-        {
+        // compute free space for areas with LAYOUT_DYNAMIC
+        int dyn_space = a->width - 2 * a->paddingx - left_right_border_width(a);
+        for_children( a, l, GList *) {
             Area *child = l->data;
-            if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
-                size -= child->width;
-                fixed_children_count++;
+            if (child->on_screen)
+            {
+                switch (child->size_mode) {
+                case LAYOUT_FIXED:      dyn_space -= child->width;
+                                        fixed_children_count++;
+                                        break;
+                case LAYOUT_DYNAMIC:    dynamic_children_count++;
+                                        break;
+                }
             }
-            if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC)
-                dynamic_children_count++;
         }
-        if (fixed_children_count + dynamic_children_count > 0)
-            size -= (fixed_children_count + dynamic_children_count - 1) * a->spacing;
+        int children_count = fixed_children_count + dynamic_children_count;
+        if (children_count)
+            dyn_space -= (children_count - 1) * a->spacing;
 
         int width = 0;
-        int modulo = 0;
-        if (dynamic_children_count > 0) {
-            width = size / dynamic_children_count;
-            modulo = size % dynamic_children_count;
-            if (width > maximum_size && maximum_size > 0) {
+        int rest = 0;
+        if (dynamic_children_count)
+        {
+            width = dyn_space / dynamic_children_count;
+            rest  = dyn_space % dynamic_children_count;
+            if (width > maximum_size && maximum_size) {
                 width = maximum_size;
-                modulo = 0;
+                rest = 0;
             }
         }
 
         // Resize LAYOUT_DYNAMIC objects
-        for_children(a, l, GList *)
-        {
+        // they get same computed size with the rest shared evenly for first of them
+        for_children( a, l, GList *) {
             Area *child = l->data;
-            if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
+            if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC)
+            {
                 int old_width = child->width;
                 child->width = width;
-                if (modulo) {
+                if (rest) {
+                    rest--;
                     child->width++;
-                    modulo--;
                 }
                 if (child->width != old_width)
                     child->_changed |= CHANGE_RESIZE;
             }
         }
     } else {
-        // detect free size for LAYOUT_DYNAMIC's Area
-        int size = a->height - 2 * a->paddingx - top_bottom_border_width(a);
-        for_children(a, l, GList *)
-        {
+        // compute free space for areas with LAYOUT_DYNAMIC
+        int dyn_space = a->height - 2 * a->paddingx - top_bottom_border_width(a);
+        for_children( a, l, GList *) {
             Area *child = l->data;
-            if (child->on_screen && child->size_mode == LAYOUT_FIXED) {
-                size -= child->height;
-                fixed_children_count++;
+            if (child->on_screen)
+            {
+                switch (child->size_mode) {
+                case LAYOUT_FIXED:      dyn_space -= child->height;
+                                        fixed_children_count++;
+                                        break;
+                case LAYOUT_DYNAMIC:    dynamic_children_count++;
+                                        break;
+                }
             }
-            if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC)
-                dynamic_children_count++;
         }
-        if (fixed_children_count + dynamic_children_count > 0)
-            size -= (fixed_children_count + dynamic_children_count - 1) * a->spacing;
+        int children_count = fixed_children_count + dynamic_children_count;
+        if (children_count)
+            dyn_space -= (children_count - 1) * a->spacing;
 
         int height = 0;
-        int modulo = 0;
-        if (dynamic_children_count) {
-            height = size / dynamic_children_count;
-            modulo = size % dynamic_children_count;
-            if (height > maximum_size && maximum_size != 0) {
+        int rest = 0;
+        if (dynamic_children_count)
+        {
+            height = dyn_space / dynamic_children_count;
+            rest   = dyn_space % dynamic_children_count;
+            if (height > maximum_size && maximum_size) {
                 height = maximum_size;
-                modulo = 0;
+                rest = 0;
             }
         }
 
         // Resize LAYOUT_DYNAMIC objects
-        for_children(a, l, GList *)
-        {
+        // they get same computed size with the rest shared evenly for first of them
+        for_children( a, l, GList *) {
             Area *child = l->data;
-            if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC) {
+            if (child->on_screen && child->size_mode == LAYOUT_DYNAMIC)
+            {
                 int old_height = child->height;
                 child->height = height;
-                if (modulo) {
+                if (rest) {
+                    rest--;
                     child->height++;
-                    modulo--;
                 }
                 if (child->height != old_height)
                     child->_changed |= CHANGE_RESIZE;

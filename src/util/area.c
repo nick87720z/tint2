@@ -267,6 +267,8 @@ void relayout(Area *a)
 }
 
 int relayout_with_constraint(Area *a, int maximum_size)
+// Even distribution of space, not occupied by areas with LAYOUT_FIXED,
+// between areas with LAYOUT_DYNAMIC
 {
     int fixed_children_count = 0;
     int dynamic_children_count = 0;

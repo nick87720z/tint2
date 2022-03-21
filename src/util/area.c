@@ -190,8 +190,8 @@ void relayout_dynamic(Area *a, int level)
                     children_size += (l == a->children) ? 0 : a->spacing;
                 }
 
-                pos = (panel_horizontal ? a->posx + left_border_width(a) + (a->width - children_size) / 2
-                                        : a->posy + top_border_width(a) + (a->height - children_size) / 2) + a->paddingx;
+                pos = (panel_horizontal ? a->posx + (a->width - children_size) / 2
+                                        : a->posy + (a->height - children_size) / 2);
             }
             for_children(a, l, GList *)
             {

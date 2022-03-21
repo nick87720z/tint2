@@ -506,6 +506,7 @@ void draw(Area *a)
     if (a->_draw_foreground)
         a->_draw_foreground(a, c);
 
+    a->_changed = CHANGE_NONE;
     cairo_destroy(c);
     cairo_surface_destroy(cs);
 }

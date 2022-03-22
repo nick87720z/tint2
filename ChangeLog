@@ -1,3 +1,24 @@
+2022-03-08 master
+- Enhancments:
+  - Report XShm status on start
+  - Prints X11 errors when they occur
+  - Long versions for some command line options
+  - Extended help text
+  - Small optimizations
+  - Reduced load from events spam with shrinking on
+  - tint2-send: Stdin daemon mode
+- Fixes:
+  - Fixed widgets redraw after they were hidden
+  - Fixed panel flicker if mouse was over during panel start
+  - Current desktop was set to first instead of current, on start
+  - Tray subwindow had no PID set, which broke cyrrent owner PID report by
+  other panel
+  - Desktop launcher parsing is now more freedesktop-compliant
+  - Fixed some X11 errors
+  - Fixed some memory leaks
+  - Environment variables are loaded only if properly set (empty value
+  disables related option)
+  - Failed to build with enabled backtrace on signal
 2022-02-23 17.1
 - Enhancements:
   - Added option "rounded_corners" to disable rounding for separate corners

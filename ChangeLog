@@ -1,3 +1,6 @@
+2020-03-23 master
+- Unmentioned fixes in v17.1.1:
+  - Regression: segmentation fault with linear gradients
 2022-03-22 17.1.1
 - Enhancments:
   - Report XShm status on start

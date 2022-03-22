@@ -1,4 +1,4 @@
-2022-03-08 master
+2022-03-22 17.1.1
 - Enhancments:
   - Report XShm status on start
   - Prints X11 errors when they occur

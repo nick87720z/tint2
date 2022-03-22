@@ -395,11 +395,15 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
     queue = g_slist_append (NULL, strdup(name));
 
     // Load wrapper->themes
+    int names_count = 0;
     while (queue) {
         char *queued_name = queue->data;
         queue = g_slist_remove(queue, queued_name);
 
-        fprintf(stderr, "tint2:  '%s',", queued_name);
+        if (++names_count == 1)
+            fprintf( stderr, " '%s'", queued_name);
+        else
+            fprintf( stderr, ", '%s'", queued_name);
         IconTheme *theme = load_theme(queued_name);
         if (theme != NULL) {
             g_slist_append_tail (*themes, t_tail, theme);
@@ -421,7 +425,8 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
 
         free (queued_name);
     }
-    fprintf(stderr, "tint2: \n");
+    if (names_count)
+        fputs( "\n", stderr);
 
     g_slist_free_full (queue, free);
 }
@@ -431,10 +436,10 @@ void load_default_theme(IconThemeWrapper *wrapper)
     if (wrapper->_themes_loaded)
         return;
 
-    fprintf(stderr, GREEN "tint2: Loading icon theme %s:" RESET "\n", wrapper->icon_theme_name);
-
+    fprintf( stderr, GREEN "tint2: Loading icon theme '%s':", wrapper->icon_theme_name);
     load_themes_helper(wrapper->icon_theme_name, &wrapper->themes, &wrapper->_queued);
     load_themes_helper("hicolor",                &wrapper->themes, &wrapper->_queued);
+    fputs( RESET "\n", stderr);
 
     wrapper->_themes_loaded = TRUE;
 }
@@ -444,7 +449,7 @@ void load_fallbacks(IconThemeWrapper *wrapper)
     if (wrapper->_fallback_loaded)
         return;
 
-    fprintf(stderr, RED "tint2: Loading additional icon themes (this means your icon theme is incomplete)..." RESET "\n");
+    fputs( RED "tint2: Loading additional icon themes (this means your icon theme is incomplete)...", stderr);
 
     // Load wrapper->themes_fallback
     const GSList *location;
@@ -464,6 +469,7 @@ void load_fallbacks(IconThemeWrapper *wrapper)
         }
     }
 
+    fputs( RESET "\n", stderr);
     wrapper->_fallback_loaded = TRUE;
 }
 

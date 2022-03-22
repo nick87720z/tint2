@@ -144,7 +144,7 @@ void add_to_cache(Cache *cache, const gchar *key, const gchar *value)
         return;
 
     gchar *old_value = g_hash_table_lookup(cache->_table, key);
-    if (old_value && g_str_equal(old_value, value))
+    if (old_value && strcmp( old_value, value) == 0)
         return;
 
     g_hash_table_insert(cache->_table, strdup(key), strdup(value));

@@ -67,12 +67,12 @@ const GSList *get_icon_locations()
     icon_locations = load_locations_from_dir(icon_locations, g_get_home_dir(), ".icons", ".local/share/icons", NULL);
     icon_locations = load_locations_from_env(icon_locations, "XDG_DATA_DIRS", ".icons", ".pixmaps", NULL);
 
-    slist_append_uniq_dup(icon_locations, "/usr/local/share/icons", g_str_equal);
-    slist_append_uniq_dup(icon_locations, "/usr/local/share/pixmaps", g_str_equal);
-    slist_append_uniq_dup(icon_locations, "/usr/share/icons", g_str_equal);
-    slist_append_uniq_dup(icon_locations, "/usr/share/pixmaps", g_str_equal);
-    slist_append_uniq_dup(icon_locations, "/opt/share/icons", g_str_equal);
-    slist_append_uniq_dup(icon_locations, "/opt/share/pixmaps", g_str_equal);
+    slist_append_uniq_dup(icon_locations, "/usr/local/share/icons", (GCompareFunc )strcmp);
+    slist_append_uniq_dup(icon_locations, "/usr/local/share/pixmaps", (GCompareFunc )strcmp);
+    slist_append_uniq_dup(icon_locations, "/usr/share/icons", (GCompareFunc )strcmp);
+    slist_append_uniq_dup(icon_locations, "/usr/share/pixmaps", (GCompareFunc )strcmp);
+    slist_append_uniq_dup(icon_locations, "/opt/share/icons", (GCompareFunc )strcmp);
+    slist_append_uniq_dup(icon_locations, "/opt/share/pixmaps", (GCompareFunc )strcmp);
 
     return icon_locations;
 }

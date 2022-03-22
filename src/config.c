@@ -695,9 +695,9 @@ void add_entry(char *key, char *value)
     case key_separator_style: {
         Separator *separator = get_or_create_last_separator();
         separator->style = 
-            g_str_equal(value, "empty") ? SEPARATOR_EMPTY
-        :   g_str_equal(value, "line" ) ? SEPARATOR_LINE
-        :   g_str_equal(value, "dots" ) ? SEPARATOR_DOTS
+            strcmp(value, "empty") == 0 ? SEPARATOR_EMPTY
+        :   strcmp(value, "line" ) == 0 ? SEPARATOR_LINE
+        :   strcmp(value, "dots" ) == 0 ? SEPARATOR_DOTS
         :( fprintf(stderr, RED "tint2: Invalid separator_style value: %s" RESET "\n", value), separator->style );
         break;
     }

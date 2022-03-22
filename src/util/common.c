@@ -191,7 +191,7 @@ const char *get_home_dir()
 
 void copy_file(const char *path_src, const char *path_dest)
 {
-    if (g_str_equal(path_src, path_dest))
+    if (strcmp( path_src, path_dest) == 0)
         return;
 
     FILE *file_src, *file_dest;
@@ -1021,7 +1021,7 @@ GSList *load_locations_from_dir(GSList *locations, const char *dir, ...) {
         buf[buf_size_req] = '\0';
         
         //~ fprintf(stderr, " location: '%s'\n", buf);
-        locations = slist_append_uniq_dup(locations, buf, g_str_equal);
+        locations = slist_append_uniq_dup(locations, buf, (GCompareFunc )strcmp);
     }
     va_end(ap);
     free(buf);
@@ -1065,7 +1065,7 @@ GSList *load_locations_from_env(GSList *locations, const char *var, ...)
                 buf [buf_size_req] = '\0';
                 
                 //~ fprintf (stderr, " location: '%s'\n", buf);
-                locations = slist_append_uniq_dup (locations, buf, g_str_equal);
+                locations = slist_append_uniq_dup (locations, buf, (GCompareFunc )strcmp);
             }
             va_end (ap);
         }
@@ -1085,7 +1085,7 @@ GSList *slist_append_uniq(GSList *list, gconstpointer ref, GCompareFunc eq, void
     }
     else for (GSList *e = list; e; e = e->next)
     {
-        if (eq(e->data, ref))
+        if (eq( e->data, ref) == 0)
             break;
         if (e->next == NULL) {
             e = e->next = g_slist_alloc();

@@ -398,7 +398,7 @@ void load_themes_helper(const char *name, GSList **themes, GSList **queued)
     int names_count = 0;
     while (queue) {
         char *queued_name = queue->data;
-        queue = g_slist_remove(queue, queued_name);
+        queue = g_slist_delete_link( queue, queue);
 
         if (++names_count == 1)
             fprintf( stderr, " '%s'", queued_name);

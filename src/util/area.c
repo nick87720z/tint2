@@ -118,7 +118,8 @@ void relayout_dynamic(Area *a)
         int pos;
         switch (a->alignment) {
         case ALIGN_LEFT:
-            pos = (panel_horizontal ? a->posx + left_border_width(a) : a->posy + top_border_width(a)) + a->paddingx;
+            pos = (panel_horizontal ? a->posx + left_border_width(a)
+                                    : a->posy + top_border_width (a)) + a->paddingx;
 
             for_children(a, l, GList *)
             {
@@ -139,9 +140,7 @@ void relayout_dynamic(Area *a)
                         child->_changed |= CHANGE_MOVE;
                     }
                 }
-
                 relayout_dynamic( child);
-
                 pos += (panel_horizontal ? child->width : child->height) + a->spacing;
             }
             break;
@@ -156,7 +155,6 @@ void relayout_dynamic(Area *a)
                     continue;
 
                 pos -= panel_horizontal ? child->width : child->height;
-
                 if (panel_horizontal) {
                     if (pos != child->posx) {
                         // pos changed => redraw
@@ -170,26 +168,24 @@ void relayout_dynamic(Area *a)
                         child->_changed |= CHANGE_MOVE;
                     }
                 }
-
                 relayout_dynamic( child);
-
                 pos -= a->spacing;
             }
             break;
         case ALIGN_CENTER:
             {
                 int children_size = 0;
-
+                int gaps_count = -1;
                 for_children(a, l, GList *)
                 {
                     Area *child = l->data;
                     if (!child->on_screen)
                         continue;
 
-                    children_size += panel_horizontal ? child->width : child->height;
-                    children_size += (l == a->children) ? 0 : a->spacing;
+                    children_size += (panel_horizontal ? child->width : child->height);
+                    gaps_count++;
                 }
-
+                children_size += gaps_count * a->spacing;
                 pos = (panel_horizontal ? a->posx + (a->width - children_size) / 2
                                         : a->posy + (a->height - children_size) / 2);
             }
@@ -212,9 +208,7 @@ void relayout_dynamic(Area *a)
                         child->_changed |= CHANGE_MOVE;
                     }
                 }
-
                 relayout_dynamic( child);
-
                 pos += (panel_horizontal ? child->width : child->height) + a->spacing;
             }
             break;
@@ -245,7 +239,7 @@ int container_get_desired_size(Area *a)
     if (!a->on_screen)
         return 0;
 
-    int result = 2 * a->paddingx + (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a));
+    int result = (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a)) + 2 * a->paddingx;
     int children_count = 0;
     for_children(a, l, GList *)
     {
@@ -275,7 +269,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
 
     if (panel_horizontal) {
         // compute free space for areas with LAYOUT_DYNAMIC
-        int dyn_space = a->width - 2 * a->paddingx - left_right_border_width(a);
+        int dyn_space = a->width - left_right_border_width(a) - 2 * a->paddingx;
         for_children( a, l, GList *) {
             Area *child = l->data;
             if (child->on_screen)

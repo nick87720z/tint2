@@ -56,19 +56,7 @@ static char *icon_extensions[] = {
     "", NULL
 };
 
-gboolean str_list_contains(const GSList *list, const char *value)
-{
-    // return g_slist_find_custom (list, value, g_str_equal) ? TRUE : FALSE;
-    // FIXME: above variant gives different result than below
-
-    for (const GSList *item = list; item; item = item->next)
-    {
-        if (g_str_equal(item->data, value))
-            return TRUE;
-    }
-    return FALSE;
-}
-//~ #define str_list_contains(list, value) (g_slist_find_custom (list, value, g_str_equal) != NULL)
+#define str_list_contains(list, value) (g_slist_find_custom (list, value, (GCompareFunc )strcmp) != NULL)
 
 const GSList *get_icon_locations()
 {

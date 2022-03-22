@@ -276,7 +276,7 @@ GSList *slist_append_uniq(
 // Search ref in list. If not found - append to list using assign function.
     GSList          *list,          // Destination list
     gconstpointer   ref,            // Data to be appended
-    GCompareFunc    eq,             // Comparison callback for uniqueness check
+    GCompareFunc    eq,             // Comparison callback for uniqueness check (e.g. strcmp)
     void* (*assign)(const void *)   // Callback to process data before append (e.g. strdup)
                                     // Set to NULL to make ref used directly
 );

@@ -438,10 +438,12 @@ gboolean resize_panel(void *obj)
             {
                 if (i == server.desktop)
                     continue;
-                panel->taskbar[i].area.resize_needed =  panel->taskbar[i].area.width  != width ||
-                                                        panel->taskbar[i].area.height != height;
-                panel->taskbar[i].area.width  = width;
-                panel->taskbar[i].area.height = height;
+                if (panel->taskbar[i].area.width  != width || panel->taskbar[i].area.height != height)
+                {
+                    panel->taskbar[i].area.resize_needed = TRUE;
+                    panel->taskbar[i].area.width  = width;
+                    panel->taskbar[i].area.height = height;
+                }
             }
         }
         else if (taskbar_distribute_size)
@@ -462,8 +464,8 @@ gboolean resize_panel(void *obj)
                 if (! taskbar->area.on_screen)
                     continue;
 
-                // The total available size, then
-                // Reserve size for padding, taskbarname and spacings
+                // The total available size, with excluded borders, padding, spacings
+                // and taskbarname
 
                 if (panel_horizontal) {
                     total_size += taskbar->area.width;
@@ -535,60 +537,58 @@ gboolean resize_panel(void *obj)
                     }
                 }
                 int slack = total_size - num_tasks * task_size;
-                switch (taskbar_alignment) {
-                case ALIGN_RIGHT:
-                    for (int i = 0; i < panel->num_desktops; i++)
-                    {
-                        Taskbar *taskbar = &panel->taskbar[i];
-                        if (!taskbar->area.on_screen)
-                            continue;
+                switch (taskbar_alignment)
+                {
+                    case ALIGN_RIGHT:
+                        for (int i = 0; i < panel->num_desktops; i++)
+                        {
+                            Taskbar *taskbar = &panel->taskbar[i];
+                            if (!taskbar->area.on_screen)
+                                continue;
 
+                            if (panel_horizontal)
+                                taskbar->area.width += slack;
+                            else
+                                taskbar->area.height += slack;
+
+                            break;
+                        }
+                        break;
+                    case ALIGN_CENTER: {
+                        Taskbar *left_taskbar = NULL;
+                        Taskbar *right_taskbar = NULL;
+                        for (int i = 0; i < panel->num_desktops; i++)
+                        {
+                            Taskbar *taskbar = &panel->taskbar[i];
+                            if (!taskbar->area.on_screen)
+                                continue;
+                            left_taskbar = taskbar;
+                            break;
+                        }
+                        if (! left_taskbar)
+                            break;
+                        for (int i = panel->num_desktops - 1; i >= 0; i--)
+                        {
+                            Taskbar *taskbar = &panel->taskbar[i];
+                            if (!taskbar->area.on_screen)
+                                continue;
+                            right_taskbar = taskbar;
+                            break;
+                        }
+                        if (left_taskbar != right_taskbar) {
+                            slack /= 2;
+                            if (panel_horizontal)
+                                right_taskbar->area.width += slack;
+                            else
+                                right_taskbar->area.height += slack;
+                        }
                         if (panel_horizontal)
-                            taskbar->area.width += slack;
+                            left_taskbar->area.width += slack;
                         else
-                            taskbar->area.height += slack;
-
+                            left_taskbar->area.height += slack;
                         break;
                     }
-                    break;
-                case ALIGN_CENTER: {
-                    slack /= 2;
-                    Taskbar *left_taskbar = NULL;
-                    Taskbar *right_taskbar = NULL;
-                    for (int i = 0; i < panel->num_desktops; i++)
-                    {
-                        Taskbar *taskbar = &panel->taskbar[i];
-                        if (!taskbar->area.on_screen)
-                            continue;
-
-                        if (panel_horizontal)
-                            taskbar->area.width += slack;
-                        else
-                            taskbar->area.height += slack;
-
-                        taskbar->area.alignment = ALIGN_RIGHT;
-                        left_taskbar = taskbar;
-                        break;
-                    }
-                    for (int i = panel->num_desktops - 1; i >= 0; i--)
-                    {
-                        Taskbar *taskbar = &panel->taskbar[i];
-                        if (!taskbar->area.on_screen)
-                            continue;
-
-                        if (panel_horizontal)
-                            taskbar->area.width += slack;
-                        else
-                            taskbar->area.height += slack;
-
-                        taskbar->area.alignment = ALIGN_LEFT;
-                        right_taskbar = taskbar;
-                        break;
-                    }
-                    if (left_taskbar == right_taskbar)
-                        left_taskbar->area.alignment = ALIGN_CENTER;
-                    break;
-                }}
+                }
             } else
                 // No tasks => expand the first visible taskbar
                 for (int i = 0; i < panel->num_desktops; i++)
@@ -765,7 +765,7 @@ void set_panel_layer(Panel *p, Layer layer)
         num_atoms = 3;
     else
         num_atoms = 4,
-        state[3] = layer == BOTTOM_LAYER ? server.atom [_NET_WM_STATE_BELOW] : server.atom [_NET_WM_STATE_ABOVE];
+        state[3] = server.atom[ layer == BOTTOM_LAYER ? _NET_WM_STATE_BELOW : _NET_WM_STATE_ABOVE ];
     XChangeProperty(server.display, p->main_win,
                     server.atom [_NET_WM_STATE],
                     XA_ATOM,

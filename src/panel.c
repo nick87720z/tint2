@@ -428,189 +428,187 @@ gboolean resize_panel(void *obj)
     relayout_with_constraint(&panel->area, 0);
 
     // fprintf(stderr, "tint2: resize_panel\n");
-    if (taskbar_mode != MULTI_DESKTOP && taskbar_enabled)
-    {
-        // propagate width/height on hidden taskbar
-        int width = panel->taskbar[server.desktop].area.width;
-        int height = panel->taskbar[server.desktop].area.height;
-        for (int i = 0; i < panel->num_desktops; i++)
+    if (taskbar_enabled) {
+        if (taskbar_mode != MULTI_DESKTOP)
         {
-            if (i == server.desktop)
-                continue;
-            panel->taskbar[i].area.resize_needed =  panel->taskbar[i].area.width != width ||
-                                                    panel->taskbar[i].area.height != height;
-            panel->taskbar[i].area.width = width;
-            panel->taskbar[i].area.height = height;
-        }
-    }
-    else if (taskbar_mode == MULTI_DESKTOP && taskbar_enabled && taskbar_distribute_size)
-    {
-        for (int i = 0; i < panel->num_desktops; i++)
-        {
-            Taskbar *taskbar = &panel->taskbar[i];
-            taskbar->area.old_width = taskbar->area.width;
-            taskbar->area.old_height = taskbar->area.height;
-        }
-
-        // The total available size
-        int total_size = 0;
-        for (int i = 0; i < panel->num_desktops; i++)
-        {
-            Taskbar *taskbar = &panel->taskbar[i];
-            if (!taskbar->area.on_screen)
-                continue;
-            total_size += panel_horizontal ? taskbar->area.width : taskbar->area.height;
-        }
-
-        // Reserve size for padding, taskbarname and spacings
-        for (int i = 0; i < panel->num_desktops; i++)
-        {
-            Taskbar *taskbar = &panel->taskbar[i];
-            if (!taskbar->area.on_screen)
-                continue;
-
-            if (panel_horizontal)
-                taskbar->area.width = 2 * taskbar->area.paddingx * panel->scale;
-            else
-                taskbar->area.height = 2 * taskbar->area.paddingx * panel->scale;
-
-            if (taskbarname_enabled && taskbar->area.children) {
-                Area *name = (Area *)taskbar->area.children->data;
-                if (name->on_screen) {
-                    if (panel_horizontal)
-                        taskbar->area.width += name->width;
-                    else
-                        taskbar->area.height += name->height;
-                }
-            }
-            gboolean first_child = TRUE;
-            for (GList *l = taskbar->area.children; l; l = l->next)
+            // propagate width/height on hidden taskbar
+            int width  = panel->taskbar[ server.desktop].area.width;
+            int height = panel->taskbar[ server.desktop].area.height;
+            for (int i = 0; i < panel->num_desktops; i++)
             {
-                Area *child = l->data;
-                if (!child->on_screen)
+                if (i == server.desktop)
                     continue;
-                if (!first_child) {
-                    if (panel_horizontal)
-                        taskbar->area.width  += taskbar->area.spacing  * panel->scale;
-                    else
-                        taskbar->area.height += taskbar->area.paddingy * panel->scale;
-                }
-                first_child = FALSE;
+                panel->taskbar[i].area.resize_needed =  panel->taskbar[i].area.width  != width ||
+                                                        panel->taskbar[i].area.height != height;
+                panel->taskbar[i].area.width  = width;
+                panel->taskbar[i].area.height = height;
             }
-            total_size -= panel_horizontal ? taskbar->area.width : taskbar->area.height;
         }
-
-        // Compute the total number of tasks
-        int num_tasks = 0;
-        for (int i = 0; i < panel->num_desktops; i++)
+        else if (taskbar_distribute_size)
         {
-            Taskbar *taskbar = &panel->taskbar[i];
-            if (!taskbar->area.on_screen)
-                continue;
-            for (GList *l = taskbar->area.children; l; l = l->next) {
-                Area *child = l->data;
-                if (!child->on_screen || (taskbarname_enabled && l == taskbar->area.children))
-                    continue;
-                num_tasks++;
-            }
-        }
+            for (int i = 0; i < panel->num_desktops; i++) {
+                Taskbar *taskbar = &panel->taskbar[i];
 
-        // Distribute the remaining size between taskbars
-        if (num_tasks > 0) {
-            int task_size = total_size / num_tasks;
-            if (taskbar_alignment != ALIGN_LEFT)
-                task_size = MIN(task_size, panel_horizontal ? panel_config.g_task.maximum_width : panel_config.g_task.maximum_height);
+                taskbar->area.old_width  = taskbar->area.width;
+                taskbar->area.old_height = taskbar->area.height;
+            }
+
+            int total_size = 0;
+            int num_tasks = 0;
+
             for (int i = 0; i < panel->num_desktops; i++)
             {
                 Taskbar *taskbar = &panel->taskbar[i];
-                if (!taskbar->area.on_screen)
+                if (! taskbar->area.on_screen)
                     continue;
+
+                // The total available size, then
+                // Reserve size for padding, taskbarname and spacings
+
+                if (panel_horizontal) {
+                    total_size += taskbar->area.width;
+                    taskbar->area.width  = left_right_border_width((Area *)taskbar)
+                                            + 2 * taskbar->area.paddingx * panel->scale;
+                } else {
+                    total_size += taskbar->area.height;
+                    taskbar->area.height = top_bottom_border_width((Area *)taskbar)
+                                            + 2 * taskbar->area.paddingx * panel->scale;
+                }
+
+                if (taskbarname_enabled && taskbar->area.children) {
+                    Area *name = (Area *)&taskbar->bar_name;
+                    if (name->on_screen) {
+                        if (panel_horizontal)
+                            taskbar->area.width += name->width;
+                        else
+                            taskbar->area.height += name->height;
+                    }
+                }
+                int gaps_count = -1;
                 for (GList *l = taskbar->area.children; l; l = l->next)
                 {
                     Area *child = l->data;
-                    if (! child->on_screen || (taskbarname_enabled && l == taskbar->area.children) )
+                    if (!child->on_screen)
                         continue;
 
-                    if (panel_horizontal)
-                        taskbar->area.width += task_size;
-                    else
-                        taskbar->area.height += task_size;
+                    gaps_count++;
+
+                    // By the way: Compute the total number of tasks
+                    if (!taskbarname_enabled || l != taskbar->area.children)
+                        num_tasks++;
                 }
+                if (gaps_count > 0) {
+                    if (panel_horizontal)
+                        taskbar->area.width  += gaps_count * taskbar->area.spacing * panel->scale;
+                    else
+                        taskbar->area.height += gaps_count * taskbar->area.spacing * panel->scale;
+                }
+                total_size -= panel_horizontal ? taskbar->area.width : taskbar->area.height;
             }
-            int slack = total_size - task_size * num_tasks;
-            switch (taskbar_alignment) {
-            case ALIGN_RIGHT:
-                for (int i = 0; i < panel->num_desktops; i++)
-                {
-                    Taskbar *taskbar = &panel->taskbar[i];
-                    if (!taskbar->area.on_screen)
-                        continue;
 
-                    if (panel_horizontal)
-                        taskbar->area.width += slack;
-                    else
-                        taskbar->area.height += slack;
+            // Distribute the remaining size between taskbars
 
-                    break;
-                }
-                break;
-            case ALIGN_CENTER: {
-                slack /= 2;
-                Taskbar *left_taskbar = NULL;
-                Taskbar *right_taskbar = NULL;
-                for (int i = 0; i < panel->num_desktops; i++)
-                {
-                    Taskbar *taskbar = &panel->taskbar[i];
-                    if (!taskbar->area.on_screen)
-                        continue;
-
-                    if (panel_horizontal)
-                        taskbar->area.width += slack;
-                    else
-                        taskbar->area.height += slack;
-
-                    taskbar->area.alignment = ALIGN_RIGHT;
-                    left_taskbar = taskbar;
-                    break;
-                }
-                for (int i = panel->num_desktops - 1; i >= 0; i--)
-                {
-                    Taskbar *taskbar = &panel->taskbar[i];
-                    if (!taskbar->area.on_screen)
-                        continue;
-
-                    if (panel_horizontal)
-                        taskbar->area.width += slack;
-                    else
-                        taskbar->area.height += slack;
-
-                    taskbar->area.alignment = ALIGN_LEFT;
-                    right_taskbar = taskbar;
-                    break;
-                }
-                if (left_taskbar == right_taskbar)
-                    left_taskbar->area.alignment = ALIGN_CENTER;
-                break;
-            }}
-        } else
-            // No tasks => expand the first visible taskbar
-            for (int i = 0; i < panel->num_desktops; i++)
+            if (num_tasks > 0)
             {
+                int task_size = total_size / num_tasks;
+                if (taskbar_alignment != ALIGN_LEFT)
+                    task_size = MIN(task_size, panel_horizontal ? panel_config.g_task.maximum_width
+                                                                : panel_config.g_task.maximum_height);
+                for (int i = 0; i < panel->num_desktops; i++)
+                {
+                    Taskbar *taskbar = &panel->taskbar[i];
+                    if (!taskbar->area.on_screen)
+                        continue;
+
+                    for (GList *l = taskbar->area.children; l; l = l->next)
+                    {
+                        if (taskbarname_enabled && l == taskbar->area.children)
+                            continue;
+                        Area *child = l->data;
+                        if (child->on_screen)
+                        {
+                            if (panel_horizontal)
+                                taskbar->area.width += task_size;
+                            else
+                                taskbar->area.height += task_size;
+                        }
+                    }
+                }
+                int slack = total_size - num_tasks * task_size;
+                switch (taskbar_alignment) {
+                case ALIGN_RIGHT:
+                    for (int i = 0; i < panel->num_desktops; i++)
+                    {
+                        Taskbar *taskbar = &panel->taskbar[i];
+                        if (!taskbar->area.on_screen)
+                            continue;
+
+                        if (panel_horizontal)
+                            taskbar->area.width += slack;
+                        else
+                            taskbar->area.height += slack;
+
+                        break;
+                    }
+                    break;
+                case ALIGN_CENTER: {
+                    slack /= 2;
+                    Taskbar *left_taskbar = NULL;
+                    Taskbar *right_taskbar = NULL;
+                    for (int i = 0; i < panel->num_desktops; i++)
+                    {
+                        Taskbar *taskbar = &panel->taskbar[i];
+                        if (!taskbar->area.on_screen)
+                            continue;
+
+                        if (panel_horizontal)
+                            taskbar->area.width += slack;
+                        else
+                            taskbar->area.height += slack;
+
+                        taskbar->area.alignment = ALIGN_RIGHT;
+                        left_taskbar = taskbar;
+                        break;
+                    }
+                    for (int i = panel->num_desktops - 1; i >= 0; i--)
+                    {
+                        Taskbar *taskbar = &panel->taskbar[i];
+                        if (!taskbar->area.on_screen)
+                            continue;
+
+                        if (panel_horizontal)
+                            taskbar->area.width += slack;
+                        else
+                            taskbar->area.height += slack;
+
+                        taskbar->area.alignment = ALIGN_LEFT;
+                        right_taskbar = taskbar;
+                        break;
+                    }
+                    if (left_taskbar == right_taskbar)
+                        left_taskbar->area.alignment = ALIGN_CENTER;
+                    break;
+                }}
+            } else
+                // No tasks => expand the first visible taskbar
+                for (int i = 0; i < panel->num_desktops; i++)
+                {
+                    Taskbar *taskbar = &panel->taskbar[i];
+                    if (!taskbar->area.on_screen)
+                        continue;
+
+                    if (panel_horizontal)
+                        taskbar->area.width += total_size;
+                    else
+                        taskbar->area.height += total_size;
+
+                    break;
+                }
+            for (int i = 0; i < panel->num_desktops; i++) {
                 Taskbar *taskbar = &panel->taskbar[i];
-                if (!taskbar->area.on_screen)
-                    continue;
-
-                if (panel_horizontal)
-                    taskbar->area.width += total_size;
-                else
-                    taskbar->area.height += total_size;
-
-                break;
+                taskbar->area.resize_needed = taskbar->area.old_width  != taskbar->area.width ||
+                                              taskbar->area.old_height != taskbar->area.height;
             }
-        for (int i = 0; i < panel->num_desktops; i++) {
-            Taskbar *taskbar = &panel->taskbar[i];
-            taskbar->area.resize_needed =
-                taskbar->area.old_width != taskbar->area.width || taskbar->area.old_height != taskbar->area.height;
         }
     }
     for (GList *l = panel->freespace_list; l; l = l->next)

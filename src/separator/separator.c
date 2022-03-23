@@ -123,24 +123,30 @@ int separator_get_desired_size(void *obj)
 
 gboolean resize_separator(void *obj)
 {
+    gboolean result = FALSE;
     Separator *separator = obj;
     Panel *panel = separator->area.panel;
     if (!separator->area.on_screen)
-        return FALSE;
+        return result;
 
+    int size;
     int sep_width = separator->thickness + 2 * separator->area.paddingx * panel->scale;
     if (panel_horizontal) {
-        separator->area.width = sep_width + left_right_border_width( & separator->area);
+        size = sep_width + left_right_border_width( & separator->area);
         separator->length = separator->area.height - top_bottom_border_width(&separator->area);
+        result = size != separator->area.width;
+        separator->area.width = size;
     } else {
         separator->length = separator->area.width - left_right_border_width(&separator->area);
-        separator->area.height = sep_width + top_bottom_border_width( & separator->area);
+        size = sep_width + top_bottom_border_width( & separator->area);
+        result = size != separator->area.height;
+        separator->area.height = size;
     }
     separator->length -= 2 * separator->area.paddingy * panel->scale;
 
     schedule_redraw(&separator->area);
     schedule_panel_redraw();
-    return TRUE;
+    return result;
 }
 
 void draw_separator_line(void *obj, cairo_t *c);

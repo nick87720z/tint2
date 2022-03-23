@@ -442,7 +442,7 @@ void draw_task_icon(Task *task, int text_width)
     else {
         int x = task->area.width - panel->g_task.icon_size1;
         if (panel->g_task.has_text)
-            x -= text_width + task->area.spacing;
+            x -= text_width + task->area.spacing * panel->scale;
         x /= 2;
         task->_icon_x = x;
     }

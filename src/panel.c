@@ -491,7 +491,7 @@ gboolean resize_panel(void *obj)
                     continue;
                 if (!first_child) {
                     if (panel_horizontal)
-                        taskbar->area.width += taskbar->area.spacing * panel->scale;
+                        taskbar->area.width  += taskbar->area.spacing  * panel->scale;
                     else
                         taskbar->area.height += taskbar->area.paddingy * panel->scale;
                 }

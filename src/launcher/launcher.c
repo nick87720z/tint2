@@ -200,28 +200,28 @@ void launcher_get_geometry(Launcher *launcher,
     *icons_per_row = 1;
     *margin = 0;
     if (panel_horizontal) {
-        if (!count) {
+        if (!count)
             *size = 0;
-        } else {
+        else {
             int height = launcher->area.height - top_bottom_border_width(&launcher->area) - 2 * launcher->area.paddingy * panel->scale;
             // here icons_per_column always higher than 0
             *icons_per_column = (height + launcher->area.spacing * panel->scale) / (*icon_size + launcher->area.spacing * panel->scale);
             *margin = height - (*icons_per_column - 1) * (*icon_size + launcher->area.spacing * panel->scale) - *icon_size;
             *icons_per_row = count / *icons_per_column + (count % *icons_per_column != 0);
-            *size = left_right_border_width(&launcher->area) + 2 * launcher->area.paddingx * panel->scale +
-                    (*icon_size * *icons_per_row) + ((*icons_per_row - 1) * launcher->area.spacing * panel->scale);
+            *size   = left_right_border_width( & launcher->area) + 2 * launcher->area.paddingx * panel->scale
+                    + (*icon_size * *icons_per_row) + ((*icons_per_row - 1) * launcher->area.spacing * panel->scale);
         }
     } else {
-        if (!count) {
+        if (!count)
             *size = 0;
-        } else {
+        else {
             int width = launcher->area.width - left_right_border_width(&launcher->area) - 2 * launcher->area.paddingy * panel->scale;
             // here icons_per_row always higher than 0
             *icons_per_row = (width + launcher->area.spacing * panel->scale) / (*icon_size + launcher->area.spacing * panel->scale);
             *margin = width - (*icons_per_row - 1) * (*icon_size + launcher->area.spacing * panel->scale) - *icon_size;
             *icons_per_column = count / *icons_per_row + (count % *icons_per_row != 0);
-            *size = top_bottom_border_width(&launcher->area) + 2 * launcher->area.paddingx * panel->scale +
-                    (*icon_size * *icons_per_column) + ((*icons_per_column - 1) * launcher->area.spacing * panel->scale);
+            *size   = top_bottom_border_width( & launcher->area) + 2 * launcher->area.paddingx * panel->scale
+                    + (*icon_size * *icons_per_column) + ((*icons_per_column - 1) * launcher->area.spacing * panel->scale);
         }
     }
 }
@@ -281,11 +281,13 @@ gboolean resize_launcher(void *obj)
     int posx, posy;
     int start;
     if (panel_horizontal) {
-        posy = start = top_border_width(&launcher->area) + launcher->area.paddingy * panel->scale + margin / 2;
+        start =
+        posy = top_border_width(&launcher->area)  + launcher->area.paddingy * panel->scale + margin / 2;
         posx = left_border_width(&launcher->area) + launcher->area.paddingx * panel->scale;
     } else {
-        posx = start = left_border_width(&launcher->area) + launcher->area.paddingy * panel->scale + margin / 2;
-        posy = top_border_width(&launcher->area) + launcher->area.paddingx * panel->scale;
+        start =
+        posx = left_border_width(&launcher->area) + launcher->area.paddingy * panel->scale + margin / 2;
+        posy = top_border_width(&launcher->area)  + launcher->area.paddingx * panel->scale;
     }
 
     int i = 0;

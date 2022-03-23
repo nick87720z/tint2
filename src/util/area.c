@@ -49,18 +49,19 @@ void initialize_positions(void *obj)
 /* Set traversal coordinates, which usually don't change since start */
 {
     Area *a = obj;
+    double scale = ((Panel *)a->panel)->scale;
     for_children(a, l, GList *)
     {
         Area *child = l->data;
         if (panel_horizontal) {
-            child->posy = a->posy + top_border_width(a) + a->paddingy;
-            child->height = a->height - top_bottom_border_width(a) - 2 * a->paddingy;
+            child->posy   = a->posy   + top_border_width(a)        + a->paddingy * scale;
+            child->height = a->height - top_bottom_border_width(a) - 2 * a->paddingy * scale;
             if (child->_on_change_layout)
                 child->_on_change_layout(child);
             initialize_positions (child);
         } else {
-            child->posx = a->posx + left_border_width(a) + a->paddingy;
-            child->width = a->width - left_right_border_width(a) - 2 * a->paddingy;
+            child->posx  = a->posx  + left_border_width(a)       + a->paddingy * scale;
+            child->width = a->width - left_right_border_width(a) - 2 * a->paddingy * scale;
             if (child->_on_change_layout)
                 child->_on_change_layout(child);
             initialize_positions (child);
@@ -96,6 +97,8 @@ void relayout_dynamic(Area *a)
     if (!a->on_screen)
         return;
 
+    double scale = ((Panel *)a->panel)->scale;
+
     // Area is resized before its children
     if (a->resize_needed && a->size_mode == LAYOUT_DYNAMIC) {
         a->resize_needed = FALSE;
@@ -119,7 +122,7 @@ void relayout_dynamic(Area *a)
         switch (a->alignment) {
         case ALIGN_LEFT:
             pos = (panel_horizontal ? a->posx + left_border_width(a)
-                                    : a->posy + top_border_width (a)) + a->paddingx;
+                                    : a->posy + top_border_width (a)) + a->paddingx * scale;
 
             for_children(a, l, GList *)
             {
@@ -141,12 +144,12 @@ void relayout_dynamic(Area *a)
                     }
                 }
                 relayout_dynamic( child);
-                pos += (panel_horizontal ? child->width : child->height) + a->spacing;
+                pos += (panel_horizontal ? child->width : child->height) + a->spacing * scale;
             }
             break;
         case ALIGN_RIGHT:
             pos = (panel_horizontal ? a->posx + a->width - right_border_width(a)
-                                    : a->posy + a->height - bottom_border_width(a)) - a->paddingx;
+                                    : a->posy + a->height - bottom_border_width(a)) - a->paddingx * scale;
 
             for_children_rev(a, l, GList *)
             {
@@ -169,7 +172,7 @@ void relayout_dynamic(Area *a)
                     }
                 }
                 relayout_dynamic( child);
-                pos -= a->spacing;
+                pos -= a->spacing * scale;
             }
             break;
         case ALIGN_CENTER:
@@ -185,7 +188,7 @@ void relayout_dynamic(Area *a)
                     children_size += (panel_horizontal ? child->width : child->height);
                     gaps_count++;
                 }
-                children_size += gaps_count * a->spacing;
+                children_size += gaps_count * a->spacing * scale;
                 pos = (panel_horizontal ? a->posx + (a->width - children_size) / 2
                                         : a->posy + (a->height - children_size) / 2);
             }
@@ -209,7 +212,7 @@ void relayout_dynamic(Area *a)
                     }
                 }
                 relayout_dynamic( child);
-                pos += (panel_horizontal ? child->width : child->height) + a->spacing;
+                pos += (panel_horizontal ? child->width : child->height) + a->spacing * scale;
             }
             break;
         }
@@ -239,7 +242,8 @@ int container_get_desired_size(Area *a)
     if (!a->on_screen)
         return 0;
 
-    int result = (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a)) + 2 * a->paddingx;
+    double scale = ((Panel *)a->panel)->scale;
+    int result = (panel_horizontal ? left_right_border_width(a) : top_bottom_border_width(a)) + 2 * a->paddingx * scale;
     int children_count = 0;
     for_children(a, l, GList *)
     {
@@ -250,7 +254,7 @@ int container_get_desired_size(Area *a)
         }
     }
     if (children_count > 0)
-        result += (children_count - 1) * a->spacing;
+        result += (children_count - 1) * a->spacing * scale;
     return result;
 }
 
@@ -264,12 +268,13 @@ int relayout_with_constraint(Area *a, int maximum_size)
 {
     int fixed_children_count = 0;
     int dynamic_children_count = 0;
+    double scale = ((Panel *)a->panel)->scale;
 
     assert( maximum_size >= 0);
 
     if (panel_horizontal) {
         // compute free space for areas with LAYOUT_DYNAMIC
-        int dyn_space = a->width - left_right_border_width(a) - 2 * a->paddingx;
+        int dyn_space = a->width - left_right_border_width(a) - 2 * a->paddingx * scale;
         for_children( a, l, GList *) {
             Area *child = l->data;
             if (child->on_screen)
@@ -285,7 +290,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
         int children_count = fixed_children_count + dynamic_children_count;
         if (children_count)
-            dyn_space -= (children_count - 1) * a->spacing;
+            dyn_space -= (children_count - 1) * a->spacing * scale;
 
         int width = 0;
         int rest = 0;
@@ -317,7 +322,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
     } else {
         // compute free space for areas with LAYOUT_DYNAMIC
-        int dyn_space = a->height - 2 * a->paddingx - top_bottom_border_width(a);
+        int dyn_space = a->height - top_bottom_border_width(a) - 2 * a->paddingx * scale;
         for_children( a, l, GList *) {
             Area *child = l->data;
             if (child->on_screen)
@@ -333,7 +338,7 @@ int relayout_with_constraint(Area *a, int maximum_size)
         }
         int children_count = fixed_children_count + dynamic_children_count;
         if (children_count)
-            dyn_space -= (children_count - 1) * a->spacing;
+            dyn_space -= (children_count - 1) * a->spacing * scale;
 
         int height = 0;
         int rest = 0;
@@ -955,9 +960,9 @@ void area_get_available_size(Area *area,
     Panel *panel = (Panel *)area->panel;
     if (panel_horizontal) {
         *available_w = panel->area.width;
-        *available_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
+        *available_h = area->height - 2 * area->paddingy * panel->scale - top_bottom_border_width(area);
     } else {
-        *available_w = area->width - 2 * area->paddingx - left_right_border_width(area);
+        *available_w = area->width  - 2 * area->paddingx * panel->scale - left_right_border_width(area);
         *available_h = panel->area.height;
     }
 }
@@ -966,8 +971,9 @@ void area_get_inner_size(Area *area,
                              int *inner_w,
                              int *inner_h)
 {
-    *inner_w = area->width  - left_right_border_width (area) - 2 * area->paddingx;
-    *inner_h = area->height - top_bottom_border_width (area) - 2 * area->paddingy;
+    double scale = ((Panel *)area->panel)->scale;
+    *inner_w = area->width  - left_right_border_width (area) - 2 * area->paddingx * scale;
+    *inner_h = area->height - top_bottom_border_width (area) - 2 * area->paddingy * scale;
 }
 
 void area_get_text_geometry(Area *area,
@@ -984,57 +990,58 @@ void area_get_text_geometry(Area *area,
     area_get_available_size(area, &available_w, &available_h);
 
     if (line1 && line1[0])
-        get_text_size2(line1_font_desc,
-                       line1_height,
-                       line1_width,
-                       available_h,
-                       available_w,
-                       line1,
-                       strlen(line1),
-                       PANGO_WRAP_WORD_CHAR,
-                       PANGO_ELLIPSIZE_NONE,
-                       PANGO_ALIGN_CENTER,
-                       FALSE,
-                       ((Panel*)area->panel)->scale);
+        get_text_size2( line1_font_desc,
+                        line1_height,
+                        line1_width,
+                        available_h,
+                        available_w,
+                        line1,
+                        strlen( line1),
+                        PANGO_WRAP_WORD_CHAR,
+                        PANGO_ELLIPSIZE_NONE,
+                        PANGO_ALIGN_CENTER,
+                        FALSE,
+                        ((Panel*)area->panel)->scale );
     else
         *line1_width = *line1_height = 0;
 
     if (line2 && line2[0])
-        get_text_size2(line2_font_desc,
-                       line2_height,
-                       line2_width,
-                       available_h,
-                       available_w,
-                       line2,
-                       strlen(line2),
-                       PANGO_WRAP_WORD_CHAR,
-                       PANGO_ELLIPSIZE_NONE,
-                       PANGO_ALIGN_CENTER,
-                       FALSE,
-                       ((Panel*)area->panel)->scale);
+        get_text_size2( line2_font_desc,
+                        line2_height,
+                        line2_width,
+                        available_h,
+                        available_w,
+                        line2,
+                        strlen( line2),
+                        PANGO_WRAP_WORD_CHAR,
+                        PANGO_ELLIPSIZE_NONE,
+                        PANGO_ALIGN_CENTER,
+                        FALSE,
+                        ((Panel*)area->panel)->scale );
     else
         *line2_width = *line2_height = 0;
 }
 
-int text_area_get_desired_size(Area *area,
-                                   const char *line1,
-                                   const char *line2,
-                                   PangoFontDescription *line1_font_desc,
-                                   PangoFontDescription *line2_font_desc)
+int text_area_get_desired_size( Area *area,
+                                const char *line1,
+                                const char *line2,
+                                PangoFontDescription *line1_font_desc,
+                                PangoFontDescription *line2_font_desc )
 {
+    double scale = ((Panel *)area->panel)->scale;
     int line1_height, line1_width, line2_height, line2_width;
-    area_get_text_geometry(area,
-                               line1,
-                               line2,
-                               line1_font_desc,
-                               line2_font_desc,
-                               &line1_height,
-                               &line1_width,
-                               &line2_height,
-                               &line2_width);
+    area_get_text_geometry( area,
+                            line1,
+                            line2,
+                            line1_font_desc,
+                            line2_font_desc,
+                            &line1_height,
+                            &line1_width,
+                            &line2_height,
+                            &line2_width );
 
-    return panel_horizontal ? MAX(line1_width, line2_width) + 2 * area->paddingx + left_right_border_width(area)
-                            : line1_height + line2_height + 2 * area->paddingy + top_bottom_border_width(area);
+    return panel_horizontal ? MAX(line1_width, line2_width) + 2 * area->paddingx * scale + left_right_border_width(area)
+                            : line1_height + line2_height   + 2 * area->paddingy * scale + top_bottom_border_width(area);
 }
 
 gboolean resize_text_area(Area *area,

@@ -287,12 +287,13 @@ int button_icon_desired_size(Button *button)
     int size;
     Area *area = &button->area;
     ButtonBackend *backend = button->backend;
+    double scale = ((Panel *)area->panel)->scale;
     if (backend->icon_name) {
         int max_icon_size = backend->max_icon_size;
         size = ( panel_horizontal ? area->height - top_bottom_border_width(area) : 
-                                    area->width  - left_right_border_width(area) ) - 2 * area->paddingy;
+                                    area->width  - left_right_border_width(area) ) - 2 * area->paddingy * scale;
         if (max_icon_size)
-            size = MIN(size, max_icon_size * ((Panel *)area->panel)->scale);
+            size = MIN(size, max_icon_size * scale);
     } else
         size = 0;
     
@@ -307,7 +308,7 @@ int button_get_desired_size(void *obj)
     Area *area = &button->area;
     
     int horiz_padding = (panel_horizontal ? area->paddingx : area->paddingy) * panel->scale;
-    int vert_padding = (panel_horizontal ? area->paddingy : area->paddingx) * panel->scale;
+    int vert_padding  = (panel_horizontal ? area->paddingy : area->paddingx) * panel->scale;
     int interior_padding = area->spacing * panel->scale;
 
     int icon_w, icon_h;
@@ -389,7 +390,7 @@ gboolean resize_button(void *obj)
     int available_w, available_h;
     if (panel_horizontal) {
         available_w = panel->area.width;
-        available_h = area->height - 2 * area->paddingy - top_bottom_border_width(area);
+        available_h = area->height - 2 * area->paddingy * panel->scale - top_bottom_border_width(area);
     } else {
         int x1 = icon_w ? icon_w + interior_padding : 0;
         available_w = (!icon_w || x1 < 0 ? area->width : area->width - x1)

@@ -564,9 +564,9 @@ gboolean resize_taskbar(void *obj)
     Panel *panel = taskbar->area.panel;
 
     if (panel_horizontal) {
-        relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width);
+        relayout_with_constraint(&taskbar->area, panel->g_task.maximum_width * panel->scale);
 
-        int text_width = panel->g_task.maximum_width;
+        int text_width = panel->g_task.maximum_width * panel->scale;
         for_taskbar_tasks( taskbar, l)
             if (((Task *)l->data)->area.on_screen)
             {

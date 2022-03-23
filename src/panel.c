@@ -575,17 +575,19 @@ gboolean resize_panel(void *obj)
                             right_taskbar = taskbar;
                             break;
                         }
-                        if (left_taskbar != right_taskbar) {
-                            slack /= 2;
-                            if (panel_horizontal)
+                        if (panel_horizontal) {
+                            if (left_taskbar != right_taskbar) {
+                                slack /= 2;
                                 right_taskbar->area.width += slack;
-                            else
-                                right_taskbar->area.height += slack;
-                        }
-                        if (panel_horizontal)
+                            }
                             left_taskbar->area.width += slack;
-                        else
+                        } else {
+                            if (left_taskbar != right_taskbar) {
+                                slack /= 2;
+                                right_taskbar->area.height += slack;
+                            }
                             left_taskbar->area.height += slack;
+                        }
                         break;
                     }
                 }

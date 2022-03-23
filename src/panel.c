@@ -579,12 +579,16 @@ gboolean resize_panel(void *obj)
                             if (left_taskbar != right_taskbar) {
                                 slack /= 2;
                                 right_taskbar->area.width += slack;
+                                right_taskbar->area.alignment = ALIGN_LEFT;
+                                left_taskbar->area.alignment = ALIGN_RIGHT;
                             }
                             left_taskbar->area.width += slack;
                         } else {
                             if (left_taskbar != right_taskbar) {
                                 slack /= 2;
                                 right_taskbar->area.height += slack;
+                                right_taskbar->area.alignment = ALIGN_LEFT;
+                                left_taskbar->area.alignment = ALIGN_RIGHT;
                             }
                             left_taskbar->area.height += slack;
                         }

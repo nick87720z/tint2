@@ -244,7 +244,6 @@ void handle_mouse_release_event(XEvent *e)
             action != CLOSE && action != DESKTOP_LEFT && action != DESKTOP_RIGHT)
         {
             diff_desktop = TRUE;
-            change_desktop(taskbar->desktop);
         }
         Task *task = click_task(panel, e->xbutton.x, e->xbutton.y);
         if (task) {
@@ -254,6 +253,8 @@ void handle_mouse_release_event(XEvent *e)
             } else
                 task_handle_mouse_event(task, action);
         }
+        if (diff_desktop)
+            change_desktop( taskbar->desktop);
     } else
         task_handle_mouse_event(click_task(panel, e->xbutton.x, e->xbutton.y), action);
 

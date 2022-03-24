@@ -1,3 +1,6 @@
+2022-03-24 master
+- Fixes:
+  - Activated task had chance to lose activation if it's on other desktop, with multi-desktop taskbar
 2022-03-24 17.1.2
 - Fixes:
   - Fixed multi-taskbar size distrubution (border width was not counted)

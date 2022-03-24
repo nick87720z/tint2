@@ -22,8 +22,8 @@ echo "Status:"
 for f in *.po
 do
   lang=$(basename $f .po)
-  fuzzy=$(cat ${lang}.po | grep -A2 "#, fuzzy")
-  missing=$(cat ${lang}.po | grep -B1 'msgstr  ""')
+  fuzzy=$(grep -A2 "#, fuzzy" < ${lang}.po)
+  missing=$(grep -B1 'msgstr  ""' < ${lang}.po)
   if [ -z "$fuzzy" ] && [ -z "$missing" ]
   then
     echo $lang ": Up to date"

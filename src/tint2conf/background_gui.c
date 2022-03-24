@@ -186,7 +186,7 @@ void init_background_page (GtkWidget *parent)
     gtk_widget_show(background_fill_content_tint_weight);
     gtk_table_attach(GTK_TABLE(table), background_fill_content_tint_weight, col, col + 1, row, row + 1, GTK_FILL, 0, 0, 0);
     col++;
-    gtk_widget_set_tooltip_text(background_fill_content_tint_weight, _("How much the border color should be tinted with the content color"));
+    gtk_widget_set_tooltip_text(background_fill_content_tint_weight, _("How much the fill color should be tinted with the content color"));
 
     row++, col = 2;
     label = gtk_label_new(_("Border color"));

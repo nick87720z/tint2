@@ -1,6 +1,11 @@
 2020-03-23 master
+- Fixes:
+  - Fixed multi-taskbar size distrubution (border width was not counted)
+  - Scale was not counted sometimes
 - Unmentioned fixes in v17.1.1:
   - Regression: segmentation fault with linear gradients
+- Maintainance:
+  - Updated russian translation
 2022-03-22 17.1.1
 - Enhancments:
   - Report XShm status on start

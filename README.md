@@ -10,9 +10,9 @@ So, for short - any help is welcome, not a problem if someone maintains own fork
 
 Code does not die. Not as long as there's compiler, able to build it, and system, able to run it, in the world. Moreover while it's FLOSS project.
 
-# Latest stable release: 17.1.1
+# Latest stable release: 17.1.2
 
-Changes: https://gitlab.com/nick87720z/tint2/blob/17.1.1/ChangeLog
+Changes: https://gitlab.com/nick87720z/tint2/blob/17.1.2/ChangeLog
 
 Documentation: [doc/tint2.md](doc/tint2.md)
 
@@ -21,7 +21,7 @@ Compile it with (after you install the [dependencies](https://gitlab.com/o9000/t
 ```
 git clone https://gitlab.com/nick87720z/tint2.git
 cd tint2
-git checkout 17.1.1
+git checkout 17.1.2
 mkdir build
 cd build
 cmake ..
@@ -96,7 +96,7 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
 
 # Links
   * Home page: https://gitlab.com/nick87720z/tint2
-  * Download latest release: https://gitlab.com/nick87720z/tint2/-/archive/17.1.1/tint2-17.1.1.tar.bz2
+  * Download latest release: https://gitlab.com/nick87720z/tint2/-/archive/17.1.2/tint2-17.1.2.tar.bz2
   * Git repository: https://gitlab.com/nick87720z/tint2.git
   * Documentation: https://gitlab.com/o9000/tint2/wikis/home
   * Downloads: https://gitlab.com/o9000/tint2-archive/tree/master or https://code.google.com/p/tint2/downloads/list

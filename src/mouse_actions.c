@@ -213,7 +213,7 @@ void handle_mouse_release_event(XEvent *e)
         return;
     }
 
-    if (e->xbutton.button == 1 && click_launcher(panel, e->xbutton.x, e->xbutton.y)) {
+    if (click_launcher(panel, e->xbutton.x, e->xbutton.y) && e->xbutton.button == 1) {
         LauncherIcon *icon = click_launcher_icon(panel, e->xbutton.x, e->xbutton.y);
         if (icon)
             launcher_action(icon,e, e->xbutton.x - icon->area.posx,

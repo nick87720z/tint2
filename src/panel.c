@@ -567,7 +567,7 @@ gboolean resize_panel(void *obj)
                         }
                         if (! left_taskbar)
                             break;
-                        for (int i = panel->num_desktops - 1; i >= 0; i--)
+                        for (int i = panel->num_desktops - 1; ; i--)
                         {
                             Taskbar *taskbar = &panel->taskbar[i];
                             if (!taskbar->area.on_screen)

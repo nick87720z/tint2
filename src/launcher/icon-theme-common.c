@@ -634,8 +634,12 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
 
                     size_t fname_size_new = base_name_len + theme_name_len + dir_name_len +
                                             icon_name_len + strlen (extension)  + 100;
-                    if (fname_size_new > file_name_size)
-                        file_name = realloc (file_name, (file_name_size = fname_size_new));
+                    if (fname_size_new > file_name_size) {
+                        char *tmp = realloc (file_name, (file_name_size = fname_size_new));
+                        if (!tmp)
+                            goto endfind;
+                        file_name = tmp;
+                    }
 
                     // filename = directory/$(themename)/subdirectory/iconname.extension
                     snprintf (  file_name, (size_t)file_name_size - 1, "%s/%s/%s/%s%s",
@@ -680,6 +684,7 @@ char *get_icon_path_helper(GSList *themes, const char *icon_name, int size)
             }
         }
     }
+endfind:
     free_and_null (file_name);
     if (next_name)
     {
@@ -798,7 +803,6 @@ char *get_icon_path(IconThemeWrapper *wrapper, const char *icon_name, int size, 
 
     load_default_theme(wrapper);
 
-    icon_name = icon_name ? icon_name : DEFAULT_ICON;
     path = get_icon_path_helper(wrapper->themes, icon_name, size);
     if (path) {
         if (debug_icons)

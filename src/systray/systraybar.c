@@ -1408,11 +1408,10 @@ void refresh_systray_icons()
 {
     if (systray_profile)
         fprintf(stderr, BLUE "tint2: [%f] %s:%d" RESET "\n", profiling_get_time(), __func__, __LINE__);
-    TrayWindow *traywin;
     GSList *l;
     for (l = systray.list_icons; l; l = l->next)
     {
-        traywin = l->data;
+        TrayWindow *traywin = l->data;
         systray_render_icon(traywin);
     }
 }

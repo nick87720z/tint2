@@ -197,11 +197,10 @@ void send_event32(Window win, Atom at, long data1, long data2, long data3)
 int get_property32(Window win, Atom at, Atom type)
 {
     unsigned char *prop_value;
-    int data;
 
     prop_value = get_property (win, at, type, NULL);
     if (prop_value) {
-        data = ((gulong *)prop_value)[0];
+        int data = ((gulong *)prop_value)[0];
         XFree (prop_value);
         return data;
     }
@@ -589,17 +588,15 @@ void server_init_visual()
     XVisualInfo *xvi = XGetVisualInfo(  server.display,
                                         VisualScreenMask | VisualDepthMask | VisualClassMask,
                                         &templ, &nvi);
-    if (xvi) {
-        XRenderPictFormat *format;
+    if (xvi)
         for (int i = 0; i < nvi; i++)
         {
-            format = XRenderFindVisualFormat(server.display, xvi[i].visual);
+            XRenderPictFormat *format = XRenderFindVisualFormat(server.display, xvi[i].visual);
             if (format->type == PictTypeDirect && format->direct.alphaMask) {
                 visual = xvi[i].visual;
                 break;
             }
         }
-    }
     XFree(xvi);
 
     if (server.colormap)

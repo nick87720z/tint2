@@ -142,8 +142,8 @@ int get_window_desktop(Window win)
     }
 
     int best_match = -1;
-    int match_right = 0;
-    int match_bottom = 0;
+    const int match_right = 0;
+    const int match_bottom = 0;
     // There is an ambiguity when a window is right on the edge between viewports.
     // In that case, prefer the viewports which is on the right and bottom of the window's top-left corner.
     for (int i = 0; i < server.num_desktops; i++) {
@@ -272,13 +272,13 @@ gboolean window_is_active(Window win)
 
 int get_icon_count(gulong *data, int num)
 {
-    int count, pos, w, h;
+    int count, pos;
 
     count = 0;
     pos = 0;
     while (pos + 2 < num) {
-        w = data[pos++];
-        h = data[pos++];
+        int w = data[pos++];
+        int h = data[pos++];
         pos += w * h;
         if (pos > num || w <= 0 || h <= 0)
             break;
@@ -293,15 +293,15 @@ gulong *get_best_icon(gulong *data, int icon_count, int num, int *iw, int *ih, i
     if (icon_count < 1 || num < 1)
         return NULL;
 
-    int width[icon_count], height[icon_count], pos, i, w, h;
+    int width[icon_count], height[icon_count], pos, i;
     gulong *icon_data[icon_count];
 
     /* List up icons */
     pos = 0;
     i = icon_count;
     while (i--) {
-        w = data[pos++];
-        h = data[pos++];
+        int w = data[pos++];
+        int h = data[pos++];
         if (pos + w * h > num)
             break;
 

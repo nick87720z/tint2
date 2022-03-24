@@ -159,9 +159,9 @@ void run_all_tests(bool verbose)
         }
     }
     if (failed == 0)
-        fprintf(stdout, BLUE "tint2: " GREEN "all %lu tests succeeded." RESET "\n", count);
+        fprintf(stdout, BLUE "tint2: " GREEN "all %zu tests succeeded." RESET "\n", count);
     else
-        fprintf(stdout, BLUE "tint2: " RED "%lu" BLUE " out of %lu tests " RED "failed." RESET "\n", failed, count);
+        fprintf(stdout, BLUE "tint2: " RED "%zu" BLUE " out of %zu tests " RED "failed." RESET "\n", failed, count);
 }
 
 #if 0

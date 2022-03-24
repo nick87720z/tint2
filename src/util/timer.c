@@ -203,7 +203,7 @@ void handle_expired_timers()
     long long now = get_time_ms();
     GList *it;
 
-    for (it = timers; it; it = it->next) {
+    for (it = timers; ; it = it->next) {
         if (!it) return;
 
         Timer *timer = it->data;

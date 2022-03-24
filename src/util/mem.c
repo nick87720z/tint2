@@ -261,10 +261,11 @@ static void log_alloc(const char *func_name, void *result, void *ptr, size_t siz
     static pthread_mutex_t mutex_global = PTHREAD_MUTEX_INITIALIZER;
     static pthread_mutex_t mutex_recursive;
     static pthread_mutex_t mutex_nonrecursive = PTHREAD_MUTEX_INITIALIZER;
-    static bool mutexes_initialized = false;
 
     pthread_mutex_lock(&mutex_global);
     {
+        static bool mutexes_initialized = false;
+
         if (!mutexes_initialized) {
             pthread_mutexattr_t attr;
             pthread_mutexattr_init(&attr);

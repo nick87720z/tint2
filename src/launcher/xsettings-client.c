@@ -183,7 +183,8 @@ static XSettingsList *parse_settings(unsigned char *data, size_t len)
     buffer.pos = buffer.data = data;
     buffer.len = len;
 
-    result = fetch_card8(&buffer, (CARD8 *)&buffer.byte_order);
+    if ((result = fetch_card8(&buffer, (CARD8 *)&buffer.byte_order)) != XSETTINGS_SUCCESS)
+        goto out;
     if (buffer.byte_order != MSBFirst && buffer.byte_order != LSBFirst) {
         fprintf(stderr, "tint2: Invalid byte order %x in XSETTINGS property\n", buffer.byte_order);
         result = XSETTINGS_FAILED;

@@ -687,8 +687,7 @@ void handle_panel_refresh()
                       0, 0,
                       panel->area.width,    panel->area.height,
                       0, 0);
-            if (panel == systray.area.panel &&
-                refresh_systray && panel && !panel->is_hidden)
+            if (refresh_systray && panel == systray.area.panel && !panel->is_hidden)
             {
                 refresh_systray = FALSE;
                 XSetWindowBackgroundPixmap(server.display, panel->main_win, panel->temp_pmap);

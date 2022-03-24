@@ -33,7 +33,6 @@ char *get_property(Window window, Atom xa_prop_type, Atom *prop)
     int ret_format;
     unsigned long ret_nitems;
     unsigned long ret_bytes_after;
-    unsigned long tmp_size;
     unsigned char *ret_prop = NULL;
 
     if (XGetWindowProperty(display, window, *prop, 0, 1024,
@@ -193,7 +192,7 @@ int main(int argc, char **argv)
                     goto ret;
                 }
                 if (strlen(execp_name) > sizeof(event.xclient.data.b)) {
-                    fprintf(stderr, "Error: execp name bigger than %ld bytes\n", sizeof(event.xclient.data.b));
+                    fprintf(stderr, "Error: execp name bigger than %zu bytes\n", sizeof(event.xclient.data.b));
                     status = 1;
                     goto ret;
                 }

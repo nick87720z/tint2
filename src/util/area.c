@@ -744,10 +744,8 @@ void mouse_over(Area *area, gboolean pressed)
     MouseState new_state;
     if (!area)
     {
-        if (mouse_over_area) {
-            new_state = MOUSE_NORMAL;
+        if (mouse_over_area)
             mouse_out ();
-        }
         return;
     }
 
@@ -879,7 +877,7 @@ int top_bottom_border_width(Area *a)
 
 int bg_border_width(Background *bg, int mask)
 {
-    return bg->border.mask & mask ? bg->border.width : 0;
+    return (bg->border.mask & mask) ? bg->border.width : 0;
 }
 
 int left_bg_border_width(Background *bg)
@@ -1070,18 +1068,17 @@ gboolean resize_text_area(Area *area,
                                &line2_width);
 
     int new_size = text_area_get_desired_size(area,
-                                                  line1,
-                                                  line2,
-                                                  line1_font_desc,
-                                                  line2_font_desc);
+                                              line1,
+                                              line2,
+                                              line1_font_desc,
+                                              line2_font_desc);
     if (panel_horizontal) {
         if (new_size != area->width)
         {
-            if (new_size < area->width && abs(new_size - area->width) < 6)
+            if (new_size > area->width || abs( new_size - area->width) >= 6)
                 // we try to limit the number of resizes
-                new_size = area->width;
-            else
                 area->width = new_size;
+
             *line1_posy = (area->height - line1_height) / 2;
             if (line2) {
                 *line1_posy -= (line2_height) / 2;

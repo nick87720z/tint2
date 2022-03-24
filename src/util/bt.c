@@ -54,7 +54,7 @@ static const char *get_exe()
     ssize_t ret = readlink("/proc/self/exe", buf, strlen_const(buf));
     if (ret > 0)
         return buf;
-    ret = readlink("/proc/curproc/file", buf, strlen_const(buf));
+    readlink( "/proc/curproc/file", buf, strlen_const(buf));
     return buf;
 }
 
@@ -186,7 +186,7 @@ static void cached_proc_name_store(struct bt_cache *cache, unw_word_t ip, const 
     }
     if (cache->count > cache->size / 4 || !stored) {
         bt_cache_rebalance(cache);
-        fprintf(stderr, "tint2: proc_name cache: ratio %f, count %lu, size %lu, (%lu bytes)\n",
+        fprintf(stderr, "tint2: proc_name cache: ratio %f, count %zu, size %zu, (%zu bytes)\n",
                 cache->count / (double)cache->size,
                 cache->count, (size_t)cache->size, cache->size * sizeof(*cache->buckets));
     }

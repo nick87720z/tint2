@@ -514,12 +514,12 @@ gboolean resize_execp(void *obj)
                 frontend->texty = (execp->area.height - txt_height) / 2;
                 frontend->textx = tx + pad;
             } else {
-                int dy, pad, iy, ty;
+                int dy;
                 dy = icon_h + interior_padding;
                 if (execp->backend->text[0]) {
-                    iy = dy < 0 ? -dy : 0;
-                    ty = iy + dy;
-                    pad = (execp->area.height - MAX(iy + icon_h, ty + txt_height)) / 2;
+                    int iy = dy < 0 ? -dy : 0;
+                    int ty = iy + dy;
+                    int pad = (execp->area.height - MAX(iy + icon_h, ty + txt_height)) / 2;
                     frontend->icony = iy + pad;
                     frontend->iconx = (execp->area.width - icon_w) / 2;
                     frontend->texty = ty + pad;
@@ -544,12 +544,12 @@ gboolean resize_execp(void *obj)
                 frontend->texty = (execp->area.height - txt_height) / 2;
                 frontend->textx = frontend->iconx + dx;
             } else {
-                int dy, pad, iy, ty;
+                int dy;
                 dy = icon_h + interior_padding;
                 if (execp->backend->text[0]) {
-                    iy = dy < 0 ? -dy : 0;
-                    ty = iy + dy;
-                    pad = (execp->area.height - MAX(iy + icon_h, ty + txt_height)) / 2;
+                    int iy = dy < 0 ? -dy : 0;
+                    int ty = iy + dy;
+                    int pad = (execp->area.height - MAX(iy + icon_h, ty + txt_height)) / 2;
                     frontend->icony = iy + pad;
                     frontend->iconx = left_border_width(&execp->area) + horiz_padding;
                     frontend->texty = ty + pad;
@@ -864,14 +864,13 @@ char *strrstr(char *s, char *sub)
     char *result = NULL,
          *p;
 
-    char tmp;
     char *ep = strchr(s, '\0');
     char *d = ep;
 
     int sub_len = strlen( sub);
 
     while (! result) {
-        tmp = *d;
+        int tmp = *d;
         *d = '\0';
 
         p = strrchr( s, sub[0]);
@@ -1136,11 +1135,11 @@ char *execp_get_tooltip(void *obj)
     time_t now = time(NULL);
 
     char tmp_buf1[256];
-    char tmp_buf2[256];
     char tmp_buf3[256];
     if (backend->child_pipe_stdout < 0) {
         // Not executing command
         if (backend->last_update_finish_time) {
+            char tmp_buf2[256];
             // We updated at least once
             if (backend->interval > 0)
                 snprintf(backend->tooltip_text,

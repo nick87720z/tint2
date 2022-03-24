@@ -150,7 +150,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
         fputc('\n', stderr);
     // we currently do not know about any Name key at all, so use an invalid index
     int lang_index_name = lang_index_default + 1;
-    int lang_index_generic_name = lang_index_default + 1;
+    int lang_index_generic_name = lang_index_name;
 
     gboolean inside_desktop_entry = FALSE;
     char *line = NULL;
@@ -173,7 +173,7 @@ gboolean read_desktop_file_full_path(const char *path, DesktopEntry *entry)
                 if (key++[0] != '[' || value[-2] != ']')                                 \
                     continue;                                                            \
                 value[-2] = '\0';                                                        \
-                for (int i = 0; languages[i] && i < lang_index_name; i++)                \
+                for (int i = 0; i < lang_index_name && languages[i]; i++)                \
                 {                                                                        \
                     if (strcmp (key, languages[i]) == 0) {                               \
                         if (prop)                                                        \
@@ -268,8 +268,15 @@ gboolean read_desktop_file(const char *path, DesktopEntry *entry)
         size_t dir_len = strlen (location_path);
         size_t full_path_len = dir_len + id_len + 2;
 
-        if (full_path_len > full_path_avail)
-            full_path = realloc (full_path, (full_path_avail = full_path_len));
+        if (full_path_len > full_path_avail) {
+            gchar *tmp = realloc( full_path, (full_path_avail = full_path_len));
+            if (tmp)
+                full_path = tmp;
+            else {
+                fprintf( stderr, "tint2: %s: %i: realloc failed\n", __func__, __LINE__);
+                goto end0;
+            }
+        }
 
         sprintf (full_path, "%s/%s", location_path, path);
         gchar *name_p = full_path + strlen (location_path) + 1;

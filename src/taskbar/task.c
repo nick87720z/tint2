@@ -859,6 +859,7 @@ void task_handle_mouse_event(Task *task, MouseAction action)
                             activate_window(task1->win);
                             break;
         }
+        default: break;
     }
 }
 
@@ -866,7 +867,7 @@ void task_update_desktop(Task *task)
 {
     Window win = task->win;
     remove_task(task);
-    task = add_task(win);
+    add_task(win);
     reset_active_task();
     schedule_panel_redraw();
 }

@@ -751,7 +751,8 @@ void mouse_over(Area *area, gboolean pressed)
         return;
     }
 
-    new_state = area->has_mouse_press_effect ? (pressed ? MOUSE_DOWN : MOUSE_OVER) : MOUSE_NORMAL;
+    new_state = (pressed && area->has_mouse_press_effect) ? MOUSE_DOWN
+                : area->has_mouse_over_effect ? MOUSE_OVER : MOUSE_NORMAL;
 
     if (mouse_over_area == area && mouse_over_area->mouse_state == new_state)
         return;

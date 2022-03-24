@@ -253,7 +253,7 @@ void handle_mouse_release_event(XEvent *e)
             } else
                 task_handle_mouse_event(task, action);
         }
-        if (diff_desktop)
+        else if (diff_desktop)
             change_desktop( taskbar->desktop);
     } else
         task_handle_mouse_event(click_task(panel, e->xbutton.x, e->xbutton.y), action);

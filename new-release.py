@@ -204,4 +204,5 @@ if __name__ == '__main__':
   if choice != "y":
     sys.exit(1)
 
-  run("git push origin master && git push --tags origin master")
+  for origin in "origin-github", "origin-gitlab", "origin-opencode":
+    run("git push " + origin + " master && git push --tags " + origin + " master")

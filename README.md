@@ -95,12 +95,21 @@ tint2 is a simple panel/taskbar made for modern X window managers. It was specif
   * Contribute to the development by helping us fix bugs and suggesting new features. Please read the contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 # Links
-  * Home page: https://gitlab.com/nick87720z/tint2
   * Download latest release: https://gitlab.com/nick87720z/tint2/-/archive/17.1.3/tint2-17.1.3.tar.bz2
+  * Current home: https://www.opendesktop.org/p/1717911
   * Git repository: https://gitlab.com/nick87720z/tint2.git
   * Documentation: https://gitlab.com/o9000/tint2/wikis/home
   * Downloads: https://gitlab.com/o9000/tint2-archive/tree/master or https://code.google.com/p/tint2/downloads/list
   * Old project locations (inactive): https://gitlab.com/o9000/tint2 https://code.google.com/p/tint2
+
+## Mirror code hostings
+
+  * OpenDesktop: https://opencode.net/nick87720z/tint2
+  * GitLab: https://gitlab.com/nick87720z/tint2
+  * repo.or.cz: https://repo.or.cz/tint2-nick87720z.git
+  * GitHub: https://github.com/nick87720z/tint2
+
+**WARNING**: Any of these hostings may become at least unsupportable if not unavailable due to current fashion to block russian people at unknown regularity (not a typo - sometimes its just fashion, not more).
 
 # Screenshots
 

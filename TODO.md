@@ -17,6 +17,7 @@ Sections
 - Glib..Gtk stuff cleanup;
 - Check fluxbox issues;
 - External modules support;
+- Generic area margin support (like padding, but outside of border)
 
 ## Executors
 

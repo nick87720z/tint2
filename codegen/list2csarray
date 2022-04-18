@@ -1,8 +1,11 @@
 #!/bin/sh
 
 sed -E '
-    s|[^[:alnum:]_]|_|g     # Replace unacceptable characters with underscores
-    s|.*|  \[key_& \]="&",| # Assign strings to mnemonic indices (generated with list2cstrenum)
+    h                    # Preserve input string
+    s|[^[:alnum:]_]|_|g  # Replace unacceptable characters with underscores
+    s|.*|  \[key_& \]="| # Assign strings to mnemonic indices (generated with list2cstrenum)
+    G                    # Append input string as value
+    s|.*|&",|
+    s|\n||               # Remove space after sed spaces concatenation
 ' |
-column -s' ' --table
-
+column -s']' -o']' -t -l2

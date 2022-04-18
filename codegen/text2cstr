@@ -4,12 +4,17 @@
 # Process text input, wrapping into C strings to be substituted into code.
 
 {
-    s|\\|\\\\|g  # Escape backslashes and quotes
+    # Escape backslashes and quotes
+    s|\\|\\\\|g
     s|"|\\"|g
 
-    s|??|?\\?|g  # Disrupt trigraphs by escaping second question mark in any question marks pair
-    s|??|?\\?|g  # ... two times to not miss connections between previous pairs
+    # Disrupt trigraphs by escaping second question mark in any question marks pair
+    s|??|?\\?|g
 
-    s|.*|"&\\n"| # Append newline and surround with double quotes
+    # ... two times to not miss connections between previous pairs
+    s|??|?\\?|g
+
+    # Append newline and surround with double quotes
+    s|.*|"&\\n"|
 }
 
